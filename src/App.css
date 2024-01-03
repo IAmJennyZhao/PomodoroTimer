@@ -10,6 +10,41 @@
   justify-content: space-between;
 }
 
+.TimerViewBox {
+  display: flex;
+  justify-content: center;
+  padding:10px;
+}
+
+.TimerView {
+  font-size:200px;
+  border-width:5px;
+  border-style:solid;
+  border-radius:30px;
+  border-color: #282c34;
+  background-color: #d0e5e5;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+.PomodoroTimer {
+  background-color: #4c7c6e;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 100vh;
+}
+
+.TimerSettings {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.TimerSetting{
+  padding-inline: 20px;
+}
+
 .Header-title {
   margin:10px;
   align-self:center;
