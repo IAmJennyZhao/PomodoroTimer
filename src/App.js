@@ -1,5 +1,5 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 export default function App() {
   return (
@@ -11,50 +11,61 @@ export default function App() {
 }
 
 function PomodoroTimer() {
-  const [timerStart, setTimerStart] = useState(Date.now());
-  const [timerLength, setTimerLength] = useState(25 * 60 * 1000); // 25 minutes
-  const [timerStarted, setTimerStarted] = useState(false);
-  const [timeLeft, setTimeLeft] = useState([0, 0]);
+  const [timerState, setTimerState] = useState(0); // 0: reset, 1: started, 2: paused
+  const [timerStart, setTimerStart] = useState(Date.now()); // original start time of timer
+  const [timerLength, setTimerLength] = useState(25 * 60 * 1000); // default 25 minutes
+  const [now, setNow] = useState(Date.now()); // needs now to update correctly
+  const intervalRef = useRef(null);
 
-  let seconds;
-  let minutes;
-  if (timerStarted)
-  {
-    const total = Date.now() - timerStart;
-    // const remaining = Math.max(0, (timerLength - total));
-    const remaining = (timerLength - total);
-    console.log(remaining);
-    seconds = Math.floor((remaining / 1000) % 60);
-    minutes = Math.floor(total / 1000 / 60);
-    setTimeLeft([minutes, seconds]);
+  // calculates the time left on the display
+  let timeLeft;
+  if (timerState==1) {
+    // if timer has started, this time left counts down from the starting time
+    const total = now - timerStart;
+    timeLeft = Math.max(0, (timerLength - total));
   } else {
-    seconds = Math.floor((timerLength / 1000)%60);
-    minutes = Math.floor(timerLength / 1000 / 60);
+    // if the timer is paused or stopped, the timer displays the length of the timer 
+    timeLeft = timerLength;
   }
+
+  // convert time left into minutes and seconds
+  const seconds = Math.floor((timeLeft / 1000) % 60);
+  const minutes = Math.floor(timeLeft / 1000 / 60);
   let secondString = seconds.toString().padStart(2, '0');
 
+  // function that runs when start is pressed
   function handleStart()
   {
-    setTimerStarted(true);
     // TODO: change timer start depending on the time left
     setTimerStart(Date.now());
-    setTimerLength((minutes*60+seconds)*1000);
+    setTimerState(1);
+
+    clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setNow(Date.now());
+    }, 10);
   }
 
+  // function that runs when pause is pressed
   function handlePause()
   {
-    setTimerStarted(false);
+    setTimerState(2);
+    setTimerLength(1000*Math.floor(timeLeft /  1000));
+    clearInterval(intervalRef.current);
   }
 
-  function handleEnd()
+  // function that runs when reset is pressed
+  function handleReset()
   {
-    setTimerStarted(false);
+    setTimerState(0);
+    setTimerLength((25*60+0)*1000);
+    clearInterval(intervalRef.current);
   }
 
   return (
     <div className='PomodoroTimer'>
       <TimerView time={minutes + ":" + secondString}/>
-      <TimerFunctions started={timerStarted} handleStart={handleStart} handlePause={handlePause} handleEnd={handleEnd}/>
+      <TimerFunctions started={timerState==1} handleStart={handleStart} handlePause={handlePause} handleReset={handleReset}/>
       <TimerSettings />
     </div>
   )
@@ -68,11 +79,11 @@ function TimerView({time}) {
   )
 }
 
-function TimerFunctions({started, handleStart, handlePause, handleEnd}) {
+function TimerFunctions({started, handleStart, handlePause, handleReset}) {
   return (
     <div>
       <button onClick={started ? handlePause : handleStart}>{started ? "Pause": "Start"}</button>
-      <button onClick={handleEnd}>End</button>
+      <button onClick={handleReset}>Reset</button>
     </div>
   )
 }
