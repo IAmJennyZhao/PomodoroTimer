@@ -14,6 +14,18 @@
   display: flex;
   justify-content: center;
   padding:10px;
+  background-color: #4c7c6e;
+}
+
+.TimerFunctions {
+  background-color: #4c7c6e;
+  display: flex;
+  justify-content: center;
+  border-bottom:#282c34 solid 3px;
+}
+
+.TimerFunctionButton {
+  margin: 10px;
 }
 
 .TimerView {
@@ -23,16 +35,15 @@
   border-radius:30px;
   border-color: #282c34;
   background-color: #d0e5e5;
-  padding-left: 30px;
-  padding-right: 30px;
+  padding-inline: 30px;
 }
 
 .PomodoroTimer {
-  background-color: #4c7c6e;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   min-height: 100vh;
+  background-color: #d0e5e5;
 }
 
 .TimerSettings {
@@ -43,6 +54,29 @@
 
 .TimerSetting{
   padding-inline: 20px;
+  padding-block: 10px;
+}
+
+.TimerType{
+}
+
+.LengthSetting {
+  margin: auto;
+}
+
+.SettingButtonView {
+  display: flex;
+  flex-direction: row;
+  justify-content: center
+}
+
+.SettingButton {
+  margin-inline: 2px;
+}
+
+button {
+  background-color: #282c34;
+  color: #d0e5e5;
 }
 
 .Header-title {
