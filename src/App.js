@@ -29,30 +29,30 @@ function PomodoroTimer() {
 
   // sound effects  
   const [playClick] = useSound(
-    timerStartButtonSFX, 
+    timerStartButtonSFX,
     {
       volume: 0.2
     }
   );
-  
+
   const [playTapUp] = useSound(
-    timerSettingClickSFX, 
+    timerSettingClickSFX,
     {
-      volume: 0.1, 
+      volume: 0.1,
       playbackRate: 1.2
     }
   );
-  
+
   const [playTapDown] = useSound(
-    timerSettingClickSFX, 
+    timerSettingClickSFX,
     {
       volume: 0.1,
       playbackRate: 0.8
     }
   );
-  
+
   const [playAlarm] = useSound(
-    alarmSFX, 
+    alarmSFX,
     {
       volume: 0.3
     }
@@ -60,13 +60,13 @@ function PomodoroTimer() {
 
   // calculates the time left on the display
   let timeLeft;
-  if (timerState == 1) {
+  if (timerState === 1) {
     // if timer has started, this time left counts down from the starting time
     const total = now - timerStart;
     timeLeft = Math.max(0, (timerLength - total));
 
     // the timer has run out of time
-    if (timeLeft==0) {
+    if (timeLeft === 0) {
       setSessionNext(!sessionNext);
 
       playAlarm();
@@ -114,23 +114,23 @@ function PomodoroTimer() {
   function setSessionChange(sessionLen) {
     sessionLen = Math.max(1, sessionLen);
     setSessionLength(sessionLen);
-    if (timerState == 0) {
+    if (timerState === 0) {
       setTimerLength(sessionLen * 1000 * 60);
-    } 
+    }
   }
 
   function setBreakChange(sessionLen) {
     sessionLen = Math.max(1, sessionLen);
     setBreakLength(sessionLen);
-    if (timerState == 0) {
+    if (timerState === 0) {
       setTimerLength(sessionLen * 1000 * 60);
     }
   }
 
   return (
     <div className='PomodoroTimer'>
-      <TimerView time={minutes + ":" + secondString} isSession={sessionNext}/>
-      <TimerFunctions started={timerState == 1} handleStart={handleStart} handlePause={handlePause} handleReset={handleReset} playClick={playClick}/>
+      <TimerView time={minutes + ":" + secondString} isSession={sessionNext} />
+      <TimerFunctions started={timerState === 1} handleStart={handleStart} handlePause={handlePause} handleReset={handleReset} playClick={playClick} />
       <TimerSettings sessionLength={sessionLength} breakLength={breakLength} setSessionChange={setSessionChange} setBreakChange={setBreakChange} playTapUp={playTapUp} playTapDown={playTapDown} />
     </div>
   )
@@ -156,7 +156,7 @@ function TimerFunctions({ started, handleStart, handlePause, handleReset, playCl
   )
 }
 
-function TimerSettings({ sessionLength, breakLength, setSessionChange, setBreakChange, playTapUp, playTapDown}) {
+function TimerSettings({ sessionLength, breakLength, setSessionChange, setBreakChange, playTapUp, playTapDown }) {
   return (
     <div className="TimerSettings">
       <TimerSetting name="Session Length" time={sessionLength} setChange={setSessionChange} playTapUp={playTapUp} playTapDown={playTapDown} />
@@ -165,7 +165,7 @@ function TimerSettings({ sessionLength, breakLength, setSessionChange, setBreakC
   )
 }
 
-function TimerSetting({ name, time, setChange, playTapUp, playTapDown}) {
+function TimerSetting({ name, time, setChange, playTapUp, playTapDown }) {
   return (
     <div className="TimerSetting" >
       <h2 >{name}</h2>
