@@ -31,7 +31,7 @@ function PomodoroTimer() {
   const [playClick] = useSound(
     timerStartButtonSFX, 
     {
-      volume: 0.1
+      volume: 0.2
     }
   );
   
@@ -54,7 +54,7 @@ function PomodoroTimer() {
   const [playAlarm] = useSound(
     alarmSFX, 
     {
-      volume: 0.25
+      volume: 0.3
     }
   );
 
@@ -72,8 +72,7 @@ function PomodoroTimer() {
       playAlarm();
 
       setTimerState(0);
-      // change sec to min TODO
-      setTimerLength((!sessionNext ? sessionLength : breakLength) * 1000 + 1000);
+      setTimerLength((!sessionNext ? sessionLength : breakLength) * 1000 * 60 + 1000);
       handleStart();
     }
   } else {
@@ -108,8 +107,7 @@ function PomodoroTimer() {
   // function that runs when reset is pressed
   function handleReset() {
     setTimerState(0);
-    // change sec to min TODO
-    setTimerLength((sessionNext ? sessionLength : breakLength) * 1000);
+    setTimerLength((sessionNext ? sessionLength : breakLength) * 1000 * 60);
     clearInterval(intervalRef.current);
   }
 
@@ -117,7 +115,7 @@ function PomodoroTimer() {
     sessionLen = Math.max(1, sessionLen);
     setSessionLength(sessionLen);
     if (timerState == 0) {
-      setTimerLength(sessionLen * 1000);
+      setTimerLength(sessionLen * 1000 * 60);
     } 
   }
 
@@ -125,8 +123,7 @@ function PomodoroTimer() {
     sessionLen = Math.max(1, sessionLen);
     setBreakLength(sessionLen);
     if (timerState == 0) {
-      // change sec to min TODO
-      setTimerLength(sessionLen * 1000);
+      setTimerLength(sessionLen * 1000 * 60);
     }
   }
 
@@ -182,19 +179,9 @@ function TimerSetting({ name, time, setChange, playTapUp, playTapDown}) {
 }
 
 function Header() {
-  
-  // sound effects
-  const [playClick] = useSound(
-    timerStartButtonSFX, 
-    {
-      volume: 0.25
-    }
-  );
-
   return (
     <header className="Header">
       <h1 className="Header-title">Pomodoro Clock</h1>
-      <button className="Header-themes" onMouseDown={playClick}>Change Theme{/*TODO*/}</button>
     </header>
   )
 }
