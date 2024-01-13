@@ -29,13 +29,25 @@
 }
 
 .TimerView {
-  font-size:120px;
   border-width:5px;
   border-style:solid;
   border-radius:30px;
   border-color: #282c34;
   background-color: #d0e5e5;
   padding-inline: 30px;
+  margin: auto;
+}
+
+.TimerTypeText {
+  margin: 0;
+  margin-top: 10px;
+}
+
+.TimerText {
+  font-size:120px;
+  margin: 0;
+  line-height:90px;
+  margin-bottom: 25px;
 }
 
 .PomodoroTimer {
@@ -55,9 +67,6 @@
 .TimerSetting{
   padding-inline: 20px;
   padding-block: 10px;
-}
-
-.TimerType{
 }
 
 .LengthSetting {
@@ -93,4 +102,8 @@ button {
 
 .App-link {
   color: #61dafb;
+}
+
+h2 {
+  margin: 5px;
 }
