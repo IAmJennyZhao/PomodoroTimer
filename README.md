@@ -46,12 +46,19 @@ For testing or a separate profile, set `POMODORO_DATA_DIR` to another directory 
 
 ## Focus and collection
 
-- Quick, classic, deep-work and custom timers under **Session lengths** on the timer, automatic long breaks, session tasks, a progress ring and completed-session markers.
+- Choose **Pomodoro** or **Count up** before starting. **Session settings** opens beside the timer with presets, custom lengths and break preferences.
+- Pomodoro completion can **Repeat alarm** every eight seconds until you mute it or move on, or **Ding + count up** into overtime. Short and long break choices appear after the focus target is reached; breaks start only when you choose one. Long breaks are recommended at your configured interval.
+- **Count up** starts at zero. Pause/resume excludes paused time; the checkmark finishes and saves the session. Overtime adds to the same focus session. Both count-up and overtime are capped at 24 hours.
+- Starting or resuming work enters a quiet focus view that hides navigation and goals. The scratchpad icon stays available, saves notes without pausing, and the adjacent icon brings navigation back.
 - One **Shilligem per completed focus minute**. Basic eggs cost 25; mystery rolls cost 60. Click the shop's info icon for rarity odds and the rare-or-better guarantee.
 - Illustrated cats, dogs, squirrels, rabbits, foxes and deer. Duplicates are additional residents. Choose a companion, arrange the room and unlock accessories, furniture and backgrounds.
 - Ambient sound mixing, an adjustable daily session goal, break activity suggestions and a distraction scratchpad.
 - Journal analytics for today, 7 days and 30 days: focus time, sessions, average length, active days, activity charts and complete session history.
-- Navigation beside the wallet opens spacious central workspaces; settings and sound use smaller panels. Optional descriptions appear through info buttons.
+- Navigation beside the wallet opens spacious central workspaces without dimming the room. Settings, sound and scratchpad open on the right without moving the timer; on narrow screens they overlay it. Optional descriptions appear through info buttons.
+
+Count-up sessions earn rewards and daily-goal credit when finished, using whole active minutes; sessions under one minute earn neither. Reset abandons unfinished count-up time. Pomodoros earn their base reward at the target, and finishing overtime credits any additional whole minutes once.
+
+Keep the app tab open for audible reminders. Enable **Timer sound** in Settings; if the browser blocks playback, **Enable alarm sound** is available on a completed Pomodoro. **Auto-start focus** optionally begins work after a chosen break, but reloading an expired break leaves the next session idle.
 
 ## Checks
 
