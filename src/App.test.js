@@ -23,7 +23,7 @@ async function openRoom(saved = createInitialState(NOW)) {
   diskState = saved;
   const view = render(<App />);
   await settle();
-  expect(screen.getByRole('button', { name: 'Start focusing' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'Start' })).toBeEnabled();
   return view;
 }
 
@@ -72,7 +72,7 @@ test('a completed focus session updates the wallet, daily goal, journal, break i
   initial.settings.dailyGoal = 1;
   await openRoom(initial);
   fireEvent.change(screen.getByRole('textbox', { name: 'Session task' }), { target: { value: 'Finish my sketch' } });
-  fireEvent.click(screen.getByRole('button', { name: 'Start focusing' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
   expect(screen.getByRole('button', { name: 'Pause' })).toBeEnabled();
   await advance(350);
 
@@ -81,17 +81,17 @@ test('a completed focus session updates the wallet, daily goal, journal, break i
   expect(screen.getByRole('button', { name: 'Daily progress: 1 of 1 sessions' })).toBeInTheDocument();
   expect(screen.getByRole('timer')).toHaveTextContent('05:00');
   expect(screen.getByRole('button', { name: 'Short break', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  expect(screen.getByRole('button', { name: 'Take a breath' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'Start' })).toBeEnabled();
   expect(screen.getByRole('status')).toHaveTextContent('Daily goal complete!');
-  expect(screen.getByText('A little stretch')).toBeInTheDocument();
+  expect(screen.getByText('Stretch')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Another break idea' }));
-  expect(screen.getByText('Look a little farther')).toBeInTheDocument();
+  expect(screen.getByText('Rest your eyes')).toBeInTheDocument();
   expect(engine.chime).toHaveBeenCalledTimes(1);
 
   fireEvent.click(screen.getByRole('button', { name: 'Journal', exact: true }));
-  const journal = screen.getByRole('dialog', { name: 'Your focus journal' });
+  const journal = screen.getByRole('dialog', { name: 'Journal' });
   expect(within(journal).getByText('Finish my sketch')).toBeInTheDocument();
-  expect(within(journal).getByRole('heading', { name: 'Your daily goal, beautifully done.' })).toBeInTheDocument();
+  expect(within(journal).getByLabelText('Focus summary')).toHaveTextContent('25');
   expect(within(journal).getByRole('progressbar', { name: 'Daily focus goal' })).toHaveAttribute('value', '1');
   await advance(350);
   expect(latestWrite()).toMatchObject({ state: {
@@ -106,18 +106,18 @@ test('a completed focus session updates the wallet, daily goal, journal, break i
 
 test('focus earnings can buy and hatch an egg into another visible room resident', async () => {
   await openRoom();
-  fireEvent.click(screen.getByRole('button', { name: 'Start focusing' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
   await wakeAt(NOW + 25 * MINUTE);
   fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));
-  const shop = screen.getByRole('dialog', { name: 'The egg shop' });
+  const shop = screen.getByRole('dialog', { name: 'Egg shop' });
   expect(within(shop).getByRole('button', { name: /Roll mystery egg/ })).toBeDisabled();
   fireEvent.click(within(shop).getByRole('button', { name: /Buy basic egg/ }));
   expect(screen.getByRole('button', { name: '0 Shilligems, open egg shop' })).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Hatch everyday egg 1' }));
 
-  const hatch = screen.getByRole('dialog', { name: 'Look who found you.' });
+  const hatch = screen.getByRole('dialog', { name: 'Cat joined!' });
   expect(hatch).toHaveAttribute('aria-modal', 'true');
-  const welcome = within(hatch).getByRole('button', { name: 'Welcome home' });
+  const welcome = within(hatch).getByRole('button', { name: 'Done' });
   expect(welcome).toHaveFocus();
   fireEvent.keyDown(welcome, { key: 'Tab', shiftKey: true });
   expect(welcome).toHaveFocus();
@@ -125,11 +125,11 @@ test('focus earnings can buy and hatch an egg into another visible room resident
   expect(screen.getByRole('button', { name: 'Cat, Everyday cat' })).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Hatch everyday egg 1' })).not.toBeInTheDocument();
   fireEvent.keyDown(window, { key: 'Escape' });
-  expect(screen.queryByRole('dialog', { name: 'Look who found you.' })).not.toBeInTheDocument();
-  expect(screen.getByRole('dialog', { name: 'The egg shop' })).toBeInTheDocument();
+  expect(screen.queryByRole('dialog', { name: 'Cat joined!' })).not.toBeInTheDocument();
+  expect(screen.getByRole('dialog', { name: 'Egg shop' })).toBeInTheDocument();
 
   fireEvent.click(screen.getByRole('button', { name: 'Animals', exact: true }));
-  expect(screen.getByRole('button', { name: 'Select Cat, everyday Cat, friend 2' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Select Cat, everyday Cat, animal 2' })).toBeInTheDocument();
   await advance(350);
   expect(latestWrite().state).toMatchObject({ gems: 0, eggs: [], history: [{ minutes: 25 }] });
   expect(latestWrite().state.animals).toHaveLength(2);
@@ -141,8 +141,8 @@ test('failed local loads show a retry action and never replace a private save wi
   global.fetch.mockRejectedValueOnce(new Error('Service unavailable'));
   render(<App />);
   await settle();
-  expect(screen.getByRole('heading', { name: 'Your room is waiting.' })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Start focusing' })).toBeDisabled();
+  expect(screen.getByRole('heading', { name: 'Couldn’t load your room' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Start' })).toBeDisabled();
   await advance(60 * MINUTE);
   expect(writes()).toHaveLength(0);
 
@@ -150,7 +150,7 @@ test('failed local loads show a retry action and never replace a private save wi
   fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
   await settle();
   expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Start focusing' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'Start' })).toBeEnabled();
   expect(screen.getByRole('button', { name: '73 Shilligems, open egg shop' })).toBeInTheDocument();
   await advance(1000);
   expect(writes()).toHaveLength(0);
@@ -158,21 +158,21 @@ test('failed local loads show a retry action and never replace a private save wi
 
 test('pause survives a tab wake, resume keeps the remaining duration, and reset abandons without reward', async () => {
   await openRoom();
-  fireEvent.click(screen.getByRole('button', { name: 'Start focusing' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
   await wakeAt(NOW + 2 * MINUTE);
   expect(screen.getByRole('timer')).toHaveTextContent('23:00');
   fireEvent.click(screen.getByRole('button', { name: 'Pause' }));
   await wakeAt(NOW + 120 * MINUTE);
   expect(screen.getByRole('timer')).toHaveTextContent('23:00');
-  expect(screen.getByRole('button', { name: 'Keep going' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'Resume' })).toBeEnabled();
   expect(screen.getByRole('button', { name: '0 Shilligems, open egg shop' })).toBeInTheDocument();
 
-  fireEvent.click(screen.getByRole('button', { name: 'Keep going' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Resume' }));
   await wakeAt(NOW + 121 * MINUTE);
   expect(screen.getByRole('timer')).toHaveTextContent('22:00');
   fireEvent.click(screen.getByRole('button', { name: 'Reset timer' }));
   expect(screen.getByRole('timer')).toHaveTextContent('25:00');
-  expect(screen.getByRole('button', { name: 'Start focusing' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'Start' })).toBeEnabled();
   await wakeAt(NOW + 500 * MINUTE);
   expect(screen.getByRole('timer')).toHaveTextContent('25:00');
   expect(screen.getByRole('button', { name: 'Daily progress: 0 of 4 sessions' })).toBeInTheDocument();
@@ -180,13 +180,15 @@ test('pause survives a tab wake, resume keeps the remaining duration, and reset 
   expect(latestWrite().state).toMatchObject({ gems: 0, history: [], timer: { status: 'idle', remainingMs: 25 * MINUTE } });
 });
 
-test('navigation opens named drawers, restores the opener after Escape, and tears down timers and audio', async () => {
+test('header navigation opens named panels, restores the opener after Escape, and tears down timers and audio', async () => {
   const { unmount } = await openRoom();
   const navigation = screen.getByRole('navigation', { name: 'Main navigation' });
+  expect(screen.getByRole('banner')).toContainElement(navigation);
+  expect(screen.queryByRole('button', { name: 'Little Room home' })).not.toBeInTheDocument();
   expect(within(navigation).getByRole('button', { name: 'Focus' })).toHaveAttribute('aria-current', 'page');
   for (const [label, title] of [
-    ['Animals', 'Your little companions'], ['Egg shop', 'The egg shop'],
-    ['Decorate', 'Make yourself at home'], ['Journal', 'Your focus journal'],
+    ['Animals', 'Animals'], ['Egg shop', 'Egg shop'],
+    ['Decorate', 'Decorate'], ['Journal', 'Journal'],
   ]) {
     const opener = within(navigation).getByRole('button', { name: label, exact: true });
     opener.focus();
@@ -199,16 +201,17 @@ test('navigation opens named drawers, restores the opener after Escape, and tear
     expect(opener).toHaveFocus();
   }
   fireEvent.click(screen.getByRole('button', { name: 'Settings', exact: true }));
-  expect(screen.getByRole('dialog', { name: 'Settle in your way' })).toBeInTheDocument();
+  expect(screen.getByRole('dialog', { name: 'Settings' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Local save details' }));
   expect(screen.getByText('C:\\private\\PomodoroTimer\\saves')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Close panel' }));
   expect(engine.start).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button', { name: 'Soundscape mixer' }));
-  expect(screen.getByRole('dialog', { name: 'A softer soundtrack' })).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'Play soundscape' }));
+  expect(screen.getByRole('dialog', { name: 'Sound' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Play sounds' }));
   await settle();
   expect(engine.start).toHaveBeenCalledTimes(1);
-  expect(screen.getByRole('button', { name: 'Pause soundscape' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: 'Pause sounds' })).toHaveAttribute('aria-pressed', 'true');
   expect(engine.destroy).not.toHaveBeenCalled();
   unmount();
   expect(engine.destroy).toHaveBeenCalledTimes(1);
@@ -222,7 +225,7 @@ test('a conflicting save blocks timer changes until the saved room is explicitly
   fireEvent.change(screen.getByRole('textbox', { name: 'Session task' }), { target: { value: 'Local unsaved task' } });
   await advance(350);
   expect(screen.getByRole('alert')).toHaveTextContent('This save changed in another window');
-  expect(screen.getByRole('button', { name: 'Start focusing' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Start' })).toBeDisabled();
   fireEvent.click(screen.getByRole('button', { name: 'Short break', exact: true }));
   expect(screen.getByRole('timer')).toHaveTextContent('25:00');
   expect(writes()).toHaveLength(1);
@@ -233,6 +236,66 @@ test('a conflicting save blocks timer changes until the saved room is explicitly
   await settle();
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   expect(screen.getByRole('textbox', { name: 'Session task' })).toHaveValue('');
-  expect(screen.getByRole('button', { name: 'Start focusing' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'Start' })).toBeEnabled();
   expect(screen.getByRole('button', { name: '10 Shilligems, open egg shop' })).toBeInTheDocument();
+});
+
+test('session lengths are editable on the timer and a running session keeps its original duration', async () => {
+  await openRoom();
+  const timer = screen.getByRole('region', { name: 'Pomodoro timer' });
+  const lengths = within(timer).getByRole('button', { name: 'Session lengths' });
+  expect(lengths).toHaveAttribute('aria-expanded', 'false');
+  expect(screen.queryByRole('spinbutton', { name: /Focus time/ })).not.toBeInTheDocument();
+  fireEvent.click(lengths);
+  expect(lengths).toHaveAttribute('aria-expanded', 'true');
+  const focusTime = within(timer).getByRole('spinbutton', { name: /Focus time/ });
+  fireEvent.change(focusTime, { target: { value: '30' } });
+  fireEvent.blur(focusTime);
+  expect(screen.getByRole('timer')).toHaveTextContent('30:00');
+  fireEvent.click(lengths);
+
+  fireEvent.click(screen.getByRole('button', { name: 'Start', exact: true }));
+  await wakeAt(NOW + MINUTE);
+  expect(screen.getByRole('timer')).toHaveTextContent('29:00');
+  fireEvent.click(lengths);
+  const nextFocusTime = within(timer).getByRole('spinbutton', { name: /Focus time/ });
+  nextFocusTime.focus();
+  fireEvent.change(nextFocusTime, { target: { value: '10' } });
+  fireEvent.keyDown(nextFocusTime, { key: 'Enter' });
+  expect(screen.getByRole('timer')).toHaveTextContent('29:00');
+  await advance(350);
+  expect(latestWrite().state).toMatchObject({
+    settings: { focusMinutes: 10 },
+    timer: { status: 'running', durationMs: 30 * MINUTE },
+  });
+  fireEvent.click(screen.getByRole('button', { name: 'Reset timer' }));
+  expect(screen.getByRole('timer')).toHaveTextContent('10:00');
+
+  fireEvent.click(screen.getByRole('button', { name: 'Settings', exact: true }));
+  const settings = screen.getByRole('dialog', { name: 'Settings' });
+  expect(within(settings).queryByRole('spinbutton')).not.toBeInTheDocument();
+  expect(within(settings).getByRole('checkbox', { name: 'Reduce animation' })).toBeInTheDocument();
+});
+
+test('egg odds are available on request and Escape closes help before the shop', async () => {
+  await openRoom();
+  fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));
+  const shop = screen.getByRole('dialog', { name: 'Egg shop' });
+  const odds = within(shop).getByRole('button', { name: 'Egg odds' });
+  expect(odds).toHaveAttribute('aria-expanded', 'false');
+  odds.focus();
+  fireEvent.click(odds);
+  expect(odds).toHaveAttribute('aria-expanded', 'true');
+  const details = screen.getByRole('note');
+  expect(details).toBeVisible();
+  expect(odds).toHaveAttribute('aria-controls', details.id);
+  expect(details).toHaveTextContent('60%');
+  expect(details).toHaveTextContent('30%');
+  expect(details).toHaveTextContent('10%');
+  fireEvent.keyDown(odds, { key: 'Escape' });
+  expect(odds).toHaveAttribute('aria-expanded', 'false');
+  expect(shop).toBeInTheDocument();
+  expect(odds).toHaveFocus();
+  fireEvent.keyDown(odds, { key: 'Escape' });
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 });

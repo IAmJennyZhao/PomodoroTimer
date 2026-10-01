@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createInitialState, gameReducer } from './game';
-import { AnimalsPanel, DecoratePanel, JournalPanel, SettingsPanel, ShopPanel, SoundPanel } from './panels';
+import { AnimalsPanel, DecoratePanel, SessionControls, SettingsPanel, ShopPanel, SoundPanel } from './panels';
 
 const NOW = new Date('2026-10-01T15:00:00Z').getTime();
 
@@ -39,9 +39,11 @@ test('earned Shilligems buy both kinds of egg and hatching adds a real resident'
 
 test('mystery guarantee and its different odds are disclosed before buying', () => {
   renderPanel(ShopPanel, { ...createInitialState(NOW), pity: 4 });
-  expect(screen.getByText('Your next mystery roll is guaranteed rare or dreamy.')).toBeInTheDocument();
+  expect(screen.getByText('Rare+ next roll')).toBeInTheDocument();
+  expect(screen.queryByText(/Everyday 60%/)).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Egg odds' }));
   expect(screen.getByText(/Everyday 60% · Rare 30% · Dreamy 10%/)).toBeInTheDocument();
-  expect(screen.getByText(/On a guaranteed roll, the odds are Rare 90% · Dreamy 10%/)).toBeInTheDocument();
+  expect(screen.getByText(/On a guaranteed roll: Rare 90% · Dreamy 10%/)).toBeInTheDocument();
 });
 
 test('decoration purchases can be used, equipped, positioned, and removed without rebuying furniture', () => {
@@ -60,7 +62,9 @@ test('decoration purchases can be used, equipped, positioned, and removed withou
   expect(getState().gems).toBe(50);
   expect(getState().room.decorations).toHaveLength(2);
   const first = getState().room.decorations[0].id;
-  fireEvent.change(screen.getByRole('combobox', { name: 'Choose a friend or furnishing' }), { target: { value: `decoration:${first}` } });
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Arrange room' }));
+  expect(screen.queryByRole('button', { name: 'Add Cozy cushion' })).not.toBeInTheDocument();
+  fireEvent.change(screen.getByRole('combobox', { name: 'Selected item' }), { target: { value: `decoration:${first}` } });
   fireEvent.change(screen.getByRole('slider', { name: 'Left to right' }), { target: { value: '88' } });
   fireEvent.change(screen.getByRole('slider', { name: 'Back to front' }), { target: { value: '80' } });
   expect(getState().room.decorations[0]).toMatchObject({ x: 88, y: 80 });
@@ -74,55 +78,36 @@ test('collection controls keep an animal safe in the collection and equip only u
   initial.owned.accessories.push('bow');
   const { getState } = renderPanel(AnimalsPanel, initial);
   expect(screen.getByRole('option', { name: /Tiny crown/ })).toBeDisabled();
-  fireEvent.change(screen.getByRole('combobox', { name: 'Their little accessory' }), { target: { value: 'bow' } });
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Keep in my room' }));
+  fireEvent.change(screen.getByRole('combobox', { name: 'Accessory' }), { target: { value: 'bow' } });
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Show in room' }));
   expect(getState().animals[0]).toMatchObject({ accessory: 'bow', placed: false });
-  expect(screen.getByText('Resting in collection')).toBeInTheDocument();
+  expect(screen.getByText('In collection')).toBeInTheDocument();
   expect(getState().animals).toHaveLength(1);
-});
-
-test('journal separates today from history and saves distractions and daily goals', () => {
-  const initial = createInitialState(NOW);
-  initial.history = [
-    { id: 'earlier', task: 'Yesterday’s work', minutes: 15, completedAt: NOW - 86400000 },
-    { id: 'today', task: 'Today’s work', minutes: 25, completedAt: NOW },
-  ];
-  const { getState } = renderPanel(JournalPanel, initial);
-  expect(screen.getByText('Today’s work')).toBeInTheDocument();
-  expect(screen.queryByText('Yesterday’s work')).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'Decrease daily goal' }));
-  expect(getState().settings.dailyGoal).toBe(3);
-  fireEvent.click(screen.getByRole('button', { name: 'History' }));
-  expect(screen.getByText('Yesterday’s work')).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'Scratchpad' }));
-  fireEvent.change(screen.getByRole('textbox', { name: 'Park a thought, then come back to it.' }), { target: { value: 'Remember this after focus.' } });
-  expect(getState().scratchpad).toBe('Remember this after focus.');
 });
 
 test('sound playback is user initiated and each saved channel controls the actual engine', async () => {
   const engine = { current: { start: jest.fn().mockResolvedValue(true), stop: jest.fn(), setVolume: jest.fn() } };
   const { getState } = renderPanel(SoundPanel, createInitialState(NOW), { engine, report: jest.fn() });
   expect(engine.current.start).not.toHaveBeenCalled();
-  fireEvent.click(screen.getByRole('button', { name: 'Play soundscape' }));
-  await waitFor(() => expect(screen.getByRole('button', { name: 'Pause soundscape' })).toBeEnabled());
+  fireEvent.click(screen.getByRole('button', { name: 'Play sounds' }));
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Pause sounds' })).toBeEnabled());
   fireEvent.change(screen.getByRole('slider', { name: 'Fireplace' }), { target: { value: '65' } });
   expect(getState().settings.ambient.fire).toBe(0.65);
   expect(engine.current.setVolume).toHaveBeenCalledWith('fire', 0.65);
-  fireEvent.click(screen.getByRole('button', { name: 'Pause soundscape' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Pause sounds' }));
   expect(engine.current.stop).toHaveBeenCalledTimes(1);
 });
 
 test('unavailable audio reports a recoverable error without pretending playback started', async () => {
   const report = jest.fn();
   renderPanel(SoundPanel, createInitialState(NOW), { engine: { current: { start: jest.fn().mockResolvedValue(false) } }, report });
-  fireEvent.click(screen.getByRole('button', { name: 'Play soundscape' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Play sounds' }));
   await waitFor(() => expect(report).toHaveBeenCalled());
-  expect(screen.getByRole('button', { name: 'Play soundscape' })).toHaveAttribute('aria-pressed', 'false');
+  expect(screen.getByRole('button', { name: 'Play sounds' })).toHaveAttribute('aria-pressed', 'false');
 });
 
-test('presets and custom settings apply through the reducer, with clear local save recovery controls', () => {
-  const persistence = { status: 'error', storagePath: 'C:\\private\\saves', error: 'Save unavailable', retrySave: jest.fn() };
-  const { getState } = renderPanel(SettingsPanel, createInitialState(NOW), { persistence });
+test('session presets and custom durations apply through the reducer', () => {
+  const { getState } = renderPanel(SessionControls);
   fireEvent.click(screen.getByRole('button', { name: /Deep work/ }));
   const focus = screen.getByRole('spinbutton', { name: /Focus time/ });
   expect(focus).toHaveValue(50);
@@ -130,9 +115,41 @@ test('presets and custom settings apply through the reducer, with clear local sa
   fireEvent.change(focus, { target: { value: '42' } });
   fireEvent.blur(focus);
   expect(getState().settings.focusMinutes).toBe(42);
+  expect(getState().timer.durationMs).toBe(42 * 60000);
+  fireEvent.change(focus, { target: { value: '999' } });
+  fireEvent.blur(focus);
+  expect(focus).toHaveValue(180);
+  fireEvent.change(focus, { target: { value: '' } });
+  fireEvent.blur(focus);
+  expect(focus).toHaveValue(180);
+  const cadence = screen.getByRole('spinbutton', { name: /Long break every/ });
+  fireEvent.change(cadence, { target: { value: '0' } });
+  fireEvent.blur(cadence);
+  expect(getState().settings.longBreakEvery).toBe(1);
+});
+
+test('editing durations preserves an active timer and explains when changes apply', () => {
+  const initial = gameReducer(createInitialState(NOW), { type: 'START', now: NOW });
+  const originalTimer = initial.timer;
+  const { getState } = renderPanel(SessionControls, initial);
+  fireEvent.click(screen.getByRole('button', { name: /Deep work/ }));
+  expect(getState().settings.focusMinutes).toBe(50);
+  expect(getState().timer).toEqual(originalTimer);
+  expect(screen.getByText('Applies next session')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Changing an active timer' }));
+  expect(screen.getByText('Reset the timer to apply new durations to this session.')).toBeInTheDocument();
+});
+
+test('global settings keep preferences and save recovery accessible without timing fields', () => {
+  const persistence = { status: 'error', storagePath: 'C:\\private\\saves', error: 'Save unavailable', retrySave: jest.fn() };
+  const { getState } = renderPanel(SettingsPanel, createInitialState(NOW), { persistence });
+  expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('checkbox', { name: 'Reduce animation' }));
   expect(getState().settings.reducedMotion).toBe(true);
-  expect(screen.getByText('C:\\private\\saves')).toBeInTheDocument();
+  expect(screen.queryByText(persistence.storagePath)).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Local save details' }));
+  expect(screen.getByText(persistence.storagePath)).toBeInTheDocument();
+  expect(screen.getByRole('alert')).toHaveTextContent('Save unavailable');
   fireEvent.click(screen.getByRole('button', { name: 'Retry saving' }));
   expect(persistence.retrySave).toHaveBeenCalledTimes(1);
 });

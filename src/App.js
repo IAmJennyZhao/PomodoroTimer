@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
+import "./layout.css";
 import useLocalSave from "./useLocalSave";
 import {
   BACKGROUNDS,
@@ -17,6 +18,7 @@ import {
   AnimalArt,
   Drawer,
   HatchModal,
+  InfoTip,
 } from "./ui";
 import {
   AnimalsPanel,
@@ -25,36 +27,37 @@ import {
   JournalPanel,
   SoundPanel,
   SettingsPanel,
+  SessionControls,
 } from "./panels";
 
 const BREAK_IDEAS = [
   [
-    "A little stretch",
-    "Uncurl your shoulders, reach up, and gently stretch your hands.",
+    "Stretch",
+    "Relax your shoulders and stretch your hands.",
   ],
   [
-    "Look a little farther",
-    "Rest your eyes on something outside your window for a moment.",
+    "Rest your eyes",
+    "Look out the window for a moment.",
   ],
   [
-    "A sip and a reset",
-    "Refill your water. Take a few slow sips away from your desk.",
+    "Water break",
+    "Refill your water and step away from your desk.",
   ],
   [
-    "Find a little color",
+    "Find five colors",
     "Look around and find five things in your favorite color.",
   ],
   [
-    "Make a tiny drawing",
-    "Sketch the nearest object. It only needs to make sense to you.",
+    "Doodle",
+    "Sketch something nearby.",
   ],
   [
-    "A breath of space",
+    "Breathe",
     "Breathe comfortably and slowly. Let your shoulders settle.",
   ],
   [
-    "Take the scenic route",
-    "Stand up and take a short wander around your space.",
+    "Take a walk",
+    "Stand up and walk around for a minute.",
   ],
 ];
 
@@ -63,6 +66,8 @@ export default function App() {
   const { state, dispatch, ready, status, error } = persistence;
   const [now, setNow] = useState(Date.now());
   const [panel, setPanel] = useState(null);
+  const [sessionControls, setSessionControls] = useState(false);
+  const sessionButton = useRef(null);
   const [selectedAnimal, setSelectedAnimal] = useState("starter-cat");
   const [selection, setSelection] = useState(null);
   const [arranging, setArranging] = useState(false);
@@ -115,7 +120,7 @@ export default function App() {
     document.title =
       state.timer.status === "running"
         ? `${formatTime(remaining)} · ${state.timer.mode === "focus" ? "Focus" : "Breathe"} — Little Room`
-        : "Little Room · a gentler Pomodoro";
+        : "Little Room · Pomodoro";
   }, [remaining, state.timer.status, state.timer.mode]);
   useEffect(() => {
     const event = state.event;
@@ -146,6 +151,10 @@ export default function App() {
     const onKey = (event) => {
       if (event.key === "Escape") {
         if (hatch) setHatch(null);
+        else if (sessionControls) {
+          setSessionControls(false);
+          sessionButton.current?.focus();
+        }
         else {
           setPanel(null);
           setArranging(false);
@@ -154,8 +163,9 @@ export default function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [hatch]);
+  }, [hatch, sessionControls]);
   const openPanel = (id) => {
+    setSessionControls(false);
     setPanel((previous) => (previous === id ? null : id));
     if (id !== "decorate") setArranging(false);
   };
@@ -283,16 +293,6 @@ export default function App() {
       </div>
       <div className="room-vignette" />
       <header className="app-header">
-        <button
-          className="brand"
-          onClick={closePanel}
-          aria-label="Little Room home"
-        >
-          <Icon name="leaf" size={35} />
-          <span>
-            Little Room<small>A GENTLER KIND OF FOCUS</small>
-          </span>
-        </button>
         <div className="header-actions">
           <button
             className="gem-pill paper"
@@ -303,6 +303,23 @@ export default function App() {
             <strong>{state.gems.toLocaleString()}</strong>
             <span>{state.gems === 1 ? "Shilligem" : "Shilligems"}</span>
           </button>
+          <nav className="top-nav paper" aria-label="Main navigation">
+            {[
+              ["focus", "focus", "Focus"],
+              ["animals", "paw", "Animals"],
+              ["shop", "egg", "Egg shop"],
+              ["decorate", "plant", "Decorate"],
+              ["journal", "book", "Journal"],
+            ].map(([id, icon, label]) => (
+              <button key={id} className={id === (panel || "focus") ? "active" : ""}
+                aria-label={label} aria-current={id === (panel || "focus") ? "page" : undefined}
+                onClick={() => (id === "focus" ? closePanel() : openPanel(id))}>
+                <Icon name={icon} size={20} />
+                <span>{label}</span>
+                {id === "shop" && state.eggs.length > 0 && <i>{state.eggs.length}</i>}
+              </button>
+            ))}
+          </nav>
           <button
             className="icon-button paper settings-button"
             aria-label="Settings"
@@ -312,13 +329,8 @@ export default function App() {
           </button>
         </div>
       </header>
-      <main className="focus-area">
-        <section className="timer-card paper" aria-label="Pomodoro timer">
-          <div className="timer-ornament">
-            <span />
-            <Icon name="leaf" size={18} />
-            <span />
-          </div>
+      <main className="focus-area" hidden={Boolean(panel)}>
+        <section className={`timer-card paper ${sessionControls ? "editing-session" : ""}`} aria-label="Pomodoro timer">
           <div className="mode-tabs" aria-label="Timer mode">
             {modes.map(([id, label]) => (
               <button
@@ -349,11 +361,6 @@ export default function App() {
                 strokeDasharray={`${progress * 100} 100`}
               />
             </svg>
-            <p className="timer-caption">
-              {state.timer.mode === "focus"
-                ? "A little time for what matters"
-                : "A little room to breathe"}
-            </p>
             <div
               className="timer-digits"
               role="timer"
@@ -367,7 +374,7 @@ export default function App() {
             <input
               aria-label="Session task"
               maxLength={200}
-              placeholder="What are you working on?"
+              placeholder="Add a task"
               value={state.timer.task}
               onChange={(e) => act({ type: "SET_TASK", task: e.target.value })}
             />
@@ -393,10 +400,8 @@ export default function App() {
               {state.timer.status === "running"
                 ? "Pause"
                 : state.timer.status === "paused"
-                  ? "Keep going"
-                  : state.timer.mode === "focus"
-                    ? "Start focusing"
-                    : "Take a breath"}
+                  ? "Resume"
+                  : "Start"}
             </button>
             <button
               className="icon-button skip-button"
@@ -407,22 +412,22 @@ export default function App() {
               <Icon name="skip" size={20} />
             </button>
           </div>
-          <p className="timer-footnote">
-            {state.timer.mode === "focus" ? (
-              <>
-                <span className="tiny-gem">◇</span> A finished session earns{" "}
-                {Math.round(state.timer.durationMs / 60000)}{" "}
-                {state.timer.durationMs === 60000 ? "Shilligem" : "Shilligems"}
-              </>
-            ) : (
-              <>Let your little friends keep you company.</>
-            )}
-          </p>
+          <div className="timer-options">
+            <span className="session-reward">
+              {state.timer.mode === "focus" && <><Icon name="gem" size={15} /> +{Math.round(state.timer.durationMs / 60000)}
+                <InfoTip label="Session rewards">Earn 1 Shilligem per completed focus minute. Skipped sessions earn none.</InfoTip></>}
+            </span>
+            <button ref={sessionButton} className="session-settings-button" aria-expanded={sessionControls}
+              aria-controls="session-controls" onClick={() => setSessionControls(!sessionControls)}>
+              <Icon name="sliders" size={16} /> Session lengths
+            </button>
+          </div>
+          {sessionControls && <div id="session-controls" className="session-editor"><SessionControls state={state} act={act} /></div>}
           {state.timer.mode !== "focus" && (
             <div className="break-idea">
               <div>
-                <strong>{BREAK_IDEAS[tip][0]}</strong>
-                <p>{BREAK_IDEAS[tip][1]}</p>
+                <strong>{BREAK_IDEAS[tip][0]}</strong>{" "}
+                <InfoTip label="Break idea details">{BREAK_IDEAS[tip][1]}</InfoTip>
               </div>
               <button
                 className="icon-button"
@@ -442,11 +447,6 @@ export default function App() {
             </div>
           )}
         </section>
-        <p className="scene-caption">
-          {arranging
-            ? "A little rearranging makes a room your own."
-            : "Small steps. Soft landings."}
-        </p>
       </main>
       {arranging && (
         <button
@@ -454,7 +454,7 @@ export default function App() {
           onClick={() => setArranging(false)}
         >
           <Icon name="check" size={18} />
-          Done arranging
+          Done
         </button>
       )}
       <footer className="room-footer">
@@ -466,13 +466,8 @@ export default function App() {
           <Icon name={stats.progress === 1 ? "sparkle" : "leaf"} size={23} />
           <span>
             <strong>
-              {stats.sessions} / {stats.goal} sessions
+              Daily goal · {stats.sessions}/{stats.goal}
             </strong>
-            <small>
-              {stats.progress === 1
-                ? "A lovely day of focus"
-                : "A little more room to grow"}
-            </small>
             <span className="session-markers" aria-hidden="true">
               {Array.from({ length: Math.min(stats.goal, 8) }, (_, index) => (
                 <Icon
@@ -485,29 +480,6 @@ export default function App() {
             </span>
           </span>
         </button>
-        <nav className="bottom-dock paper" aria-label="Main navigation">
-          {[
-            ["focus", "focus", "Focus"],
-            ["animals", "paw", "Animals"],
-            ["shop", "egg", "Egg shop"],
-            ["decorate", "plant", "Decorate"],
-            ["journal", "book", "Journal"],
-          ].map(([id, icon, label]) => (
-            <button
-              key={id}
-              className={id === (panel || "focus") ? "active" : ""}
-              aria-label={label}
-              aria-current={id === (panel || "focus") ? "page" : undefined}
-              onClick={() => (id === "focus" ? closePanel() : openPanel(id))}
-            >
-              <Icon name={icon} size={25} />
-              <span>{label}</span>
-              {id === "shop" && state.eggs.length > 0 && (
-                <i>{state.eggs.length}</i>
-              )}
-            </button>
-          ))}
-        </nav>
         <button
           className={`sound-pill paper ${playing ? "playing" : ""}`}
           onClick={() => openPanel("sound")}
@@ -518,10 +490,11 @@ export default function App() {
             <i />
             <i />
           </span>
-          <span>{playing ? "Your quiet mix" : "Soundscape"}</span>
+          <span>Sound</span>
           <Icon name="sound" size={18} />
         </button>
       </footer>
+      {panel && <div className="workspace-backdrop" onClick={closePanel} />}
       {panel && (
         <Drawer name={panel} onClose={closePanel}>
           {panel === "animals" && (
@@ -593,10 +566,10 @@ export default function App() {
           <div className="paper loading-card">
             <Icon name="leaf" size={40} />
             <h1>
-              {error ? "Your room is waiting." : "Opening your little room…"}
+              {error ? "Couldn’t load your room" : "Loading…"}
             </h1>
             <p>
-              {error || "Finding your companions and your favorite corner."}
+              {error}
             </p>
             {error && (
               <>

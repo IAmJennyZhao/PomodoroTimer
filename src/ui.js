@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 export const ART = `${process.env.PUBLIC_URL || ""}/art`;
 export const RARITY_NAMES = {
   everyday: "Everyday",
@@ -6,12 +7,12 @@ export const RARITY_NAMES = {
   dreamy: "Dreamy",
 };
 export const PANEL_NAMES = {
-  animals: "Your little companions",
-  shop: "The egg shop",
-  decorate: "Make yourself at home",
-  journal: "Your focus journal",
-  sound: "A softer soundtrack",
-  settings: "Settle in your way",
+  animals: "Animals",
+  shop: "Egg shop",
+  decorate: "Decorate",
+  journal: "Journal",
+  sound: "Sound",
+  settings: "Settings",
 };
 
 export function Icon({ name, size = 22, ...props }) {
@@ -44,8 +45,8 @@ export function Icon({ name, size = 22, ...props }) {
     gem: <path d="m7 3-5 7 10 12L22 10l-5-7ZM2 10h20M7 3l5 19L17 3" />,
     settings: (
       <>
-        <path d="m9 3 1-2h4l1 2 3 2 3 1v4l-2 2 1 3 1 2-3 3-3-1-3 1-2 2H6l-1-3-2-2-2-1v-4l2-1 1-3V5l3-2Z" />
-        <circle cx="11.5" cy="11.5" r="3" />
+        <path d="M9 3h6l.5 3 2.5 1.5 2.8-1 3 5.2-2.3 2v2.6l2.3 2-3 5.2-2.8-1L15.5 24l-.5 3H9l-.5-3L6 22.5l-2.8 1-3-5.2 2.3-2v-2.6l-2.3-2 3-5.2 2.8 1L8.5 6Z" transform="translate(3 0.75) scale(.75)" />
+        <circle cx="12" cy="12" r="3" />
       </>
     ),
     sound: (
@@ -72,6 +73,8 @@ export function Icon({ name, size = 22, ...props }) {
     sparkle: <path d="m12 1 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z" />,
     plus: <path d="M12 4v16M4 12h16" />,
     minus: <path d="M4 12h16" />,
+    info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7v.1" /></>,
+    sliders: <><path d="M4 6h16M4 12h16M4 18h16" /><path d="M8 3v6M16 9v6M10 15v6" /></>,
   };
   return (
     <svg
@@ -175,6 +178,61 @@ export function AnimalArt({ animal, className = "" }) {
   );
 }
 
+export function InfoTip({ label = "More info", children }) {
+  const [open, setOpen] = useState(false);
+  const id = useId();
+  const ref = useRef(null);
+  const contentRef = useRef(null);
+  const [position, setPosition] = useState({ left: 12, top: 12 });
+  useLayoutEffect(() => {
+    if (!open) return undefined;
+    const place = () => {
+      const anchor = ref.current?.getBoundingClientRect();
+      const content = contentRef.current?.getBoundingClientRect();
+      if (!anchor || !content) return;
+      const left = Math.max(12, Math.min(anchor.right - content.width, window.innerWidth - content.width - 12));
+      const below = anchor.bottom + 8;
+      const top = below + content.height < window.innerHeight - 12
+        ? below : Math.max(12, anchor.top - content.height - 8);
+      setPosition({ left, top });
+    };
+    place();
+    window.addEventListener("resize", place);
+    document.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      document.removeEventListener("scroll", place, true);
+    };
+  }, [open]);
+  useEffect(() => {
+    if (!open) return undefined;
+    const dismiss = (event) => {
+      if (!ref.current?.contains(event.target) && !contentRef.current?.contains(event.target)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", dismiss);
+    document.addEventListener("focusin", dismiss);
+    return () => {
+      document.removeEventListener("pointerdown", dismiss);
+      document.removeEventListener("focusin", dismiss);
+    };
+  }, [open]);
+  return (
+    <span className="info-disclosure" ref={ref} onKeyDown={(event) => {
+      if (open && event.key === "Escape") {
+        event.stopPropagation();
+        setOpen(false);
+        ref.current?.querySelector("button")?.focus();
+      }
+    }}>
+      <button type="button" className="info-button" aria-label={label}
+        aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>
+        <Icon name="info" size={17} />
+      </button>
+      {open && createPortal(<div ref={contentRef} className="info-content" style={position} role="note" id={id}>{children}</div>, document.body)}
+    </span>
+  );
+}
+
 export function Drawer({ name, onClose, children }) {
   const closeRef = useRef(null);
   useEffect(() => {
@@ -186,13 +244,12 @@ export function Drawer({ name, onClose, children }) {
   }, [name]);
   return (
     <aside
-      className="drawer paper"
+      className={`drawer workspace workspace-${name} paper`}
       role="dialog"
       aria-labelledby="panel-heading"
     >
       <header className="drawer-heading">
         <div>
-          <span className="eyebrow">A LITTLE SPACE FOR YOU</span>
           <h2 id="panel-heading">{PANEL_NAMES[name]}</h2>
         </div>
         <button
@@ -252,7 +309,7 @@ export function HatchModal({ animal, onClose }) {
       const target = previous?.isConnected
         ? previous
         : document.querySelector(".drawer-heading button") ||
-          document.querySelector(".bottom-dock button");
+          document.querySelector(".top-nav button");
       target?.focus();
     };
   }, []);
@@ -270,15 +327,13 @@ export function HatchModal({ animal, onClose }) {
           }
         }}
       >
-        <span className="eyebrow">A NEW LITTLE FRIEND</span>
         <AnimalArt animal={animal} />
         <span className={`rarity-label ${animal.rarity}`}>
           {RARITY_NAMES[animal.rarity]} {animal.species}
         </span>
-        <h2 id="hatch-title">Look who found you.</h2>
-        <p>There's always room for one more.</p>
+        <h2 id="hatch-title">{animal.name} joined!</h2>
         <button ref={buttonRef} className="primary-button" onClick={onClose}>
-          Welcome home <Icon name="paw" size={18} />
+          Done <Icon name="paw" size={18} />
         </button>
       </section>
     </div>

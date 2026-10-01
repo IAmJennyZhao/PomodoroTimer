@@ -5,15 +5,14 @@ import {
   BACKGROUNDS,
   DECORATIONS,
   PRESETS,
-  todayStats,
 } from "./game";
-import { Icon, Sprite, AnimalArt, Accessory, RangeField } from "./ui";
+import { Icon, Sprite, AnimalArt, Accessory, RangeField, InfoTip } from "./ui";
+
+export { default as JournalPanel } from "./JournalPanel";
 
 const titleCase = (value) => value.charAt(0).toUpperCase() + value.slice(1);
 const speciesName = (animal) =>
   ANIMALS.find((species) => species.id === animal.species)?.name || "Animal";
-const sameDay = (first, second) =>
-  new Date(first).toDateString() === new Date(second).toDateString();
 
 function Segments({ label, options, value, onChange }) {
   return (
@@ -44,102 +43,67 @@ function Wallet({ gems }) {
 }
 
 export function AnimalsPanel({ state, act, selected, setSelected }) {
-  const animal =
-    state.animals.find((friend) => friend.id === selected) || state.animals[0];
+  const animal = state.animals.find((friend) => friend.id === selected) || state.animals[0];
   const discovered = new Set(state.animals.map((friend) => friend.species));
   return (
     <>
-      <p className="intro">
-        A little company for your next big idea. Every friend has a place here.
-      </p>
-      <p className="small muted">
-        {state.animals.length}{" "}
-        {state.animals.length === 1 ? "friend" : "friends"} · {discovered.size}{" "}
-        of {ANIMALS.length} species discovered
-      </p>
-      <div className="collection-grid">
-        {state.animals.map((friend, index) => (
-          <button
-            type="button"
-            key={friend.id}
-            className={`animal-card ${friend.id === animal?.id ? "selected" : ""}`}
-            aria-pressed={friend.id === animal?.id}
-            aria-label={`Select ${friend.name}, ${friend.rarity} ${speciesName(friend)}, friend ${index + 1}`}
-            onClick={() => setSelected(friend.id)}
-          >
-            <AnimalArt animal={friend} />
-            <strong>{friend.name}</strong>
-            <span className={`rarity-label ${friend.rarity}`}>
-              {titleCase(friend.rarity)}
-            </span>
-            <span className="in-room">
-              {friend.placed ? "In your room" : "Resting in collection"}
-            </span>
-          </button>
-        ))}
+      <div className="panel-toolbar">
+        <span className="small muted">
+          {state.animals.length} {state.animals.length === 1 ? "animal" : "animals"} · {discovered.size}/{ANIMALS.length} species
+        </span>
+        <InfoTip label="Animal collection">
+          Hatch eggs to collect animals. Each animal can live in your room,
+          including duplicates. Move them in Decorate.
+        </InfoTip>
       </div>
-      {animal && (
-        <section className="detail-card" aria-label={`${animal.name} details`}>
-          <h3>
-            {animal.name}{" "}
-            <span className="small muted">· {speciesName(animal)}</span>
-          </h3>
-          <label className="toggle-line">
-            <span>Keep in my room</span>
-            <input
-              type="checkbox"
-              checked={animal.placed}
-              onChange={(event) =>
-                act({
-                  type: "PLACE_ANIMAL",
-                  id: animal.id,
-                  placed: event.target.checked,
-                })
-              }
-            />
-          </label>
-          <label className="field-label">
-            Their little accessory
-            <select
-              value={animal.accessory}
-              onChange={(event) =>
-                act({
-                  type: "SET_ACCESSORY",
-                  animalId: animal.id,
-                  id: event.target.value,
-                })
-              }
-            >
-              {ACCESSORIES.map((item) => (
-                <option
-                  key={item.id}
-                  value={item.id}
-                  disabled={!state.owned.accessories.includes(item.id)}
-                >
-                  {item.name}
-                  {!state.owned.accessories.includes(item.id)
-                    ? " · unlock in Decorate"
-                    : ""}
-                </option>
-              ))}
-            </select>
-          </label>
-          <p className="small muted">
-            Arrange your friends around the room from Decorate. Extra animals
-            are extra company, even when they’re the same species.
-          </p>
-        </section>
-      )}
-      {discovered.size < ANIMALS.length && (
-        <div className="undiscovered">
-          <h3>Still waiting to meet you</h3>
-          <p className="small muted">
-            {ANIMALS.filter((species) => !discovered.has(species.id))
-              .map((species) => species.name)
-              .join(" · ")}
-          </p>
+      <div className="collection-layout">
+        <div className="collection-main">
+          <div className="collection-grid">
+            {state.animals.map((friend, index) => (
+              <button type="button" key={friend.id}
+                className={`animal-card ${friend.id === animal?.id ? "selected" : ""}`}
+                aria-pressed={friend.id === animal?.id}
+                aria-label={`Select ${friend.name}, ${friend.rarity} ${speciesName(friend)}, animal ${index + 1}`}
+                onClick={() => setSelected(friend.id)}>
+                <AnimalArt animal={friend} />
+                <strong>{friend.name}</strong>
+                <span className={`rarity-label ${friend.rarity}`}>{titleCase(friend.rarity)}</span>
+                <span className="in-room">{friend.placed ? "In room" : "In collection"}</span>
+              </button>
+            ))}
+          </div>
+          {discovered.size < ANIMALS.length && (
+            <div className="undiscovered">
+              <h3>Undiscovered</h3>
+              <p className="small muted">
+                {ANIMALS.filter((species) => !discovered.has(species.id)).map((species) => species.name).join(" · ")}
+              </p>
+            </div>
+          )}
         </div>
-      )}
+        {animal && (
+          <section className="detail-card collection-detail" aria-label={`${animal.name} details`}>
+            <AnimalArt animal={animal} />
+            <h3>{animal.name} <span className="small muted">· {speciesName(animal)}</span></h3>
+            <label className="toggle-line">
+              <span>Show in room</span>
+              <input type="checkbox" checked={animal.placed}
+                onChange={(event) => act({ type: "PLACE_ANIMAL", id: animal.id, placed: event.target.checked })} />
+            </label>
+            <label className="field-label">
+              Accessory
+              <select value={animal.accessory}
+                onChange={(event) => act({ type: "SET_ACCESSORY", animalId: animal.id, id: event.target.value })}>
+                {ACCESSORIES.map((item) => (
+                  <option key={item.id} value={item.id} disabled={!state.owned.accessories.includes(item.id)}>
+                    {item.name}{!state.owned.accessories.includes(item.id) ? " · locked" : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </section>
+        )}
+      </div>
     </>
   );
 }
@@ -147,95 +111,65 @@ export function AnimalsPanel({ state, act, selected, setSelected }) {
 export function ShopPanel({ state, act }) {
   return (
     <>
-      <p className="intro">
-        A small surprise, earned one focused minute at a time.
-      </p>
-      <Wallet gems={state.gems} />
-      <p className="small muted">
-        Every completed focus minute earns 1 Shilligem. Breaks and skipped
-        sessions earn none.
-      </p>
+      <div className="panel-toolbar shop-overview">
+        <Wallet gems={state.gems} />
+        <InfoTip label="Earning Shilligems">
+          Earn 1 Shilligem per focus minute when you finish a session.
+          Breaks and skipped sessions earn none.
+        </InfoTip>
+      </div>
       <div className="egg-options">
         <section className="egg-card">
           <Sprite kind="object" id="everyday" />
-          <h3>A little egg</h3>
-          <p>An everyday friend, with a whole lot of heart.</p>
-          <button
-            type="button"
-            className="secondary-button full-width"
-            disabled={state.gems < 25}
-            onClick={() => act({ type: "BUY_EGG", kind: "basic" })}
-          >
-            <Icon name="gem" /> Buy basic egg · 25
+          <h3>Basic egg</h3>
+          <span className="rarity-label everyday">Everyday</span>
+          <button type="button" className="secondary-button full-width"
+            aria-label="Buy basic egg for 25 Shilligems" disabled={state.gems < 25}
+            onClick={() => act({ type: "BUY_EGG", kind: "basic" })}>
+            Buy <Icon name="gem" /> 25
           </button>
         </section>
         <section className="egg-card">
           <Sprite kind="object" id="dreamy" />
-          <h3>A little wonder</h3>
-          <p>Roll for an egg with a chance of a special coat.</p>
-          <button
-            type="button"
-            className="secondary-button full-width"
-            disabled={state.gems < 60}
-            onClick={() => act({ type: "BUY_EGG", kind: "mystery" })}
-          >
-            <Icon name="sparkle" /> Roll mystery egg · 60
+          <div className="catalog-heading">
+            <h3>Mystery egg</h3>
+            <InfoTip label="Egg odds">
+              <strong>Everyday 60% · Rare 30% · Dreamy 10%.</strong>
+              <p>Every egg has an equal chance of each of the {ANIMALS.length} species.</p>
+              <p>A rare-or-better egg is guaranteed within 5 mystery rolls.
+                On a guaranteed roll: Rare 90% · Dreamy 10%.
+                Rare or dreamy eggs reset the count; basic eggs do not affect it.</p>
+            </InfoTip>
+          </div>
+          <span className="small muted">
+            {state.pity >= 4 ? "Rare+ next roll" : `Rare+ within ${5 - state.pity} rolls`}
+          </span>
+          <button type="button" className="secondary-button full-width"
+            aria-label="Roll mystery egg for 60 Shilligems" disabled={state.gems < 60}
+            onClick={() => act({ type: "BUY_EGG", kind: "mystery" })}>
+            Roll <Icon name="gem" /> 60
           </button>
         </section>
       </div>
-      <p className="odds">
-        <strong>Mystery odds:</strong> Everyday 60% · Rare 30% · Dreamy 10%.
-        Every egg can hatch any of the {ANIMALS.length} species, with equal
-        chances.
-      </p>
-      <p className="pity-count">
-        <Icon name="sparkle" />{" "}
-        {state.pity >= 4
-          ? "Your next mystery roll is guaranteed rare or dreamy."
-          : `A rare-or-better egg is guaranteed within ${5 - state.pity} more mystery rolls.`}
-      </p>
-      <p className="small muted">
-        On a guaranteed roll, the odds are Rare 90% · Dreamy 10%. Finding either
-        resets the count; basic eggs don’t change it.
-      </p>
-      <h3 className="section-heading">
-        Your nest{" "}
-        <span className="small muted">
-          {state.eggs.length} {state.eggs.length === 1 ? "egg" : "eggs"}
-        </span>
-      </h3>
+      <h3 className="section-heading">Eggs <span className="small muted">{state.eggs.length}</span></h3>
       {state.eggs.length ? (
         <div className="nest-grid">
           {state.eggs.map((egg, index) => (
             <section className={`nest-egg ${egg.rarity}`} key={egg.id}>
               <Sprite kind="object" id={egg.rarity} />
-              <span className={`rarity-label ${egg.rarity}`}>
-                {titleCase(egg.rarity)}
-              </span>
-              <button
-                type="button"
-                className="small-button"
+              <span className={`rarity-label ${egg.rarity}`}>{titleCase(egg.rarity)}</span>
+              <button type="button" className="small-button"
                 aria-label={`Hatch ${egg.rarity} egg ${index + 1}`}
-                onClick={() => act({ type: "HATCH_EGG", id: egg.id })}
-              >
-                Hatch egg
-              </button>
+                onClick={() => act({ type: "HATCH_EGG", id: egg.id })}>Hatch</button>
             </section>
           ))}
         </div>
       ) : (
-        <div className="empty-state">
-          <Icon name="leaf" />
-          <p>A cozy nest, ready for its first egg.</p>
-          <span className="small muted">
-            Finish a focus session to start filling it.
-          </span>
-        </div>
+        <div className="empty-state compact-empty"><Icon name="egg" /><p>No eggs yet</p></div>
       )}
     </>
   );
 }
-
 export function DecoratePanel({
   state,
   act,
@@ -289,8 +223,19 @@ export function DecoratePanel({
   }
   return (
     <>
-      <p className="intro">Make a soft little corner of the world your own.</p>
-      <Wallet gems={state.gems} />
+      <div className="panel-toolbar catalog-toolbar">
+        {!arranging && <Wallet gems={state.gems} />}
+        <label className="toggle-line arrange-toggle">
+          <span>Arrange room</span>
+          <input type="checkbox" checked={arranging}
+            onChange={(event) => setArranging(event.target.checked)} />
+        </label>
+        <InfoTip label="Arranging the room">
+          Turn on Arrange room to drag animals and furniture into place.
+          Select an item to adjust its position with sliders.
+        </InfoTip>
+      </div>
+      {!arranging && <>
       <Segments
         label="Decoration categories"
         options={[
@@ -303,7 +248,7 @@ export function DecoratePanel({
       />
       {category === "accessories" && (
         <label className="field-label">
-          Dress a friend
+          Animal
           <select
             value={friend?.id || ""}
             onChange={(event) => setFriendId(event.target.value)}
@@ -345,9 +290,6 @@ export function DecoratePanel({
                 <Sprite kind="object" id={item.id} />
               )}
               <h3>{item.name}</h3>
-              {item.description && (
-                <p className="small muted">{item.description}</p>
-              )}
               <button
                 type="button"
                 className="small-button"
@@ -366,17 +308,17 @@ export function DecoratePanel({
                 {active ? (
                   <>
                     <Icon name="check" />{" "}
-                    {category === "backgrounds" ? "Your room" : "Wearing"}
+                    {category === "backgrounds" ? "Active" : "Wearing"}
                   </>
                 ) : owned ? (
                   category === "decorations" ? (
-                    "Add to room"
+                    "Add"
                   ) : (
                     "Use"
                   )
                 ) : (
                   <>
-                    <Icon name="gem" /> Unlock · {item.price}
+                    Buy <Icon name="gem" /> {item.price}
                   </>
                 )}
               </button>
@@ -385,31 +327,16 @@ export function DecoratePanel({
         })}
       </div>
       {category === "decorations" && (
-        <p className="small muted">
-          Unlock furniture once, then add as many as you like.
-        </p>
+        <div className="catalog-note">
+          <InfoTip label="Furniture purchases">
+            Buy furniture once, then add as many copies as you like.
+          </InfoTip>
+        </div>
       )}
-      <section className="detail-card" aria-label="Arrange your room">
-        <label className="toggle-line">
-          <span>
-            <strong>Arrange your room</strong>
-            <span className="small muted">
-              {" "}
-              Move friends and furniture into place.
-            </span>
-          </span>
-          <input
-            type="checkbox"
-            checked={arranging}
-            onChange={(event) => setArranging(event.target.checked)}
-          />
-        </label>
-        <p className="small muted">
-          Turn on arranging to drag things around your room. Or pick something
-          below and use the position sliders.
-        </p>
+      </>}
+      {arranging && <section className="detail-card arrange-controls" aria-label="Room position">
         <label className="field-label">
-          Choose a friend or furnishing
+          Selected item
           <select
             value={
               selectedObject ? `${selection.type}:${selectedObject.id}` : ""
@@ -426,12 +353,12 @@ export function DecoratePanel({
               );
             }}
           >
-            <option value="">Choose something to arrange…</option>
+            <option value="">Choose an item</option>
             {state.animals
               .filter((animal) => animal.placed)
               .map((animal, index) => (
                 <option key={animal.id} value={`animal:${animal.id}`}>
-                  {animal.name} · friend {index + 1}
+                  {animal.name} · #{index + 1}
                 </option>
               ))}
             {state.room.decorations.map((item, index) => (
@@ -440,7 +367,7 @@ export function DecoratePanel({
                   DECORATIONS.find((decoration) => decoration.id === item.item)
                     ?.name
                 }{" "}
-                · furnishing {index + 1}
+                · #{index + 1}
               </option>
             ))}
           </select>
@@ -490,181 +417,7 @@ export function DecoratePanel({
             </button>
           </>
         )}
-      </section>
-    </>
-  );
-}
-
-function SessionList({ sessions, showDate = false }) {
-  return sessions.length ? (
-    <ol className="session-list">
-      {[...sessions]
-        .sort((first, second) => second.completedAt - first.completedAt)
-        .map((session) => (
-          <li key={session.id}>
-            <span className="session-dot" aria-hidden="true" />
-            <div>
-              <strong>{session.task || "A little focused time"}</strong>
-              <span className="small muted">
-                {new Date(session.completedAt).toLocaleString(
-                  undefined,
-                  showDate
-                    ? {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                        hour: "numeric",
-                        minute: "2-digit",
-                      }
-                    : { hour: "numeric", minute: "2-digit" },
-                )}
-              </span>
-            </div>
-            <span>{session.minutes} min</span>
-          </li>
-        ))}
-    </ol>
-  ) : (
-    <div className="empty-state">
-      <Icon name="leaf" />
-      <p>Your next small step starts here.</p>
-      <span className="small muted">
-        Completed focus sessions will appear in your journal.
-      </span>
-    </div>
-  );
-}
-
-export function JournalPanel({ state, act, now }) {
-  const [tab, setTab] = useState("today");
-  const stats = todayStats(state, now);
-  const today = state.history.filter((session) =>
-    sameDay(session.completedAt, now),
-  );
-  const allMinutes = state.history.reduce(
-    (total, session) => total + session.minutes,
-    0,
-  );
-  return (
-    <>
-      <p className="intro">
-        Little steps add up. Here’s a place to notice them.
-      </p>
-      <Segments
-        label="Journal views"
-        options={[
-          { id: "today", name: "Today" },
-          { id: "history", name: "History" },
-          { id: "scratchpad", name: "Scratchpad" },
-        ]}
-        value={tab}
-        onChange={setTab}
-      />
-      {tab === "scratchpad" ? (
-        <div className="scratchpad">
-          <label className="field-label" htmlFor="distraction-notes">
-            Park a thought, then come back to it.
-          </label>
-          <p className="small muted">
-            A quick place for distractions, reminders, and ideas. Your notes
-            save on this computer.
-          </p>
-          <textarea
-            id="distraction-notes"
-            rows={12}
-            maxLength={10000}
-            placeholder="That thing I don’t need to do right now…"
-            value={state.scratchpad}
-            onChange={(event) =>
-              act({ type: "SET_SCRATCHPAD", text: event.target.value })
-            }
-          />
-          <p className="small muted">
-            {state.scratchpad.length.toLocaleString()} / 10,000 characters
-          </p>
-        </div>
-      ) : (
-        <>
-          <div className="stats-grid">
-            <div>
-              <strong>{tab === "today" ? stats.minutes : allMinutes}</strong>
-              <span>focus minutes</span>
-            </div>
-            <div>
-              <strong>
-                {tab === "today" ? stats.sessions : state.history.length}
-              </strong>
-              <span>sessions</span>
-            </div>
-            <div>
-              <strong>{tab === "today" ? stats.gems : allMinutes}</strong>
-              <span>Shilligems earned</span>
-            </div>
-          </div>
-          {tab === "today" && (
-            <section
-              className={`daily-goal ${stats.progress >= 1 ? "complete" : ""}`}
-            >
-              <h3>
-                {stats.progress >= 1
-                  ? "Your daily goal, beautifully done."
-                  : "A gentle goal for today"}
-              </h3>
-              <p>
-                {stats.sessions} of {stats.goal} focus sessions
-              </p>
-              <progress
-                aria-label="Daily focus goal"
-                value={stats.progress}
-                max={1}
-              />
-              <div className="goal-controls">
-                <button
-                  type="button"
-                  className="small-button"
-                  aria-label="Decrease daily goal"
-                  disabled={stats.goal <= 1}
-                  onClick={() =>
-                    act({
-                      type: "SET_SETTINGS",
-                      settings: { dailyGoal: stats.goal - 1 },
-                    })
-                  }
-                >
-                  <Icon name="minus" />
-                </button>
-                <span>
-                  {stats.goal} {stats.goal === 1 ? "session" : "sessions"} per
-                  day
-                </span>
-                <button
-                  type="button"
-                  className="small-button"
-                  aria-label="Increase daily goal"
-                  disabled={stats.goal >= 24}
-                  onClick={() =>
-                    act({
-                      type: "SET_SETTINGS",
-                      settings: { dailyGoal: stats.goal + 1 },
-                    })
-                  }
-                >
-                  <Icon name="plus" />
-                </button>
-              </div>
-            </section>
-          )}
-          <h3 className="section-heading">
-            {tab === "today"
-              ? "Today’s little victories"
-              : "Your focus history"}
-          </h3>
-          <SessionList
-            sessions={tab === "today" ? today : state.history}
-            showDate={tab === "history"}
-          />
-        </>
-      )}
+      </section>}
     </>
   );
 }
@@ -690,18 +443,17 @@ export function SoundPanel({
       setPlaying(Boolean(started));
       if (!started)
         report(
-          "Audio couldn’t start in this browser. You can try again whenever you like.",
+          "Audio unavailable. Try again.",
         );
     } catch (_) {
       setPlaying(false);
-      report("Audio couldn’t start. Try playing the soundscape again.");
+      report("Audio unavailable. Try again.");
     } finally {
       setStarting(false);
     }
   }
   return (
     <>
-      <p className="intro">Settle into a soundscape that feels like you.</p>
       <button
         type="button"
         className="secondary-button full-width"
@@ -711,27 +463,24 @@ export function SoundPanel({
       >
         <Icon name={playing ? "pause" : "play"} />{" "}
         {starting
-          ? "Waking up the sounds…"
+          ? "Starting…"
           : playing
-            ? "Pause soundscape"
-            : "Play soundscape"}
+            ? "Pause sounds"
+            : "Play sounds"}
       </button>
       <div className="mixer">
         {[
           {
             id: "rain",
-            name: "Soft rainfall",
-            description: "A gentle wash of rain at the window.",
+            name: "Rain",
           },
           {
             id: "fire",
             name: "Fireplace",
-            description: "Warm low tones and little crackles.",
           },
           {
             id: "noise",
             name: "Brown noise",
-            description: "A steady, soft blanket for busy thoughts.",
           },
         ].map((channel) => (
           <section key={channel.id}>
@@ -751,12 +500,11 @@ export function SoundPanel({
                 });
               }}
             />
-            <p className="small muted">{channel.description}</p>
           </section>
         ))}
       </div>
       <label className="toggle-line">
-        <span>Session completion chime</span>
+        <span>Completion chime</span>
         <input
           type="checkbox"
           checked={state.settings.soundEnabled}
@@ -768,10 +516,9 @@ export function SoundPanel({
           }
         />
       </label>
-      <p className="small muted">
-        Mix each sound independently. Your levels are remembered; playback
-        starts only when you choose.
-      </p>
+      <InfoTip label="Sound playback">
+        Levels are saved automatically. Press Play sounds to start the mix.
+      </InfoTip>
     </>
   );
 }
@@ -809,147 +556,96 @@ function NumberSetting({ label, value, min = 1, max, onChange, suffix }) {
   );
 }
 
-export function SettingsPanel({ state, act, persistence }) {
+export function SessionControls({ state, act }) {
   return (
-    <>
-      <p className="intro">Your pace, your little rituals.</p>
-      <h3 className="section-heading">Find your rhythm</h3>
-      <div className="preset-list">
+    <div className="session-controls" role="group" aria-label="Session timing">
+      <div className="preset-list session-presets">
         {PRESETS.map((preset) => {
           const selected = Object.entries(preset.settings).every(
             ([key, value]) => state.settings[key] === value,
           );
           return (
-            <button
-              type="button"
-              key={preset.id}
+            <button type="button" key={preset.id}
               className={`preset-button ${selected ? "selected" : ""}`}
               aria-pressed={selected}
-              onClick={() => act({ type: "SET_PRESET", id: preset.id })}
-            >
+              aria-label={`${preset.name}, ${preset.settings.focusMinutes} minute focus, ${preset.settings.breakMinutes} minute break`}
+              onClick={() => act({ type: "SET_PRESET", id: preset.id })}>
               <strong>{preset.name}</strong>
-              <span>
-                {preset.settings.focusMinutes} min focus ·{" "}
-                {preset.settings.breakMinutes} min break
-              </span>
+              <span>{preset.settings.focusMinutes} / {preset.settings.breakMinutes}</span>
             </button>
           );
         })}
       </div>
-      <h3 className="section-heading">Make it your own</h3>
-      {[
-        { key: "focusMinutes", name: "Focus time", max: 180, suffix: "min" },
-        { key: "breakMinutes", name: "Short break", max: 60, suffix: "min" },
-        {
-          key: "longBreakMinutes",
-          name: "Long break",
-          max: 120,
-          suffix: "min",
-        },
-        {
-          key: "longBreakEvery",
-          name: "Long break after",
-          max: 12,
-          suffix: "sessions",
-        },
-      ].map((field) => (
-        <NumberSetting
-          key={field.key}
-          label={field.name}
-          value={state.settings[field.key]}
-          max={field.max}
-          suffix={field.suffix}
-          onChange={(value) =>
-            act({ type: "SET_SETTINGS", settings: { [field.key]: value } })
-          }
-        />
-      ))}
+      <div className="session-duration-grid">
+        {[
+          { key: "focusMinutes", name: "Focus time", max: 180, suffix: "min" },
+          { key: "breakMinutes", name: "Short break", max: 60, suffix: "min" },
+          { key: "longBreakMinutes", name: "Long break", max: 120, suffix: "min" },
+          { key: "longBreakEvery", name: "Long break every", max: 12, suffix: "sessions" },
+        ].map((field) => (
+          <NumberSetting key={field.key} label={field.name}
+            value={state.settings[field.key]} max={field.max} suffix={field.suffix}
+            onChange={(value) => act({ type: "SET_SETTINGS", settings: { [field.key]: value } })} />
+        ))}
+      </div>
       {state.timer.status !== "idle" && (
-        <p className="small muted">
-          New durations apply to the next session. Reset the timer if you’d like
-          to use them now.
-        </p>
+        <div className="session-timing-note">
+          <span className="small muted">Applies next session</span>
+          <InfoTip label="Changing an active timer">
+            Reset the timer to apply new durations to this session.
+          </InfoTip>
+        </div>
       )}
+    </div>
+  );
+}
+
+export function SettingsPanel({ state, act, persistence }) {
+  return (
+    <>
       <div className="settings-toggles">
         {[
-          { key: "autoStartBreaks", name: "Start breaks automatically" },
-          { key: "autoStartFocus", name: "Start focus sessions automatically" },
-          { key: "soundEnabled", name: "Session completion chime" },
+          { key: "autoStartBreaks", name: "Auto-start breaks" },
+          { key: "autoStartFocus", name: "Auto-start focus" },
+          { key: "soundEnabled", name: "Completion chime" },
           { key: "reducedMotion", name: "Reduce animation" },
         ].map((setting) => (
           <label className="toggle-line" key={setting.key}>
             <span>{setting.name}</span>
-            <input
-              type="checkbox"
-              checked={state.settings[setting.key]}
-              onChange={(event) =>
-                act({
-                  type: "SET_SETTINGS",
-                  settings: { [setting.key]: event.target.checked },
-                })
-              }
-            />
+            <input type="checkbox" checked={state.settings[setting.key]}
+              onChange={(event) => act({ type: "SET_SETTINGS", settings: { [setting.key]: event.target.checked } })} />
           </label>
         ))}
       </div>
       <section className="save-info">
-        <h3>
-          <Icon name="leaf" /> A little space of your own
-        </h3>
-        <p className="small">
-          Your animals, room, notes, and progress save in a private folder on
-          this computer, outside the project.
+        <div className="catalog-heading">
+          <h3>Local save</h3>
+          <InfoTip label="Local save details">
+            <p>Progress saves on this computer, outside the project and Git history.</p>
+            {persistence.storagePath && <p><code>{persistence.storagePath}</code></p>}
+            <p>Keep the local server running while using the app.</p>
+          </InfoTip>
+        </div>
+        <p className="small muted" role="status">
+          {{
+            loading: "Loading…",
+            saving: "Saving…",
+            saved: "Saved",
+            error: "Save failed",
+            conflict: "Changed in another window",
+          }[persistence.status]}
         </p>
-        {persistence.storagePath && (
-          <p className="small">
-            <code>{persistence.storagePath}</code>
-          </p>
-        )}
-        <p className="small muted">
-          {
-            {
-              loading: "Opening your local save…",
-              saving: "Saving your latest changes…",
-              saved: "All changes saved locally.",
-              error: "Your latest changes need attention.",
-              conflict: "Another window has changed this save.",
-            }[persistence.status]
-          }
-        </p>
-        {persistence.recovered && (
-          <p className="small">Your save was recovered from its backup.</p>
-        )}
-        {persistence.error && (
-          <p role="alert" className="small">
-            {persistence.error}
-          </p>
-        )}
+        {persistence.recovered && <p className="small">Recovered from backup.</p>}
+        {persistence.error && <p role="alert" className="small">{persistence.error}</p>}
         {persistence.status === "error" && (
-          <button
-            type="button"
-            className="small-button"
-            onClick={persistence.retrySave}
-          >
-            Retry saving
-          </button>
+          <button type="button" className="small-button" onClick={persistence.retrySave}>Retry saving</button>
         )}
         {persistence.status === "conflict" && (
           <>
-            <p className="small">
-              Reloading replaces this window’s changes with the saved version.
-            </p>
-            <button
-              type="button"
-              className="small-button"
-              onClick={persistence.reload}
-            >
-              Reload saved version
-            </button>
+            <p className="small">Reloading replaces this window’s changes with the saved version.</p>
+            <button type="button" className="small-button" onClick={persistence.reload}>Reload saved version</button>
           </>
         )}
-        <p className="small muted">
-          No account needed. Keep the local app running while you use your room.
-        </p>
       </section>
     </>
   );
