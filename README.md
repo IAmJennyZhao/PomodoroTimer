@@ -1,27 +1,54 @@
-# Pomodoro Timer
+# Little Focus Room
 
-The final site looks something like the image below
+A local Pomodoro timer with a full-screen pastel room, illustrated animal companions, and a collection that grows while you focus.
 
-![Image of Final Pomodoro Timer Result](https://github.com/IAmJennyZhao/PomodoroTimer/assets/47111075/90c975b1-6d9d-4f3e-991f-9d57170d677e)
+## Run locally
 
-### Features 
+Use Node.js 22 or newer.
 
-- Timer function buttons to start, pause, and reset the timer
-- Timer settings to change the length of sessions and breaks
-- Sounds effects when buttons are pressed or when a session/break has ended
+```sh
+npm ci
+npm start
+```
 
-### Pomodoro Technique
+Open **http://127.0.0.1:3000**. This command runs both the React development app and its local save service. Keep the terminal open while using the app. Both servers listen only on your computer's loopback interface.
 
-The Pomodoro Technique is a time management method that alternates between working sessions and breaks which allows for high effiency when working. Typically, sessions are 25 minutes and breaks are 5 minutes, but this technique works best when tailored to your own personal working style. 
+For a production build:
 
-To read more about the technique, I suggest [this article](https://www.themuse.com/advice/take-it-from-someone-who-hates-productivity-hacksthe-pomodoro-technique-actually-works).
+```sh
+npm run build
+npm run serve
+```
 
-I also suggest [Abao in Tokyo's](https://www.youtube.com/@abaointokyo) Youtube Channel, where you can follow the Pomodoro Technique with someone else. I personally watch their videos from time to time as well. 
+Open **http://127.0.0.1:3001**. The same local service serves the built app and saves your progress. A static-only hosting service such as GitHub Pages cannot write the private local save folder; use the local commands above.
 
-## Script Instructions
+## Private progress
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). In the project directory, you can run:
+Your Shilligems, animals, room, timer, tasks, scratchpad and session history are saved outside this public repository:
 
-### `npm start`
+- Windows: `%LOCALAPPDATA%\PomodoroTimer\saves\`
+- macOS: `~/Library/Application Support/PomodoroTimer/saves/`
+- Linux: `$XDG_DATA_HOME/PomodoroTimer/saves/`, or `~/.local/share/PomodoroTimer/saves/`
 
-Runs the app in the development mode. Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The app uses `state.json` with `state.backup.json` as a recovery copy. Writes replace the save atomically; the backup retains the previous successful revision. If the main file is damaged, the service recovers from the backup. If both files are unreadable, it preserves them and reports an error instead of resetting your collection. Save revision checks prevent two open windows silently overwriting one another.
+
+No account or cloud service is involved. Runtime saves never go into the build. Git ignores common save/export filenames as an extra precaution. You can copy the save folder to back it up while the app is closed. The default data folder is shared between development and production runs.
+
+For testing or a separate profile, set `POMODORO_DATA_DIR` to another directory **outside this repository** before launching. The service rejects repository folders, including symlink aliases into the repository. `POMODORO_API_PORT` changes the production service port; development uses ports 3000 and 3001.
+
+## Focus and collection
+
+- Quick, classic, deep-work and custom timers, automatic long breaks, session intentions, a progress ring and completed-session markers.
+- One **Shilligem per completed focus minute**. Basic eggs cost 25; mystery rolls cost 60. The shop shows rarity odds and the rare-or-better guarantee.
+- Illustrated cats, dogs, squirrels, rabbits, foxes and deer. Duplicates are additional residents. Choose a companion, arrange the room and unlock accessories, furniture and backgrounds.
+- Ambient sound mixing, a daily session goal, break activity suggestions, a distraction scratchpad and daily focus recaps.
+
+## Checks
+
+```sh
+npm test -- --watchAll=false
+npm run test:server
+npm run build
+```
+
+Server tests create isolated folders under your operating system's temporary directory. They cover disk persistence, recovery, conflicts, request validation, loopback request restrictions and safe production file serving. They never read or write your personal save folder.

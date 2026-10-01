@@ -21,3 +21,17 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Personal runtime data belongs outside this public repository.
+# Defense in depth for accidental exports / local experiments:
+.local/
+saves/
+exports/
+state.json
+state.backup.json
+.state-*.tmp
+*.save.json
+*.save.backup.json
+.env
+playwright-report/
+test-results/

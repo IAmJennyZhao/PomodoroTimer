@@ -2,6 +2,8 @@
   "name": "pomodoro",
   "version": "0.1.0",
   "private": true,
+  "engines": { "node": ">=22" },
+  "proxy": "http://127.0.0.1:3001",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -13,9 +15,11 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "node scripts/dev.cjs",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:server": "node --test server/*.test.cjs",
+    "serve": "node server/index.cjs",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
