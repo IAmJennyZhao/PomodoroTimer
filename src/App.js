@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import "./layout.css";
+import "./timer-flow.css";
 import useLocalSave from "./useLocalSave";
 import {
   BACKGROUNDS,
   DECORATIONS,
   formatTime,
+  formatElapsedTime,
+  elapsedTime,
+  isCountingUp,
   remainingTime,
   todayStats,
 } from "./game";
@@ -18,8 +22,8 @@ import {
   AnimalArt,
   Drawer,
   HatchModal,
-  InfoTip,
 } from "./ui";
+import TimerCard, { QuickScratchpad } from "./TimerCard";
 import {
   AnimalsPanel,
   ShopPanel,
@@ -66,8 +70,10 @@ export default function App() {
   const { state, dispatch, ready, status, error } = persistence;
   const [now, setNow] = useState(Date.now());
   const [panel, setPanel] = useState(null);
-  const [sessionControls, setSessionControls] = useState(false);
-  const sessionButton = useRef(null);
+  const [focusView, setFocusView] = useState(false);
+  const focusedSession = useRef(null);
+  const [silencedAlarm, setSilencedAlarm] = useState(null);
+  const [alarmBlocked, setAlarmBlocked] = useState(false);
   const [selectedAnimal, setSelectedAnimal] = useState("starter-cat");
   const [selection, setSelection] = useState(null);
   const [arranging, setArranging] = useState(false);
@@ -80,14 +86,16 @@ export default function App() {
   const sceneRef = useRef(null);
   const lastEvent = useRef(null);
   const act = useCallback(
-    (action) =>
+    (action) => {
+      if (action.type === "START_BREAK") engine.current?.unlock();
       dispatch({
         ...action,
         now: Date.now(),
         ...(["BUY_EGG", "HATCH_EGG"].includes(action.type)
           ? { roll: Math.random() }
           : {}),
-      }),
+      });
+    },
     [dispatch],
   );
   useEffect(() => {
@@ -116,12 +124,51 @@ export default function App() {
     };
   }, [ready, dispatch]);
   const remaining = remainingTime(state.timer, now);
+  const counting = isCountingUp(state.timer);
+  const elapsed = elapsedTime(state.timer, now);
+  const displayTime = counting ? Math.max(0, elapsed - (state.timer.overtime ? state.timer.durationMs : 0)) : remaining;
+  const sidePanel = ["settings", "session", "sound", "notes"].includes(panel);
+  const widePanel = Boolean(panel) && !sidePanel;
+  useEffect(() => {
+    if (!ready) return;
+    if (state.timer.mode === "focus" && state.timer.status === "running") {
+      if (focusedSession.current !== state.timer.id) {
+        focusedSession.current = state.timer.id;
+        setFocusView(true);
+        setPanel(null);
+      }
+    } else if (state.timer.status === "idle" || state.timer.status === "complete" || state.timer.mode !== "focus") {
+      setFocusView(false);
+    }
+  }, [ready, state.timer.id, state.timer.status, state.timer.mode]);
+  const shouldAlarm = ready && status !== "conflict" && state.timer.mode === "focus" &&
+    state.timer.status === "complete" && state.timer.workMode === "pomodoro" &&
+    state.timer.endBehavior === "remind" && state.settings.soundEnabled && silencedAlarm !== state.timer.id;
+  useEffect(() => {
+    let cancelled = false;
+    setAlarmBlocked(false);
+    const tryAlarm = () => {
+      Promise.resolve(engine.current?.startAlarm()).then((started) => {
+        if (!cancelled) setAlarmBlocked(!started);
+      }).catch(() => { if (!cancelled) setAlarmBlocked(true); });
+    };
+    const onVisible = () => { if (document.visibilityState === "visible") tryAlarm(); };
+    if (shouldAlarm) {
+      tryAlarm();
+      document.addEventListener("visibilitychange", onVisible);
+    } else engine.current?.stopAlarm();
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", onVisible);
+      engine.current?.stopAlarm();
+    };
+  }, [shouldAlarm, state.timer.id]);
   useEffect(() => {
     document.title =
       state.timer.status === "running"
-        ? `${formatTime(remaining)} · ${state.timer.mode === "focus" ? "Focus" : "Breathe"} — Little Room`
-        : "Little Room · Pomodoro";
-  }, [remaining, state.timer.status, state.timer.mode]);
+        ? `${state.timer.overtime ? "+" : ""}${counting ? formatElapsedTime(displayTime) : formatTime(displayTime)} · ${state.timer.mode === "focus" ? state.timer.overtime ? "Overtime" : state.timer.workMode === "countup" ? "Count up" : "Focus" : "Break"} — Little Room`
+        : state.timer.status === "complete" ? "Time for a break · Little Room" : "Little Room · Focus";
+  }, [displayTime, counting, state.timer.status, state.timer.mode, state.timer.overtime, state.timer.workMode]);
   useEffect(() => {
     const event = state.event;
     if (!event || event.id === lastEvent.current) return;
@@ -135,7 +182,8 @@ export default function App() {
           : event.message,
       );
       setTip(Math.floor(Math.random() * BREAK_IDEAS.length));
-      if (state.settings.soundEnabled) engine.current?.chime();
+      if (state.timer.overtime) setToast("Target reached · counting up");
+      if (state.settings.soundEnabled && !(state.timer.status === "complete" && state.timer.workMode === "pomodoro" && state.timer.endBehavior === "remind")) engine.current?.chime();
     } else {
       setToast(event.message);
       if (event.type === "break-complete" && state.settings.soundEnabled)
@@ -151,10 +199,6 @@ export default function App() {
     const onKey = (event) => {
       if (event.key === "Escape") {
         if (hatch) setHatch(null);
-        else if (sessionControls) {
-          setSessionControls(false);
-          sessionButton.current?.focus();
-        }
         else {
           setPanel(null);
           setArranging(false);
@@ -163,9 +207,8 @@ export default function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [hatch, sessionControls]);
+  }, [hatch]);
   const openPanel = (id) => {
-    setSessionControls(false);
     setPanel((previous) => (previous === id ? null : id));
     if (id !== "decorate") setArranging(false);
   };
@@ -174,19 +217,16 @@ export default function App() {
     setArranging(false);
   };
   const timerAction = () => {
+    if (state.timer.status !== "running") {
+      engine.current?.unlock();
+      setNow(Date.now());
+      setPanel(null);
+      if (state.timer.mode === "focus") setFocusView(true);
+    }
     if (state.settings.soundEnabled) engine.current?.tap();
     act({ type: state.timer.status === "running" ? "PAUSE" : "START" });
   };
   const stats = todayStats(state, now);
-  const progress = Math.max(
-    0,
-    Math.min(1, 1 - remaining / state.timer.durationMs),
-  );
-  const modes = [
-    ["focus", "Focus"],
-    ["break", "Short break"],
-    ["longBreak", "Long break"],
-  ];
   const startDrag = (event, type, item) => {
     if (!arranging) {
       if (type === "animal") {
@@ -272,11 +312,11 @@ export default function App() {
   };
   return (
     <div
-      className={`app ${state.room.background} ${state.settings.reducedMotion ? "reduce-motion" : ""} ${panel ? "panel-open" : ""} ${arranging ? "is-arranging" : ""}`}
+      className={`app ${state.room.background} ${state.settings.reducedMotion ? "reduce-motion" : ""} ${panel ? "panel-open" : ""} ${widePanel ? "wide-panel-open" : ""} ${sidePanel ? "side-panel-open" : ""} ${focusView ? "focus-view" : ""} ${arranging ? "is-arranging" : ""}`}
     >
       <div
         className="room-scene"
-        inert={panel && !arranging ? "" : undefined}
+        inert={(panel && !arranging) || focusView ? "" : undefined}
         ref={sceneRef}
         style={{
           backgroundImage: `url(${ART}/room-${state.room.background}.png)`,
@@ -293,7 +333,7 @@ export default function App() {
           .map((item) => renderResident(item, "animal"))}
       </div>
       <div className="room-vignette" />
-      <header className="app-header">
+      <header className="app-header" hidden={focusView}>
         <div className="header-actions">
           <button
             className="gem-pill paper"
@@ -330,124 +370,17 @@ export default function App() {
           </button>
         </div>
       </header>
-      <main className="focus-area" hidden={Boolean(panel)}>
-        <section className={`timer-card paper ${sessionControls ? "editing-session" : ""}`} aria-label="Pomodoro timer">
-          <div className="mode-tabs" aria-label="Timer mode">
-            {modes.map(([id, label]) => (
-              <button
-                key={id}
-                aria-pressed={state.timer.mode === id}
-                className={state.timer.mode === id ? "active" : ""}
-                onClick={() => act({ type: "SET_MODE", mode: id })}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <div className="timer-face">
-            <svg
-              className="timer-ring"
-              viewBox="0 0 280 154"
-              aria-hidden="true"
-            >
-              <path
-                className="ring-track"
-                d="M19 140a121 121 0 0 1 242 0"
-                pathLength="100"
-              />
-              <path
-                className="ring-progress"
-                d="M19 140a121 121 0 0 1 242 0"
-                pathLength="100"
-                strokeDasharray={`${progress * 100} 100`}
-              />
-            </svg>
-            <div
-              className="timer-digits"
-              role="timer"
-              aria-label={`${formatTime(remaining)} remaining`}
-            >
-              {formatTime(remaining)}
-            </div>
-          </div>
-          <label className="task-input">
-            <Icon name="pencil" size={17} />
-            <input
-              aria-label="Session task"
-              maxLength={200}
-              placeholder="Add a task"
-              value={state.timer.task}
-              onChange={(e) => act({ type: "SET_TASK", task: e.target.value })}
-            />
-          </label>
-          <div className="timer-actions">
-            <button
-              className="icon-button reset-button"
-              onClick={() => act({ type: "RESET" })}
-              aria-label="Reset timer"
-              title="Reset timer"
-            >
-              <Icon name="reset" size={20} />
-            </button>
-            <button
-              className="primary-button start-button"
-              onClick={timerAction}
-              disabled={!ready || status === "conflict"}
-            >
-              <Icon
-                name={state.timer.status === "running" ? "pause" : "play"}
-                size={18}
-              />
-              {state.timer.status === "running"
-                ? "Pause"
-                : state.timer.status === "paused"
-                  ? "Resume"
-                  : "Start"}
-            </button>
-            <button
-              className="icon-button skip-button"
-              aria-label="Skip current session"
-              title="Skip current session (no reward)"
-              onClick={() => act({ type: "SKIP" })}
-            >
-              <Icon name="skip" size={20} />
-            </button>
-          </div>
-          <div className="timer-options">
-            <span className="session-reward">
-              {state.timer.mode === "focus" && <><Icon name="gem" size={15} /> +{Math.round(state.timer.durationMs / 60000)}
-                <InfoTip label="Session rewards">Earn 1 Shilligem per completed focus minute. Skipped sessions earn none.</InfoTip></>}
-            </span>
-            <button ref={sessionButton} className="session-settings-button" aria-expanded={sessionControls}
-              aria-controls="session-controls" onClick={() => setSessionControls(!sessionControls)}>
-              <Icon name="sliders" size={16} /> Session lengths
-            </button>
-          </div>
-          {sessionControls && <div id="session-controls" className="session-editor"><SessionControls state={state} act={act} /></div>}
-          {state.timer.mode !== "focus" && (
-            <div className="break-idea">
-              <div>
-                <strong>{BREAK_IDEAS[tip][0]}</strong>{" "}
-                <InfoTip label="Break idea details">{BREAK_IDEAS[tip][1]}</InfoTip>
-              </div>
-              <button
-                className="icon-button"
-                aria-label="Another break idea"
-                onClick={() =>
-                  setTip(
-                    (previous) =>
-                      (previous +
-                        1 +
-                        Math.floor(Math.random() * (BREAK_IDEAS.length - 1))) %
-                      BREAK_IDEAS.length,
-                  )
-                }
-              >
-                <Icon name="shuffle" size={20} />
-              </button>
-            </div>
-          )}
-        </section>
+      <main className="focus-area" hidden={widePanel}>
+        <TimerCard state={state} act={act} now={now} ready={ready} blocked={status === "conflict"}
+          onToggleTimer={timerAction} panel={panel} openPanel={openPanel}
+          focusView={focusView} setFocusView={setFocusView}
+          alarmSilenced={silencedAlarm === state.timer.id}
+          silenceAlarm={() => { engine.current?.stopAlarm(); setSilencedAlarm(state.timer.id); }}
+          alarmBlocked={alarmBlocked} retryAlarm={async () => {
+            await engine.current?.unlock();
+            setAlarmBlocked(!(await engine.current?.startAlarm()));
+          }}
+          tip={BREAK_IDEAS[tip]} nextTip={() => setTip((previous) => (previous + 1 + Math.floor(Math.random() * (BREAK_IDEAS.length - 1))) % BREAK_IDEAS.length)} />
       </main>
       {arranging && (
         <button
@@ -458,7 +391,7 @@ export default function App() {
           Done
         </button>
       )}
-      <footer className="room-footer">
+      <footer className="room-footer" hidden={focusView}>
         <button
           className={`daily-pill paper ${stats.progress === 1 ? "goal-reached" : ""}`}
           onClick={() => openPanel("journal")}
@@ -495,7 +428,7 @@ export default function App() {
           <Icon name="sound" size={18} />
         </button>
       </footer>
-      {panel && <div className="workspace-backdrop" onClick={closePanel} />}
+      {widePanel && <div className="workspace-dismiss" onClick={closePanel} />}
       {panel && (
         <Drawer key={panel} name={panel} onClose={closePanel}>
           {panel === "animals" && (
@@ -533,6 +466,8 @@ export default function App() {
           {panel === "settings" && (
             <SettingsPanel state={state} act={act} persistence={persistence} />
           )}
+          {panel === "session" && <SessionControls state={state} act={act} />}
+          {panel === "notes" && <QuickScratchpad state={state} act={act} saveStatus={status} />}
         </Drawer>
       )}
       <div className="toast-region" role="status" aria-live="polite">

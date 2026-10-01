@@ -13,6 +13,8 @@ export const PANEL_NAMES = {
   journal: "Journal",
   sound: "Sound",
   settings: "Settings",
+  session: "Session settings",
+  notes: "Scratchpad",
 };
 
 export function Icon({ name, size = 22, ...props }) {
@@ -75,6 +77,10 @@ export function Icon({ name, size = 22, ...props }) {
     minus: <path d="M4 12h16" />,
     info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7v.1" /></>,
     sliders: <><path d="M4 6h16M4 12h16M4 18h16" /><path d="M8 3v6M16 9v6M10 15v6" /></>,
+    note: <><path d="M14 3H5v18h14V8ZM14 3v5h5M8 12h8M8 16h6" /></>,
+    expand: <path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5" />,
+    collapse: <path d="M3 8h5V3M16 3v5h5M8 21v-5H3M21 16h-5v5" />,
+    mute: <path d="M3 9h4l5-5v16l-5-5H3ZM16 9l6 6M16 15l6-6" />,
   };
   return (
     <svg
@@ -239,7 +245,7 @@ export function Drawer({ name, onClose, children }) {
   useEffect(() => {
     const previous = document.activeElement;
     const dialog = dialogRef.current;
-    closeRef.current?.focus();
+    (name === "notes" ? dialog?.querySelector("textarea") : closeRef.current)?.focus();
     return () => {
       if (previous?.isConnected &&
         (document.activeElement === document.body || dialog?.contains(document.activeElement))) previous.focus();

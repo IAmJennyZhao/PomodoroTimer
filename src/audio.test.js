@@ -158,6 +158,143 @@ describe('ambient audio lifecycle', () => {
     expect(context.createOscillator).toHaveBeenCalledTimes(4);
   });
 
+  test('unlock primes browser audio silently and reuses it for a later chime', async () => {
+    await expect(engine.unlock()).resolves.toBe(true);
+    expect(context.resume).toHaveBeenCalledTimes(1);
+    expect(context.createOscillator).not.toHaveBeenCalled();
+    expect(engine.playing).toBe(false);
+    expect(context.gains[0].gain.value).toBe(0);
+    jest.advanceTimersByTime(500);
+    expect(context.state).toBe('suspended');
+
+    await expect(engine.chime()).resolves.toBe(true);
+    expect(globalThis.AudioContext).toHaveBeenCalledTimes(1);
+    expect(context.createOscillator).toHaveBeenCalledTimes(3);
+  });
+
+  test('alarm rings immediately and repeats every eight seconds without duplicate starts', async () => {
+    const firstStart = engine.startAlarm();
+    const repeatedStart = engine.startAlarm();
+    expect(repeatedStart).toBe(firstStart);
+    await expect(firstStart).resolves.toBe(true);
+    await expect(engine.startAlarm()).resolves.toBe(true);
+    expect(context.createOscillator).toHaveBeenCalledTimes(3);
+
+    // Completed notes release their nodes; the active alarm keeps its context
+    // available for the next reminder without rebuilding ambient resources.
+    const firstNotes = context.sources.slice(3);
+    firstNotes.forEach(note => note.onended());
+    firstNotes.forEach(note => expect(note.disconnect).toHaveBeenCalledTimes(1));
+    jest.advanceTimersByTime(7999);
+    expect(context.createOscillator).toHaveBeenCalledTimes(3);
+    expect(context.suspend).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(1);
+    await Promise.resolve();
+    expect(context.createOscillator).toHaveBeenCalledTimes(6);
+    expect(context.createBufferSource).toHaveBeenCalledTimes(3);
+    expect(globalThis.AudioContext).toHaveBeenCalledTimes(1);
+  });
+
+  test('stopping an alarm silences current and scheduled notes while preserving ambience and one-shot effects', async () => {
+    await engine.start();
+    await engine.tap();
+    const tap = context.sources[3];
+    await engine.startAlarm();
+    const notes = context.sources.slice(4);
+    engine.stopAlarm();
+    engine.stopAlarm();
+
+    notes.forEach(note => {
+      expect(note.stop).toHaveBeenLastCalledWith();
+      expect(note.disconnect).toHaveBeenCalledTimes(1);
+      expect(note.onended).toBeNull();
+    });
+    expect(tap.disconnect).not.toHaveBeenCalled();
+    expect(tap.stop).toHaveBeenCalledTimes(1);
+    expect(engine.playing).toBe(true);
+    jest.advanceTimersByTime(24000);
+    await Promise.resolve();
+    expect(context.createOscillator).toHaveBeenCalledTimes(4);
+    expect(context.suspend).not.toHaveBeenCalled();
+  });
+
+  test('stopping during a pending alarm unlock prevents delayed ringing', async () => {
+    let finishResume;
+    context.resume.mockImplementationOnce(() => new Promise(resolve => {
+      finishResume = () => { context.state = 'running'; resolve(); };
+    }));
+    const starting = engine.startAlarm();
+    engine.stopAlarm();
+    finishResume();
+    await expect(starting).resolves.toBe(false);
+    jest.advanceTimersByTime(24000);
+    expect(context.createOscillator).not.toHaveBeenCalled();
+    expect(jest.getTimerCount()).toBe(0);
+    await expect(engine.startAlarm()).resolves.toBe(true);
+    expect(context.createOscillator).toHaveBeenCalledTimes(3);
+  });
+
+  test('unavailable or blocked alarm audio fails quietly and can be retried', async () => {
+    globalThis.AudioContext = undefined;
+    await expect(engine.unlock()).resolves.toBe(false);
+    await expect(engine.startAlarm()).resolves.toBe(false);
+    expect(jest.getTimerCount()).toBe(0);
+
+    globalThis.AudioContext = jest.fn(() => context);
+    context.resume.mockRejectedValueOnce(new Error('User gesture required'));
+    await expect(engine.startAlarm()).resolves.toBe(false);
+    jest.advanceTimersByTime(24000);
+    expect(context.createOscillator).not.toHaveBeenCalled();
+    expect(jest.getTimerCount()).toBe(0);
+    await expect(engine.startAlarm()).resolves.toBe(true);
+    expect(context.createOscillator).toHaveBeenCalledTimes(3);
+  });
+
+  test('a failed alarm note cancels preceding notes and releases partial nodes', async () => {
+    await engine.unlock();
+    const makeGain = context.createGain.getMockImplementation();
+    context.createGain.mockImplementationOnce(makeGain).mockImplementationOnce(() => {
+      throw new Error('Unavailable audio node');
+    });
+    await expect(engine.startAlarm()).resolves.toBe(false);
+    const notes = context.sources.slice(3);
+    expect(notes).toHaveLength(2);
+    notes.forEach(note => expect(note.disconnect).toHaveBeenCalled());
+    expect(notes[0].stop).toHaveBeenLastCalledWith();
+    jest.advanceTimersByTime(24000);
+    expect(context.createOscillator).toHaveBeenCalledTimes(2);
+    expect(jest.getTimerCount()).toBe(0);
+    await expect(engine.startAlarm()).resolves.toBe(true);
+  });
+
+  test('a slow browser resume does not queue a burst of missed reminders', async () => {
+    await engine.startAlarm();
+    context.state = 'suspended';
+    let finishResume;
+    context.resume.mockImplementationOnce(() => new Promise(resolve => {
+      finishResume = () => { context.state = 'running'; resolve(); };
+    }));
+    jest.advanceTimersByTime(24000);
+    expect(context.resume).toHaveBeenCalledTimes(2);
+    expect(context.createOscillator).toHaveBeenCalledTimes(3);
+    finishResume();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(context.createOscillator).toHaveBeenCalledTimes(6);
+  });
+
+  test('destroy cancels the alarm cadence and prevents later alarms or unlocks', async () => {
+    await engine.startAlarm();
+    await engine.destroy();
+    expect(jest.getTimerCount()).toBe(0);
+    jest.advanceTimersByTime(24000);
+    await Promise.resolve();
+    expect(context.createOscillator).toHaveBeenCalledTimes(3);
+    context.nodes.forEach(node => expect(node.disconnect).toHaveBeenCalled());
+    await expect(engine.startAlarm()).resolves.toBe(false);
+    await expect(engine.unlock()).resolves.toBe(false);
+  });
+
   test('destroy closes audio, disconnects nodes, and clears scheduled work', async () => {
     await engine.start();
     await engine.chime();

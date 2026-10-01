@@ -20,10 +20,6 @@
 .session-reward { display: flex; align-items: center; gap: 4px; color: #8b648a; }
 .session-settings-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 8px; padding: 7px 6px; font-size: 11px; background: transparent; color: #766378; }
 .session-settings-button:hover, .session-settings-button[aria-expanded="true"] { background: #eee2e8; }
-.session-editor { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 10px; text-align: left; }
-.editing-session .timer-face { padding-top: 0; margin-top: 16px; }
-.editing-session .timer-ring, .editing-session .task-input { display: none; }
-.editing-session .timer-digits { font-size: 38px; letter-spacing: -1px; margin-bottom: 15px; }
 .session-presets { display: flex; gap: 6px; margin-bottom: 14px; }
 .session-presets .preset-button { padding: 10px 5px; }
 .session-duration-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
@@ -36,7 +32,6 @@
 .daily-pill strong { font-size: 11px; }
 .session-markers { margin-top: 5px; }
 .sound-pill { min-height: 45px; padding: 10px 15px; gap: 9px; }
-.workspace-backdrop { position: absolute; inset: 82px 0 0; background: #41333e2b; backdrop-filter: blur(3px); z-index: 121; }
 .drawer { top: 100px; bottom: 30px; left: 50%; right: auto; transform: translateX(-50%); width: min(960px, calc(100% - 64px)); border-radius: 25px; animation: workspace-in .2s ease; background: #fffaf5fc; box-shadow: 0 18px 65px #4d384b30; }
 .workspace-settings, .workspace-sound { width: min(500px, calc(100% - 48px)); bottom: auto; max-height: calc(100% - 126px); }
 .drawer-heading { align-items: center; padding: 20px 28px 17px; flex-shrink: 0; }
@@ -104,7 +99,6 @@
 .toast-region { top: auto; bottom: 25px; z-index: 200; }
 .save-warning { top: 90px; }
 .arrange-done { top: 100px; bottom: auto; }
-.is-arranging .workspace-backdrop { display: none; }
 .is-arranging .drawer { left: 24px; right: auto; transform: none; top: 100px; bottom: auto; max-height: calc(100% - 190px); width: 320px; }
 .is-arranging .drawer-heading { padding: 16px 20px; }
 .is-arranging .drawer-heading h2 { font-size: 22px; }
@@ -156,7 +150,6 @@
   .daily-pill strong { font-size: 10px; }
   .room-resident { width: clamp(100px, 26vw, 150px); }
   .room-resident.decoration { width: clamp(76px, 21vw, 120px); }
-  .workspace-backdrop { inset: 125px 0 0; }
   .drawer, .workspace-settings, .workspace-sound { top: 138px; left: 12px; right: 12px; transform: none; width: auto; bottom: 12px; max-height: none; border-radius: 20px; }
   .drawer-heading { padding: 16px 18px 12px; }
   .drawer-heading h2 { font-size: 25px; }

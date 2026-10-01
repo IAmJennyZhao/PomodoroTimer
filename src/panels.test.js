@@ -137,13 +137,89 @@ test('editing durations preserves an active timer and explains when changes appl
   expect(getState().timer).toEqual(originalTimer);
   expect(screen.getByText('Applies next session')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Changing an active timer' }));
-  expect(screen.getByText('Reset the timer to apply new durations to this session.')).toBeInTheDocument();
+  expect(screen.getByText(/Your current session keeps its original times and end behavior/)).toBeInTheDocument();
+  expect(screen.getByText(/Reset the timer to apply changes now/)).toBeInTheDocument();
+});
+
+test('focus end choices save the setting and keep explanations behind an info button', () => {
+  const { getState } = renderPanel(SessionControls);
+  expect(screen.getByRole('radio', { name: 'Repeat alarm' })).toBeChecked();
+  expect(screen.queryByText(/chimes once/)).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('radio', { name: 'Ding + count up' }));
+  expect(getState().settings.endBehavior).toBe('overtime');
+  expect(getState().timer.endBehavior).toBe('overtime');
+  expect(screen.getByRole('radio', { name: 'Ding + count up' })).toBeChecked();
+  fireEvent.click(screen.getByRole('button', { name: 'Focus end options' }));
+  expect(screen.getByText(/Ding \+ count up chimes once/)).toBeInTheDocument();
+  expect(screen.getByText(/Applies to Pomodoro sessions/)).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('radio', { name: 'Repeat alarm' }));
+  expect(getState().settings.endBehavior).toBe('remind');
+});
+
+test('changing focus end behavior only affects the next active session', () => {
+  const initial = gameReducer(createInitialState(NOW), { type: 'START', now: NOW });
+  const { getState } = renderPanel(SessionControls, initial);
+  fireEvent.click(screen.getByRole('radio', { name: 'Ding + count up' }));
+  expect(getState().settings.endBehavior).toBe('overtime');
+  expect(getState().timer.endBehavior).toBe('remind');
+  expect(getState().timer).toEqual(initial.timer);
+});
+
+test('count-up settings show only breaks and preserve Pomodoro preferences when switching modes', () => {
+  function SwitchableTiming(props) {
+    return <>
+      <button onClick={() => props.act({ type: 'SET_SETTINGS', settings: { workMode: 'countup' } })}>Count up</button>
+      <button onClick={() => props.act({ type: 'SET_SETTINGS', settings: { workMode: 'pomodoro' } })}>Pomodoro</button>
+      <SessionControls {...props} />
+    </>;
+  }
+  const { getState } = renderPanel(SwitchableTiming);
+  fireEvent.click(screen.getByRole('button', { name: /Deep work/ }));
+  fireEvent.click(screen.getByRole('radio', { name: 'Ding + count up' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Count up', exact: true }));
+  expect(screen.getByRole('heading', { name: 'Breaks' })).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /Deep work/ })).not.toBeInTheDocument();
+  expect(screen.queryByRole('spinbutton', { name: /Focus time/ })).not.toBeInTheDocument();
+  expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+  expect(screen.getAllByRole('spinbutton')).toHaveLength(3);
+  expect(screen.queryByText(/Count-up sessions have no alarm target/)).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Count-up timing' }));
+  expect(screen.getByText(/Count-up sessions have no alarm target/)).toBeInTheDocument();
+  expect(screen.getByText(/Choose Finish session/)).toBeInTheDocument();
+  const shortBreak = screen.getByRole('spinbutton', { name: /Short break/ });
+  fireEvent.change(shortBreak, { target: { value: '8' } });
+  fireEvent.blur(shortBreak);
+  expect(getState().settings).toMatchObject({ workMode: 'countup', focusMinutes: 50, breakMinutes: 8, endBehavior: 'overtime' });
+
+  fireEvent.click(screen.getByRole('button', { name: 'Pomodoro', exact: true }));
+  expect(screen.getByRole('spinbutton', { name: /Focus time/ })).toHaveValue(50);
+  expect(screen.getByRole('spinbutton', { name: /Short break/ })).toHaveValue(8);
+  expect(screen.getByRole('radio', { name: 'Ding + count up' })).toBeChecked();
+  expect(screen.getByRole('button', { name: /Deep work/ })).toBeInTheDocument();
+});
+
+test('break edits during count up keep the active timer and the next-session note', () => {
+  let initial = gameReducer(createInitialState(NOW), { type: 'SET_SETTINGS', settings: { workMode: 'countup' }, now: NOW });
+  initial = gameReducer(initial, { type: 'START', now: NOW });
+  const { getState } = renderPanel(SessionControls, initial);
+  const longBreak = screen.getByRole('spinbutton', { name: /^Long break min$/ });
+  fireEvent.change(longBreak, { target: { value: '20' } });
+  fireEvent.blur(longBreak);
+  expect(getState().settings.longBreakMinutes).toBe(20);
+  expect(getState().timer).toEqual(initial.timer);
+  expect(screen.getByText('Applies next session')).toBeInTheDocument();
+  expect(screen.queryByRole('radio')).not.toBeInTheDocument();
 });
 
 test('global settings keep preferences and save recovery accessible without timing fields', () => {
   const persistence = { status: 'error', storagePath: 'C:\\private\\saves', error: 'Save unavailable', retrySave: jest.fn() };
   const { getState } = renderPanel(SettingsPanel, createInitialState(NOW), { persistence });
   expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
+  expect(screen.queryByRole('checkbox', { name: 'Auto-start breaks' })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Auto-start focus' }));
+  expect(getState().settings.autoStartFocus).toBe(true);
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Timer sound' }));
+  expect(getState().settings.soundEnabled).toBe(false);
   fireEvent.click(screen.getByRole('checkbox', { name: 'Reduce animation' }));
   expect(getState().settings.reducedMotion).toBe(true);
   expect(screen.queryByText(persistence.storagePath)).not.toBeInTheDocument();

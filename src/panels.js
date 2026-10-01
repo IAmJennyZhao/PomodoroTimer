@@ -503,7 +503,7 @@ export function SoundPanel({
         ))}
       </div>
       <label className="toggle-line">
-        <span>Completion chime</span>
+        <span>Timer sound</span>
         <input
           type="checkbox"
           checked={state.settings.soundEnabled}
@@ -556,9 +556,16 @@ function NumberSetting({ label, value, min = 1, max, onChange, suffix }) {
 }
 
 export function SessionControls({ state, act }) {
+  const countUp = state.settings.workMode === "countup";
   return (
-    <div className="session-controls" role="group" aria-label="Session timing">
-      <div className="preset-list session-presets">
+    <div className={`session-controls ${countUp ? "countup-settings" : ""}`} role="group" aria-label="Session timing">
+      {countUp ? <div className="catalog-heading session-break-heading">
+        <h3>Breaks</h3>
+        <InfoTip label="Count-up timing">
+          Count-up sessions have no alarm target. Choose Finish session when
+          you are done, then start a break.
+        </InfoTip>
+      </div> : <div className="preset-list session-presets">
         {PRESETS.map((preset) => {
           const selected = Object.entries(preset.settings).every(
             ([key, value]) => state.settings[key] === value,
@@ -574,24 +581,46 @@ export function SessionControls({ state, act }) {
             </button>
           );
         })}
-      </div>
+      </div>}
       <div className="session-duration-grid">
         {[
           { key: "focusMinutes", name: "Focus time", max: 180, suffix: "min" },
           { key: "breakMinutes", name: "Short break", max: 60, suffix: "min" },
           { key: "longBreakMinutes", name: "Long break", max: 120, suffix: "min" },
           { key: "longBreakEvery", name: "Long break every", max: 12, suffix: "sessions" },
-        ].map((field) => (
+        ].filter((field) => !countUp || field.key !== "focusMinutes").map((field) => (
           <NumberSetting key={field.key} label={field.name}
             value={state.settings[field.key]} max={field.max} suffix={field.suffix}
             onChange={(value) => act({ type: "SET_SETTINGS", settings: { [field.key]: value } })} />
         ))}
       </div>
+      {!countUp && <fieldset className="session-completion-settings">
+        <legend>When focus ends</legend>
+        <div className="session-end-options">
+          {[
+            { id: "remind", name: "Repeat alarm" },
+            { id: "overtime", name: "Ding + count up" },
+          ].map((option) => (
+            <label className={`session-end-choice ${state.settings.endBehavior === option.id ? "selected" : ""}`} key={option.id}>
+              <input type="radio" name="focus-end-behavior" value={option.id}
+                checked={state.settings.endBehavior === option.id}
+                onChange={() => act({ type: "SET_SETTINGS", settings: { endBehavior: option.id } })} />
+              <span>{option.name}</span>
+            </label>
+          ))}
+        </div>
+        <InfoTip label="Focus end options">
+          <p>Repeat alarm reminds you to take a break until you choose a break, start a new session, or mute it.</p>
+          <p>Ding + count up chimes once, then keeps tracking your work until you finish.</p>
+          <p>Applies to Pomodoro sessions. Turn on Timer sound in Settings to hear alerts.</p>
+        </InfoTip>
+      </fieldset>}
       {state.timer.status !== "idle" && (
         <div className="session-timing-note">
           <span className="small muted">Applies next session</span>
           <InfoTip label="Changing an active timer">
-            Reset the timer to apply new durations to this session.
+            Your current session keeps its original times and end behavior.
+            Reset the timer to apply changes now.
           </InfoTip>
         </div>
       )}
@@ -604,9 +633,8 @@ export function SettingsPanel({ state, act, persistence }) {
     <>
       <div className="settings-toggles">
         {[
-          { key: "autoStartBreaks", name: "Auto-start breaks" },
           { key: "autoStartFocus", name: "Auto-start focus" },
-          { key: "soundEnabled", name: "Completion chime" },
+          { key: "soundEnabled", name: "Timer sound" },
           { key: "reducedMotion", name: "Reduce animation" },
         ].map((setting) => (
           <label className="toggle-line" key={setting.key}>

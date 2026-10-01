@@ -2,6 +2,7 @@
 const CHANNELS = ["rain", "fire", "noise"];
 const DEFAULT_VOLUMES = { rain: 0.35, fire: 0, noise: 0 };
 const LEVELS = { rain: 0.13, fire: 0.28, noise: 0.23 };
+const ALARM_INTERVAL_MS = 8000;
 
 function safelyDisconnect(node) {
   try {
@@ -13,7 +14,8 @@ function safelyDisconnect(node) {
 
 /**
  * A local, procedural sound mixer. Nothing is downloaded, and construction is
- * silent: call start(), chime(), or tap() from a user gesture to unlock audio.
+ * silent: call unlock() from a user gesture before a timer begins. start(),
+ * chime(), and tap() also unlock audio when used directly.
  * Volume changes are remembered before playback. Unavailable/blocked audio
  * returns false instead of breaking the timer. destroy() releases all resources.
  */
@@ -29,6 +31,10 @@ export function createAmbientEngine() {
   let crackleBuffer = null;
   let crackleInterval = null;
   let idleTimeout = null;
+  let alarmInterval = null;
+  let alarmStartPromise = null;
+  let alarmGeneration = 0;
+  let wantedAlarm = false;
   let wantedPlaying = false;
   let destroyed = false;
 
@@ -127,12 +133,14 @@ export function createAmbientEngine() {
 
   function suspendWhenIdle(delay = 350) {
     clearIdleTimeout();
-    if (destroyed || wantedPlaying || effects.size || !context) return;
+    if (destroyed || wantedPlaying || wantedAlarm || effects.size || !context)
+      return;
     idleTimeout = setTimeout(() => {
       idleTimeout = null;
       if (
         !destroyed &&
         !wantedPlaying &&
+        !wantedAlarm &&
         effects.size === 0 &&
         context.state === "running"
       ) {
@@ -183,14 +191,27 @@ export function createAmbientEngine() {
     }
   }
 
-  function trackEffect(source, nodes) {
-    const effect = { source, nodes };
+  function trackEffect(source, nodes, kind = "effect") {
+    const effect = { source, nodes, kind };
     effects.add(effect);
     source.onended = () => {
       nodes.forEach(safelyDisconnect);
       effects.delete(effect);
       suspendWhenIdle();
     };
+    return effect;
+  }
+
+  function cancelEffect(effect) {
+    const { source, nodes } = effect;
+    source.onended = null;
+    try {
+      source.stop();
+    } catch (_) {
+      /* Already ended, or never started. */
+    }
+    nodes.forEach(safelyDisconnect);
+    effects.delete(effect);
   }
 
   function crackle() {
@@ -253,51 +274,117 @@ export function createAmbientEngine() {
     }
   }
 
-  function tone(frequency, offset, length, loudness) {
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    const begins = context.currentTime + offset;
-    oscillator.type = "sine";
-    oscillator.frequency.value = frequency;
-    gain.gain.setValueAtTime(0, begins);
-    gain.gain.linearRampToValueAtTime(loudness, begins + 0.015);
-    gain.gain.exponentialRampToValueAtTime(0.0001, begins + length);
-    oscillator.connect(gain);
-    gain.connect(output);
-    trackEffect(oscillator, [oscillator, gain]);
-    oscillator.start(begins);
-    oscillator.stop(begins + length + 0.02);
+  function tone(frequency, offset, length, loudness, kind = "effect") {
+    const nodes = [];
+    let effect;
+    try {
+      const oscillator = context.createOscillator();
+      nodes.push(oscillator);
+      const gain = context.createGain();
+      nodes.push(gain);
+      const begins = context.currentTime + offset;
+      oscillator.type = "sine";
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(0, begins);
+      gain.gain.linearRampToValueAtTime(loudness, begins + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, begins + length);
+      oscillator.connect(gain);
+      gain.connect(output);
+      effect = trackEffect(oscillator, nodes, kind);
+      oscillator.start(begins);
+      oscillator.stop(begins + length + 0.02);
+      return true;
+    } catch (_) {
+      if (effect) cancelEffect(effect);
+      else nodes.forEach(safelyDisconnect);
+      return false;
+    }
+  }
+
+  function playChime(kind = "effect") {
+    return (
+      tone(523.25, 0, 0.9, 0.1, kind) &&
+      tone(659.25, 0.16, 1, 0.075, kind) &&
+      tone(783.99, 0.32, 1.3, 0.065, kind)
+    );
+  }
+
+  async function unlock() {
+    const available = await ready();
+    suspendWhenIdle();
+    return available;
   }
 
   async function chime() {
     if (!(await ready()) || destroyed || !context) return false;
-    tone(523.25, 0, 0.9, 0.1);
-    tone(659.25, 0.16, 1, 0.075);
-    tone(783.99, 0.32, 1.3, 0.065);
-    return true;
+    const played = playChime();
+    suspendWhenIdle();
+    return played;
   }
 
   async function tap() {
     if (!(await ready()) || destroyed || !context) return false;
-    tone(740, 0, 0.075, 0.035);
+    const played = tone(740, 0, 0.075, 0.035);
+    suspendWhenIdle();
+    return played;
+  }
+
+  function stopAlarm() {
+    wantedAlarm = false;
+    alarmGeneration += 1;
+    alarmStartPromise = null;
+    if (alarmInterval !== null) clearInterval(alarmInterval);
+    alarmInterval = null;
+    effects.forEach((effect) => {
+      if (effect.kind === "alarm") cancelEffect(effect);
+    });
+    suspendWhenIdle();
+  }
+
+  async function ringAlarm(generation) {
+    const available = await ready();
+    if (!wantedAlarm || destroyed || generation !== alarmGeneration) {
+      suspendWhenIdle();
+      return false;
+    }
+    if (!available || !playChime("alarm")) {
+      stopAlarm();
+      return false;
+    }
     return true;
+  }
+
+  function startAlarm() {
+    if (destroyed) return Promise.resolve(false);
+    if (wantedAlarm) return alarmStartPromise || Promise.resolve(true);
+    wantedAlarm = true;
+    const generation = ++alarmGeneration;
+    alarmStartPromise = ringAlarm(generation).then((played) => {
+      if (!played || !wantedAlarm || generation !== alarmGeneration) return false;
+      alarmStartPromise = null;
+      let reminderPending = false;
+      alarmInterval = setInterval(() => {
+        // ringAlarm handles blocked audio internally, including a context that
+        // becomes unavailable after the first reminder. A slow browser resume
+        // must not queue several reminders to ring together later.
+        if (reminderPending) return;
+        reminderPending = true;
+        void ringAlarm(generation).then(() => {
+          reminderPending = false;
+        });
+      }, ALARM_INTERVAL_MS);
+      return true;
+    });
+    return alarmStartPromise;
   }
 
   async function destroy() {
     if (destroyed) return;
+    stopAlarm();
     stop();
     destroyed = true;
     clearIdleTimeout();
-    effects.forEach(({ source, nodes }) => {
-      source.onended = null;
-      try {
-        source.stop();
-      } catch (_) {
-        /* Already ended. */
-      }
-      nodes.forEach(safelyDisconnect);
-    });
-    effects.clear();
+    effects.forEach(cancelEffect);
     loopSources.forEach((source) => {
       try {
         source.stop();
@@ -325,8 +412,11 @@ export function createAmbientEngine() {
     start,
     stop,
     setVolume,
+    unlock,
     chime,
     tap,
+    startAlarm,
+    stopAlarm,
     destroy,
     get playing() {
       return wantedPlaying && context?.state === "running";

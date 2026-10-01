@@ -151,13 +151,13 @@ test('failed reload keeps existing state and does not silently replace it with d
   expect(writes()).toHaveLength(0);
 });
 
-test('expired restored timers award once and persist the recovered transition', async () => {
+test('expired restored Pomodoros award once and persist a completed session awaiting a break', async () => {
   const running = gameReducer(createInitialState(NOW - 30 * 60000), { type: 'START', now: NOW - 30 * 60000 });
   global.fetch.mockResolvedValueOnce(response(envelope(running, { recovered: true })))
     .mockResolvedValueOnce(response({ revision: 5 }));
   const { result } = renderHook(useLocalSave);
   await settle();
-  expect(result.current).toMatchObject({ recovered: true, state: { gems: 25, timer: { mode: 'break', status: 'idle' }, event: { type: 'focus-complete' } } });
+  expect(result.current).toMatchObject({ recovered: true, state: { gems: 25, timer: { mode: 'focus', status: 'complete', workMode: 'pomodoro', endBehavior: 'remind' }, event: { type: 'focus-complete' } } });
   expect(result.current.state.history).toHaveLength(1);
   await advance();
   const persisted = written().state;
@@ -166,8 +166,52 @@ test('expired restored timers award once and persist the recovered transition', 
   await act(async () => result.current.reload());
   expect(result.current.state.gems).toBe(25);
   expect(result.current.state.history).toHaveLength(1);
+  expect(result.current.state.timer).toMatchObject({ mode: 'focus', status: 'complete', endBehavior: 'remind' });
+  expect(result.current.state.event).toBeNull();
   await advance();
   expect(writes()).toHaveLength(1);
+});
+
+test.each([
+  { name: 'count up', workMode: 'countup', endBehavior: 'remind', minutes: 5 },
+  { name: 'overtime', workMode: 'pomodoro', endBehavior: 'overtime', minutes: 28 },
+])('paused $name state survives queued saves and reload with its original timer settings', async ({ workMode, endBehavior, minutes }) => {
+  const startedAt = NOW - 35 * 60000;
+  let saved = gameReducer(createInitialState(startedAt), { type: 'SET_SETTINGS', settings: { workMode, endBehavior }, now: startedAt });
+  saved = gameReducer(saved, { type: 'START', now: startedAt });
+  saved = { ...gameReducer(saved, { type: 'PAUSE', now: startedAt + minutes * 60000 }), event: null };
+  const originalTimer = saved.timer;
+  global.fetch.mockResolvedValueOnce(response(envelope(saved)));
+  const { result } = renderHook(useLocalSave);
+  await settle();
+  expect(result.current.state.timer).toEqual(originalTimer);
+  await advance(5 * 60 * 60000);
+  act(() => result.current.dispatch({ type: 'TICK', now: Date.now() }));
+  expect(result.current.state.timer).toEqual(originalTimer);
+  expect(writes()).toHaveLength(0);
+
+  const firstWrite = deferred();
+  global.fetch.mockReturnValueOnce(firstWrite.promise).mockResolvedValueOnce(response({ revision: 6 }));
+  const nextSettings = { workMode: workMode === 'countup' ? 'pomodoro' : 'countup', endBehavior: endBehavior === 'remind' ? 'overtime' : 'remind' };
+  act(() => result.current.dispatch({ type: 'SET_SETTINGS', settings: nextSettings }));
+  await advance();
+  expect(written()).toMatchObject({ revision: 4, state: { settings: nextSettings, timer: originalTimer } });
+  act(() => result.current.dispatch({ type: 'SET_SCRATCHPAD', text: 'A thought saved while paused' }));
+  await advance();
+  expect(writes()).toHaveLength(1);
+  await act(async () => firstWrite.resolve(response({ revision: 5 })));
+  expect(writes()).toHaveLength(2);
+  const persisted = written(1).state;
+  expect(written(1).revision).toBe(5);
+  expect(persisted).toMatchObject({ settings: nextSettings, timer: originalTimer, scratchpad: 'A thought saved while paused', event: null });
+  global.fetch.mockResolvedValueOnce(response(envelope(persisted, { revision: 6 })));
+  await act(async () => result.current.reload());
+  expect(result.current.state.timer).toEqual(originalTimer);
+  expect(result.current.state.settings).toMatchObject(nextSettings);
+  expect(result.current.state.gems).toBe(saved.gems);
+  expect(result.current.state.history).toEqual(saved.history);
+  await advance();
+  expect(writes()).toHaveLength(2);
 });
 
 test('stale loads cannot overwrite a newer reload, even if abort is ignored by transport', async () => {

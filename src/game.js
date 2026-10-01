@@ -1,4 +1,5 @@
 const MINUTE = 60_000;
+export const MAX_TRACKED_MS = 24 * 60 * MINUTE;
 const RARITIES = ["everyday", "rare", "dreamy"];
 const MODES = ["focus", "break", "longBreak"];
 const MAX_MINUTES = { focus: 180, break: 60, longBreak: 120 };
@@ -66,6 +67,8 @@ export const PRESETS = [
 ];
 
 const DEFAULT_SETTINGS = {
+  workMode: "pomodoro",
+  endBehavior: "remind",
   focusMinutes: 25,
   breakMinutes: 5,
   longBreakMinutes: 15,
@@ -107,6 +110,8 @@ const roomY = (value, fallback = 76) =>
 function settingsFrom(value, base = DEFAULT_SETTINGS) {
   const input = isRecord(value) ? value : {};
   const next = { ...base, ambient: { ...base.ambient } };
+  if (["pomodoro", "countup"].includes(input.workMode)) next.workMode = input.workMode;
+  if (["remind", "overtime"].includes(input.endBehavior)) next.endBehavior = input.endBehavior;
   for (const [key, max] of [
     ["focusMinutes", 180],
     ["breakMinutes", 60],
@@ -139,6 +144,11 @@ function freshTimer(mode, settings, now, previous) {
     durationMs,
     remainingMs: durationMs,
     endsAt: null,
+    workMode: settings.workMode,
+    endBehavior: settings.endBehavior,
+    overtime: false,
+    elapsedMs: 0,
+    startedAt: null,
     task: previous?.task || "",
     cycle: previous?.cycle || 0,
     id: `session:${now}:${serial + 1}`,
@@ -187,6 +197,7 @@ export function createInitialState(now = Date.now()) {
 
 export function remainingTime(timer, now = Date.now()) {
   if (!timer) return 0;
+  if (isCountingUp(timer) || timer.status === "complete") return 0;
   const remaining =
     timer.status === "running" && finite(timer.endsAt)
       ? timer.endsAt - timeNow(now)
@@ -194,8 +205,29 @@ export function remainingTime(timer, now = Date.now()) {
   return clamp(remaining, 0, timer.durationMs || 0, 0);
 }
 
+export function isCountingUp(timer) {
+  return timer?.mode === "focus" && (timer.workMode === "countup" || timer.overtime === true);
+}
+
+export function elapsedTime(timer, now = Date.now()) {
+  if (!timer) return 0;
+  if (!isCountingUp(timer)) return Math.max(0, timer.durationMs - remainingTime(timer, now));
+  const elapsed = timer.elapsedMs + (timer.status === "running" && finite(timer.startedAt)
+    ? Math.max(0, timeNow(now) - timer.startedAt) : 0);
+  return clamp(elapsed, 0, MAX_TRACKED_MS, 0);
+}
+
+export function canTakeBreak(timer) {
+  return timer?.mode === "focus" && (timer.status === "complete" || timer.overtime === true);
+}
+
 export function formatTime(ms) {
   const seconds = Math.ceil(clamp(ms, 0, Number.MAX_SAFE_INTEGER, 0) / 1000);
+  return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+}
+
+export function formatElapsedTime(ms) {
+  const seconds = Math.floor(clamp(ms, 0, Number.MAX_SAFE_INTEGER, 0) / 1000);
   return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
@@ -220,55 +252,97 @@ export function todayStats(state, now = Date.now()) {
   };
 }
 
-function finishTimer(state, now, allowAutoStart = true) {
-  const { timer, settings } = state;
-  const focus = timer.mode === "focus";
-  const alreadyLogged =
-    focus && state.history.some((entry) => entry.id === timer.id);
-  const minutes = Math.round(timer.durationMs / MINUTE);
-  const cycle = focus && !alreadyLogged ? timer.cycle + 1 : timer.cycle;
-  const mode = focus
-    ? cycle > 0 && cycle % settings.longBreakEvery === 0
-      ? "longBreak"
-      : "break"
-    : "focus";
-  const next = freshTimer(mode, settings, now, { ...timer, cycle });
-  const auto =
-    allowAutoStart &&
-    (focus ? settings.autoStartBreaks : settings.autoStartFocus);
-  if (auto) {
-    next.status = "running";
-    next.endsAt = now + next.durationMs;
-  }
-  const updated = {
-    ...state,
-    gems: Math.min(
-      Number.MAX_SAFE_INTEGER,
-      state.gems + (focus && !alreadyLogged ? minutes : 0),
-    ),
-    history:
-      focus && !alreadyLogged
-        ? [
-            ...state.history,
-            {
-              id: timer.id,
-              task: timer.task.trim(),
-              minutes,
-              completedAt: timer.endsAt || now,
-            },
-          ]
-        : state.history,
-    timer: next,
+// One focus session keeps one history ID, including its optional overtime.
+function creditFocus(state, elapsed, completedAt) {
+  const minutes = Math.floor(clamp(elapsed, 0, MAX_TRACKED_MS, 0) / MINUTE);
+  const existing = state.history.find((entry) => entry.id === state.timer.id);
+  const previousMinutes = existing?.minutes || 0;
+  const addedMinutes = Math.max(0, minutes - previousMinutes);
+  if (!minutes || (!addedMinutes && existing)) return { state, addedMinutes: 0, minutes };
+  const entry = {
+    id: state.timer.id,
+    task: existing?.task ?? state.timer.task.trim(),
+    minutes: Math.max(previousMinutes, minutes),
+    completedAt,
   };
+  return {
+    state: {
+      ...state,
+      gems: Math.min(Number.MAX_SAFE_INTEGER, state.gems + addedMinutes),
+      history: existing
+        ? state.history.map((item) => item.id === entry.id ? entry : item)
+        : [...state.history, entry],
+      timer: { ...state.timer, cycle: state.timer.cycle + (existing ? 0 : 1) },
+    },
+    addedMinutes,
+    minutes,
+  };
+}
+
+function completeFocus(state, now) {
+  const elapsed = elapsedTime(state.timer, now);
+  const credited = creditFocus(state, elapsed, now);
   return withEvent(
-    updated,
-    focus ? "focus-complete" : "break-complete",
-    focus
-      ? `Focus complete · +${alreadyLogged ? 0 : minutes} Shilligem${!alreadyLogged && minutes === 1 ? "" : "s"}`
-      : "Break complete",
+    {
+      ...credited.state,
+      timer: {
+        ...credited.state.timer,
+        status: "complete",
+        elapsedMs: elapsed,
+        remainingMs: 0,
+        startedAt: null,
+        endsAt: null,
+      },
+    },
+    state.timer.overtime ? "focus-finished" : "focus-complete",
+    credited.minutes
+      ? `Focus complete · +${credited.addedMinutes} Shilligem${credited.addedMinutes === 1 ? "" : "s"}`
+      : "Session ended · under 1 min",
     now,
-    focus ? { gems: alreadyLogged ? 0 : minutes, minutes } : {},
+    { gems: credited.addedMinutes, minutes: credited.minutes },
   );
+}
+
+function settleTimer(state, now, allowAutoStart = true) {
+  const { timer, settings } = state;
+  if (timer.status !== "running") return state;
+  if (isCountingUp(timer)) {
+    if (elapsedTime(timer, now) < MAX_TRACKED_MS) return state;
+    const deadline = timer.startedAt + Math.max(0, MAX_TRACKED_MS - timer.elapsedMs);
+    return completeFocus(state, Math.min(now, deadline));
+  }
+  if (remainingTime(timer, now) > 0) return state;
+  if (timer.mode !== "focus") {
+    const next = freshTimer("focus", settings, now, timer);
+    if (allowAutoStart && settings.autoStartFocus) {
+      next.status = "running";
+      if (isCountingUp(next)) next.startedAt = now;
+      else next.endsAt = now + next.durationMs;
+    }
+    return withEvent({ ...state, timer: next }, "break-complete", "Break complete", now);
+  }
+  const completedAt = timer.endsAt || now;
+  const credited = creditFocus(state, timer.durationMs, completedAt);
+  const overtime = timer.endBehavior === "overtime";
+  const next = {
+    ...credited.state.timer,
+    status: overtime ? "running" : "complete",
+    remainingMs: 0,
+    endsAt: null,
+    elapsedMs: timer.durationMs,
+    startedAt: overtime ? completedAt : null,
+    overtime,
+  };
+  const result = withEvent(
+    { ...credited.state, timer: next },
+    "focus-complete",
+    `Focus complete · +${credited.addedMinutes} Shilligem${credited.addedMinutes === 1 ? "" : "s"}`,
+    now,
+    { gems: credited.addedMinutes, minutes: credited.minutes },
+  );
+  // A delayed tick/reload may cross the cap, but never creates another work session.
+  return overtime && elapsedTime(next, now) >= MAX_TRACKED_MS
+    ? settleTimer(result, now, false) : result;
 }
 
 export function normalizeState(saved, now = Date.now()) {
@@ -376,12 +450,18 @@ export function normalizeState(saved, now = Date.now()) {
     .map((entry) => ({
       id: entry.id,
       task: cleanText(entry.task, 200),
-      minutes: integer(entry.minutes, 1, 180, 25),
+      minutes: integer(entry.minutes, 1, MAX_TRACKED_MS / MINUTE, 25),
       completedAt: entry.completedAt,
     }));
   const timerInput = isRecord(saved.timer) ? saved.timer : {};
   const mode = MODES.includes(timerInput.mode) ? timerInput.mode : "focus";
   const timer = freshTimer(mode, settings, timestamp);
+  timer.workMode = ["pomodoro", "countup"].includes(timerInput.workMode)
+    ? timerInput.workMode : settings.workMode;
+  timer.endBehavior = ["remind", "overtime"].includes(timerInput.endBehavior)
+    ? timerInput.endBehavior : settings.endBehavior;
+  timer.overtime = mode === "focus" && timer.workMode === "pomodoro" &&
+    timerInput.overtime === true && history.some((entry) => entry.id === timerInput.id);
   timer.durationMs =
     integer(
       timerInput.durationMs / MINUTE,
@@ -398,10 +478,17 @@ export function normalizeState(saved, now = Date.now()) {
   timer.task = cleanText(timerInput.task, 200);
   timer.cycle = integer(timerInput.cycle, 0, Number.MAX_SAFE_INTEGER, 0);
   timer.id = validId(timerInput.id) ? timerInput.id : timer.id;
-  timer.status = ["idle", "paused", "running"].includes(timerInput.status)
+  timer.status = ["idle", "paused", "running", "complete"].includes(timerInput.status)
     ? timerInput.status
     : "idle";
-  if (
+  timer.elapsedMs = clamp(timerInput.elapsedMs, timer.overtime ? timer.durationMs : 0, MAX_TRACKED_MS, timer.overtime ? timer.durationMs : 0);
+  if (isCountingUp(timer) && timer.status === "running") {
+    if (finite(timerInput.startedAt) && timerInput.startedAt >= 0) {
+      timer.startedAt = Math.min(timerInput.startedAt, timestamp);
+    } else {
+      timer.status = "paused";
+    }
+  } else if (
     timer.status === "running" &&
     finite(timerInput.endsAt) &&
     timerInput.endsAt >= 0
@@ -411,7 +498,12 @@ export function normalizeState(saved, now = Date.now()) {
   } else if (timer.status === "running") {
     timer.status = "paused";
   }
-  if (timer.status === "idle") timer.remainingMs = timer.durationMs;
+  if (timer.status === "complete") timer.remainingMs = 0;
+  if (timer.status === "idle") {
+    timer.remainingMs = timer.durationMs;
+    timer.elapsedMs = 0;
+    timer.overtime = false;
+  }
   let result = {
     schemaVersion: 1,
     gems: integer(saved.gems, 0, Number.MAX_SAFE_INTEGER, 0),
@@ -431,8 +523,7 @@ export function normalizeState(saved, now = Date.now()) {
     pity: integer(saved.pity, 0, 4, 0),
     event: null,
   };
-  if (timer.status === "running" && remainingTime(timer, timestamp) === 0)
-    result = finishTimer(result, timestamp, false);
+  if (timer.status === "running") result = settleTimer(result, timestamp, false);
   return result;
 }
 
@@ -452,7 +543,13 @@ export function gameReducer(state, action) {
   const now = timeNow(action.now);
   switch (action.type) {
     case "START": {
-      if (state.timer.status === "running") return state;
+      if (["running", "complete"].includes(state.timer.status)) return state;
+      if (isCountingUp(state.timer)) {
+        return {
+          ...state,
+          timer: { ...state.timer, status: "running", startedAt: now, endsAt: null },
+        };
+      }
       const remainingMs = state.timer.remainingMs || state.timer.durationMs;
       return {
         ...state,
@@ -466,40 +563,59 @@ export function gameReducer(state, action) {
     }
     case "PAUSE": {
       if (state.timer.status !== "running") return state;
-      const remainingMs = remainingTime(state.timer, now);
-      if (remainingMs === 0) return finishTimer(state, now);
+      // An explicit pause at the break deadline must never start the next work session.
+      const settled = settleTimer(state, now, false);
+      if (settled.timer.status !== "running" || settled.timer.mode !== state.timer.mode) return settled;
+      if (isCountingUp(settled.timer)) {
+        return {
+          ...settled,
+          timer: { ...settled.timer, status: "paused", elapsedMs: elapsedTime(settled.timer, now), startedAt: null },
+        };
+      }
+      const remainingMs = remainingTime(settled.timer, now);
       return {
-        ...state,
-        timer: { ...state.timer, status: "paused", remainingMs, endsAt: null },
+        ...settled,
+        timer: { ...settled.timer, status: "paused", remainingMs, endsAt: null },
       };
     }
-    case "RESET":
+    case "RESET": {
+      const settled = settleTimer(state, now);
+      const updated = settled.timer.overtime && settled.timer.status !== "complete"
+        ? completeFocus(settled, now) : settled;
       return {
-        ...state,
-        timer: freshTimer(state.timer.mode, state.settings, now, state.timer),
+        ...updated,
+        timer: freshTimer(updated.timer.mode, updated.settings, now, updated.timer),
       };
+    }
     case "SKIP":
-      return {
-        ...state,
-        timer: freshTimer(
-          state.timer.mode === "focus" ? "break" : "focus",
-          state.settings,
-          now,
-          state.timer,
-        ),
-      };
+      return gameReducer(state, { type: "SET_MODE", mode: "focus", now });
     case "TICK":
-      return state.timer.status === "running" &&
-        remainingTime(state.timer, now) === 0
-        ? finishTimer(state, now)
-        : state;
-    case "SET_MODE":
-      return MODES.includes(action.mode)
-        ? {
-            ...state,
-            timer: freshTimer(action.mode, state.settings, now, state.timer),
-          }
-        : state;
+      return settleTimer(state, now);
+    case "FINISH_FOCUS": {
+      const settled = settleTimer(state, now);
+      if (settled.timer.mode !== "focus" || settled.timer.status === "complete") return settled;
+      if (!isCountingUp(settled.timer) || settled.timer.status === "idle") return settled;
+      return completeFocus(settled, now);
+    }
+    case "START_BREAK": {
+      const settled = settleTimer(state, now);
+      if (!canTakeBreak(settled.timer)) return settled;
+      const updated = settled.timer.status === "complete" ? settled : completeFocus(settled, now);
+      const mode = ["break", "longBreak"].includes(action.mode) ? action.mode
+        : updated.timer.cycle > 0 && updated.timer.cycle % updated.settings.longBreakEvery === 0 ? "longBreak" : "break";
+      const next = freshTimer(mode, updated.settings, now, updated.timer);
+      next.status = "running";
+      next.endsAt = now + next.durationMs;
+      return { ...updated, timer: next };
+    }
+    case "SET_MODE": {
+      if (!MODES.includes(action.mode)) return state;
+      const settled = settleTimer(state, now);
+      if (action.mode !== "focus" && settled.timer.mode === "focus" && !canTakeBreak(settled.timer)) return settled;
+      const updated = settled.timer.overtime && settled.timer.status !== "complete"
+        ? completeFocus(settled, now) : settled;
+      return { ...updated, timer: freshTimer(action.mode, updated.settings, now, updated.timer) };
+    }
     case "SET_TASK":
       return {
         ...state,

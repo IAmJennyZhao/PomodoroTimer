@@ -1,6 +1,6 @@
 import {
   ANIMALS, PRESETS, createInitialState, gameReducer, normalizeState,
-  remainingTime, formatTime, todayStats,
+  remainingTime, elapsedTime, isCountingUp, canTakeBreak, MAX_TRACKED_MS, formatTime, formatElapsedTime, todayStats,
 } from './game';
 
 const MINUTE = 60_000;
@@ -23,8 +23,8 @@ describe('focus sessions and rewards', () => {
     state = act(state, 'TICK', { now: NOW + 26 * MINUTE });
     expect(state.gems).toBe(25);
     expect(state.history).toEqual([{ id: expect.any(String), task: '', minutes: 25, completedAt: NOW + 25 * MINUTE }]);
-    expect(state.timer.mode).toBe('break');
-    expect(state.timer.status).toBe('idle');
+    expect(state.timer.mode).toBe('focus');
+    expect(state.timer.status).toBe('complete');
     expect(act(state, 'TICK', { now: NOW + 100 * MINUTE })).toBe(state);
     expect(state.event.type).toBe('focus-complete');
   });
@@ -59,8 +59,8 @@ describe('focus sessions and rewards', () => {
     state = normalizeState(state, NOW + 24 * 60 * MINUTE);
     expect(state.gems).toBe(25);
     expect(state.history).toHaveLength(1);
-    expect(state.timer.mode).toBe('break');
-    expect(state.timer.status).toBe('idle');
+    expect(state.timer.mode).toBe('focus');
+    expect(state.timer.status).toBe('complete');
     expect(normalizeState(state, NOW + 48 * 60 * MINUTE).gems).toBe(25);
   });
 
@@ -73,10 +73,10 @@ describe('focus sessions and rewards', () => {
     expect(state.event.gems).toBe(0);
   });
 
-  test.each(['RESET', 'SKIP', 'SET_MODE'])('%s abandons an incomplete focus session without gems', type => {
+  test.each(['RESET', 'SKIP', 'SET_MODE'])('%s can restart an incomplete focus session without gems', type => {
     let state = act(createInitialState(NOW), 'START');
     const sessionId = state.timer.id;
-    state = act(state, type, { mode: 'longBreak', now: NOW + 24 * MINUTE });
+    state = act(state, type, { mode: 'focus', now: NOW + 24 * MINUTE });
     expect(state.timer.status).toBe('idle');
     expect(state.timer.id).not.toBe(sessionId);
     expect(state.gems).toBe(0);
@@ -87,15 +87,17 @@ describe('focus sessions and rewards', () => {
     let state = act(createInitialState(NOW), 'START');
     state = act(state, 'PAUSE', { now: state.timer.endsAt });
     expect(state.gems).toBe(25);
-    expect(state.timer.mode).toBe('break');
-    expect(state.timer.status).toBe('idle');
+    expect(state.timer.mode).toBe('focus');
+    expect(state.timer.status).toBe('complete');
   });
 
-  test('long breaks follow the configured number of completed focus sessions', () => {
+  test('default break choice follows the configured number of completed focus sessions', () => {
     let state = act(createInitialState(NOW), 'SET_SETTINGS', { settings: { focusMinutes: 1, breakMinutes: 2, longBreakMinutes: 7, longBreakEvery: 3 } });
     for (let completed = 1; completed <= 3; completed += 1) {
       state = act(state, 'START');
       state = act(state, 'TICK', { now: state.timer.endsAt });
+      expect(state.timer.status).toBe('complete');
+      state = act(state, 'START_BREAK');
       expect(state.timer.mode).toBe(completed === 3 ? 'longBreak' : 'break');
       expect(state.timer.durationMs).toBe((completed === 3 ? 7 : 2) * MINUTE);
       state = act(state, 'START');
@@ -106,12 +108,14 @@ describe('focus sessions and rewards', () => {
     }
   });
 
-  test('a late tick starts only the next mode at now, without replaying unattended cycles', () => {
+  test('a late tick waits for a break choice and opted-in auto-focus starts only after that break', () => {
     let state = act(createInitialState(NOW), 'SET_SETTINGS', { settings: { focusMinutes: 1, breakMinutes: 1, autoStartBreaks: true, autoStartFocus: true } });
     state = act(state, 'START');
     const late = NOW + 12 * 60 * MINUTE;
     state = act(state, 'TICK', { now: late });
     expect(state.gems).toBe(1);
+    expect(state.timer).toEqual(expect.objectContaining({ mode: 'focus', status: 'complete', endsAt: null }));
+    state = act(state, 'START_BREAK', { now: late });
     expect(state.timer).toEqual(expect.objectContaining({ mode: 'break', status: 'running', endsAt: late + MINUTE }));
     state = act(state, 'TICK', { now: late + MINUTE });
     expect(state.gems).toBe(1);
@@ -132,6 +136,8 @@ describe('focus sessions and rewards', () => {
     state = act(state, 'TICK', { now: state.timer.endsAt });
     expect(state.gems).toBe(25);
     expect(state.history[0].task).toBe('Write chapter');
+    expect(state.timer.durationMs).toBe(25 * MINUTE);
+    state = act(state, 'START_BREAK');
     expect(state.timer.durationMs).toBe(10 * MINUTE);
     state = act(state, 'SKIP');
     expect(state.timer.durationMs).toBe(50 * MINUTE);
@@ -140,6 +146,8 @@ describe('focus sessions and rewards', () => {
   test.each(PRESETS)('$name applies all three mode lengths to idle timers', preset => {
     let state = act(createInitialState(NOW), 'SET_PRESET', { id: preset.id });
     expect(state.timer.durationMs).toBe(preset.settings.focusMinutes * MINUTE);
+    state = act(state, 'START');
+    state = act(state, 'TICK', { now: state.timer.endsAt });
     state = act(state, 'SET_MODE', { mode: 'break' });
     expect(state.timer.durationMs).toBe(preset.settings.breakMinutes * MINUTE);
     state = act(state, 'SET_MODE', { mode: 'longBreak' });
@@ -176,6 +184,229 @@ describe('focus sessions and rewards', () => {
     expect(formatTime(60_001)).toBe('01:01');
     expect(formatTime(-1)).toBe('00:00');
     expect(formatTime(NaN)).toBe('00:00');
+  });
+
+  test('elapsed formatting counts only completed seconds and never suggests an unearned minute', () => {
+    expect(formatElapsedTime(999)).toBe('00:00');
+    expect(formatElapsedTime(59_999)).toBe('00:59');
+    expect(formatElapsedTime(60_000)).toBe('01:00');
+    expect(formatElapsedTime(60_999)).toBe('01:00');
+    expect(formatElapsedTime(-1)).toBe('00:00');
+    expect(formatElapsedTime(NaN)).toBe('00:00');
+    expect(formatElapsedTime(Infinity)).toBe('00:00');
+    expect(formatElapsedTime(undefined)).toBe('00:00');
+  });
+});
+
+describe('work modes and intentional break choices', () => {
+  const countup = () => act(createInitialState(NOW), 'SET_SETTINGS', { settings: { workMode: 'countup' } });
+  const overtime = () => act(createInitialState(NOW), 'SET_SETTINGS', { settings: { focusMinutes: 1, endBehavior: 'overtime' } });
+
+  test('starts with Pomodoro and repeat reminders, and rejects invalid settings', () => {
+    let state = createInitialState(NOW);
+    expect(state.settings).toEqual(expect.objectContaining({ workMode: 'pomodoro', endBehavior: 'remind' }));
+    state = act(state, 'SET_SETTINGS', { settings: { workMode: 'invalid', endBehavior: null } });
+    expect(state.timer.workMode).toBe('pomodoro');
+    expect(state.timer.endBehavior).toBe('remind');
+  });
+
+  test.each(['idle', 'running', 'paused'])('breaks stay locked during an incomplete %s focus session', status => {
+    let state = createInitialState(NOW);
+    if (status !== 'idle') state = act(state, 'START');
+    if (status === 'paused') state = act(state, 'PAUSE', { now: NOW + MINUTE });
+    expect(canTakeBreak(state.timer)).toBe(false);
+    expect(act(state, 'START_BREAK', { mode: 'break', now: NOW + MINUTE })).toBe(state);
+    expect(act(state, 'SET_MODE', { mode: 'longBreak', now: NOW + MINUTE })).toBe(state);
+    expect(act(state, 'FINISH_FOCUS', { now: NOW + MINUTE })).toBe(state);
+  });
+
+  test.each(['break', 'longBreak'])('completion waits at zero and explicitly starts the selected %s', mode => {
+    let state = act(createInitialState(NOW), 'START');
+    const end = state.timer.endsAt;
+    state = act(state, 'TICK', { now: end });
+    expect(state.timer.status).toBe('complete');
+    expect(canTakeBreak(state.timer)).toBe(true);
+    expect(remainingTime(state.timer, end + 100 * MINUTE)).toBe(0);
+    expect(act(state, 'START')).toBe(state);
+    state = act(state, 'START_BREAK', { mode, now: end + MINUTE });
+    expect(state.timer.mode).toBe(mode);
+    expect(state.timer.status).toBe('running');
+    expect(state.timer.endsAt).toBe(end + MINUTE + (mode === 'break' ? 5 : 15) * MINUTE);
+    expect(state.gems).toBe(25);
+  });
+
+  test('countup starts at zero and only a finished whole minute earns one reward and goal credit', () => {
+    let state = countup();
+    expect(isCountingUp(state.timer)).toBe(true);
+    expect(elapsedTime(state.timer, NOW)).toBe(0);
+    state = act(state, 'START');
+    expect(state.timer.endsAt).toBe(null);
+    expect(elapsedTime(state.timer, NOW + 4 * MINUTE + 59_999)).toBe(4 * MINUTE + 59_999);
+    expect(act(state, 'TICK', { now: NOW + 4 * MINUTE })).toBe(state);
+    state = act(state, 'FINISH_FOCUS', { now: NOW + 4 * MINUTE + 59_999 });
+    expect(state.timer.status).toBe('complete');
+    expect(state.gems).toBe(4);
+    expect(state.history).toEqual([expect.objectContaining({ minutes: 4 })]);
+    expect(state.timer.cycle).toBe(1);
+    expect(todayStats(state, NOW + 5 * MINUTE).sessions).toBe(1);
+    expect(act(state, 'FINISH_FOCUS', { now: NOW + 10 * MINUTE })).toBe(state);
+  });
+
+  test('an accidental subminute countup can end and take a break without reward or goal credit', () => {
+    let state = act(countup(), 'START');
+    state = act(state, 'FINISH_FOCUS', { now: NOW + 59_999 });
+    expect(state.timer.status).toBe('complete');
+    expect(state.gems).toBe(0);
+    expect(state.history).toHaveLength(0);
+    expect(state.timer.cycle).toBe(0);
+    expect(canTakeBreak(state.timer)).toBe(true);
+    state = normalizeState(state, NOW + MINUTE);
+    expect(canTakeBreak(state.timer)).toBe(true);
+    expect(act(state, 'START_BREAK').timer.mode).toBe('break');
+  });
+
+  test('countup pauses, reloads, resumes, and excludes paused wall time', () => {
+    let state = act(countup(), 'START');
+    state = act(state, 'PAUSE', { now: NOW + 2 * MINUTE + 123 });
+    expect(state.timer.elapsedMs).toBe(2 * MINUTE + 123);
+    expect(state.timer.startedAt).toBe(null);
+    state = normalizeState(state, NOW + 100 * MINUTE);
+    expect(elapsedTime(state.timer, NOW + 200 * MINUTE)).toBe(2 * MINUTE + 123);
+    state = act(state, 'START', { now: NOW + 200 * MINUTE });
+    state = normalizeState(state, NOW + 202 * MINUTE);
+    expect(elapsedTime(state.timer, NOW + 202 * MINUTE)).toBe(4 * MINUTE + 123);
+    state = act(state, 'FINISH_FOCUS', { now: NOW + 202 * MINUTE });
+    expect(state.gems).toBe(4);
+    expect(state.history).toHaveLength(1);
+  });
+
+  test('resetting countup clears unfinished time without rewards', () => {
+    let state = act(countup(), 'START');
+    state = act(state, 'RESET', { now: NOW + 10 * MINUTE });
+    expect(state.timer.status).toBe('idle');
+    expect(elapsedTime(state.timer, NOW + 20 * MINUTE)).toBe(0);
+    expect(state.history).toHaveLength(0);
+  });
+
+  test('overtime dings at the deadline once, runs through throttled ticks, and updates one session', () => {
+    let state = act(overtime(), 'START');
+    const id = state.timer.id;
+    state = act(state, 'TICK', { now: NOW + 2 * MINUTE + 500 });
+    expect(state.timer).toEqual(expect.objectContaining({ mode: 'focus', status: 'running', overtime: true, startedAt: NOW + MINUTE }));
+    expect(state.gems).toBe(1);
+    expect(state.history).toEqual([expect.objectContaining({ id, minutes: 1, completedAt: NOW + MINUTE })]);
+    expect(state.event.type).toBe('focus-complete');
+    expect(elapsedTime(state.timer, NOW + 2 * MINUTE + 500)).toBe(2 * MINUTE + 500);
+    expect(act(state, 'TICK', { now: NOW + 3 * MINUTE })).toBe(state);
+    state = act(state, 'FINISH_FOCUS', { now: NOW + 3 * MINUTE + 500 });
+    expect(state.gems).toBe(3);
+    expect(state.history).toEqual([expect.objectContaining({ id, minutes: 3 })]);
+    expect(state.timer.cycle).toBe(1);
+    expect(state.event.type).toBe('focus-finished');
+    expect(state.event.gems).toBe(2);
+  });
+
+  test('overtime pauses and reloads with no second base reward', () => {
+    let state = act(overtime(), 'START');
+    state = act(state, 'PAUSE', { now: NOW + 2 * MINUTE + 300 });
+    expect(state.timer.status).toBe('paused');
+    expect(state.gems).toBe(1);
+    state = normalizeState(state, NOW + 100 * MINUTE);
+    expect(elapsedTime(state.timer, NOW + 100 * MINUTE)).toBe(2 * MINUTE + 300);
+    state = act(state, 'START', { now: NOW + 100 * MINUTE });
+    state = act(state, 'START_BREAK', { mode: 'longBreak', now: NOW + 101 * MINUTE });
+    expect(state.timer).toEqual(expect.objectContaining({ mode: 'longBreak', status: 'running' }));
+    expect(state.gems).toBe(3);
+    expect(state.history).toHaveLength(1);
+    expect(state.history[0].minutes).toBe(3);
+  });
+
+  test('reloading a Pomodoro past its deadline enters overtime with the original work duration', () => {
+    const running = act(overtime(), 'START');
+    let state = normalizeState(running, NOW + 3 * MINUTE);
+    expect(state.gems).toBe(1);
+    expect(elapsedTime(state.timer, NOW + 3 * MINUTE)).toBe(3 * MINUTE);
+    state = normalizeState(state, NOW + 4 * MINUTE);
+    expect(state.gems).toBe(1);
+    expect(state.event).toBe(null);
+    expect(elapsedTime(state.timer, NOW + 4 * MINUTE)).toBe(4 * MINUTE);
+  });
+
+  test.each(['RESET', 'SET_MODE'])('%s after overtime preserves earned time and starts a fresh session', type => {
+    let state = act(overtime(), 'START');
+    state = act(state, type, { mode: 'focus', now: NOW + 3 * MINUTE });
+    expect(state.timer.status).toBe('idle');
+    expect(state.timer.overtime).toBe(false);
+    expect(state.gems).toBe(3);
+    expect(state.history[0].minutes).toBe(3);
+  });
+
+  test.each(['countup', 'overtime'])('%s stops at 24 hours after a long sleep without creating more sessions', mode => {
+    let state = act(mode === 'countup' ? countup() : overtime(), 'START');
+    state = normalizeState(state, NOW + 72 * 60 * MINUTE);
+    expect(state.timer.status).toBe('complete');
+    expect(elapsedTime(state.timer, NOW + 80 * 60 * MINUTE)).toBe(MAX_TRACKED_MS);
+    expect(state.history).toEqual([expect.objectContaining({ minutes: 1440, completedAt: NOW + MAX_TRACKED_MS })]);
+    expect(state.gems).toBe(1440);
+    expect(state.timer.cycle).toBe(1);
+    state = normalizeState(state, NOW + 100 * 60 * MINUTE);
+    expect(state.history[0].minutes).toBe(1440);
+    expect(state.gems).toBe(1440);
+  });
+
+  test('work-mode and finish-behavior changes apply to the next session, even across reload', () => {
+    let state = act(overtime(), 'START');
+    state = act(state, 'SET_SETTINGS', { settings: { workMode: 'countup', endBehavior: 'remind' } });
+    state = normalizeState(state, NOW + 10_000);
+    expect(state.timer.workMode).toBe('pomodoro');
+    expect(state.timer.endBehavior).toBe('overtime');
+    state = act(state, 'RESET', { now: NOW + 10_000 });
+    expect(state.timer.workMode).toBe('countup');
+    expect(state.timer.endBehavior).toBe('remind');
+    expect(elapsedTime(state.timer, NOW)).toBe(0);
+  });
+
+  test('legacy running Pomodoro saves retain deadline, duration and safe defaults', () => {
+    const legacy = act(createInitialState(NOW), 'START');
+    delete legacy.settings.workMode;
+    delete legacy.settings.endBehavior;
+    for (const key of ['workMode', 'endBehavior', 'overtime', 'startedAt', 'elapsedMs']) delete legacy.timer[key];
+    const state = normalizeState(legacy, NOW + 10 * MINUTE);
+    expect(state.timer.endsAt).toBe(NOW + 25 * MINUTE);
+    expect(state.timer.workMode).toBe('pomodoro');
+    expect(state.timer.endBehavior).toBe('remind');
+    expect(remainingTime(state.timer, NOW + 10 * MINUTE)).toBe(15 * MINUTE);
+  });
+
+  test('countup with a missing start timestamp pauses safely without fabricated elapsed time', () => {
+    const state = normalizeState({ ...countup(), timer: { ...countup().timer, status: 'running', elapsedMs: 2 * MINUTE, startedAt: 'bad' } }, NOW + 10 * MINUTE);
+    expect(state.timer.status).toBe('paused');
+    expect(elapsedTime(state.timer, NOW + 20 * MINUTE)).toBe(2 * MINUTE);
+    expect(state.gems).toBe(0);
+  });
+
+  test('opted-in auto focus supports countup after a live break but never during reload', () => {
+    let state = act(countup(), 'SET_SETTINGS', { settings: { autoStartFocus: true } });
+    state = act(state, 'START');
+    state = act(state, 'FINISH_FOCUS', { now: NOW + MINUTE });
+    state = act(state, 'START_BREAK', { now: NOW + MINUTE });
+    const deadline = state.timer.endsAt;
+    const loaded = normalizeState(state, deadline + MINUTE);
+    expect(loaded.timer.status).toBe('idle');
+    const live = act(state, 'TICK', { now: deadline });
+    expect(live.timer).toEqual(expect.objectContaining({ mode: 'focus', workMode: 'countup', status: 'running', startedAt: deadline, endsAt: null }));
+    expect(elapsedTime(live.timer, deadline + MINUTE)).toBe(MINUTE);
+  });
+
+  test('pausing as a break expires leaves the next focus idle even when auto-focus is enabled', () => {
+    let state = act(createInitialState(NOW), 'SET_SETTINGS', { settings: { focusMinutes: 1, breakMinutes: 1, autoStartFocus: true } });
+    state = act(state, 'START');
+    state = act(state, 'TICK', { now: NOW + MINUTE });
+    state = act(state, 'START_BREAK', { now: NOW + MINUTE });
+    state = act(state, 'PAUSE', { now: NOW + 2 * MINUTE + 1 });
+    expect(state.timer).toEqual(expect.objectContaining({ mode: 'focus', status: 'idle', endsAt: null }));
+    expect(state.gems).toBe(1);
+    expect(state.history).toHaveLength(1);
   });
 });
 
@@ -338,7 +569,8 @@ describe('saved-state recovery', () => {
 
   test('an expired saved break never awards gems or auto-starts focus', () => {
     let state = act(createInitialState(NOW), 'SET_SETTINGS', { settings: { autoStartFocus: true } });
-    state = act(state, 'SET_MODE', { mode: 'break' });
+    // Legacy saves could enter a break before completing work; retain those deadlines.
+    state = { ...state, timer: { ...state.timer, mode: 'break', durationMs: 5 * MINUTE, remainingMs: 5 * MINUTE } };
     state = act(state, 'START');
     state = normalizeState(state, NOW + 60 * MINUTE);
     expect(state.timer).toEqual(expect.objectContaining({ mode: 'focus', status: 'idle' }));
