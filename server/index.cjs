@@ -78,14 +78,17 @@ async function serveStatic(request, response, buildDir, pathname) {
   }
 }
 
-async function createAppServer({ dataDir, buildDir = path.resolve(__dirname, '..', 'build'), dev = false } = {}) {
+async function createAppServer({ dataDir, buildDir = path.resolve(__dirname, '..', 'build'), dev = false, devPort = 3000 } = {}) {
+  if (dev && (!Number.isInteger(devPort) || devPort < 1024 || devPort > 65535 || devPort === 3001)) {
+    throw new Error('PORT must be an integer from 1024 to 65535, excluding 3001 (the local save service port).');
+  }
   const store = await createStore({ dataDir });
   const server = http.createServer(async (request, response) => {
     response.setHeader('X-Content-Type-Options', 'nosniff');
     response.setHeader('Referrer-Policy', 'no-referrer');
     response.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
     const port = server.address()?.port;
-    const ports = dev ? [port, 3000] : [port];
+    const ports = dev ? [port, devPort] : [port];
     if (!localAuthority(request.headers.host, ports)) return json(response, 403, { error: 'Only local requests are allowed.' });
     const origin = request.headers.origin;
     if (origin) {
@@ -117,7 +120,7 @@ async function createAppServer({ dataDir, buildDir = path.resolve(__dirname, '..
         }
         return json(response, 404, { error: 'Unknown API route.' });
       }
-      if (dev) return json(response, 404, { error: 'Open the app on http://localhost:3000.' });
+      if (dev) return json(response, 404, { error: `Open the app on http://127.0.0.1:${devPort}.` });
       return await serveStatic(request, response, buildDir, pathname);
     } catch (error) {
       const status = error.status || 500;

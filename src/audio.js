@@ -1,9 +1,14 @@
-const CHANNELS = ['rain', 'fire', 'noise'];
+/* global globalThis */
+const CHANNELS = ["rain", "fire", "noise"];
 const DEFAULT_VOLUMES = { rain: 0.35, fire: 0, noise: 0 };
 const LEVELS = { rain: 0.13, fire: 0.28, noise: 0.23 };
 
 function safelyDisconnect(node) {
-  try { node.disconnect(); } catch (_) { /* Already disconnected. */ }
+  try {
+    node.disconnect();
+  } catch (_) {
+    /* Already disconnected. */
+  }
 }
 
 /**
@@ -40,17 +45,24 @@ export function createAmbientEngine() {
   }
 
   function noiseBuffer(kind, seconds = 8) {
-    const buffer = context.createBuffer(2, Math.ceil(context.sampleRate * seconds), context.sampleRate);
+    const buffer = context.createBuffer(
+      2,
+      Math.ceil(context.sampleRate * seconds),
+      context.sampleRate,
+    );
     for (let channel = 0; channel < 2; channel += 1) {
       const data = buffer.getChannelData(channel);
       let brown = 0;
       for (let index = 0; index < data.length; index += 1) {
         const white = Math.random() * 2 - 1;
         brown = (brown + 0.02 * white) / 1.02;
-        data[index] = kind === 'white' ? white : brown * 3.5;
+        data[index] = kind === "white" ? white : brown * 3.5;
       }
       // Join the loop gradually to avoid a low-frequency step at its seam.
-      const seam = Math.min(Math.floor(context.sampleRate * 0.04), Math.floor(data.length / 2));
+      const seam = Math.min(
+        Math.floor(context.sampleRate * 0.04),
+        Math.floor(data.length / 2),
+      );
       const first = data[0];
       for (let index = 0; index < seam; index += 1) {
         const amount = index / (seam - 1);
@@ -68,9 +80,9 @@ export function createAmbientEngine() {
     const gain = keep(context.createGain());
     source.buffer = buffer;
     source.loop = true;
-    highpass.type = 'highpass';
+    highpass.type = "highpass";
     highpass.frequency.value = highpassFrequency;
-    lowpass.type = 'lowpass';
+    lowpass.type = "lowpass";
     lowpass.frequency.value = lowpassFrequency;
     lowpass.Q.value = 0.5;
     gain.gain.value = volumes[key] * LEVELS[key];
@@ -84,7 +96,8 @@ export function createAmbientEngine() {
   }
 
   function initialize() {
-    const AudioContextClass = globalThis.AudioContext || globalThis.webkitAudioContext;
+    const AudioContextClass =
+      globalThis.AudioContext || globalThis.webkitAudioContext;
     if (!AudioContextClass) return false;
     context = new AudioContextClass();
     output = keep(context.createDynamicsCompressor());
@@ -98,12 +111,12 @@ export function createAmbientEngine() {
     ambience.gain.value = 0;
     ambience.connect(output);
     // Buffers and the continuous loop nodes are allocated once per engine.
-    const white = noiseBuffer('white');
-    const brown = noiseBuffer('brown');
-    makeLoop('rain', white, 6500, 480);
-    makeLoop('fire', brown, 530, 65);
-    makeLoop('noise', brown, 950, 25);
-    crackleBuffer = noiseBuffer('white', 0.15);
+    const white = noiseBuffer("white");
+    const brown = noiseBuffer("brown");
+    makeLoop("rain", white, 6500, 480);
+    makeLoop("fire", brown, 530, 65);
+    makeLoop("noise", brown, 950, 25);
+    crackleBuffer = noiseBuffer("white", 0.15);
     return true;
   }
 
@@ -117,7 +130,12 @@ export function createAmbientEngine() {
     if (destroyed || wantedPlaying || effects.size || !context) return;
     idleTimeout = setTimeout(() => {
       idleTimeout = null;
-      if (!destroyed && !wantedPlaying && effects.size === 0 && context.state === 'running') {
+      if (
+        !destroyed &&
+        !wantedPlaying &&
+        effects.size === 0 &&
+        context.state === "running"
+      ) {
         // Safari and background tabs can reject suspension; it is harmless.
         context.suspend().catch(() => {});
       }
@@ -134,14 +152,22 @@ export function createAmbientEngine() {
         } catch (_) {
           // A partially implemented AudioContext should fail as safely as a
           // missing one, including on the user's next attempt to enable audio.
-          loopSources.forEach(source => {
-            try { source.stop(); } catch (_) { /* Partially initialized. */ }
+          loopSources.forEach((source) => {
+            try {
+              source.stop();
+            } catch (_) {
+              /* Partially initialized. */
+            }
           });
           loopSources.clear();
           graph.forEach(safelyDisconnect);
           graph.clear();
-          if (context && context.state !== 'closed') {
-            try { await context.close(); } catch (_) { /* Unsupported close. */ }
+          if (context && context.state !== "closed") {
+            try {
+              await context.close();
+            } catch (_) {
+              /* Unsupported close. */
+            }
           }
           context = null;
           ambience = null;
@@ -149,9 +175,9 @@ export function createAmbientEngine() {
           return false;
         }
       }
-      if (context.state === 'closed') return false;
-      if (context.state !== 'running') await context.resume();
-      return !destroyed && context.state === 'running';
+      if (context.state === "closed") return false;
+      if (context.state !== "running") await context.resume();
+      return !destroyed && context.state === "running";
     } catch (_) {
       return false;
     }
@@ -168,7 +194,14 @@ export function createAmbientEngine() {
   }
 
   function crackle() {
-    if (!wantedPlaying || !context || context.state !== 'running' || volumes.fire <= 0 || Math.random() > 0.6) return;
+    if (
+      !wantedPlaying ||
+      !context ||
+      context.state !== "running" ||
+      volumes.fire <= 0 ||
+      Math.random() > 0.6
+    )
+      return;
     const source = context.createBufferSource();
     const filter = context.createBiquadFilter();
     const gain = context.createGain();
@@ -176,7 +209,7 @@ export function createAmbientEngine() {
     const duration = 0.025 + Math.random() * 0.055;
     source.buffer = crackleBuffer;
     source.playbackRate.value = 0.65 + Math.random() * 0.8;
-    filter.type = 'lowpass';
+    filter.type = "lowpass";
     filter.frequency.value = 1200 + Math.random() * 2000;
     gain.gain.setValueAtTime(0, now);
     gain.gain.linearRampToValueAtTime(0.1 + Math.random() * 0.16, now + 0.003);
@@ -207,14 +240,15 @@ export function createAmbientEngine() {
     wantedPlaying = false;
     if (crackleInterval !== null) clearInterval(crackleInterval);
     crackleInterval = null;
-    if (context && context.state !== 'closed' && ambience) fade(ambience.gain, 0);
+    if (context && context.state !== "closed" && ambience)
+      fade(ambience.gain, 0);
     suspendWhenIdle();
   }
 
   function setVolume(key, value) {
     if (!CHANNELS.includes(key) || !Number.isFinite(value) || destroyed) return;
     volumes[key] = Math.max(0, Math.min(1, value));
-    if (context && context.state !== 'closed' && channelGains[key]) {
+    if (context && context.state !== "closed" && channelGains[key]) {
       fade(channelGains[key].gain, volumes[key] * LEVELS[key]);
     }
   }
@@ -223,7 +257,7 @@ export function createAmbientEngine() {
     const oscillator = context.createOscillator();
     const gain = context.createGain();
     const begins = context.currentTime + offset;
-    oscillator.type = 'sine';
+    oscillator.type = "sine";
     oscillator.frequency.value = frequency;
     gain.gain.setValueAtTime(0, begins);
     gain.gain.linearRampToValueAtTime(loudness, begins + 0.015);
@@ -256,18 +290,30 @@ export function createAmbientEngine() {
     clearIdleTimeout();
     effects.forEach(({ source, nodes }) => {
       source.onended = null;
-      try { source.stop(); } catch (_) { /* Already ended. */ }
+      try {
+        source.stop();
+      } catch (_) {
+        /* Already ended. */
+      }
       nodes.forEach(safelyDisconnect);
     });
     effects.clear();
-    loopSources.forEach(source => {
-      try { source.stop(); } catch (_) { /* Already stopped. */ }
+    loopSources.forEach((source) => {
+      try {
+        source.stop();
+      } catch (_) {
+        /* Already stopped. */
+      }
     });
     loopSources.clear();
     graph.forEach(safelyDisconnect);
     graph.clear();
-    if (context && context.state !== 'closed') {
-      try { await context.close(); } catch (_) { /* Already closed. */ }
+    if (context && context.state !== "closed") {
+      try {
+        await context.close();
+      } catch (_) {
+        /* Already closed. */
+      }
     }
     context = null;
     output = null;
@@ -282,6 +328,8 @@ export function createAmbientEngine() {
     chime,
     tap,
     destroy,
-    get playing() { return wantedPlaying && context?.state === 'running'; },
+    get playing() {
+      return wantedPlaying && context?.state === "running";
+    },
   };
 }

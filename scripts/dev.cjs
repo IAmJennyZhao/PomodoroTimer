@@ -1,14 +1,16 @@
 'use strict';
 
 const { spawn } = require('node:child_process');
+const path = require('node:path');
 const { startServer } = require('../server/index.cjs');
 
 async function main() {
-  const { server, store } = await startServer({ port: 3001, dev: true });
+  const devPort = Number(process.env.PORT || 3000);
+  const { server, store } = await startServer({ port: 3001, dev: true, devPort });
   console.log(`Private saves: ${store.storagePath}`);
-  const child = spawn(process.execPath, [require.resolve('react-scripts/scripts/start')], {
+  const child = spawn(process.execPath, [path.join(__dirname, 'start-react.cjs')], {
     stdio: 'inherit',
-    env: { ...process.env, HOST: '127.0.0.1', PORT: '3000' },
+    env: { ...process.env, HOST: '127.0.0.1', PORT: String(devPort) },
     windowsHide: true,
   });
   let closing = false;

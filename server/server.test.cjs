@@ -7,7 +7,7 @@ const path = require('node:path');
 const os = require('node:os');
 const http = require('node:http');
 const { createStore, MAX_SAVE_BYTES } = require('./store.cjs');
-const { startServer } = require('./index.cjs');
+const { createAppServer, startServer } = require('./index.cjs');
 
 const state = gems => ({ schemaVersion: 1, gems, notes: 'A test-only task' });
 
@@ -142,6 +142,17 @@ test('invalid schema, revisions, media types, malformed JSON and oversized write
   assert.equal((await request(port, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }, body })).status, 413);
   assert.equal((await request(port, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body })).status, 413);
   assert.equal((await request(port)).data.revision, 0);
+});
+
+test('custom frontend ports are validated and only the configured development origin is allowed', async t => {
+  const { port } = await running(t, { dev: true, devPort: 3002 });
+  assert.equal((await request(port, { headers: { Origin: 'http://127.0.0.1:3002', Host: 'localhost:3002' } })).status, 200);
+  assert.equal((await put(port, state(25), 0, { Origin: 'http://localhost:3002' })).status, 200);
+  assert.equal((await request(port, { headers: { Origin: 'http://localhost:3000' } })).status, 403);
+  assert.match((await request(port, { route: '/' })).data.error, /127\.0\.0\.1:3002/);
+  for (const devPort of [NaN, 0, 1023, 65536, 3001, 3002.5]) {
+    await assert.rejects(createAppServer({ dev: true, devPort }), /PORT must be an integer/);
+  }
 });
 
 test('production serves only build files, supports SPA routes and rejects traversal', async t => {
