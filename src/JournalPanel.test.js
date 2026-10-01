@@ -50,6 +50,17 @@ test("daily goal remains today's goal across analytics periods and can be adjust
   expect(getState().settings.dailyGoal).toBe(4);
 });
 
+test("monthly chart spaces concise date labels and keeps complete accessible dates", () => {
+  renderJournal();
+  fireEvent.click(screen.getByRole("button", { name: "30 days" }));
+  const chart = screen.getByRole("list", { name: "Daily focus, focus minutes" });
+  const visibleLabels = within(chart).getAllByRole("listitem").map((item) => item.textContent).filter(Boolean);
+  const label = (month, day) => new Date(2026, month - 1, day).toLocaleDateString([], { month: "numeric", day: "numeric" });
+  expect(visibleLabels).toEqual([label(9, 2), label(9, 9), label(9, 16), label(9, 23), label(10, 1)]);
+  const fullDate = new Date(2026, 9, 1).toLocaleDateString([], { weekday: "long", month: "short", day: "numeric" });
+  expect(within(chart).getByLabelText(`${fullDate}: 0 focus minutes, 0 sessions`)).toBeInTheDocument();
+});
+
 test("history includes older records and loads more without losing entries", () => {
   const initial = createInitialState(NOW);
   initial.history = Array.from({ length: 25 }, (_, index) => ({ id: `session-${index}`, task: `Work ${index}`, minutes: 25, completedAt: NOW - index * 86400000 }));

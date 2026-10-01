@@ -159,6 +159,17 @@ describe('focus sessions and rewards', () => {
     expect(todayStats(state, NOW)).toEqual({ sessions: 2, minutes: 40, gems: 40, goal: 4, progress: 0.5 });
   });
 
+  test('daily goal ignores future saved completions until their timestamp is reached', () => {
+    const state = createInitialState(NOW);
+    state.history = [
+      { id: 'completed', completedAt: NOW, minutes: 25 },
+      { id: 'future-today', completedAt: NOW + MINUTE, minutes: 15 },
+    ];
+    expect(todayStats(state, NOW)).toEqual({ sessions: 1, minutes: 25, gems: 25, goal: 4, progress: 0.25 });
+    expect(todayStats(state, NOW + MINUTE)).toEqual({ sessions: 2, minutes: 40, gems: 40, goal: 4, progress: 0.5 });
+    expect(state.history).toHaveLength(2);
+  });
+
   test('formatting rounds up partial seconds and handles invalid or elapsed values', () => {
     expect(formatTime(25 * MINUTE)).toBe('25:00');
     expect(formatTime(1)).toBe('00:01');

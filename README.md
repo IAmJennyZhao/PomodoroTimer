@@ -46,10 +46,12 @@ For testing or a separate profile, set `POMODORO_DATA_DIR` to another directory 
 
 ## Focus and collection
 
-- Quick, classic, deep-work and custom timers, automatic long breaks, session intentions, a progress ring and completed-session markers.
-- One **Shilligem per completed focus minute**. Basic eggs cost 25; mystery rolls cost 60. The shop shows rarity odds and the rare-or-better guarantee.
+- Quick, classic, deep-work and custom timers under **Session lengths** on the timer, automatic long breaks, session tasks, a progress ring and completed-session markers.
+- One **Shilligem per completed focus minute**. Basic eggs cost 25; mystery rolls cost 60. Click the shop's info icon for rarity odds and the rare-or-better guarantee.
 - Illustrated cats, dogs, squirrels, rabbits, foxes and deer. Duplicates are additional residents. Choose a companion, arrange the room and unlock accessories, furniture and backgrounds.
-- Ambient sound mixing, a daily session goal, break activity suggestions, a distraction scratchpad and daily focus recaps.
+- Ambient sound mixing, an adjustable daily session goal, break activity suggestions and a distraction scratchpad.
+- Journal analytics for today, 7 days and 30 days: focus time, sessions, average length, active days, activity charts and complete session history.
+- Navigation beside the wallet opens spacious central workspaces; settings and sound use smaller panels. Optional descriptions appear through info buttons.
 
 ## Checks
 

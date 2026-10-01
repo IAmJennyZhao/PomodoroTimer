@@ -235,15 +235,19 @@ export function InfoTip({ label = "More info", children }) {
 
 export function Drawer({ name, onClose, children }) {
   const closeRef = useRef(null);
+  const dialogRef = useRef(null);
   useEffect(() => {
     const previous = document.activeElement;
+    const dialog = dialogRef.current;
     closeRef.current?.focus();
     return () => {
-      if (previous?.isConnected) previous.focus();
+      if (previous?.isConnected &&
+        (document.activeElement === document.body || dialog?.contains(document.activeElement))) previous.focus();
     };
   }, [name]);
   return (
     <aside
+      ref={dialogRef}
       className={`drawer workspace workspace-${name} paper`}
       role="dialog"
       aria-labelledby="panel-heading"

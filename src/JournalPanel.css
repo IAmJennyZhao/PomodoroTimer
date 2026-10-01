@@ -1,4 +1,6 @@
 .journal-panel { color: #634e63; }
+.journal-header { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+.journal-header .journal-tabs, .journal-header .journal-overview-toolbar { margin-bottom: 0; }
 .journal-choices { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid #634e6312; border-radius: 13px; background: #eee6e850; }
 .journal-choices button { border: 0; padding: 9px 15px; border-radius: 9px; background: transparent; color: #8a7888; font-size: .83rem; font-weight: 600; white-space: nowrap; }
 .journal-choices button.selected { background: #fffaf2; color: #634e63; box-shadow: 0 1px 5px #634e6312; }

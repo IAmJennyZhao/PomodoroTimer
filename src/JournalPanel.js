@@ -68,8 +68,10 @@ function ActivityChart({ analytics }) {
             : date.toLocaleDateString([], { weekday: "long", month: "short", day: "numeric" });
           const shortLabel = hourly
             ? `${bucket.hour}`
-            : date.toLocaleDateString([], analytics.period === "week" ? { weekday: "short" } : { month: "short", day: "numeric" });
-          const showLabel = hourly ? index % 6 === 0 || index === 23 : buckets.length <= 7 || index === 0 || index === buckets.length - 1 || index % 7 === 0;
+            : date.toLocaleDateString([], analytics.period === "week" ? { weekday: "short" } : { month: "numeric", day: "numeric" });
+          const showLabel = hourly
+            ? index % 6 === 0 || index === 23
+            : buckets.length <= 7 || index === 0 || index === buckets.length - 1 || (index % 7 === 0 && index <= buckets.length - 5);
           return (
             <li key={bucket.key} aria-label={`${fullLabel}: ${bucket.minutes} focus minutes, ${bucket.sessions} ${bucket.sessions === 1 ? "session" : "sessions"}`}>
               <span className="journal-bar-track" title={`${fullLabel}: ${bucket.minutes} min`}>
@@ -113,7 +115,13 @@ export default function JournalPanel({ state, act, now = Date.now() }) {
   const history = completedSessions(state.history, now);
   return (
     <div className="journal-panel">
-      <Choices label="Journal views" items={[{ id: "overview", name: "Overview" }, { id: "history", name: "History" }, { id: "scratchpad", name: "Scratchpad" }]} value={tab} onChange={setTab} className="journal-tabs" />
+      <div className="journal-header">
+        <Choices label="Journal views" items={[{ id: "overview", name: "Overview" }, { id: "history", name: "History" }, { id: "scratchpad", name: "Scratchpad" }]} value={tab} onChange={setTab} className="journal-tabs" />
+        {tab === "overview" && <div className="journal-overview-toolbar">
+          <Choices label="Analytics period" items={PERIODS} value={period} onChange={setPeriod} />
+          <InfoTip label="About focus analytics">Only completed focus sessions count. Breaks and skipped sessions are excluded. Average is the mean session length, rounded to the nearest minute.</InfoTip>
+        </div>}
+      </div>
       {tab === "scratchpad" ? (
         <section className="journal-notes">
           <div className="journal-section-title">
@@ -131,10 +139,6 @@ export default function JournalPanel({ state, act, now = Date.now() }) {
         </section>
       ) : (
         <>
-          <div className="journal-overview-toolbar">
-            <Choices label="Analytics period" items={PERIODS} value={period} onChange={setPeriod} />
-            <InfoTip label="About focus analytics">Only completed focus sessions count. Breaks and skipped sessions are excluded. Average is the mean session length, rounded to the nearest minute.</InfoTip>
-          </div>
           <dl className="journal-metrics" aria-label="Focus summary">
             {[
               ["Focus time", formatFocusTime(analytics.minutes)],

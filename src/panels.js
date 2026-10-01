@@ -111,13 +111,6 @@ export function AnimalsPanel({ state, act, selected, setSelected }) {
 export function ShopPanel({ state, act }) {
   return (
     <>
-      <div className="panel-toolbar shop-overview">
-        <Wallet gems={state.gems} />
-        <InfoTip label="Earning Shilligems">
-          Earn 1 Shilligem per focus minute when you finish a session.
-          Breaks and skipped sessions earn none.
-        </InfoTip>
-      </div>
       <div className="egg-options">
         <section className="egg-card">
           <Sprite kind="object" id="everyday" />
@@ -151,7 +144,13 @@ export function ShopPanel({ state, act }) {
           </button>
         </section>
       </div>
-      <h3 className="section-heading">Eggs <span className="small muted">{state.eggs.length}</span></h3>
+      <div className="section-heading">
+        <h3>Eggs <span className="small muted">· {state.eggs.length}</span></h3>
+        <InfoTip label="Earning Shilligems">
+          Earn 1 Shilligem per focus minute when you finish a session.
+          Breaks and skipped sessions earn none.
+        </InfoTip>
+      </div>
       {state.eggs.length ? (
         <div className="nest-grid">
           {state.eggs.map((egg, index) => (

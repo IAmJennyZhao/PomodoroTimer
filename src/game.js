@@ -205,9 +205,10 @@ function localDay(value) {
 }
 
 export function todayStats(state, now = Date.now()) {
-  const today = localDay(timeNow(now));
+  const timestamp = timeNow(now);
+  const today = localDay(timestamp);
   const sessions = state.history.filter(
-    (entry) => localDay(entry.completedAt) === today,
+    (entry) => entry.completedAt <= timestamp && localDay(entry.completedAt) === today,
   );
   const minutes = sessions.reduce((sum, entry) => sum + entry.minutes, 0);
   return {
@@ -263,8 +264,8 @@ function finishTimer(state, now, allowAutoStart = true) {
     updated,
     focus ? "focus-complete" : "break-complete",
     focus
-      ? `Lovely work. You earned ${alreadyLogged ? 0 : minutes} Shilligem${!alreadyLogged && minutes === 1 ? "" : "s"}!`
-      : "Feeling refreshed? Your next focus session is ready.",
+      ? `Focus complete · +${alreadyLogged ? 0 : minutes} Shilligem${!alreadyLogged && minutes === 1 ? "" : "s"}`
+      : "Break complete",
     now,
     focus ? { gems: alreadyLogged ? 0 : minutes, minutes } : {},
   );
@@ -553,7 +554,7 @@ export function gameReducer(state, action) {
           eggs: [...state.eggs, egg],
         },
         "egg-bought",
-        "A new egg is ready to hatch.",
+        "Egg ready to hatch",
         now,
         { egg },
       );

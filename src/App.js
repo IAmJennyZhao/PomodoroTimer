@@ -276,6 +276,7 @@ export default function App() {
     >
       <div
         className="room-scene"
+        inert={panel && !arranging ? "" : undefined}
         ref={sceneRef}
         style={{
           backgroundImage: `url(${ART}/room-${state.room.background}.png)`,
@@ -496,7 +497,7 @@ export default function App() {
       </footer>
       {panel && <div className="workspace-backdrop" onClick={closePanel} />}
       {panel && (
-        <Drawer name={panel} onClose={closePanel}>
+        <Drawer key={panel} name={panel} onClose={closePanel}>
           {panel === "animals" && (
             <AnimalsPanel
               state={state}

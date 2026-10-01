@@ -59,7 +59,7 @@
 .shop-overview { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; gap: 12px; }
 .egg-options { gap: 20px; margin-bottom: 26px; }
 .egg-card { padding: 18px 22px 22px; }
-.egg-card > .sprite { max-width: 165px; }
+.egg-card > .sprite { max-width: 140px; }
 .egg-card h3 { font-size: 21px; margin: 5px 0 15px; }
 .egg-card .secondary-button { font-size: 13px; min-height: 42px; width: min(220px, 100%); padding: 10px 20px; }
 .nest-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 14px; }
@@ -92,6 +92,7 @@
 .info-button:hover, .info-button[aria-expanded="true"] { background: #eaddE9; color: #5d4464; }
 .info-content { position: fixed; z-index: 300; width: min(300px, calc(100vw - 24px)); max-height: min(320px, calc(100svh - 24px)); overflow: auto; background: #f2eaf3; color: #604c62; padding: 14px 16px; border: 1px solid #d8c7db; border-radius: 13px; box-shadow: 0 8px 30px #49334b26; font: 12px/1.7 "Trebuchet MS", sans-serif; text-align: left; letter-spacing: normal; }
 .info-content p:last-child { margin-bottom: 0; }
+.info-content code { font-size: 11px; overflow-wrap: anywhere; }
 .session-duration-grid .number-field:last-child { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; margin-top: 4px; }
 .session-duration-grid .number-field:last-child input { width: 53px; }
 .session-timing-note { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
