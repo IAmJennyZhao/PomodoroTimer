@@ -1,7 +1,9 @@
 import { useEffect, useLayoutEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { FurnitureArt } from "./RoomBackdrop";
 export const ART = `${process.env.PUBLIC_URL || ""}/art`;
 export const RARITY_NAMES = {
+  basic: "Basic",
   everyday: "Everyday",
   rare: "Rare",
   dreamy: "Dreamy",
@@ -81,6 +83,7 @@ export function Icon({ name, size = 22, ...props }) {
     expand: <path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5" />,
     collapse: <path d="M3 8h5V3M16 3v5h5M8 21v-5H3M21 16h-5v5" />,
     mute: <path d="M3 9h4l5-5v16l-5-5H3ZM16 9l6 6M16 15l6-6" />,
+    move: <path d="M12 3v18M3 12h18M9 6l3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3m12-6 3 3-3 3" />,
   };
   return (
     <svg
@@ -107,6 +110,9 @@ export function Sprite({
   className = "",
   ...props
 }) {
+  if (kind === "object" && ["couch", "rug", "bookshelf", "window-plants", "table", "side-table", "plant", "cushion", "books"].includes(id)) {
+    return <FurnitureArt id={id} className={className} {...props} />;
+  }
   const indexes =
     kind === "animal"
       ? { cat: 0, dog: 1, squirrel: 2, rabbit: 3, fox: 4, deer: 5 }
@@ -115,7 +121,7 @@ export function Sprite({
   return (
     <span
       aria-hidden="true"
-      className={`sprite ${kind}-sprite rarity-${rarity} ${className}`}
+      className={`sprite ${kind}-sprite rarity-${rarity} ${kind === "object" && id === "basic" ? "egg-basic" : ""} ${className}`}
       style={{
         backgroundImage: `url(${ART}/${kind === "animal" ? "animals" : "objects"}-sheet.png)`,
         backgroundPosition: `${(index % 3) * 50}% ${Math.floor(index / 3) * 100}%`,
@@ -171,11 +177,20 @@ export function Accessory({ id }) {
 }
 
 export function AnimalArt({ animal, className = "" }) {
+  const motions = ["breathe", "sway", "hop", "wiggle", "stretch", "peek", "celebrate"];
+  const unlocked = Math.min(7, Math.max(1, (animal.upgrades || 0) + 1));
+  const [motion, setMotion] = useState(0);
+  const animate = className.includes("idle-animal");
+  useEffect(() => {
+    if (!animate || unlocked < 2) return undefined;
+    const interval = setInterval(() => setMotion(previous => (previous + 1) % unlocked), 12000);
+    return () => clearInterval(interval);
+  }, [animate, unlocked]);
   return (
-    <span className={`animal-art ${className}`}>
+    <span className={`animal-art pet-motion-${motions[motion % unlocked]} ${className}`} data-animations={unlocked}>
       <Sprite id={animal.species} rarity={animal.rarity} />
       <Accessory id={animal.accessory} />
-      {animal.rarity !== "everyday" && (
+      {["rare", "dreamy"].includes(animal.rarity) && (
         <span className="rare-sparkle">
           <Icon name="sparkle" size={18} />
         </span>
@@ -239,9 +254,54 @@ export function InfoTip({ label = "More info", children }) {
   );
 }
 
-export function Drawer({ name, onClose, children }) {
+export function clampNotepadPosition(position, bounds, viewport) {
+  return {
+    left: Math.max(12, Math.min(position.left, Math.max(12, viewport.width - bounds.width - 12))),
+    top: Math.max(12, Math.min(position.top, Math.max(12, viewport.height - bounds.height - 12))),
+  };
+}
+
+export function Drawer({ name, onClose, children, position, onMove }) {
   const closeRef = useRef(null);
   const dialogRef = useRef(null);
+  const pointer = useRef(null);
+  const location = useRef(null);
+  const [notesPosition, setNotesPosition] = useState(null);
+  const movable = name === "notes";
+  const savedX = position?.x;
+  const savedY = position?.y;
+  const moveNotes = (left, top) => {
+    const bounds = dialogRef.current?.getBoundingClientRect();
+    if (!bounds) return null;
+    const next = clampNotepadPosition({ left, top }, bounds, { width: window.innerWidth, height: window.innerHeight });
+    location.current = next;
+    setNotesPosition(next);
+    return next;
+  };
+  const saveNotesPosition = (next) => {
+    if (next) onMove?.({ x: next.left / window.innerWidth, y: next.top / window.innerHeight });
+  };
+  useLayoutEffect(() => {
+    if (!movable) return undefined;
+    const place = () => {
+      const bounds = dialogRef.current?.getBoundingClientRect();
+      if (!bounds) return;
+      const next = clampNotepadPosition({
+        left: typeof savedX === "number" ? savedX * window.innerWidth : window.innerWidth - bounds.width - 22,
+        top: typeof savedY === "number" ? savedY * window.innerHeight : window.innerWidth <= 600 ? 138 : 100,
+      }, bounds, { width: window.innerWidth, height: window.innerHeight });
+      location.current = next;
+      setNotesPosition(previous => previous?.left === next.left && previous?.top === next.top ? previous : next);
+    };
+    place();
+    window.addEventListener("resize", place);
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(place) : null;
+    if (dialogRef.current) observer?.observe(dialogRef.current);
+    return () => {
+      window.removeEventListener("resize", place);
+      observer?.disconnect();
+    };
+  }, [movable, savedX, savedY]);
   useEffect(() => {
     const previous = document.activeElement;
     const dialog = dialogRef.current;
@@ -254,14 +314,46 @@ export function Drawer({ name, onClose, children }) {
   return (
     <aside
       ref={dialogRef}
-      className={`drawer workspace workspace-${name} paper`}
+      className={`drawer workspace workspace-${name} paper ${movable ? "movable-notes" : ""}`}
+      style={movable && notesPosition ? notesPosition : undefined}
       role="dialog"
       aria-labelledby="panel-heading"
     >
       <header className="drawer-heading">
-        <div>
+        {movable ? <button type="button" className="notepad-drag-handle" aria-label="Move notepad" aria-describedby="notepad-move-help"
+          onPointerDown={(event) => {
+            if (event.button !== 0) return;
+            event.preventDefault();
+            event.currentTarget.focus();
+            event.currentTarget.setPointerCapture?.(event.pointerId);
+            const bounds = dialogRef.current.getBoundingClientRect();
+            pointer.current = { id: event.pointerId, x: event.clientX, y: event.clientY, left: bounds.left, top: bounds.top };
+          }}
+          onPointerMove={(event) => {
+            const start = pointer.current;
+            if (start && start.id === event.pointerId) moveNotes(start.left + event.clientX - start.x, start.top + event.clientY - start.y);
+          }}
+          onPointerUp={(event) => {
+            if (pointer.current?.id !== event.pointerId) return;
+            pointer.current = null;
+            saveNotesPosition(location.current);
+          }}
+          onPointerCancel={() => { pointer.current = null; saveNotesPosition(location.current); }}
+          onKeyDown={(event) => {
+            if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+            event.preventDefault();
+            const step = event.shiftKey ? 40 : 10;
+            const bounds = dialogRef.current.getBoundingClientRect();
+            const current = location.current || bounds;
+            saveNotesPosition(moveNotes(
+              current.left + (event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0),
+              current.top + (event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0),
+            ));
+          }}>
+          <Icon name="move" size={19} /><span><span className="notepad-heading" id="panel-heading">{PANEL_NAMES[name]}</span><small id="notepad-move-help">Drag to move · arrow keys to nudge</small></span>
+        </button> : <div>
           <h2 id="panel-heading">{PANEL_NAMES[name]}</h2>
-        </div>
+        </div>}
         <button
           ref={closeRef}
           className="icon-button"
@@ -310,7 +402,7 @@ export function RangeField({
   );
 }
 
-export function HatchModal({ animal, onClose }) {
+export function HatchModal({ animal, duplicate = false, capped = false, onClose }) {
   const buttonRef = useRef(null);
   useEffect(() => {
     const previous = document.activeElement;
@@ -341,7 +433,10 @@ export function HatchModal({ animal, onClose }) {
         <span className={`rarity-label ${animal.rarity}`}>
           {RARITY_NAMES[animal.rarity]} {animal.species}
         </span>
-        <h2 id="hatch-title">{animal.name} joined!</h2>
+        <h2 id="hatch-title">{capped ? `${animal.name} is maxed!` : duplicate ? `${animal.name} leveled up!` : `${animal.name} joined!`}</h2>
+        {duplicate && <p className="small">{capped ? "+5 Shilligems for this extra friend." : animal.upgrades === 6
+          ? "All 7 animations unlocked · +10% focus Shilligems!"
+          : `Animation ${(animal.upgrades || 0) + 1} of 7 unlocked · ${animal.upgrades}/6 upgrades`}</p>}
         <button ref={buttonRef} className="primary-button" onClick={onClose}>
           Done <Icon name="paw" size={18} />
         </button>

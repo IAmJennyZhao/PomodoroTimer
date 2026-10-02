@@ -1,0 +1,52 @@
+.rarity-stars { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; color: #89653d; font-size: 11px; line-height: 1.45; }
+.rarity-stars > span:first-child { letter-spacing: 2px; font-size: 14px; color: #b88b4b; }
+.rarity-stars.basic { color: #7a7566; }
+.rarity-stars.rare, .rarity-stars.rare > span:first-child { color: #9674aa; }
+.rarity-stars.dreamy, .rarity-stars.dreamy > span:first-child { color: #af7193; }
+.animal-card .rarity-stars { margin-top: 7px; }
+.pet-level { display: block; font-size: 10px; color: #826873; margin-top: 8px; }
+.upgrade-track { display: flex; gap: 6px; justify-content: center; margin-top: 18px; }
+.upgrade-track > span { color: #c8b9c5; border: 1px solid #e0d2dc; border-radius: 50%; padding: 4px; display: flex; }
+.upgrade-track > span.earned { background: #efe0ec; color: #9a719c; border-color: #c6a3c1; }
+.collection-detail { position: sticky; top: 0; text-align: center; }
+.collection-detail .field-label, .collection-detail .toggle-line { text-align: left; }
+.undiscovered-collection { margin-top: 28px; }
+.undiscovered-collection h3 { margin-bottom: 6px; }
+.mystery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(82px, 1fr)); gap: 9px; }
+.mystery-tile { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px; min-height: 103px; border: 1px dashed #d8c8c1; border-radius: 17px; background: #f4ede6; }
+.mystery-tile:hover, .mystery-tile.selected { background: #eee1ed; border: 1px solid #b898bb; }
+.mystery-mark { display: block; font: italic 42px Georgia, serif; color: #baa5b3; }
+.mystery-detail > .mystery-mark { font-size: 68px; }
+.mystery-detail > .sprite { width: 110px; margin: 8px auto; }
+.mystery-detail p { font-size: 13px; line-height: 1.6; }
+.egg-card .egg-description { min-height: 0; font-size: 12px; margin: 13px 0 16px; color: #8b7884; }
+.egg-card > .rarity-stars { margin: 0 auto; }
+.mystery-range { display: flex; align-items: center; justify-content: center; gap: 4px; flex-direction: column; color: #a171a2; font-size: 13px; }
+.mystery-range > span { font-size: 11px; }
+.egg-rarity-guide { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px 10px; border-radius: 17px; background: #f4eee7; margin-bottom: 27px; }
+.egg-rarity-guide > div { display: flex; align-items: center; flex-direction: column; gap: 7px; }
+.egg-rarity-guide > div > span:last-child { font-size: 10px; color: #857580; }
+.incubation-explainer { max-width: 660px; line-height: 1.65; margin: -3px 0 18px; }
+.nest-egg { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.nest-egg.selected { border-color: #a780ab; box-shadow: 0 0 0 2px #b79dc52b; }
+.nest-egg > .sprite { width: 100%; }
+.nest-egg progress { width: 100%; height: 7px; accent-color: #ae91b5; border: 0; border-radius: 9px; overflow: hidden; }
+.nest-egg progress::-webkit-progress-bar { background: #e8dce2; border-radius: 9px; }
+.nest-egg progress::-webkit-progress-value { background: #b296bb; border-radius: 9px; }
+.egg-order, .egg-progress, .egg-current { font-size: 10px; color: #877583; }
+.egg-current { color: #6c826e; }
+.egg-select, .egg-hatch { width: 100%; }
+.egg-select { margin-top: auto; }
+.egg-select[aria-pressed="true"] { background: #e8dbea; border-color: #b496bb; }
+.egg-hatch:disabled { opacity: .45; }
+.egg-hatch:not(:disabled) { background: #dce8d8; color: #577251; border-color: #bbceaf; }
+@media (max-width: 600px) {
+  .mystery-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
+  .mystery-tile { min-height: 86px; }
+  .mystery-tile .rarity-stars > span:first-child { letter-spacing: 0; font-size: 12px; }
+  .egg-rarity-guide { gap: 5px; padding: 12px 5px; }
+  .egg-rarity-guide > div > span:last-child { font-size: 9px; }
+  .collection-detail { position: static; grid-row: 1; }
+  .mystery-detail > .mystery-mark { font-size: 36px; }
+  .mystery-detail > .sprite { width: 80px; }
+}

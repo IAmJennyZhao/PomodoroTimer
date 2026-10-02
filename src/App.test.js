@@ -117,7 +117,7 @@ test('a completed focus session updates the wallet, daily goal, journal, break i
   expect(engine.chime).toHaveBeenCalledTimes(1);
 });
 
-test('focus earnings can buy and hatch an egg into another visible room resident', async () => {
+test('focus earnings buy an egg and the next study session makes it hatchable', async () => {
   await openRoom();
   fireEvent.click(screen.getByRole('button', { name: 'Start' }));
   await wakeAt(NOW + 25 * MINUTE);
@@ -127,7 +127,14 @@ test('focus earnings can buy and hatch an egg into another visible room resident
   expect(within(shop).getByRole('button', { name: /Roll mystery egg/ })).toBeDisabled();
   fireEvent.click(within(shop).getByRole('button', { name: /Buy basic egg/ }));
   expect(screen.getByRole('button', { name: '0 Shilligems, open egg shop' })).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'Hatch everyday egg 1' }));
+  expect(screen.getByRole('button', { name: 'Hatch basic egg 1' })).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Close panel' }));
+  fireEvent.click(screen.getByRole('button', { name: 'New session' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  await wakeAt(NOW + 50 * MINUTE);
+  leaveFocus();
+  fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Hatch basic egg 1' }));
 
   const hatch = screen.getByRole('dialog', { name: 'Cat joined!' });
   expect(hatch).toHaveAttribute('aria-modal', 'true');
@@ -136,16 +143,16 @@ test('focus earnings can buy and hatch an egg into another visible room resident
   fireEvent.keyDown(welcome, { key: 'Tab', shiftKey: true });
   expect(welcome).toHaveFocus();
   expect(screen.getByRole('button', { name: 'Miso, Everyday cat' })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Cat, Everyday cat' })).toBeInTheDocument();
-  expect(screen.queryByRole('button', { name: 'Hatch everyday egg 1' })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Cat, Basic cat' })).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Hatch basic egg 1' })).not.toBeInTheDocument();
   fireEvent.keyDown(window, { key: 'Escape' });
   expect(screen.queryByRole('dialog', { name: 'Cat joined!' })).not.toBeInTheDocument();
   expect(screen.getByRole('dialog', { name: 'Egg shop' })).toBeInTheDocument();
 
   fireEvent.click(screen.getByRole('button', { name: 'Animals', exact: true }));
-  expect(screen.getByRole('button', { name: 'Select Cat, everyday Cat, animal 2' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Select Cat, basic Cat, animal 2' })).toBeInTheDocument();
   await advance(350);
-  expect(latestWrite().state).toMatchObject({ gems: 0, eggs: [], history: [{ minutes: 25 }] });
+  expect(latestWrite().state).toMatchObject({ gems: 25, eggs: [], history: [{ minutes: 25 }, { minutes: 25 }] });
   expect(latestWrite().state.animals).toHaveLength(2);
   expect(new Set(latestWrite().state.animals.map(animal => animal.id)).size).toBe(2);
   expect(latestWrite().state.animals.every(animal => animal.placed)).toBe(true);

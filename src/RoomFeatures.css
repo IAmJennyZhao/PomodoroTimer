@@ -1,0 +1,60 @@
+.room-scene { isolation: isolate; z-index: 0; background: #ecdbd0; }
+.room-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.room-preview { position: relative; display: block; height: auto; aspect-ratio: 1.5; border-radius: 12px; overflow: hidden; }
+.room-resident .furniture-art { width: 100%; }
+.furniture-art { display: block; width: 100%; aspect-ratio: 1; }
+.furniture-art svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.shop-item > .furniture-art { height: 142px; width: 100%; }
+.room-resident.decoration-couch { width: clamp(240px, 30vw, 500px); }
+.room-resident.decoration-rug { width: clamp(320px, 43vw, 720px); filter: none; }
+.room-resident.decoration-bookshelf { width: clamp(140px, 15vw, 250px); }
+.room-resident.decoration-window-plants { width: clamp(140px, 15vw, 245px); }
+.room-resident.decoration-table { width: clamp(140px, 17vw, 290px); }
+.room-resident.decoration-side-table { width: clamp(95px, 11vw, 175px); }
+.room-resident.decoration-couch .furniture-art { aspect-ratio: 360 / 220; }
+.room-resident.decoration-rug .furniture-art { aspect-ratio: 360 / 150; }
+.room-resident.decoration-bookshelf .furniture-art { aspect-ratio: 220 / 300; }
+.arrange-start { display: inline-flex; gap: 8px; align-items: center; justify-content: center; }
+.arrange-intro { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 20px; border: 1px solid #e1d1da; background: #f3ebef; border-radius: 16px; margin-bottom: 22px; }
+.arrange-intro h3 { margin: 0 0 5px; font-size: 18px; }
+.arrange-intro p { margin: 0; font-size: 12px; line-height: 1.6; color: var(--muted); }
+.arrange-tip { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 0 0 17px; }
+.arrange-controls .range-field { margin-top: 18px; }
+.room-item-description { font-size: 11px; color: var(--muted); margin: -5px 0 3px; }
+.furniture-library-note { font-size: 12px; color: var(--muted); margin-top: 18px; line-height: 1.6; }
+.drawer.workspace-notes.movable-notes { position: fixed; right: auto; bottom: auto; transform: none; width: min(350px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); margin: 0; }
+.movable-notes .drawer-heading { padding: 12px 16px; gap: 9px; }
+.notepad-drag-handle { display: flex; align-items: center; gap: 9px; cursor: grab; touch-action: none; text-align: left; flex: 1; border: 0; background: transparent; color: inherit; padding: 6px 0; min-width: 0; }
+.notepad-drag-handle:active { cursor: grabbing; }
+.notepad-drag-handle > svg { color: #a390a3; flex-shrink: 0; }
+.notepad-drag-handle .notepad-heading { display: block; font-family: Georgia, serif; font-size: 23px; font-weight: 400; }
+.notepad-drag-handle small { display: block; color: var(--muted); font-size: 10px; margin-top: 4px; }
+.movable-notes .drawer-content { padding-top: 13px; }
+.room-resident .idle-animal { animation-name: pet-breathe; animation-duration: 6s; }
+.room-resident .pet-motion-sway { animation-name: pet-sway; }
+.room-resident .pet-motion-hop { animation-name: pet-hop; }
+.room-resident .pet-motion-wiggle { animation-name: pet-wiggle; }
+.room-resident .pet-motion-stretch { animation-name: pet-stretch; }
+.room-resident .pet-motion-peek { animation-name: pet-peek; }
+.room-resident .pet-motion-celebrate { animation-name: pet-celebrate; }
+.room-resident.draggable .idle-animal { animation: none; }
+.animal-sprite.rarity-basic { filter: saturate(.7); }
+.object-sprite.egg-basic { filter: saturate(.45) brightness(1.08); }
+@keyframes pet-breathe { 0%,100% { transform: scaleY(1); } 50% { transform: translateY(-2px) scaleY(1.015); } }
+@keyframes pet-sway { 0%,30%,100% { transform: rotate(0); } 45% { transform: rotate(-4deg); } 65% { transform: rotate(4deg); } 80% { transform: rotate(-2deg); } }
+@keyframes pet-hop { 0%,35%,65%,100% { transform: translateY(0); } 41% { transform: scaleY(.94); } 49% { transform: translateY(-15px) scaleY(1.03); } 57% { transform: scaleY(.97); } }
+@keyframes pet-wiggle { 0%,35%,70%,100% { transform: rotate(0); } 40%,52%,64% { transform: rotate(-5deg); } 46%,58% { transform: rotate(5deg); } }
+@keyframes pet-stretch { 0%,25%,90%,100% { transform: scale(1); } 43%,62% { transform: scaleX(.95) scaleY(1.08) rotate(-2deg); } 75% { transform: scaleX(1.03) scaleY(.98); } }
+@keyframes pet-peek { 0%,25%,90%,100% { transform: translateX(0); } 42%,52% { transform: translateX(-9px) rotate(-6deg); } 66%,77% { transform: translateX(9px) rotate(6deg); } }
+@keyframes pet-celebrate { 0%,24%,90%,100% { transform: translateY(0) rotate(0); } 36%,62% { transform: translateY(-16px) rotate(-6deg); } 48%,74% { transform: translateY(-4px) rotate(6deg); } }
+@media (prefers-reduced-motion: reduce) { .room-resident .idle-animal { animation: none; } }
+@media (max-width: 600px) {
+  .arrange-intro { padding: 14px; gap: 12px; flex-wrap: wrap; }
+  .arrange-intro .arrange-start { width: 100%; }
+  .room-resident.decoration-couch { width: 65vw; }
+  .room-resident.decoration-rug { width: 86vw; }
+  .room-resident.decoration-bookshelf { width: 35vw; }
+  .room-resident.decoration-table { width: 37vw; }
+  .room-resident.decoration-window-plants { width: 34vw; }
+  .shop-item > .furniture-art { height: 115px; }
+}

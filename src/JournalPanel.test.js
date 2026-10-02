@@ -82,3 +82,27 @@ test("scratchpad saves edits while details stay behind its info control", () => 
   fireEvent.click(screen.getByRole("button", { name: "About scratchpad" }));
   expect(screen.getByText(/Saved on this computer/)).toBeVisible();
 });
+
+test("journal shows multiple tasks, session tags and tag statistics for the selected period", () => {
+  const initial = createInitialState(NOW);
+  initial.history = [
+    { id: "today", task: "Chemistry", tasks: [{ id: "a", text: "Read chapter", done: true }, { id: "b", text: "Practice problems", done: false }], tags: ["Chemistry", "Study"], minutes: 25, completedAt: NOW, rewardForfeited: true },
+    { id: "yesterday", task: "Lab report", tags: ["Chemistry"], minutes: 15, completedAt: NOW - 86400000 },
+    { id: "legacy", task: "Old task", minutes: 10, completedAt: NOW },
+  ];
+  renderJournal(initial);
+  expect(screen.getByText("Read chapter · Practice problems")).toBeInTheDocument();
+  expect(screen.getByText("1 of 2 tasks done")).toBeInTheDocument();
+  expect(screen.getByText("Session Shilligems forfeited")).toBeInTheDocument();
+  const tags = within(screen.getByRole("region", { name: "Focus by tag" }));
+  expect(tags.getByLabelText("Chemistry: 25 focus minutes, 1 session")).toBeInTheDocument();
+  expect(tags.getByLabelText("Study: 25 focus minutes, 1 session")).toBeInTheDocument();
+  expect(tags.getByLabelText("Untagged: 10 focus minutes, 1 session")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "7 days" }));
+  expect(tags.getByLabelText("Chemistry: 40 focus minutes, 2 sessions")).toHaveTextContent("20m average");
+  fireEvent.click(tags.getByRole("button", { name: "About tag statistics" }));
+  expect(screen.getByText(/tag totals can overlap/)).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: "History" }));
+  expect(screen.getByText("Read chapter · Practice problems")).toBeInTheDocument();
+  expect(screen.getAllByLabelText("Session tags")).toHaveLength(2);
+});

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { completedSessions, focusAnalytics, formatFocusTime, PERIODS } from "./analytics";
+import { completedSessions, focusAnalytics, formatFocusTime, PERIODS, sessionTags } from "./analytics";
 import { todayStats } from "./game";
 import { Icon, InfoTip } from "./ui";
 import "./JournalPanel.css";
@@ -26,11 +26,16 @@ function SessionList({ sessions, showDate = true }) {
   if (!sessions.length) return <p className="journal-empty">No completed sessions yet.</p>;
   return (
     <ol className="journal-sessions">
-      {sessions.map((session) => (
+      {sessions.map((session) => {
+        const tasks = Array.isArray(session.tasks) ? session.tasks.filter((task) => task?.text) : [];
+        const tags = sessionTags(session);
+        return (
         <li key={session.id}>
           <span className="journal-session-icon"><Icon name="check" size={16} /></span>
           <div>
-            <strong>{session.task || "Focus session"}</strong>
+            <strong>{tasks.length ? tasks.map((task) => task.text).join(" · ") : session.task || "Focus session"}</strong>
+            {tasks.length > 1 && <span className="journal-task-count">{tasks.filter((task) => task.done).length} of {tasks.length} tasks done</span>}
+            {tags.length > 0 && <div className="journal-session-tags" aria-label="Session tags">{tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}
             <time dateTime={new Date(session.completedAt).toISOString()}>
               {new Date(session.completedAt).toLocaleString([], {
                 ...(showDate ? { month: "short", day: "numeric" } : {}),
@@ -38,12 +43,28 @@ function SessionList({ sessions, showDate = true }) {
                 minute: "2-digit",
               })}
             </time>
+            {session.rewardForfeited && <span className="journal-session-forfeited">Session Shilligems forfeited</span>}
           </div>
           <span className="journal-session-duration">{session.minutes} min</span>
         </li>
-      ))}
+      ); })}
     </ol>
   );
+}
+
+function TagStats({ analytics }) {
+  return <section className="journal-card journal-tag-stats" aria-label="Focus by tag">
+    <div className="journal-section-title"><h3>Focus by tag</h3>
+      <InfoTip label="About tag statistics">Each tag receives the full duration of its session. Sessions with several tags appear in each tag's total, so tag totals can overlap. Untagged sessions include earlier sessions without tags.</InfoTip>
+    </div>
+    {!analytics.tags.length ? <p className="journal-empty">Add a tag to a focus session to see where your time goes.</p>
+      : <ul className="journal-tag-breakdown">{analytics.tags.map((item) => <li key={item.tag ?? "__untagged"}
+        aria-label={`${item.tag || "Untagged"}: ${item.minutes} focus minutes, ${item.sessions} ${item.sessions === 1 ? "session" : "sessions"}`}>
+        <div className="journal-tag-heading"><span>{item.tag || "Untagged"}</span><strong>{formatFocusTime(item.minutes)}</strong></div>
+        <div className="journal-tag-meter" aria-hidden="true"><span style={{ width: `${item.minutes / analytics.minutes * 100}%` }} /></div>
+        <span className="journal-tag-detail">{item.sessions} {item.sessions === 1 ? "session" : "sessions"} · {formatFocusTime(item.averageMinutes)} average</span>
+      </li>)}</ul>}
+  </section>;
 }
 
 function ActivityChart({ analytics }) {
@@ -148,6 +169,7 @@ export default function JournalPanel({ state, act, now = Date.now() }) {
             ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
           </dl>
           <div className="journal-visuals"><ActivityChart analytics={analytics} /><GoalCard state={state} act={act} now={now} /></div>
+          <TagStats analytics={analytics} />
           <section className="journal-recent">
             <div className="journal-section-title"><h3>Recent sessions</h3><button className="journal-text-button" type="button" onClick={() => setTab("history")}>View all <Icon name="arrow" size={16} /></button></div>
             <SessionList sessions={analytics.sessions.slice(0, 3)} showDate={period !== "today"} />

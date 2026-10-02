@@ -21,20 +21,36 @@ function renderPanel(Panel, initial = createInitialState(NOW), extra = {}) {
   return { ...render(<Harness />), getState: () => latest };
 }
 
-test('earned Shilligems buy both kinds of egg and hatching adds a real resident', () => {
+test('purchases show star rarities and only one egg can be selected for studying', () => {
   const initial = { ...createInitialState(NOW), gems: 85 };
   const { getState } = renderPanel(ShopPanel, initial);
   fireEvent.click(screen.getByRole('button', { name: /Buy basic egg/ }));
   expect(getState().gems).toBe(60);
   fireEvent.click(screen.getByRole('button', { name: /Roll mystery egg/ }));
   expect(getState().gems).toBe(0);
-  expect(getState().eggs.map(egg => egg.rarity)).toEqual(['everyday', 'dreamy']);
+  expect(getState().eggs.map(egg => egg.rarity)).toEqual(['basic', 'dreamy']);
   expect(screen.getByRole('button', { name: /Buy basic egg/ })).toBeDisabled();
   expect(screen.getByRole('button', { name: /Roll mystery egg/ })).toBeDisabled();
-  fireEvent.click(screen.getByRole('button', { name: 'Hatch dreamy egg 2' }));
+  expect(screen.getByRole('button', { name: 'Hatch dreamy egg 2' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Deselect basic egg 1' })).toHaveAttribute('aria-pressed', 'true');
+  fireEvent.click(screen.getByRole('button', { name: 'Select dreamy egg 2' }));
+  expect(getState().selectedEggId).toBe(getState().eggs[1].id);
+  expect(screen.getByRole('button', { name: 'Select basic egg 1' })).toHaveAttribute('aria-pressed', 'false');
+  fireEvent.click(screen.getByRole('button', { name: 'Deselect dreamy egg 2' }));
+  expect(getState().selectedEggId).toBeNull();
+  expect(screen.getByLabelText('Egg rarities')).toHaveTextContent('Basic');
+  expect(screen.getByLabelText('Egg rarities')).toHaveTextContent('100 min to hatch');
+});
+
+test('a fully studied egg hatches into a room resident', () => {
+  const initial = createInitialState(NOW);
+  initial.eggs = [{ id: 'ready-egg', rarity: 'dreamy', progressMinutes: 100, requiredMinutes: 100, createdAt: NOW }];
+  initial.selectedEggId = 'ready-egg';
+  const { getState } = renderPanel(ShopPanel, initial);
+  fireEvent.click(screen.getByRole('button', { name: 'Hatch dreamy egg 1' }));
   expect(getState().animals).toHaveLength(2);
   expect(getState().animals[1]).toMatchObject({ species: 'deer', rarity: 'dreamy', placed: true });
-  expect(getState().eggs).toHaveLength(1);
+  expect(getState().eggs).toHaveLength(0);
 });
 
 test('mystery guarantee and its different odds are disclosed before buying', () => {
@@ -48,6 +64,7 @@ test('mystery guarantee and its different odds are disclosed before buying', () 
 
 test('decoration purchases can be used, equipped, positioned, and removed without rebuying furniture', () => {
   const { getState } = renderPanel(DecoratePanel, { ...createInitialState(NOW), gems: 200 });
+  fireEvent.click(screen.getByRole('button', { name: 'Room style' }));
   fireEvent.click(screen.getByRole('button', { name: 'Unlock Moonlit den for 75 Shilligems' }));
   fireEvent.click(screen.getByRole('button', { name: 'Use Moonlit den' }));
   expect(getState().room.background).toBe('moonroom');
@@ -62,15 +79,26 @@ test('decoration purchases can be used, equipped, positioned, and removed withou
   expect(getState().gems).toBe(50);
   expect(getState().room.decorations).toHaveLength(2);
   const first = getState().room.decorations[0].id;
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Arrange room' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));
   expect(screen.queryByRole('button', { name: 'Add Cozy cushion' })).not.toBeInTheDocument();
   fireEvent.change(screen.getByRole('combobox', { name: 'Selected item' }), { target: { value: `decoration:${first}` } });
   fireEvent.change(screen.getByRole('slider', { name: 'Left to right' }), { target: { value: '88' } });
-  fireEvent.change(screen.getByRole('slider', { name: 'Back to front' }), { target: { value: '80' } });
+  fireEvent.change(screen.getByRole('slider', { name: 'Higher to lower' }), { target: { value: '80' } });
   expect(getState().room.decorations[0]).toMatchObject({ x: 88, y: 80 });
   fireEvent.click(screen.getByRole('button', { name: 'Remove from room' }));
   expect(getState().room.decorations).toHaveLength(1);
   expect(getState().owned.decorations).toContain('cushion');
+});
+
+test('undiscovered tiles reveal the matching egg and owned pets show six upgrade slots', () => {
+  renderPanel(AnimalsPanel);
+  expect(screen.getByRole('region', { name: 'Undiscovered pets' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Discover Dreamy Fox, 4 stars' }));
+  expect(screen.getByRole('region', { name: 'Undiscovered pet details' })).toHaveTextContent('Dreamy egg');
+  expect(screen.getByRole('region', { name: 'Undiscovered pet details' })).toHaveTextContent('100 focus minutes');
+  fireEvent.click(screen.getByRole('button', { name: 'Back to my pet' }));
+  expect(screen.getByLabelText('0 of 6 upgrades')).toBeInTheDocument();
+  expect(screen.getByText('1 of 7 animations unlocked')).toBeInTheDocument();
 });
 
 test('collection controls keep an animal safe in the collection and equip only unlocked accessories', () => {

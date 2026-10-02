@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import "./layout.css";
 import "./timer-flow.css";
+import "./RoomFeatures.css";
 import useLocalSave from "./useLocalSave";
 import {
   BACKGROUNDS,
@@ -15,7 +16,6 @@ import {
 } from "./game";
 import { createAmbientEngine } from "./audio";
 import {
-  ART,
   RARITY_NAMES,
   Icon,
   Sprite,
@@ -24,10 +24,11 @@ import {
   HatchModal,
 } from "./ui";
 import TimerCard, { QuickScratchpad } from "./TimerCard";
+import RoomBackdrop from "./RoomBackdrop";
+import DecoratePanel from "./DecoratePanel";
 import {
   AnimalsPanel,
   ShopPanel,
-  DecoratePanel,
   JournalPanel,
   SoundPanel,
   SettingsPanel,
@@ -173,7 +174,7 @@ export default function App() {
     const event = state.event;
     if (!event || event.id === lastEvent.current) return;
     lastEvent.current = event.id;
-    if (event.type === "animal-hatched") setHatch(event.animal);
+    if (event.type === "animal-hatched") setHatch(event);
     else if (event.type === "focus-complete") {
       const stats = todayStats(state);
       setToast(
@@ -250,7 +251,7 @@ export default function App() {
         Math.min(95, ((event.clientX - bounds.left) / bounds.width) * 100),
       ),
       y: Math.max(
-        48,
+        20,
         Math.min(85, ((event.clientY - bounds.top) / bounds.height) * 100),
       ),
     }));
@@ -275,11 +276,11 @@ export default function App() {
     return (
       <button
         key={item.id}
-        className={`room-resident ${type} ${arranging ? "draggable" : ""} ${selection?.id === item.id && arranging ? "chosen" : ""}`}
+        className={`room-resident ${type} ${type === "decoration" ? `decoration-${item.item}` : ""} ${arranging ? "draggable" : ""} ${selection?.id === item.id && arranging ? "chosen" : ""}`}
         style={{
           left: `${position.x}%`,
           top: `${position.y}%`,
-          zIndex: 2 + Math.round(position.y),
+          zIndex: item.item === "rug" ? 1 : (type === "animal" ? 160 : 2) + Math.round(position.y),
           "--delay": `${-(state.animals.findIndex((animal) => animal.id === item.id) * 1.37)}s`,
         }}
         aria-label={
@@ -291,6 +292,18 @@ export default function App() {
         onPointerMove={moveDrag}
         onPointerUp={endDrag}
         onPointerCancel={() => setDrag(null)}
+        onKeyDown={(event) => {
+          if (!arranging || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+          event.preventDefault();
+          const step = event.shiftKey ? 5 : 1;
+          setSelection({ type, id: item.id });
+          act({
+            type: type === "animal" ? "MOVE_ANIMAL" : "MOVE_DECORATION",
+            id: item.id,
+            x: Math.max(5, Math.min(95, item.x + (event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0))),
+            y: Math.max(20, Math.min(85, item.y + (event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0))),
+          });
+        }}
         onClick={(event) => {
           if (event.detail === 0) {
             if (arranging) setSelection({ type, id: item.id });
@@ -318,13 +331,11 @@ export default function App() {
         className="room-scene"
         inert={(panel && !arranging) || focusView ? "" : undefined}
         ref={sceneRef}
-        style={{
-          backgroundImage: `url(${ART}/room-${state.room.background}.png)`,
-        }}
         aria-label={
           BACKGROUNDS.find((item) => item.id === state.room.background)?.name
         }
       >
+        <RoomBackdrop theme={state.room.background} />
         {state.room.decorations.map((item) =>
           renderResident(item, "decoration"),
         )}
@@ -430,7 +441,9 @@ export default function App() {
       </footer>
       {widePanel && <div className="workspace-dismiss" onClick={closePanel} />}
       {panel && (
-        <Drawer key={panel} name={panel} onClose={closePanel}>
+        <Drawer key={panel} name={panel} onClose={closePanel}
+          position={state.room.notepadPosition}
+          onMove={(position) => act({ type: "MOVE_NOTEPAD", ...position })}>
           {panel === "animals" && (
             <AnimalsPanel
               state={state}
@@ -521,7 +534,7 @@ export default function App() {
           </div>
         </div>
       )}
-      {hatch && <HatchModal animal={hatch} onClose={() => setHatch(null)} />}
+      {hatch && <HatchModal animal={hatch.animal} duplicate={hatch.duplicate} capped={hatch.capped} onClose={() => setHatch(null)} />}
     </div>
   );
 }

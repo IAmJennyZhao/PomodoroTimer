@@ -72,3 +72,27 @@ test("history is sorted without mutation and ignores incomplete, malformed, and 
 test.each([[0, "0m"], [25, "25m"], [60, "1h"], [95, "1h 35m"], [150, "2h 30m"]])("focus time formats %i minutes as %s", (minutes, result) => {
   expect(formatFocusTime(minutes)).toBe(result);
 });
+
+test("tag totals include each session once per tag, combine tag casing, and explain untagged history", () => {
+  const stats = focusAnalytics([
+    { ...session("chem", 25, NOW), tags: ["Chemistry", " chemistry ", "Study", "", null] },
+    { ...session("second", 15, NOW - 60000), tags: ["chemistry"] },
+    session("legacy", 10, NOW - 120000),
+    { ...session("old", 60, NOW - 86400000), tags: ["Work"] },
+  ], "today", NOW);
+  expect(stats.minutes).toBe(50);
+  expect(stats.tags).toEqual([
+    { tag: "Chemistry", minutes: 40, sessions: 2, averageMinutes: 20 },
+    { tag: "Study", minutes: 25, sessions: 1, averageMinutes: 25 },
+    { tag: null, minutes: 10, sessions: 1, averageMinutes: 10 },
+  ]);
+});
+
+test("empty tag lists and malformed tags count as untagged and empty periods have no tag totals", () => {
+  expect(focusAnalytics([
+    { ...session("empty", 25, NOW), tags: [] },
+    { ...session("malformed", 15, NOW), tags: "Work" },
+    { ...session("blank", 10, NOW), tags: ["  ", 12] },
+  ], "today", NOW).tags).toEqual([{ tag: null, minutes: 50, sessions: 3, averageMinutes: 17 }]);
+  expect(focusAnalytics([], "today", NOW).tags).toEqual([]);
+});

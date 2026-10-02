@@ -36,6 +36,17 @@ export function completedSessions(history, now = Date.now()) {
     .sort((a, b) => b.completedAt - a.completedAt);
 }
 
+export function sessionTags(entry) {
+  const seen = new Set();
+  return (Array.isArray(entry.tags) ? entry.tags : []).filter((tag) => typeof tag === "string")
+    .map((tag) => tag.trim().replace(/\s+/g, " ")).filter((tag) => {
+      const key = tag.toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
 export function focusAnalytics(history, period = "today", now = Date.now()) {
   const selected = PERIODS.find((item) => item.id === period) || PERIODS[0];
   const start = startOfDay(now);
@@ -61,6 +72,7 @@ export function focusAnalytics(history, period = "today", now = Date.now()) {
     minutes: 0,
     sessions: 0,
   }));
+  const tagMap = new Map();
   for (const entry of sessions) {
     const day = dayMap.get(dayKey(entry.completedAt));
     if (day) {
@@ -70,6 +82,14 @@ export function focusAnalytics(history, period = "today", now = Date.now()) {
     const hour = hours[new Date(entry.completedAt).getHours()];
     hour.minutes += entry.minutes;
     hour.sessions += 1;
+    const tags = sessionTags(entry);
+    for (const tag of tags.length ? tags : [null]) {
+      const key = tag?.toLowerCase() ?? null;
+      const bucket = tagMap.get(key) || { tag, minutes: 0, sessions: 0 };
+      bucket.minutes += entry.minutes;
+      bucket.sessions += 1;
+      tagMap.set(key, bucket);
+    }
   }
   const minutes = sessions.reduce((total, entry) => total + entry.minutes, 0);
   return {
@@ -82,5 +102,7 @@ export function focusAnalytics(history, period = "today", now = Date.now()) {
     activeDays: days.filter((day) => day.sessions > 0).length,
     days,
     hours,
+    tags: [...tagMap.values()].map((tag) => ({ ...tag, averageMinutes: Math.round(tag.minutes / tag.sessions) }))
+      .sort((a, b) => b.minutes - a.minutes || (a.tag || "Untagged").localeCompare(b.tag || "Untagged")),
   };
 }
