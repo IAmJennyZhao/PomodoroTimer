@@ -13,7 +13,7 @@ export default function RoomWidget({ as: Tag = "div", id, name, className, posit
       if (!position || !ref.current) { setLocation(null); return; }
       const room = ref.current.parentElement.getBoundingClientRect();
       const bounds = ref.current.getBoundingClientRect();
-      const minTop = window.innerWidth <= 600 ? 104 : 74;
+      const minTop = (window.innerWidth <= 600 ? 104 : 74) + (arranging ? 30 : 0);
       setLocation({
         left: Math.max(12, Math.min(room.width - bounds.width - 12, room.width * position.x / 100)),
         top: Math.max(minTop, Math.min(room.height - bounds.height - 12, room.height * position.y / 100)),
@@ -24,13 +24,13 @@ export default function RoomWidget({ as: Tag = "div", id, name, className, posit
     if (ref.current) observer?.observe(ref.current);
     window.addEventListener("resize", place);
     return () => { observer?.disconnect(); window.removeEventListener("resize", place); };
-  }, [position, hidden]);
+  }, [position, hidden, arranging]);
   function move(left, top) {
     const room = ref.current.parentElement.getBoundingClientRect();
     const bounds = ref.current.getBoundingClientRect();
     const next = {
       left: Math.max(12, Math.min(room.width - bounds.width - 12, left)),
-      top: Math.max(window.innerWidth <= 600 ? 104 : 74, Math.min(room.height - bounds.height - 12, top)),
+      top: Math.max((window.innerWidth <= 600 ? 104 : 74) + (arranging ? 30 : 0), Math.min(room.height - bounds.height - 12, top)),
     };
     setDraft(next);
     return { x: next.left / room.width * 100, y: next.top / room.height * 100 };

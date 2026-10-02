@@ -67,13 +67,11 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
         <button className="library-item library-shop" onClick={() => { setSelection(null); setArranging(false); }}><Icon name="plus" size={26} /><span>Furniture shop</span></button>
       </div>
     </> : <>
-      <div className="arrange-intro">
-        <button type="button" className="primary-button arrange-start" onClick={() => setArranging(true)}><Icon name="move" size={18} /> Arrange room</button>
-      </div>
       <div className="panel-toolbar catalog-toolbar">
         <div className="segmented" role="group" aria-label="Decoration categories">
           {[['decorations', 'Furniture'], ['backgrounds', 'Room style'], ['accessories', 'Accessories']].map(([id, name]) => <button type="button" key={id} aria-pressed={category === id} className={category === id ? "selected" : ""} onClick={() => setCategory(id)}>{name}</button>)}
         </div>
+        <button type="button" className="primary-button arrange-start" onClick={() => setArranging(true)}><Icon name="move" size={18} /> Arrange room</button>
         <div className="wallet-line"><Icon name="gem" size={18} /><strong>{available.toLocaleString()}</strong></div>
       </div>
       {available < state.gems && <p className="small pending-reward">{available} Shilligems available · Finish this session to spend the {state.gems - available} earned so far.</p>}

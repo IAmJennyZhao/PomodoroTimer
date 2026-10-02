@@ -178,8 +178,9 @@ export default function App() {
     document.title =
       state.timer.status === "running"
         ? `${state.timer.overtime ? "+" : ""}${counting ? formatElapsedTime(displayTime) : formatTime(displayTime)} · ${state.timer.mode === "focus" ? state.timer.overtime ? "Overtime" : state.timer.workMode === "countup" ? "Count up" : "Focus" : "Break"} — Little Room`
+        : state.timer.status === "paused" && state.timer.rewardForfeited ? "Pause ended · Little Room"
         : state.timer.status === "complete" ? "Time for a break · Little Room" : "Little Room · Focus";
-  }, [displayTime, counting, state.timer.status, state.timer.mode, state.timer.overtime, state.timer.workMode]);
+  }, [displayTime, counting, state.timer.status, state.timer.mode, state.timer.overtime, state.timer.workMode, state.timer.rewardForfeited]);
   useEffect(() => {
     const event = state.event;
     if (!event || event.id === lastEvent.current) return;
@@ -258,7 +259,7 @@ export default function App() {
     event.preventDefault();
     event.currentTarget.setPointerCapture?.(event.pointerId);
     setSelection({ type, id: item.id });
-    setDrag({ type, id: item.id, x: item.x, y: item.y });
+    setDrag({ type, id: item.id, x: item.x, y: item.y, originX: item.x, originY: item.y, pointerX: event.clientX, pointerY: event.clientY });
   };
   const moveDrag = (event) => {
     if (!drag || !sceneRef.current) return;
@@ -267,11 +268,11 @@ export default function App() {
       ...previous,
       x: Math.max(
         5,
-        Math.min(95, ((event.clientX - bounds.left) / bounds.width) * 100),
+        Math.min(95, previous.originX + ((event.clientX - previous.pointerX) / bounds.width) * 100),
       ),
       y: Math.max(
         20,
-        Math.min(85, ((event.clientY - bounds.top) / bounds.height) * 100),
+        Math.min(85, previous.originY + ((event.clientY - previous.pointerY) / bounds.height) * 100),
       ),
     }));
   };
@@ -299,7 +300,7 @@ export default function App() {
         style={{
           left: `${position.x}%`,
           top: `${position.y}%`,
-          zIndex: item.item === "rug" ? 1 : (type === "animal" ? 160 : 2) + Math.round(position.y),
+          zIndex: arranging && selection?.id === item.id ? 250 : item.item === "rug" ? 1 : (type === "animal" ? 160 : 2) + Math.round(position.y),
           "--delay": `${-(state.animals.findIndex((animal) => animal.id === item.id) * 1.37)}s`,
         }}
       >

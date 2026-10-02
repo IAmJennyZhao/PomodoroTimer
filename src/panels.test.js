@@ -109,12 +109,14 @@ test('decoration purchases can be used, equipped, positioned, and removed withou
 test('undiscovered tiles reveal the matching egg and owned pets show six upgrade slots', () => {
   renderPanel(AnimalsPanel);
   expect(screen.getByRole('region', { name: 'Undiscovered pets' })).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'Discover Dreamy Fox, 4 stars' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Dreamy mystery pet 5, 4 stars' }));
   expect(screen.getByRole('region', { name: 'Undiscovered pet details' })).toHaveTextContent('Dreamy egg');
-  expect(screen.getByRole('region', { name: 'Undiscovered pet details' })).toHaveTextContent('100 focus minutes');
+  expect(screen.getByRole('region', { name: 'Undiscovered pet details' })).not.toHaveTextContent('Fox');
+  fireEvent.click(screen.getByRole('button', { name: 'Egg details' }));
+  expect(screen.getByRole('note')).toHaveTextContent('100 focus minutes');
   fireEvent.click(screen.getByRole('button', { name: 'Back to my pet' }));
   expect(screen.getByLabelText('0 of 6 upgrades')).toBeInTheDocument();
-  expect(screen.getByText('1 of 7 animations unlocked')).toBeInTheDocument();
+  expect(screen.getByText('1 / 7 animations')).toBeInTheDocument();
 });
 
 test('collection controls keep an animal safe in the collection and equip only unlocked accessories', () => {

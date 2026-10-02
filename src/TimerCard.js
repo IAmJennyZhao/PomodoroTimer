@@ -31,7 +31,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
   useEffect(() => { if (pauseExpired) resumeRef.current?.focus(); }, [pauseExpired]);
   const startBreak = (mode) => act({ type: "START_BREAK", mode });
   return (
-    <section className={`timer-card paper ${counting ? "counting-up" : ""} ${complete ? "session-complete" : ""}`} aria-label="Focus timer">
+    <section className={`timer-card paper ${counting ? "counting-up" : ""} ${complete ? "session-complete" : ""} ${pauseExpired ? "pause-alert" : ""}`} aria-label="Focus timer">
       <ArtFragment rect={[52, 101, 456, 364]} className="timer-paper-art" />
       <div className="timer-heading">
         {editable ? <div className="mode-tabs work-mode-tabs" role="group" aria-label="Work mode">
@@ -48,15 +48,15 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
             title={focusView ? "Leave focus view" : "Enter focus view"} onClick={() => setFocusView(!focusView)}><Icon name={focusView ? "collapse" : "expand"} size={17} /></button>}
         </div>
       </div>
-      {!breakTime && <SessionTasks timer={timer} history={state.history} act={act} minimal compact={focusView || complete} />}
+      {!breakTime && !pauseExpired && <SessionTasks timer={timer} history={state.history} act={act} minimal compact={focusView || complete} />}
       <div className="timer-face">
         {pauseExpired ? <div className="pause-expired" role="alert"><strong>Pause ended</strong><span>Session gems lost</span></div>
           : <><div className={`timer-digits ${display.length > 6 ? "long-clock" : ""}`} role="timer" aria-label={showPauseClock ? `${formatTime(pauseRemainingTime(timer, now))} pause remaining` : `${display} ${counting ? timer.overtime ? "overtime" : "elapsed" : "remaining"}`}>
             {showPauseClock ? formatTime(pauseRemainingTime(timer, now)) : display}</div>
-          {showPauseClock && <span className="clock-caption">Pause · {display} focus left</span>}
+          {showPauseClock && <span className="clock-caption">Pause</span>}
           {timer.overtime && !showPauseClock && <span className="elapsed-total">{formatElapsedTime(elapsed)} total</span>}</>}
       </div>
-      {limitedPauses && <div className="pause-budget" aria-label="Pomodoro pause allowance">
+      {limitedPauses && !forfeited && <div className="pause-budget" aria-label="Pomodoro pause allowance">
         <span className="pause-dots" role="img" aria-label={`${pausesLeft} of ${MAX_PAUSES} pauses left, one minute each`}>
           {Array.from({ length: MAX_PAUSES }, (_, i) => <i key={i} className={i < pausesLeft ? "available" : "used"} />)}
         </span>
@@ -85,7 +85,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
         </div>
         {complete && <button className="text-button new-session" onClick={() => act({ type: "SET_MODE", mode: "focus" })}>New session</button>}
       </div>}
-      {!focusView && <div className="timer-options">
+      {!focusView && !pauseExpired && <div className="timer-options">
         {!breakTime && !complete ? <span className={`session-reward ${forfeited ? "forfeited" : ""}`} aria-label={forfeited ? "0 Shilligems this session" : undefined}><Icon name="gem" size={15} />{forfeited ? "0" : counting ? `1 / min${bonus ? ` +${Math.round(bonus * 100)}%` : ""}` : `+${projectedGems}`}
           <InfoTip label="Session rewards">Earn 1 Shilligem per completed focus minute{bonus ? ` with a ${Math.round(bonus * 100)}% pet bonus (rounded down)` : ""}. Max-level pets add 10% each, up to 50%, set when the session starts. Keep Pomodoro pauses within two pauses of one minute each to keep your reward. Count-up sessions are saved when you finish; sessions under one minute earn no reward.</InfoTip></span> : <span />}
         <button className="session-settings-button" aria-label="Session settings" title="Session settings" aria-expanded={panel === "session"} aria-controls={panel === "session" ? "panel-heading" : undefined} onClick={() => openPanel("session")}><Icon name="sliders" size={16} /></button>
@@ -99,7 +99,6 @@ export function QuickScratchpad({ state, act, saveStatus }) {
   const notes = useRef(null);
   useEffect(() => { notes.current?.focus(); }, []);
   return <div className="quick-notes">
-    <label htmlFor="quick-notes">Notes</label>
     <textarea ref={notes} id="quick-notes" aria-label="Notes" placeholder="Save a thought for later…" maxLength={10000} value={state.scratchpad} onChange={(event) => act({ type: "SET_SCRATCHPAD", text: event.target.value })} />
     <span className="notes-save-state" role="status">{saveStatus === "saved" ? "Saved" : saveStatus === "saving" ? "Saving…" : saveStatus === "error" || saveStatus === "conflict" ? "Not saved" : ""}</span>
   </div>;

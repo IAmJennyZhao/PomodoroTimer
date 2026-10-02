@@ -484,3 +484,25 @@ test('arranging exposes a room library, deselects furniture, and saves widget po
   expect(screen.queryByRole('region', { name: 'Room library' })).not.toBeInTheDocument();
   rect.mockRestore();
 });
+
+test('an expired pause raises one concise alert, chimes, and resumes the remaining focus time', async () => {
+  await openRoom();
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  await advance(20000);
+  fireEvent.click(screen.getByRole('button', { name: 'Pause' }));
+  await advance(30000);
+  expect(screen.getByRole('timer', { name: '00:30 pause remaining' })).toHaveTextContent('00:30');
+  expect(screen.queryByText(/focus left/)).not.toBeInTheDocument();
+  await advance(31000);
+  expect(screen.getAllByRole('alert')).toHaveLength(1);
+  expect(screen.getByRole('alert')).toHaveTextContent('Pause endedSession gems lost');
+  expect(screen.queryByRole('timer')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Pomodoro pause allowance')).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Resume' })).toHaveFocus();
+  expect(document.title).toBe('Pause ended · Little Room');
+  expect(engine.chime).toHaveBeenCalledTimes(1);
+  await advance(2000);
+  expect(engine.chime).toHaveBeenCalledTimes(1);
+  fireEvent.click(screen.getByRole('button', { name: 'Resume' }));
+  expect(screen.getByRole('timer', { name: '24:40 remaining' })).toHaveTextContent('24:40');
+});

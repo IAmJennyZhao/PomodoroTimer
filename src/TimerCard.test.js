@@ -26,7 +26,8 @@ test("forfeited Pomodoro rewards clearly show zero without hiding session contro
   renderTimer(state, NOW + 71000);
   expect(screen.getByRole("alert")).toHaveTextContent("Pause endedSession gems lost");
   expect(screen.queryByRole("timer")).not.toBeInTheDocument();
-  expect(screen.getByLabelText("0 Shilligems this session")).toBeInTheDocument();
+  expect(screen.queryByLabelText("0 Shilligems this session")).not.toBeInTheDocument();
+  expect(screen.queryByLabelText("Pomodoro pause allowance")).not.toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Resume" })).toHaveFocus();
   expect(screen.getByRole("button", { name: "Resume" })).toBeEnabled();
 });

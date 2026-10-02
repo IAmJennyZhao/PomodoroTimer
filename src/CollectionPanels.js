@@ -26,7 +26,7 @@ export function AnimalsPanel({ state, act, selected, setSelected }) {
   const bonus = Math.round(gemBonus(state) * 100);
   return <>
     <div className="panel-toolbar">
-      <span className="small muted">{discovered.size}/{ANIMALS.length * RARITIES.length} pets discovered{bonus > 0 ? ` · +${bonus}% Shilligems` : ""}</span>
+      <span className="small muted" aria-label={`${discovered.size} of ${ANIMALS.length * RARITIES.length} pets discovered`}>{discovered.size} / {ANIMALS.length * RARITIES.length}{bonus > 0 ? ` · +${bonus}% gems` : ""}</span>
       <InfoTip label="Animal collection">
         Collect each animal in four rarities. Matching species and rarity upgrade your pet, up to six times.
         Each upgrade unlocks another animation. A maxed pet adds 10% to focus Shilligems, up to 50% total.
@@ -50,10 +50,9 @@ export function AnimalsPanel({ state, act, selected, setSelected }) {
         </div>
         {missing.length > 0 && <section className="undiscovered-collection" aria-label="Undiscovered pets">
           <h3>Still to meet <span className="small muted">· {missing.length}</span></h3>
-          <p className="small muted">Pick a mystery tile to find its egg.</p>
           <div className="mystery-grid">{missing.map((species) => <button key={`${species.id}:${species.rarity}`}
             className={`mystery-tile ${mystery?.id === species.id && mystery?.rarity === species.rarity ? "selected" : ""}`}
-            aria-label={`Discover ${titleCase(species.rarity)} ${species.name}, ${RARITY_STARS[species.rarity]} stars`}
+            aria-label={`${titleCase(species.rarity)} mystery pet ${ANIMALS.findIndex(item => item.id === species.id) + 1}, ${RARITY_STARS[species.rarity]} ${RARITY_STARS[species.rarity] === 1 ? "star" : "stars"}`}
             aria-pressed={mystery?.id === species.id && mystery?.rarity === species.rarity}
             onClick={() => setMystery(species)}>
             <span className="mystery-mark" aria-hidden="true">?</span>
@@ -63,13 +62,10 @@ export function AnimalsPanel({ state, act, selected, setSelected }) {
       </div>
       {mystery ? <section ref={mysteryDetails} className="detail-card collection-detail mystery-detail" aria-label="Undiscovered pet details" aria-live="polite">
         <span className="mystery-mark" aria-hidden="true">?</span>
-        <RarityStars rarity={mystery.rarity} />
-        <h3>{titleCase(mystery.rarity)} {mystery.name}</h3>
+        <RarityStars rarity={mystery.rarity} label={false} />
         <Sprite kind="object" id={mystery.rarity} />
-        <p>Found in a <strong>{titleCase(mystery.rarity)} egg</strong>.</p>
-        <p className="small muted">{mystery.rarity === "basic" ? "Buy a Basic egg in the egg shop." : `Mystery rolls can reveal ${titleCase(mystery.rarity)} eggs.`} Each has a 1 in {ANIMALS.length} chance of this pet.</p>
-        <p className="small muted">{EGG_MINUTES[mystery.rarity]} focus minutes to hatch.</p>
-        <button className="small-button" onClick={() => setMystery(null)}>Back to my pet</button>
+        <p>Found in <strong>{titleCase(mystery.rarity)} egg</strong> <InfoTip label="Egg details">{EGG_MINUTES[mystery.rarity]} focus minutes to hatch. Each egg has a 1 in {ANIMALS.length} chance of this pet.</InfoTip></p>
+        <button className="icon-button mystery-close" aria-label="Back to my pet" title="Back" onClick={() => setMystery(null)}><Icon name="close" size={18} /></button>
       </section> : animal && <section className="detail-card collection-detail" aria-label={`${animal.name} details`}>
         <AnimalArt animal={animal} />
         <h3>{animal.name} <span className="small muted">· {speciesName(animal)}</span></h3>
@@ -77,8 +73,7 @@ export function AnimalsPanel({ state, act, selected, setSelected }) {
         <div className="upgrade-track" aria-label={`${animal.upgrades || 0} of 6 upgrades`}>
           {Array.from({ length: 6 }, (_, i) => <span key={i} className={i < (animal.upgrades || 0) ? "earned" : ""} aria-hidden="true"><Icon name="sparkle" size={16} /></span>)}
         </div>
-        <p className="small">{animationCount(animal)} of 7 animations unlocked</p>
-        <p className="small muted">{animal.upgrades === 6 ? "Maxed! This friend gives +10% focus Shilligems." : "Hatch this same pet again to unlock a new animation. Six upgrades earn a +10% Shilligem bonus."}</p>
+        <p className="small">{animationCount(animal)} / 7 animations <InfoTip label="Pet upgrades">{animal.upgrades === 6 ? "Maxed! This friend gives +10% focus Shilligems." : "Hatch this same pet again to unlock a new animation. Six upgrades earn a +10% Shilligem bonus."}</InfoTip></p>
         <label className="toggle-line"><span>Show in room</span>
           <input type="checkbox" checked={animal.placed} onChange={(event) => act({ type: "PLACE_ANIMAL", id: animal.id, placed: event.target.checked })} />
         </label>

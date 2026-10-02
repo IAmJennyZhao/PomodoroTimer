@@ -273,3 +273,77 @@
   .library-item { flex-basis: 102px; min-height: 90px; font-size: 11px; }
   .library-item > .furniture-art, .library-item > .sprite { height: 48px; }
 }
+/* Shared paper, pencil and pistachio treatment for every workspace. */
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.app-header { background-image: repeating-linear-gradient(6deg, #e2cda316 0 1px, transparent 1px 4px); border-bottom: 2px solid #c7b992; }
+.header-notes, .settings-button.paper { border-radius: 5px; }
+.header-notes:hover, .settings-button:hover { background: #e7ebd4; }
+.drawer { background-image: repeating-linear-gradient(8deg, #e2cca30c 0 1px, transparent 1px 4px); }
+.drawer-heading h2 { font-family: Georgia, serif; font-weight: 400; }
+.field-label, .range-field, .toggle-line, .timer-phase, .break-choice-heading, .session-completion-settings legend { color: var(--ink); }
+.field-label input, .field-label select, .number-field input, .app textarea { font-family: Georgia, serif; }
+.app input[type="checkbox"], .app input[type="radio"], .app input[type="range"] { accent-color: #7d936c; }
+.wallet-line { background: #e7ebd4; color: #5b7250; border-radius: 5px; }
+.wallet-line svg { color: #548ba0; }
+.furniture-stock { display: block; margin-bottom: 8px; }
+.furniture-buy { margin-left: 12px; }
+.movable-notes { border: 1px solid #cbbc98; box-shadow: 3px 7px 20px #5b4b2c25; }
+.movable-notes::before { content: ""; position: absolute; top: -10px; left: calc(50% - 28px); width: 56px; height: 21px; background: #e8bb6bd9; border: 1px solid #d2a0536b; transform: rotate(-5deg); pointer-events: none; z-index: 1; }
+.movable-notes .drawer-heading { padding: 11px 17px 5px; border: 0; }
+.notepad-drag-handle > svg { color: #7a8b67; }
+.movable-notes .drawer-content { padding: 0 17px 13px; }
+.quick-notes textarea, .journal-notes textarea { background: repeating-linear-gradient(transparent 0 27px, #cabc983b 27px 28px), #fff8e9; color: var(--ink); line-height: 28px; border: 0; border-radius: 0; padding: 3px 5px; font-size: 14px; margin-top: 7px; }
+.quick-notes textarea:focus, .journal-notes textarea:focus { outline: 1px solid #9aaa84; outline-offset: 3px; }
+.notes-save-state { color: #758669; }
+.session-task-row, .session-add-field, .session-end-choice { border-color: var(--line); border-radius: 5px; }
+.session-task-row .session-task-text, .session-add-field input { color: var(--ink); }
+.session-task-row:focus-within, .session-add-field:focus-within { border-color: #97a782; box-shadow: 0 0 0 2px #97a78220; }
+.session-end-choice.selected, .preset-button.selected { background: #e5ead5; border-color: #a7b390; }
+.session-add-field button, .session-tag { background: #e5ead5; color: #566d4d; }
+.session-tag { border-radius: 4px; }
+.session-editor-tools button, .session-edit-button, .session-remove-button, .session-tag button, .session-task-summary { color: #6b7b5d; }
+.mystery-tile { background: #f1ecdc; border-color: #c8c8ad; border-radius: 5px; }
+.mystery-tile:hover, .mystery-tile.selected { background: #e4e9d2; border-color: #99a982; }
+.mystery-mark { color: #a5ae91; }
+.mystery-detail { position: relative; }
+.mystery-close { position: absolute; top: 8px; right: 8px; }
+.pet-level { color: var(--muted); }
+.upgrade-track > span { color: #c4c8b4; border-color: #d5d5bd; }
+.upgrade-track > span.earned { color: #70875d; border-color: #a8b693; background: #e4e9d3; }
+.journal-panel { color: var(--ink); }
+.journal-choices { background: #eee8d7; border-color: var(--line); border-radius: 5px; }
+.journal-choices button { color: var(--muted); border-radius: 3px; font-weight: 400; }
+.journal-choices button.selected, .journal-overview-toolbar .journal-choices button.selected { background: #e0e7ce; color: var(--ink); box-shadow: none; }
+.journal-card, .journal-metrics > div { background: #f5efdfb0; border-color: var(--line); border-radius: 5px; }
+.journal-metrics dt, .journal-empty, .journal-sessions time, .journal-goal-caption, .journal-note-count, .journal-text-button, .journal-tag-detail, .journal-task-count, .journal-bar-label, .journal-chart-scale, .journal-chart-unit { color: var(--muted); }
+.journal-metrics dd { font-family: Georgia, serif; font-weight: 400; color: #5e7752; }
+.journal-bar.empty { background: #d9d9c3; }
+.journal-tag-meter { background: #e6e0cd; }
+.journal-tag-meter > span { background: #9aaa84; }
+.journal-session-tags > span { background: #e5ead5; color: #617252; border-radius: 3px; }
+.journal-session-forfeited { color: #a45b48; }
+.modal-backdrop { background: #5f4f2b24; backdrop-filter: none; z-index: 500; }
+.hatch-modal, .loading-card { border: 1px solid #cbb896; border-radius: 6px; background: #fff8e9; box-shadow: 0 12px 50px #5d482c30; }
+.hatch-modal.rare, .hatch-modal.dreamy { box-shadow: 0 12px 50px #5d482c30; }
+.hatch-modal h2 { font: 27px Georgia, serif; }
+.hatch-modal p, .loading-card p, .loading-card code { color: var(--muted); }
+.pause-alert { outline: 2px solid #c87b65; outline-offset: -7px; }
+.pause-alert .timer-face { min-height: 145px; }
+.pause-alert .timer-options, .pause-alert .pause-budget { display: none; }
+.pause-expired { gap: 10px; color: #a45a44; }
+.pause-expired strong { font-size: 34px; font-weight: 400; }
+.pause-expired span { font: 13px Georgia, serif; }
+.app button:focus-visible, .app select:focus-visible, .app input:focus-visible, .arrange-library:focus-visible { outline: 2px solid #7f956a; outline-offset: 3px; }
+.catalog-toolbar { align-items: center; gap: 14px; }
+.catalog-toolbar .arrange-start { margin-left: auto; padding: 10px 15px; }
+@media (max-width: 600px) {
+  .is-arranging .daily-goal-note:not([style]) { top: 134px; }
+  .catalog-toolbar { flex-wrap: wrap; gap: 10px; }
+  .catalog-toolbar .segmented { flex: 1 1 100%; }
+  .catalog-toolbar .arrange-start { margin-left: 0; }
+  .catalog-toolbar .wallet-line { margin-left: auto; }
+}
+/* Clipped scenery must never scroll the room when a dialog item gains focus. */
+.app, .room-scene { overflow: clip; }
+.range-field output { color: #71845f; }
+::selection { background: #dfe8c8; }

@@ -313,7 +313,7 @@ export function Drawer({ name, title, onClose, children, position, onMove }) {
               current.top + (event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0),
             ));
           }}>
-          <Icon name="move" size={19} /><span><span className="notepad-heading" id="panel-heading">{PANEL_NAMES[name]}</span><small id="notepad-move-help">Drag to move · arrow keys to nudge</small></span>
+          <Icon name="move" size={19} /><span><span className="notepad-heading" id="panel-heading">{PANEL_NAMES[name]}</span><small className="visually-hidden" id="notepad-move-help">Drag to move · arrow keys to nudge</small></span>
         </button> : <div>
           <h2 id="panel-heading">{title || PANEL_NAMES[name]}</h2>
         </div>}
