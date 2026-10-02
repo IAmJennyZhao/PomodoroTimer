@@ -1,5 +1,19 @@
 # Implementation verification
 
+## Room controls and UI consistency
+
+Verified in Chrome against an isolated temporary profile on ports 3040/3041. Browser checks used a real one-minute pause and disposable test currency; personal saves were not used for QA.
+
+- Furniture previews preserve their original aspect ratio and clip neighboring sprite-sheet artwork. New profiles own and place one sofa and one rug. The reducer prevents extra placement without stock; each purchase adds one reusable copy. Legacy quantities and positions migrate without discarding furniture.
+- The bottom arrange library scrolls horizontally. New furniture is selected automatically with a coral outline and an X to deselect. X and Escape deselect without removing the item; Remove returns it to stock. Timer and Daily goal widgets support drag and arrow keys, persist their positions, and clamp to the screen. Furniture drags retain the initial grab offset.
+- A real pause displayed a changing one-minute countdown, then one Pause ended / Session gems lost alert. Navigation returned, the open scratchpad closed, and Resume was ready to continue. The alert hides redundant task, pause and reward indicators. The tab title also reports Pause ended. The integration test verifies one chime, focused Resume and the saved focus remainder after resuming.
+- Undiscovered animals reveal only their egg source; species names are absent from both visible copy and mystery-tile accessible names. Hatch time and odds are behind an info button. Decoration subtitles and repeated instructions were removed.
+- Scratchpad, header, journal, task editing, session settings, info popups and hatch dialogs share cream paper, pistachio controls and pencil-colored text. The scratchpad uses ruled paper and a tape accent.
+- At the desktop viewport (1862 x 843 CSS pixels), the room remains fixed when selecting low furniture or scrolling a panel. At the narrow mobile viewport (355 x 767), the library measured 448px of content inside 317px, with no page-width overflow. The 320 x 640 layout also fits the page width, with the goal move handle below the header. Widget handles are kept below navigation. Temporary viewport overrides were reset after QA.
+- Browser purchases reduced an isolated wallet from 300 to 275 for one cushion, blocked a second placement, then reduced it to 250 for another copy. The second cushion was added directly from the arrange library and selected with its outline and X. Timer drag and goal keyboard positions persisted through reload.
+
+Checks: 195 passing React/domain/UI tests in 11 suites, 17 passing server/startup checks, successful production build with CI warnings treated as errors, and clean diff checks. The existing Browserslist-data notice is informational.
+
 ## Candy-Pastel Atelier visual update
 
 The selected 04 mockup is now implemented with newly generated raster artwork in `public/art/atelier/`. Exact prompts are saved in `docs/atelier-art-prompts.json`. Earlier visual checks below describe previous versions.

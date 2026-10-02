@@ -347,3 +347,18 @@
 .app, .room-scene { overflow: clip; }
 .range-field output { color: #71845f; }
 ::selection { background: #dfe8c8; }
+@media (max-width: 700px) {
+  .arrange-toolbar .field-label { gap: 0; }
+  .arrange-toolbar select { width: 125px; }
+  .arrange-toolbar > .icon-button { width: 28px; min-width: 28px; height: 28px; padding: 4px; }
+  .arrange-toolbar > .text-button { padding: 4px; font-size: 11px; }
+  .arrange-finish { padding: 6px 7px; font-size: 11px; gap: 4px; }
+}
+@media (max-width: 360px) {
+  .arrange-toolbar { gap: 5px; }
+  .arrange-toolbar select { width: 110px; }
+}
+.is-arranging .workspace-decorate .drawer-heading > .icon-button { width: 28px; min-width: 28px; height: 28px; padding: 4px; }
+@media (max-width: 700px) {
+  .is-arranging .workspace-decorate { max-height: 245px; }
+}
