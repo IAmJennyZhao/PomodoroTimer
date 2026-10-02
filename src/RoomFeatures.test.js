@@ -47,6 +47,7 @@ test("dragging the notepad saves the clamped location on pointer release", () =>
 
 test("decoration library uses an explicit arrange action and places free furniture", () => {
   const state = createInitialState(1);
+  state.room.decorations = [];
   const dispatch = jest.fn();
   const setArranging = jest.fn();
   render(<DecoratePanel state={state} act={dispatch} arranging={false} setArranging={setArranging} selection={null} setSelection={() => {}} />);

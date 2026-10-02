@@ -89,8 +89,10 @@ test('decoration purchases can be used, equipped, positioned, and removed withou
   fireEvent.click(screen.getByRole('button', { name: 'Furniture' }));
   fireEvent.click(screen.getByRole('button', { name: 'Unlock Cozy cushion for 25 Shilligems' }));
   fireEvent.click(screen.getByRole('button', { name: 'Add Cozy cushion' }));
+  expect(screen.getByRole('button', { name: 'Placed Cozy cushion' })).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Buy another Cozy cushion for 25 Shilligems' }));
   fireEvent.click(screen.getByRole('button', { name: 'Add Cozy cushion' }));
-  expect(getState().gems).toBe(50);
+  expect(getState().gems).toBe(25);
   expect(getState().room.decorations).toHaveLength(2);
   const first = getState().room.decorations[0].id;
   fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));

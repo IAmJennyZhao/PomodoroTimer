@@ -223,3 +223,8 @@
   .timer-face { min-height: 108px; }
   .shop-stage { height: 64svh; min-height: 330px; }
 }
+.furniture-stock { color: var(--muted); font: 11px "Trebuchet MS", sans-serif; }
+.furniture-buy { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #677b5b; }
+.furniture-buy:disabled { opacity: .45; cursor: not-allowed; }
+.arrange-intro { background: none; border: 0; padding: 0; justify-content: flex-end; margin-bottom: 14px; }
+.shop-item > .furniture-art { object-fit: contain; }

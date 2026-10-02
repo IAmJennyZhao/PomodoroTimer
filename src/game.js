@@ -48,12 +48,12 @@ export const ACCESSORIES = [
 ];
 
 export const DECORATIONS = [
-  { id: "couch", name: "Soft sofa", price: 0, emoji: "🛋️" },
-  { id: "rug", name: "Woven rug", price: 0, emoji: "🧶" },
-  { id: "bookshelf", name: "Little bookshelf", price: 0, emoji: "📚" },
-  { id: "window-plants", name: "Window garden", price: 0, emoji: "🌱" },
-  { id: "table", name: "Coffee table", price: 0, emoji: "☕" },
-  { id: "side-table", name: "Side table", price: 0, emoji: "🪑" },
+  { id: "couch", name: "Soft sofa", price: 50, emoji: "🛋️" },
+  { id: "rug", name: "Woven rug", price: 35, emoji: "🧶" },
+  { id: "bookshelf", name: "Little bookshelf", price: 45, emoji: "📚" },
+  { id: "window-plants", name: "Window garden", price: 30, emoji: "🌱" },
+  { id: "table", name: "Coffee table", price: 35, emoji: "☕" },
+  { id: "side-table", name: "Side table", price: 25, emoji: "🪑" },
   { id: "plant", name: "Leafy friend", price: 20, emoji: "🪴" },
   { id: "cushion", name: "Cozy cushion", price: 25, emoji: "🛋️" },
   { id: "books", name: "Book stack", price: 30, emoji: "📚" },
@@ -118,12 +118,14 @@ const roomX = (value, fallback = 50) =>
 const roomY = (value, fallback = 76) =>
   clamp(value, ROOM_BOUNDS.minY, ROOM_BOUNDS.maxY, fallback);
 
-const starterDecorations = () => DECORATIONS.filter((item) => item.price === 0).map((item) => item.id);
+const starterDecorations = () => ["couch", "rug"];
+export const decorationQuantity = (state, id) => state.owned.decorationCounts?.[id] ?? (state.owned.decorations.includes(id) ? 1 : 0);
+export const decorationAvailable = (state, id) => Math.max(0, decorationQuantity(state, id) - state.room.decorations.filter(item => item.item === id).length);
 export const ATELIER_PLACEMENTS = {
   couch: { x: 80, y: 76 }, rug: { x: 48, y: 85 }, bookshelf: { x: 94, y: 55 },
   "window-plants": { x: 92, y: 49 }, table: { x: 92, y: 83 }, "side-table": { x: 9, y: 71 },
 };
-const atelierDecorations = () => ["couch", "rug", "bookshelf", "side-table"].map((item) => ({
+const atelierDecorations = () => starterDecorations().map((item) => ({
   id: `atelier:${item}`, item, ...ATELIER_PLACEMENTS[item],
 }));
 const sanitizeTasks = (value) => {
@@ -249,7 +251,7 @@ export function createInitialState(now = Date.now()) {
       },
     ],
     room: { background: "sunroom", artVersion: 1, decorations: atelierDecorations(), notepadPosition: null },
-    owned: { backgrounds: ["sunroom"], accessories: ["none"], decorations: starterDecorations() },
+    owned: { backgrounds: ["sunroom"], accessories: ["none"], decorations: starterDecorations(), decorationCounts: { couch: 1, rug: 1 } },
     eggs: [],
     selectedEggId: null,
     settings,
@@ -526,6 +528,11 @@ export function normalizeState(saved, now = Date.now()) {
       x: roomX(item.x),
       y: roomY(item.y),
     }));
+  // Older rooms allowed unlimited copies. Keep those copies and their positions
+  // as owned stock when upgrading to quantities.
+  owned.decorationCounts = Object.fromEntries(owned.decorations.map(id => [id,
+    Math.max(1, integer(ownedInput.decorationCounts?.[id], 1, 999, 1), decorations.filter(item => item.item === id).length),
+  ]));
   const eggIds = new Set();
   const eggs = (Array.isArray(saved.eggs) ? saved.eggs : [])
     .filter((egg) => {
@@ -910,7 +917,8 @@ export function gameReducer(state, action) {
       }[action.category];
       if (!Array.isArray(catalog)) return state;
       const item = catalog.find((entry) => entry.id === action.id);
-      if (!item || state.owned[action.category].includes(item.id)) return state;
+      if (!item || (action.category !== "decorations" && state.owned[action.category].includes(item.id))) return state;
+      if (action.category === "decorations" && decorationQuantity(state, item.id) >= 999) return state;
       const available = spendableGems(state);
       if (available < item.price)
         return fail(
@@ -924,7 +932,8 @@ export function gameReducer(state, action) {
           gems: state.gems - item.price,
           owned: {
             ...state.owned,
-            [action.category]: [...state.owned[action.category], item.id],
+            [action.category]: [...new Set([...state.owned[action.category], item.id])],
+            ...(action.category === "decorations" ? { decorationCounts: { ...state.owned.decorationCounts, [item.id]: decorationQuantity(state, item.id) + 1 } } : {}),
           },
         },
         "item-bought",
@@ -973,7 +982,7 @@ export function gameReducer(state, action) {
         ),
       };
     case "PLACE_DECORATION": {
-      if (!state.owned.decorations.includes(action.item)) return state;
+      if (decorationAvailable(state, action.item) < 1) return state;
       const decoration = {
         id: uniqueId("decoration", now, state.room.decorations),
         item: action.item,

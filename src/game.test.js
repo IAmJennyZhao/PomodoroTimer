@@ -826,8 +826,8 @@ describe('session metadata and movable room features', () => {
 
   test('furniture starts in inventory and notepad and couch-height pet placement survive reload', () => {
     let state = createInitialState(NOW);
-    expect(state.room.decorations.map(item => item.item)).toEqual(['couch', 'rug', 'bookshelf', 'side-table']);
-    expect(state.owned.decorations).toEqual(expect.arrayContaining(['couch', 'rug', 'bookshelf', 'window-plants', 'table', 'side-table']));
+    expect(state.room.decorations.map(item => item.item)).toEqual(['couch', 'rug']);
+    expect(state.owned.decorations).toEqual(['couch', 'rug']);
     state = act(state, 'PLACE_DECORATION', { item: 'couch', x: 50, y: 45 });
     state = act(state, 'MOVE_ANIMAL', { id: 'starter-cat', x: 50, y: 37 });
     state = act(state, 'MOVE_NOTEPAD', { x: 0.2, y: 0.6 });
@@ -843,7 +843,7 @@ describe('session metadata and movable room features', () => {
     oldRoom.room.decorations = [];
     oldRoom.animals[0] = { ...oldRoom.animals[0], x: 28, y: 76 };
     const migrated = normalizeState(oldRoom, NOW);
-    expect(migrated.room.decorations.map(item => item.item)).toEqual(['couch', 'rug', 'bookshelf', 'side-table']);
+    expect(migrated.room.decorations.map(item => item.item)).toEqual(['couch', 'rug']);
     expect(migrated.animals[0]).toMatchObject({ x: 80, y: 68 });
     const emptied = { ...migrated, room: { ...migrated.room, decorations: [] } };
     expect(normalizeState(emptied, NOW).room.decorations).toEqual([]);
@@ -851,3 +851,27 @@ describe('session metadata and movable room features', () => {
     expect(normalizeState(oldRoom, NOW).room.decorations).toEqual([]);
   });
 });
+
+ test('furniture stock limits placement and purchases add one reusable copy', () => {
+   let state = richState(100);
+   expect(act(state, 'PLACE_DECORATION', { item: 'couch' })).toBe(state);
+   state = act(state, 'BUY_ITEM', { category: 'decorations', id: 'couch' });
+   expect(state.gems).toBe(50);
+   expect(state.owned.decorationCounts.couch).toBe(2);
+   state = act(state, 'PLACE_DECORATION', { item: 'couch' });
+   expect(state.room.decorations.filter(item => item.item === 'couch')).toHaveLength(2);
+   expect(act(state, 'PLACE_DECORATION', { item: 'couch' })).toBe(state);
+   state = act(state, 'REMOVE_DECORATION', { id: state.room.decorations[0].id });
+   state = normalizeState(state, NOW);
+   state = act(state, 'PLACE_DECORATION', { item: 'couch' });
+   expect(state.room.decorations.filter(item => item.item === 'couch')).toHaveLength(2);
+ });
+ test('legacy furniture copies become owned stock without changing a custom room', () => {
+   const saved = richState();
+   delete saved.owned.decorationCounts;
+   saved.room.decorations.push({ id: 'legacy-sofa', item: 'couch', x: 20, y: 40 });
+   const migrated = normalizeState(saved, NOW);
+   expect(migrated.owned.decorationCounts.couch).toBe(2);
+   expect(migrated.room.decorations).toEqual(saved.room.decorations);
+   expect(normalizeState(migrated, NOW)).toEqual(migrated);
+ });

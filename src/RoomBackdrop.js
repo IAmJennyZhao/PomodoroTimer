@@ -13,5 +13,5 @@ const furniture = {
 
 export function FurnitureArt({ id, className = "", ...props }) {
   const rect = furniture[id] || furniture.plant;
-  return <ArtFragment sheet="furniture-sheet" size={[1280, 1280]} rect={rect} className={`furniture-art ${className}`} style={{ aspectRatio: `${rect[2]} / ${rect[3]}` }} {...props} />;
+  return <ArtFragment sheet="furniture-sheet" size={[1280, 1280]} rect={rect} preserveAspectRatio="xMidYMid meet" className={`furniture-art ${className}`} style={{ aspectRatio: `${rect[2]} / ${rect[3]}` }} {...props} />;
 }

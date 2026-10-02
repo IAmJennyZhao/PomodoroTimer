@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ACCESSORIES, ATELIER_PLACEMENTS, BACKGROUNDS, DECORATIONS, spendableGems } from "./game";
+import { ACCESSORIES, ATELIER_PLACEMENTS, BACKGROUNDS, DECORATIONS, decorationAvailable, decorationQuantity, spendableGems } from "./game";
 import { Accessory, Icon, RangeField, Sprite } from "./ui";
 import RoomBackdrop from "./RoomBackdrop";
 
@@ -49,7 +49,6 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
       <button type="button" className="secondary-button full-width arrange-start" onClick={() => setArranging(false)}><Icon name="check" size={18} /> Back to decorating</button>
     </> : <>
       <div className="arrange-intro">
-        <div><h3>A little room, your way</h3><p>Add something cozy, then put it wherever you like.</p></div>
         <button type="button" className="primary-button arrange-start" onClick={() => setArranging(true)}><Icon name="move" size={18} /> Arrange room</button>
       </div>
       <div className="panel-toolbar catalog-toolbar">
@@ -65,18 +64,21 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
       <div className={`shop-items ${category === "backgrounds" ? "room-items" : ""}`}>
         {catalog.map(item => {
           const owned = state.owned[category].includes(item.id);
+          const furniture = category === "decorations";
+          const stock = furniture ? decorationAvailable(state, item.id) : 0;
+          const quantity = furniture ? decorationQuantity(state, item.id) : 0;
           const active = category === "backgrounds" ? state.room.background === item.id : category === "accessories" && friend?.accessory === item.id;
           return <section className="shop-item" key={item.id}>
             {category === "backgrounds" ? <RoomBackdrop theme={item.id} preview /> : category === "accessories" ? <div className="accessory-preview">{item.id === "none" ? <span aria-hidden="true">—</span> : <Accessory id={item.id} />}</div> : <Sprite kind="object" id={item.id} />}
             <h3>{item.name}</h3>
-            {category === "backgrounds" && <p className="room-item-description">Wall, floor & window</p>}
-            <button type="button" className="small-button" disabled={active || (!owned && available < item.price)} aria-label={owned ? `${active ? "Using" : category === "decorations" ? "Add" : "Use"} ${item.name}` : `Unlock ${item.name} for ${item.price} Shilligems`} onClick={() => owned ? applyItem(item) : act({ type: "BUY_ITEM", category, id: item.id })}>
-              {active ? <><Icon name="check" size={16} /> {category === "backgrounds" ? "Active" : "Wearing"}</> : owned ? category === "decorations" ? <><Icon name="plus" size={16} /> Add to room</> : "Use" : <><Icon name="gem" size={16} /> {item.price}</>}
+            {furniture && owned && <span className="furniture-stock">{stock} / {quantity} available</span>}
+            <button type="button" className="small-button" disabled={active || (furniture && owned ? stock === 0 : !owned && available < item.price)} aria-label={owned ? `${active ? "Using" : furniture ? stock ? "Add" : "Placed" : "Use"} ${item.name}` : `Unlock ${item.name} for ${item.price} Shilligems`} onClick={() => owned ? applyItem(item) : act({ type: "BUY_ITEM", category, id: item.id })}>
+              {active ? <><Icon name="check" size={16} /> {category === "backgrounds" ? "Active" : "Wearing"}</> : owned ? furniture ? stock ? <><Icon name="plus" size={16} /> Add</> : "Placed" : "Use" : <><Icon name="gem" size={16} /> {item.price}</>}
             </button>
+            {furniture && owned && <button className="text-button furniture-buy" disabled={available < item.price || quantity >= 999} aria-label={`Buy another ${item.name} for ${item.price} Shilligems`} onClick={() => act({ type: "BUY_ITEM", category, id: item.id })}>Buy more <Icon name="gem" size={13} /> {item.price}</button>}
           </section>;
         })}
       </div>
-      {category === "decorations" && <p className="furniture-library-note">The couch, rug, bookshelf, window plants and tables are yours to place. Furniture stays in your collection when you remove it. Add as many copies as you like.</p>}
     </>}
   </>;
 }
