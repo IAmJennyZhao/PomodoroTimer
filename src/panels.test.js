@@ -101,7 +101,7 @@ test('decoration purchases can be used, equipped, positioned, and removed withou
   fireEvent.change(screen.getByRole('slider', { name: 'Left to right' }), { target: { value: '88' } });
   fireEvent.change(screen.getByRole('slider', { name: 'Higher to lower' }), { target: { value: '80' } });
   expect(getState().room.decorations[0]).toMatchObject({ x: 88, y: 80 });
-  fireEvent.click(screen.getByRole('button', { name: 'Remove from room' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
   expect(getState().room.decorations).toHaveLength(1);
   expect(getState().owned.decorations).toContain('cushion');
 });

@@ -224,7 +224,7 @@ export function clampNotepadPosition(position, bounds, viewport) {
   };
 }
 
-export function Drawer({ name, onClose, children, position, onMove }) {
+export function Drawer({ name, title, onClose, children, position, onMove }) {
   const closeRef = useRef(null);
   const dialogRef = useRef(null);
   const pointer = useRef(null);
@@ -315,7 +315,7 @@ export function Drawer({ name, onClose, children, position, onMove }) {
           }}>
           <Icon name="move" size={19} /><span><span className="notepad-heading" id="panel-heading">{PANEL_NAMES[name]}</span><small id="notepad-move-help">Drag to move · arrow keys to nudge</small></span>
         </button> : <div>
-          <h2 id="panel-heading">{PANEL_NAMES[name]}</h2>
+          <h2 id="panel-heading">{title || PANEL_NAMES[name]}</h2>
         </div>}
         <button
           ref={closeRef}

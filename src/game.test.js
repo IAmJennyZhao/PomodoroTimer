@@ -875,3 +875,12 @@ describe('session metadata and movable room features', () => {
    expect(migrated.room.decorations).toEqual(saved.room.decorations);
    expect(normalizeState(migrated, NOW)).toEqual(migrated);
  });
+
+test('movable timer and daily goal positions survive reload and reject invalid widgets', () => {
+  let state = createInitialState(NOW);
+  state = act(state, 'MOVE_WIDGET', { id: 'timer', x: 50, y: 35 });
+  state = act(state, 'MOVE_WIDGET', { id: 'goal', x: 80, y: 15 });
+  expect(normalizeState(state, NOW).room.widgets).toEqual({ timer: { x: 50, y: 35 }, goal: { x: 80, y: 15 } });
+  expect(act(state, 'MOVE_WIDGET', { id: 'invalid', x: 20, y: 20 })).toBe(state);
+  expect(act(state, 'MOVE_WIDGET', { id: 'goal', x: 200, y: -30 }).room.widgets.goal).toEqual({ x: 100, y: 0 });
+});

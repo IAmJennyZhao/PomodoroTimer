@@ -228,3 +228,48 @@
 .furniture-buy:disabled { opacity: .45; cursor: not-allowed; }
 .arrange-intro { background: none; border: 0; padding: 0; justify-content: flex-end; margin-bottom: 14px; }
 .shop-item > .furniture-art { object-fit: contain; }
+/* Direct room arrangement: keep the room visible above a compact library. */
+.resident-hitbox { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: inherit; touch-action: inherit; }
+.room-resident.chosen::after { border: 3px solid #d17860; border-radius: 9px; box-shadow: 0 0 0 4px #fff6e7b0; }
+.selection-close { position: absolute; top: -15px; right: -15px; z-index: 3; display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid #bb8069; border-radius: 50%; background: #fff7e8; color: #9c5142; box-shadow: 0 2px 5px #55402a25; }
+.room-widget[hidden] { display: none; }
+.daily-goal-note .widget-content { height: 100%; }
+.arrange-widget { overflow: visible; }
+.arrange-widget.chosen { outline: 3px solid #d17860; outline-offset: 4px; }
+.arrange-widget .widget-content { pointer-events: none; }
+.widget-move-handle { position: absolute; top: -29px; left: 8px; display: flex; gap: 6px; align-items: center; height: 28px; padding: 4px 11px; background: #fff7e8; border: 1px solid #b7bf9d; border-radius: 5px 5px 0 0; color: #51664a; font: 12px Georgia, serif; cursor: grab; touch-action: none; }
+.widget-move-handle:active { cursor: grabbing; }
+.is-arranging .workspace-dismiss, .is-arranging .room-footer { display: none; }
+.is-arranging .workspace-decorate { left: 18px; right: 18px; top: auto; bottom: 14px; width: auto; max-height: 230px; transform: none; z-index: 300; border: 1px solid #ccb992; border-radius: 8px; box-shadow: 0 -4px 20px #654a2b20; }
+.is-arranging .workspace-decorate .drawer-heading { display: flex; padding: 9px 16px 5px; border: 0; }
+.is-arranging .workspace-decorate .drawer-heading h2 { font-size: 18px; }
+.is-arranging .workspace-decorate .drawer-content { padding: 0 16px 10px; overflow: auto; }
+.arrange-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.arrange-toolbar .field-label { display: flex; align-items: center; gap: 9px; margin: 0; font: 11px "Trebuchet MS", sans-serif; }
+.arrange-toolbar select { width: 185px; padding: 5px 8px; }
+.arrange-sliders { display: flex; gap: 16px; }
+.arrange-sliders .range-field { margin: 0; width: 160px; }
+.arrange-sliders .range-field > span { font-size: 10px; }
+.arrange-sliders input { height: 12px; margin: 0; accent-color: #81946d; }
+.arrange-finish { display: flex; align-items: center; gap: 6px; margin-left: auto; padding: 7px 16px; }
+.arrange-library { display: flex; gap: 12px; overflow-x: auto; overscroll-behavior-x: contain; padding: 4px 2px 8px; scrollbar-width: thin; scrollbar-color: #9ca884 #eee5d3; }
+.library-item { flex: 0 0 124px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 104px; padding: 6px 10px; background: #f4eedc; border: 1px solid #d8c9a9; border-radius: 5px; font: 12px Georgia, serif; }
+.library-item > .furniture-art, .library-item > .sprite { width: 100%; height: 62px; object-fit: contain; }
+.library-item > .sprite { width: 62px; }
+.library-item small { font: 10px "Trebuchet MS", sans-serif; color: var(--muted); }
+.library-item:hover:enabled { background: #e7ebd7; border-color: #9aa984; }
+.library-item:disabled { cursor: default; }
+.library-item:disabled > .furniture-art, .library-item:disabled > .sprite { opacity: .55; }
+.library-shop { background: #e7ebd7; }
+@media (max-width: 700px) {
+  .is-arranging .workspace-decorate { left: 8px; right: 8px; bottom: 8px; max-height: 235px; }
+  .is-arranging .workspace-decorate .drawer-content { padding: 0 10px 6px; }
+  .arrange-toolbar { flex-wrap: wrap; gap: 5px 8px; }
+  .arrange-toolbar .field-label { font-size: 0; }
+  .arrange-toolbar select { width: 155px; font-size: 12px; }
+  .arrange-sliders { order: 5; width: 100%; gap: 12px; }
+  .arrange-sliders .range-field { flex: 1; }
+  .arrange-finish { padding: 6px 10px; font-size: 12px; }
+  .library-item { flex-basis: 102px; min-height: 90px; font-size: 11px; }
+  .library-item > .furniture-art, .library-item > .sprite { height: 48px; }
+}

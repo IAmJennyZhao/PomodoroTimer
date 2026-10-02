@@ -456,3 +456,31 @@ test('ding and count up continues into overtime once and credits it as one sessi
   expect(latestWrite().state.history[0]).toMatchObject({ minutes: 27 });
   expect(engine.chime).toHaveBeenCalledTimes(1);
 });
+
+test('arranging exposes a room library, deselects furniture, and saves widget positions', async () => {
+  await openRoom();
+  fireEvent.click(screen.getByRole('button', { name: 'Decorate' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));
+  expect(screen.getByRole('region', { name: 'Room library' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Move timer' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Move daily goal' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Position Soft sofa' }));
+  expect(screen.getByRole('button', { name: 'Position Soft sofa' })).toHaveAttribute('aria-pressed', 'true');
+  fireEvent.click(screen.getByRole('button', { name: 'Deselect Soft sofa' }));
+  expect(screen.getByRole('button', { name: 'Position Soft sofa' })).toHaveAttribute('aria-pressed', 'false');
+  const rect = jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function () {
+    return this.classList.contains('app') ? { left: 0, top: 0, width: 1200, height: 800 }
+      : { left: 200, top: 150, width: 300, height: 250 };
+  });
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Move timer' }), { key: 'ArrowRight' });
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Move daily goal' }), { key: 'ArrowDown' });
+  await advance(1000);
+  expect(latestWrite().state.room.widgets.timer).toEqual({ x: 17.5, y: 18.75 });
+  expect(latestWrite().state.room.widgets.goal).toEqual({ x: 200 / 1200 * 100, y: 20 });
+  fireEvent.keyDown(window, { key: 'Escape' });
+  expect(screen.queryByRole('button', { name: 'Deselect daily goal' })).not.toBeInTheDocument();
+  expect(screen.getByRole('region', { name: 'Room library' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Close panel' }));
+  expect(screen.queryByRole('region', { name: 'Room library' })).not.toBeInTheDocument();
+  rect.mockRestore();
+});

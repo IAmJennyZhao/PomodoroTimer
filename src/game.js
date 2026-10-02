@@ -250,7 +250,7 @@ export function createInitialState(now = Date.now()) {
         upgrades: 0,
       },
     ],
-    room: { background: "sunroom", artVersion: 1, decorations: atelierDecorations(), notepadPosition: null },
+    room: { background: "sunroom", artVersion: 1, decorations: atelierDecorations(), widgets: {}, notepadPosition: null },
     owned: { backgrounds: ["sunroom"], accessories: ["none"], decorations: starterDecorations(), decorationCounts: { couch: 1, rug: 1 } },
     eggs: [],
     selectedEggId: null,
@@ -664,6 +664,9 @@ export function normalizeState(saved, now = Date.now()) {
         : "sunroom",
       artVersion: 1,
       decorations: furnishStarter ? atelierDecorations() : decorations,
+      widgets: Object.fromEntries(["timer", "goal"].filter(id => isRecord(roomInput.widgets?.[id])).map(id => [id, {
+        x: clamp(roomInput.widgets[id].x, 0, 100, 30), y: clamp(roomInput.widgets[id].y, 0, 100, 20),
+      }])),
       notepadPosition: isRecord(roomInput.notepadPosition)
         ? { x: clamp(roomInput.notepadPosition.x, 0, 1, 0.8), y: clamp(roomInput.notepadPosition.y, 0, 1, 0.5) }
         : null,
@@ -825,6 +828,12 @@ export function gameReducer(state, action) {
     }
     case "SET_SCRATCHPAD":
       return { ...state, scratchpad: cleanText(action.text, 10_000) };
+    case "MOVE_WIDGET":
+      if (!["timer", "goal"].includes(action.id)) return state;
+      return { ...state, room: { ...state.room, widgets: { ...state.room.widgets, [action.id]: {
+        x: clamp(action.x, 0, 100, state.room.widgets?.[action.id]?.x ?? 30),
+        y: clamp(action.y, 0, 100, state.room.widgets?.[action.id]?.y ?? 20),
+      } } } };
     case "MOVE_NOTEPAD":
       return { ...state, room: { ...state.room, notepadPosition: {
         x: clamp(action.x, 0, 1, state.room.notepadPosition?.x ?? 0.8),

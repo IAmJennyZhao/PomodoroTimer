@@ -26,6 +26,7 @@ import {
 } from "./ui";
 import TimerCard, { QuickScratchpad } from "./TimerCard";
 import RoomBackdrop from "./RoomBackdrop";
+import RoomWidget from "./RoomWidget";
 import DecoratePanel from "./DecoratePanel";
 import {
   AnimalsPanel,
@@ -88,6 +89,13 @@ export default function App() {
   const engine = useRef(null);
   const sceneRef = useRef(null);
   const lastEvent = useRef(null);
+  const previousFurniture = useRef(state.room.decorations.length);
+  useEffect(() => {
+    if (arranging && state.room.decorations.length > previousFurniture.current) {
+      setSelection({ type: "decoration", id: state.room.decorations[state.room.decorations.length - 1].id });
+    }
+    previousFurniture.current = state.room.decorations.length;
+  }, [state.room.decorations, arranging]);
   const act = useCallback(
     (action) => {
       if (action.type === "START_BREAK") engine.current?.unlock();
@@ -131,7 +139,7 @@ export default function App() {
   const elapsed = elapsedTime(state.timer, now);
   const displayTime = counting ? Math.max(0, elapsed - (state.timer.overtime ? state.timer.durationMs : 0)) : remaining;
   const sidePanel = ["settings", "session", "sound", "notes"].includes(panel);
-  const widePanel = Boolean(panel) && !sidePanel;
+  const widePanel = Boolean(panel) && !sidePanel && !arranging;
   useEffect(() => {
     if (!ready) return;
     if (state.timer.mode === "focus" && state.timer.status === "running") {
@@ -209,6 +217,7 @@ export default function App() {
     const onKey = (event) => {
       if (event.key === "Escape") {
         if (hatch) setHatch(null);
+        else if (arranging && selection) setSelection(null);
         else {
           setPanel(null);
           setArranging(false);
@@ -217,12 +226,13 @@ export default function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [hatch]);
+  }, [hatch, arranging, selection]);
   const openPanel = (id) => {
     setPanel((previous) => (previous === id ? null : id));
     if (id !== "decorate") setArranging(false);
   };
   const closePanel = () => {
+    setSelection(null);
     setPanel(null);
     setArranging(false);
   };
@@ -246,7 +256,7 @@ export default function App() {
       return;
     }
     event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
+    event.currentTarget.setPointerCapture?.(event.pointerId);
     setSelection({ type, id: item.id });
     setDrag({ type, id: item.id, x: item.x, y: item.y });
   };
@@ -283,7 +293,7 @@ export default function App() {
         ? item.name
         : DECORATIONS.find((entry) => entry.id === item.item)?.name;
     return (
-      <button
+      <div
         key={item.id}
         className={`room-resident ${type} ${type === "decoration" ? `decoration-${item.item}` : ""} ${arranging ? "draggable" : ""} ${selection?.id === item.id && arranging ? "chosen" : ""}`}
         style={{
@@ -292,6 +302,8 @@ export default function App() {
           zIndex: item.item === "rug" ? 1 : (type === "animal" ? 160 : 2) + Math.round(position.y),
           "--delay": `${-(state.animals.findIndex((animal) => animal.id === item.id) * 1.37)}s`,
         }}
+      >
+      <button className="resident-hitbox" aria-pressed={arranging ? selection?.id === item.id : undefined}
         aria-label={
           arranging
             ? `Position ${name}`
@@ -330,6 +342,8 @@ export default function App() {
         )}
         <span className="resident-label">{name}</span>
       </button>
+      {arranging && selection?.id === item.id && <button className="selection-close" aria-label={`Deselect ${name}`} onClick={() => setSelection(null)}><Icon name="close" size={16} /></button>}
+      </div>
     );
   };
   return (
@@ -390,7 +404,9 @@ export default function App() {
           </button>
         </div>
       </header>
-      <main className="focus-area" hidden={widePanel}>
+      <RoomWidget as="main" id="timer" name="timer" className="focus-area" position={state.room.widgets?.timer}
+        arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "timer"}
+        onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "timer", ...position })} hidden={widePanel}>
         <TimerCard state={state} act={act} now={now} ready={ready} blocked={status === "conflict"}
           onToggleTimer={timerAction} panel={panel} openPanel={openPanel}
           focusView={focusView} setFocusView={setFocusView}
@@ -401,17 +417,10 @@ export default function App() {
             setAlarmBlocked(!(await engine.current?.startAlarm()));
           }}
           tip={BREAK_IDEAS[tip]} nextTip={() => setTip((previous) => (previous + 1 + Math.floor(Math.random() * (BREAK_IDEAS.length - 1))) % BREAK_IDEAS.length)} />
-      </main>
-      {arranging && (
-        <button
-          className="arrange-done paper"
-          onClick={() => setArranging(false)}
-        >
-          <Icon name="check" size={18} />
-          Done
-        </button>
-      )}
-      <div className="daily-goal-note" hidden={focusView || widePanel}>
+      </RoomWidget>
+      <RoomWidget id="goal" name="daily goal" className="daily-goal-note" position={state.room.widgets?.goal}
+        arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "goal"}
+        onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "goal", ...position })} hidden={focusView || widePanel}>
         <button
           className={`daily-pill paper ${stats.progress === 1 ? "goal-reached" : ""}`}
           onClick={() => openPanel("journal")}
@@ -432,7 +441,7 @@ export default function App() {
             </span>
           </span>
         </button>
-      </div>
+      </RoomWidget>
       <footer className="room-footer" hidden={focusView}>
         <button
           className={`sound-pill paper ${playing ? "playing" : ""}`}
@@ -450,7 +459,7 @@ export default function App() {
       </footer>
       {widePanel && <div className="workspace-dismiss" onClick={closePanel} />}
       {panel && (
-        <Drawer key={panel} name={panel} onClose={closePanel}
+        <Drawer key={panel} name={panel} title={arranging ? "Arrange room" : undefined} onClose={closePanel}
           position={state.room.notepadPosition}
           onMove={(position) => act({ type: "MOVE_NOTEPAD", ...position })}>
           {panel === "animals" && (
