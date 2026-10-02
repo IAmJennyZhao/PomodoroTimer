@@ -38,6 +38,7 @@ test('purchases show star rarities and only one egg can be selected for studying
   expect(screen.getByRole('button', { name: 'Select basic egg 1' })).toHaveAttribute('aria-pressed', 'false');
   fireEvent.click(screen.getByRole('button', { name: 'Deselect dreamy egg 2' }));
   expect(getState().selectedEggId).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Egg odds' }));
   expect(screen.getByLabelText('Egg rarities')).toHaveTextContent('Basic');
   expect(screen.getByLabelText('Egg rarities')).toHaveTextContent('100 min to hatch');
 });
@@ -59,6 +60,8 @@ test('shop explains why ongoing overtime rewards are not yet spendable', () => {
   initial = gameReducer(initial, { type: 'TICK', now: NOW + 25 * 60000 });
   renderPanel(ShopPanel, initial);
   expect(screen.getByRole('button', { name: /Buy basic egg/ })).toBeDisabled();
+  expect(screen.getByText('25 pending')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Pending Shilligems' }));
   expect(screen.getByText(/Finish this session to spend the 25 earned so far/)).toBeInTheDocument();
 });
 
@@ -72,7 +75,9 @@ test('mystery guarantee and its different odds are disclosed before buying', () 
 });
 
 test('decoration purchases can be used, equipped, positioned, and removed without rebuying furniture', () => {
-  const { getState } = renderPanel(DecoratePanel, { ...createInitialState(NOW), gems: 200 });
+  const initial = { ...createInitialState(NOW), gems: 200 };
+  initial.room.decorations = [];
+  const { getState } = renderPanel(DecoratePanel, initial);
   fireEvent.click(screen.getByRole('button', { name: 'Room style' }));
   fireEvent.click(screen.getByRole('button', { name: 'Unlock Moonlit den for 75 Shilligems' }));
   fireEvent.click(screen.getByRole('button', { name: 'Use Moonlit den' }));

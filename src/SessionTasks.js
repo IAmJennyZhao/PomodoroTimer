@@ -22,7 +22,7 @@ function TaskTextInput({ task, index, onChange }) {
     }} />;
 }
 
-export default function SessionTasks({ timer, history = [], act, compact = false }) {
+export default function SessionTasks({ timer, history = [], act, compact = false, minimal = false }) {
   const [expanded, setExpanded] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
   const [taskDraft, setTaskDraft] = useState("");
@@ -56,13 +56,15 @@ export default function SessionTasks({ timer, history = [], act, compact = false
       callback();
     }
   };
-  return <div className={`session-tasks ${compact ? "compact" : ""}`}>
-    {compact && <div className="session-task-summary">
-      <span>{tasks.length ? tasks.map((task) => task.text).join(" · ") : "Add a task or tag"}</span>
+  return <div className={`session-tasks ${compact ? "compact" : ""} ${minimal ? "minimal" : ""}`}>
+    {(compact || minimal) && <div className="session-task-summary">
+      {minimal && !compact && !expanded ? <TaskTextInput task={tasks[0] || { id: "primary", text: "", done: false }} index={0}
+        onChange={(text) => tasks.length ? updateTask(tasks[0].id, { text }) : setTasks([{ id: "primary", text, done: false }])} />
+        : <span>{tasks.length ? tasks.map((task) => task.text).join(" · ") : "What are you working on?"}</span>}
       <button type="button" className="session-edit-button" aria-label={`${expanded ? "Done" : "Edit"} tasks and tags`} aria-expanded={expanded} aria-controls={expanded ? editorId : undefined}
-        onClick={() => setExpanded(!expanded)}><Icon name="pencil" size={13} />{expanded ? "Done" : "Edit"}</button>
+        onClick={() => setExpanded(!expanded)}><Icon name={expanded ? "check" : "pencil"} size={14} /><span className="edit-label">{expanded ? "Done" : "Edit"}</span></button>
     </div>}
-    {(!compact || expanded) && <div id={editorId} className="session-task-editor">
+    {((!compact && !minimal) || expanded) && <div id={editorId} className="session-task-editor">
       <div className="session-task-list" role="group" aria-label="Session tasks">
         {(tasks.length ? tasks : [{ id: "primary", text: "", done: false }]).map((task, index) => <div key={task.id} className={`session-task-row ${task.done ? "done" : ""}`}>
           {task.text ? <input className="session-task-check" type="checkbox" checked={task.done}
@@ -97,6 +99,6 @@ export default function SessionTasks({ timer, history = [], act, compact = false
         {tasks.length > 1 && <span>{tasks.filter((task) => task.done).length}/{tasks.length} done</span>}
       </div>
     </div>}
-    {compact && !expanded && tags.length > 0 && <div className="session-tag-list compact-tags">{tags.map((tag) => <span key={tag} className="session-tag">{tag}</span>)}</div>}
+    {(compact || minimal) && !expanded && tags.length > 0 && <div className="session-tag-list compact-tags">{tags.map((tag) => <span key={tag} className="session-tag">{tag}</span>)}</div>}
   </div>;
 }

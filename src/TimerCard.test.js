@@ -10,11 +10,12 @@ const renderTimer = (state, now = NOW) => render(<TimerCard state={state} now={n
 test("Pomodoro displays its two one-minute pauses and a live remaining pause allowance", () => {
   let state = createInitialState(NOW);
   const { rerender } = renderTimer(state);
-  expect(screen.getByLabelText("Pomodoro pause allowance")).toHaveTextContent("2 pauses left · 1 min each");
+  expect(screen.getByRole("img", { name: "2 of 2 pauses left, one minute each" })).toBeInTheDocument();
   state = actOn(state, "START");
   state = actOn(state, "PAUSE", NOW + 10000);
   rerender(<TimerCard state={state} now={NOW + 40000} act={jest.fn()} ready onToggleTimer={jest.fn()} />);
-  expect(screen.getByLabelText("Pomodoro pause allowance")).toHaveTextContent("Pause 1 of 2 · 00:30 left");
+  expect(screen.getByRole("timer", { name: "00:30 pause remaining" })).toHaveTextContent("00:30");
+  expect(screen.getByRole("img", { name: "1 of 2 pauses left, one minute each" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Resume" })).toBeEnabled();
 });
 
@@ -23,8 +24,10 @@ test("forfeited Pomodoro rewards clearly show zero without hiding session contro
   state = actOn(state, "PAUSE", NOW + 10000);
   state = actOn(state, "TICK", NOW + 71000);
   renderTimer(state, NOW + 71000);
-  expect(screen.getByLabelText("Pomodoro pause allowance")).toHaveTextContent("Session Shilligems lost");
-  expect(screen.getByText("0 this session")).toBeInTheDocument();
+  expect(screen.getByRole("alert")).toHaveTextContent("Pause endedSession gems lost");
+  expect(screen.queryByRole("timer")).not.toBeInTheDocument();
+  expect(screen.getByLabelText("0 Shilligems this session")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Resume" })).toHaveFocus();
   expect(screen.getByRole("button", { name: "Resume" })).toBeEnabled();
 });
 

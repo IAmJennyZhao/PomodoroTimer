@@ -119,6 +119,13 @@ const roomY = (value, fallback = 76) =>
   clamp(value, ROOM_BOUNDS.minY, ROOM_BOUNDS.maxY, fallback);
 
 const starterDecorations = () => DECORATIONS.filter((item) => item.price === 0).map((item) => item.id);
+export const ATELIER_PLACEMENTS = {
+  couch: { x: 80, y: 76 }, rug: { x: 48, y: 85 }, bookshelf: { x: 94, y: 55 },
+  "window-plants": { x: 92, y: 49 }, table: { x: 92, y: 83 }, "side-table": { x: 9, y: 71 },
+};
+const atelierDecorations = () => ["couch", "rug", "bookshelf", "side-table"].map((item) => ({
+  id: `atelier:${item}`, item, ...ATELIER_PLACEMENTS[item],
+}));
 const sanitizeTasks = (value) => {
   if (!Array.isArray(value)) return [];
   const ids = new Set();
@@ -235,13 +242,13 @@ export function createInitialState(now = Date.now()) {
         rarity: "everyday",
         name: "Miso",
         accessory: "none",
-        x: 28,
-        y: 76,
+        x: 80,
+        y: 68,
         placed: true,
         upgrades: 0,
       },
     ],
-    room: { background: "sunroom", decorations: [], notepadPosition: null },
+    room: { background: "sunroom", artVersion: 1, decorations: atelierDecorations(), notepadPosition: null },
     owned: { backgrounds: ["sunroom"], accessories: ["none"], decorations: starterDecorations() },
     eggs: [],
     selectedEggId: null,
@@ -634,16 +641,22 @@ export function normalizeState(saved, now = Date.now()) {
   }
   if (timer.status === "paused" && timer.mode === "focus" && timer.workMode === "pomodoro"
     && timer.pauseStartedAt === null) timer.pauseStartedAt = timestamp;
+  // Give only the untouched starter room the new arrangement once. Keep custom
+  // layouts, including a deliberately emptied room, after this visual migration.
+  const furnishStarter = roomInput.artVersion !== 1 && decorations.length === 0
+    && residents.length === 1 && residents[0].id === "starter-cat"
+    && residents[0].x === 28 && residents[0].y === 76;
   let result = {
     schemaVersion: 1,
     progressionVersion: 2,
     gems: integer(saved.gems, 0, Number.MAX_SAFE_INTEGER, 0),
-    animals: residents.length ? residents : initial.animals,
+    animals: furnishStarter ? residents.map((animal) => ({ ...animal, x: 80, y: 68 })) : residents.length ? residents : initial.animals,
     room: {
       background: owned.backgrounds.includes(roomInput.background)
         ? roomInput.background
         : "sunroom",
-      decorations,
+      artVersion: 1,
+      decorations: furnishStarter ? atelierDecorations() : decorations,
       notepadPosition: isRecord(roomInput.notepadPosition)
         ? { x: clamp(roomInput.notepadPosition.x, 0, 1, 0.8), y: clamp(roomInput.notepadPosition.y, 0, 1, 0.5) }
         : null,

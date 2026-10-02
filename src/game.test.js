@@ -14,7 +14,7 @@ describe('focus sessions and rewards', () => {
   test('a fresh save has a free companion, a full classic timer, and no rewards', () => {
     const state = createInitialState(NOW);
     expect(state.gems).toBe(0);
-    expect(state.animals).toEqual([expect.objectContaining({ species: 'cat', name: 'Miso', placed: true, x: 28, y: 76 })]);
+    expect(state.animals).toEqual([expect.objectContaining({ species: 'cat', name: 'Miso', placed: true, x: 80, y: 68 })]);
     expect(state.timer).toEqual(expect.objectContaining({ status: 'idle', durationMs: 25 * MINUTE, remainingMs: 25 * MINUTE }));
     expect(state.history).toEqual([]);
   });
@@ -501,6 +501,7 @@ describe('eggs, inventory, and room ownership', () => {
 
   test('animals and owned decorations stay on the room floor, and furniture can be removed', () => {
     let state = richState();
+    state.room.decorations = [];
     expect(act(state, 'PLACE_DECORATION', { item: 'plant' })).toBe(state);
     state = act(state, 'BUY_ITEM', { category: 'decorations', id: 'plant' });
     state = act(state, 'PLACE_DECORATION', { item: 'plant', x: -20, y: 200 });
@@ -825,7 +826,7 @@ describe('session metadata and movable room features', () => {
 
   test('furniture starts in inventory and notepad and couch-height pet placement survive reload', () => {
     let state = createInitialState(NOW);
-    expect(state.room.decorations).toHaveLength(0);
+    expect(state.room.decorations.map(item => item.item)).toEqual(['couch', 'rug', 'bookshelf', 'side-table']);
     expect(state.owned.decorations).toEqual(expect.arrayContaining(['couch', 'rug', 'bookshelf', 'window-plants', 'table', 'side-table']));
     state = act(state, 'PLACE_DECORATION', { item: 'couch', x: 50, y: 45 });
     state = act(state, 'MOVE_ANIMAL', { id: 'starter-cat', x: 50, y: 37 });
@@ -834,5 +835,19 @@ describe('session metadata and movable room features', () => {
     expect(state.room.notepadPosition).toEqual({ x: 0.2, y: 0.6 });
     expect(state.animals[0].y).toBe(37);
     expect(state.room.decorations[0].item).toBe('couch');
+  });
+
+  test('Atelier arrangement migrates the untouched starter room once and preserves custom rooms', () => {
+    const oldRoom = createInitialState(NOW);
+    delete oldRoom.room.artVersion;
+    oldRoom.room.decorations = [];
+    oldRoom.animals[0] = { ...oldRoom.animals[0], x: 28, y: 76 };
+    const migrated = normalizeState(oldRoom, NOW);
+    expect(migrated.room.decorations.map(item => item.item)).toEqual(['couch', 'rug', 'bookshelf', 'side-table']);
+    expect(migrated.animals[0]).toMatchObject({ x: 80, y: 68 });
+    const emptied = { ...migrated, room: { ...migrated.room, decorations: [] } };
+    expect(normalizeState(emptied, NOW).room.decorations).toEqual([]);
+    oldRoom.animals[0].x = 50;
+    expect(normalizeState(oldRoom, NOW).room.decorations).toEqual([]);
   });
 });

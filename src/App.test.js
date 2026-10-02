@@ -184,8 +184,10 @@ test('pause survives a tab wake, resume keeps the remaining duration, and reset 
   expect(screen.getByRole('timer')).toHaveTextContent('23:00');
   fireEvent.click(screen.getByRole('button', { name: 'Pause' }));
   await wakeAt(NOW + 120 * MINUTE);
-  expect(screen.getByRole('timer')).toHaveTextContent('23:00');
+  expect(screen.getByRole('alert')).toHaveTextContent('Pause ended');
+  expect(screen.queryByRole('timer')).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Resume' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'Resume' })).toHaveFocus();
   leaveFocus();
   expect(screen.getByRole('button', { name: '0 Shilligems, open egg shop' })).toBeInTheDocument();
 

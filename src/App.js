@@ -3,6 +3,7 @@ import "./App.css";
 import "./layout.css";
 import "./timer-flow.css";
 import "./RoomFeatures.css";
+import { ArtFragment } from "./AtelierArt";
 import useLocalSave from "./useLocalSave";
 import {
   BACKGROUNDS,
@@ -34,6 +35,7 @@ import {
   SettingsPanel,
   SessionControls,
 } from "./panels";
+import "./atelier.css";
 
 const BREAK_IDEAS = [
   [
@@ -185,6 +187,11 @@ export default function App() {
       setTip(Math.floor(Math.random() * BREAK_IDEAS.length));
       if (state.timer.overtime) setToast("Target reached · counting up");
       if (state.settings.soundEnabled && !(state.timer.status === "complete" && state.timer.workMode === "pomodoro" && state.timer.endBehavior === "remind")) engine.current?.chime();
+    } else if (event.type === "reward-forfeited") {
+      setToast("");
+      setFocusView(false);
+      setPanel(null);
+      if (state.settings.soundEnabled) engine.current?.chime();
     } else {
       setToast(event.message);
       if (event.type === "break-complete" && state.settings.soundEnabled)
@@ -345,6 +352,7 @@ export default function App() {
       </div>
       <div className="room-vignette" />
       <header className="app-header" hidden={focusView}>
+        <button className="room-brand" onClick={closePanel}>Little Room</button>
         <div className="header-actions">
           <button
             className="gem-pill paper"
@@ -353,7 +361,6 @@ export default function App() {
           >
             <Icon name="gem" size={23} />
             <strong>{state.gems.toLocaleString()}</strong>
-            <span>{state.gems === 1 ? "Shilligem" : "Shilligems"}</span>
           </button>
           <nav className="top-nav paper" aria-label="Main navigation">
             {[
@@ -362,16 +369,16 @@ export default function App() {
               ["shop", "egg", "Egg shop"],
               ["decorate", "plant", "Decorate"],
               ["journal", "book", "Journal"],
-            ].map(([id, icon, label]) => (
+            ].map(([id, , label]) => (
               <button key={id} className={id === (panel || "focus") ? "active" : ""}
                 aria-label={label} aria-current={id === (panel || "focus") ? "page" : undefined}
                 onClick={() => (id === "focus" ? closePanel() : openPanel(id))}>
-                <Icon name={icon} size={20} />
-                <span>{label}</span>
+                <span>{{ Animals: "Pets", "Egg shop": "Shop", Decorate: "Room" }[label] || label}</span>
                 {id === "shop" && state.eggs.length > 0 && <i>{state.eggs.length}</i>}
               </button>
             ))}
           </nav>
+          <button className="icon-button header-notes" aria-label="Open notepad" title="Notepad" onClick={() => openPanel("notes")}><Icon name="note" size={22} /></button>
           <button
             className="icon-button paper settings-button"
             aria-label="Settings"
@@ -402,29 +409,29 @@ export default function App() {
           Done
         </button>
       )}
-      <footer className="room-footer" hidden={focusView}>
+      <div className="daily-goal-note" hidden={focusView || widePanel}>
         <button
           className={`daily-pill paper ${stats.progress === 1 ? "goal-reached" : ""}`}
           onClick={() => openPanel("journal")}
           aria-label={`Daily progress: ${stats.sessions} of ${stats.goal} sessions`}
         >
-          <Icon name={stats.progress === 1 ? "sparkle" : "leaf"} size={23} />
+          <ArtFragment rect={[600, 538, 335, 382]} className="daily-note-art" />
           <span>
             <strong>
-              Daily goal · {stats.sessions}/{stats.goal}
+              Daily goal
             </strong>
             <span className="session-markers" aria-hidden="true">
               {Array.from({ length: Math.min(stats.goal, 8) }, (_, index) => (
-                <Icon
+                <i
                   key={index}
-                  name="focus"
-                  size={11}
                   className={index < stats.sessions ? "filled" : ""}
                 />
               ))}
             </span>
           </span>
         </button>
+      </div>
+      <footer className="room-footer" hidden={focusView}>
         <button
           className={`sound-pill paper ${playing ? "playing" : ""}`}
           onClick={() => openPanel("sound")}

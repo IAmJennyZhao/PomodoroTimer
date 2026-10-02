@@ -1,12 +1,7 @@
 import { useState } from "react";
-import { ACCESSORIES, BACKGROUNDS, DECORATIONS, spendableGems } from "./game";
+import { ACCESSORIES, ATELIER_PLACEMENTS, BACKGROUNDS, DECORATIONS, spendableGems } from "./game";
 import { Accessory, Icon, RangeField, Sprite } from "./ui";
 import RoomBackdrop from "./RoomBackdrop";
-
-const DEFAULT_PLACEMENTS = {
-  couch: { x: 76, y: 65 }, rug: { x: 53, y: 79 }, bookshelf: { x: 91, y: 47 },
-  "window-plants": { x: 81, y: 54 }, table: { x: 26, y: 66 }, "side-table": { x: 58, y: 65 },
-};
 
 export default function DecoratePanel({ state, act, arranging, setArranging, selection, setSelection }) {
   const available = spendableGems(state);
@@ -22,7 +17,7 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
     if (category === "backgrounds") act({ type: "SET_BACKGROUND", id: item.id });
     if (category === "accessories" && friend) act({ type: "SET_ACCESSORY", animalId: friend.id, id: item.id });
     if (category === "decorations") {
-      act({ type: "PLACE_DECORATION", item: item.id, ...(DEFAULT_PLACEMENTS[item.id] || { x: 35, y: 72 }) });
+      act({ type: "PLACE_DECORATION", item: item.id, ...(ATELIER_PLACEMENTS[item.id] || { x: 35, y: 72 }) });
     }
   }
   function move(axis, value) {

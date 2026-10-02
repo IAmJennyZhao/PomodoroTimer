@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ACCESSORIES, ANIMALS, RARITIES, RARITY_STARS, EGG_MINUTES, animationCount, gemBonus, spendableGems } from "./game";
+import { ACCESSORIES, ANIMALS, RARITIES, RARITY_STARS, EGG_MINUTES, animationCount, gemBonus } from "./game";
 import { AnimalArt, Icon, InfoTip, Sprite } from "./ui";
 import "./collection.css";
 
@@ -92,56 +92,4 @@ export function AnimalsPanel({ state, act, selected, setSelected }) {
   </>;
 }
 
-export function ShopPanel({ state, act }) {
-  const activeSession = state.timer.mode === "focus" && ["running", "paused"].includes(state.timer.status);
-  const available = spendableGems(state);
-  return <>
-    {available < state.gems && <p className="small pending-reward">{available} Shilligems available · Finish this session to spend the {state.gems - available} earned so far.</p>}
-    <div className="egg-options">
-      <section className="egg-card">
-        <Sprite kind="object" id="basic" />
-        <h3>Basic egg</h3><RarityStars rarity="basic" />
-        <p className="egg-description">25 focus minutes · a little beginning</p>
-        <button type="button" className="secondary-button full-width" aria-label="Buy basic egg for 25 Shilligems" disabled={available < 25} onClick={() => act({ type: "BUY_EGG", kind: "basic" })}>Buy <Icon name="gem" /> 25</button>
-      </section>
-      <section className="egg-card">
-        <Sprite kind="object" id="dreamy" />
-        <div className="catalog-heading"><h3>Mystery egg</h3><InfoTip label="Egg odds">
-          <strong>Everyday 60% · Rare 30% · Dreamy 10%.</strong>
-          <p>Every egg has an equal chance of each of the {ANIMALS.length} species.</p>
-          <p>A rare-or-better egg is guaranteed within 5 mystery rolls. On a guaranteed roll: Rare 90% · Dreamy 10%. Rare or dreamy eggs reset the count; basic eggs do not affect it.</p>
-        </InfoTip></div>
-        <span className="mystery-range">★★–★★★★ <span>2–4 star surprise</span></span>
-        <p className="egg-description">{state.pity >= 4 ? "Rare+ next roll" : `Rare+ within ${5 - state.pity} rolls`}</p>
-        <button type="button" className="secondary-button full-width" aria-label="Roll mystery egg for 60 Shilligems" disabled={available < 60} onClick={() => act({ type: "BUY_EGG", kind: "mystery" })}>Roll <Icon name="gem" /> 60</button>
-      </section>
-    </div>
-    <div className="egg-rarity-guide" aria-label="Egg rarities">{RARITIES.map((rarity) => <div key={rarity}>
-      <RarityStars rarity={rarity} /><span>{EGG_MINUTES[rarity]} min to hatch</span>
-    </div>)}</div>
-    <div className="section-heading"><h3>Your nest <span className="small muted">· {state.eggs.length}</span></h3>
-      <InfoTip label="Earning Shilligems">Earn 1 Shilligem per completed focus minute, plus your maxed pet bonus. Pomodoros allow two pauses of up to one minute each; exceeding either limit forfeits that session’s Shilligems.</InfoTip>
-    </div>
-    <p className="small muted incubation-explainer">One egg studies with you at a time. The oldest is selected first. {activeSession ? "Changes here apply to your next session." : "Choose one before starting, or deselect to study without an egg."} Progress is saved when you finish focus; extra minutes do not spill into another egg.</p>
-    {state.eggs.length ? <div className="nest-grid">{state.eggs.map((egg, index) => {
-      const required = egg.requiredMinutes || EGG_MINUTES[egg.rarity];
-      const progress = Math.min(required, egg.progressMinutes || 0);
-      const ready = progress >= required;
-      const selected = egg.id === state.selectedEggId;
-      const current = activeSession && state.timer.eggId === egg.id;
-      return <section className={`nest-egg ${egg.rarity} ${selected ? "selected" : ""}`} key={egg.id}>
-        <Sprite kind="object" id={egg.rarity} /><RarityStars rarity={egg.rarity} />
-        <span className="egg-order">Egg {index + 1}{index === 0 ? " · oldest" : ""}</span>
-        <progress aria-label={`${titleCase(egg.rarity)} egg ${index + 1} hatch progress`} value={progress} max={required} />
-        <span className="egg-progress">{ready ? "Ready to meet you" : `${progress}/${required} focus min`}</span>
-        {current && <span className="egg-current">Studying with you</span>}
-        <button className="small-button egg-select" aria-pressed={selected}
-          aria-label={`${selected ? "Deselect" : "Select"} ${egg.rarity} egg ${index + 1}`}
-          onClick={() => act({ type: "SELECT_EGG", id: selected ? null : egg.id })}>
-          {selected && <Icon name="check" size={14} />}{selected ? (activeSession ? "Next session" : "Selected") : "Choose egg"}
-        </button>
-        <button type="button" className="small-button egg-hatch" disabled={!ready} aria-label={`Hatch ${egg.rarity} egg ${index + 1}`} onClick={() => act({ type: "HATCH_EGG", id: egg.id })}>Hatch</button>
-      </section>;
-    })}</div> : <div className="empty-state compact-empty"><Icon name="egg" /><p>Your nest is waiting. Buy an egg, then focus to help it hatch.</p></div>}
-  </>;
-}
+export { default as ShopPanel } from "./EggShop";

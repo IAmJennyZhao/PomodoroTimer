@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { FurnitureArt } from "./RoomBackdrop";
+import { ArtFragment, ATELIER_ART } from "./AtelierArt";
 export const ART = `${process.env.PUBLIC_URL || ""}/art`;
 export const RARITY_NAMES = {
   basic: "Basic",
@@ -116,15 +117,17 @@ export function Sprite({
   const indexes =
     kind === "animal"
       ? { cat: 0, dog: 1, squirrel: 2, rabbit: 3, fox: 4, deer: 5 }
-      : { everyday: 0, rare: 1, dreamy: 2, plant: 3, cushion: 4, books: 5 };
+      : { basic: 0, everyday: 1, rare: 2, dreamy: 3 };
   const index = indexes[id] ?? 0;
   return (
     <span
       aria-hidden="true"
       className={`sprite ${kind}-sprite rarity-${rarity} ${kind === "object" && id === "basic" ? "egg-basic" : ""} ${className}`}
       style={{
-        backgroundImage: `url(${ART}/${kind === "animal" ? "animals" : "objects"}-sheet.png)`,
-        backgroundPosition: `${(index % 3) * 50}% ${Math.floor(index / 3) * 100}%`,
+        backgroundImage: `url(${ATELIER_ART}/${kind === "animal" ? "animals" : "eggs"}-sheet.png)`,
+        backgroundSize: kind === "animal" ? "300% 200%" : "400% 100%",
+        backgroundPosition: kind === "animal" ? `${(index % 3) * 50}% ${Math.floor(index / 3) * 100}%` : `${index * 100 / 3}% 0`,
+        aspectRatio: kind === "animal" ? "1" : "543 / 724",
       }}
       {...props}
     />
@@ -132,50 +135,10 @@ export function Sprite({
 }
 
 export function Accessory({ id }) {
-  if (id === "none" || !id) return null;
-  return (
-    <span aria-hidden="true" className={`pet-accessory accessory-${id}`}>
-      {id === "bow" ? (
-        <svg viewBox="0 0 60 35">
-          <path
-            d="M28 16C10-5 0 0 6 29c8 6 15-5 22-9M32 16C50-5 60 0 54 29c-8 6-15-5-22-9"
-            fill="#e789a2"
-            stroke="#a9537c"
-            strokeWidth="2"
-          />
-          <circle cx="30" cy="18" r="6" fill="#f5bbcc" stroke="#a9537c" />
-        </svg>
-      ) : id === "crown" ? (
-        <svg viewBox="0 0 60 40">
-          <path
-            d="m7 30-3-22 16 12L30 3l10 17L56 8l-3 22Z"
-            fill="#f2cf6f"
-            stroke="#b88847"
-            strokeWidth="2"
-          />
-          <path d="M7 35h46" stroke="#b88847" strokeWidth="4" />
-        </svg>
-      ) : (
-        <svg viewBox="0 0 50 50">
-          {[0, 60, 120, 180, 240, 300].map((r) => (
-            <ellipse
-              key={r}
-              cx="25"
-              cy="13"
-              rx="7"
-              ry="12"
-              fill="#fff8dc"
-              stroke="#d9bd78"
-              transform={`rotate(${r} 25 25)`}
-            />
-          ))}
-          <circle cx="25" cy="25" r="7" fill="#e7b756" />
-        </svg>
-      )}
-    </span>
-  );
+  const rect = { bow: [1094, 565, 309, 217], crown: [1091, 782, 208, 145], flower: [1320, 723, 192, 193] }[id];
+  if (!rect) return null;
+  return <span aria-hidden="true" className={`pet-accessory accessory-${id}`}><ArtFragment rect={rect} /></span>;
 }
-
 export function AnimalArt({ animal, className = "" }) {
   const motions = ["breathe", "sway", "hop", "wiggle", "stretch", "peek", "celebrate"];
   const unlocked = Math.min(7, Math.max(1, (animal.upgrades || 0) + 1));
