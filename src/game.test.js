@@ -1,7 +1,7 @@
 import {
   ANIMALS, PRESETS, createInitialState, gameReducer, normalizeState,
   remainingTime, elapsedTime, isCountingUp, canTakeBreak, MAX_TRACKED_MS, formatTime, formatElapsedTime, todayStats,
-  EGG_MINUTES, RARITY_STARS, MAX_UPGRADES, animationCount, gemBonus, pauseRemainingTime,
+  EGG_MINUTES, RARITY_STARS, MAX_UPGRADES, animationCount, gemBonus, pauseRemainingTime, spendableGems,
 } from './game';
 
 const MINUTE = 60_000;
@@ -593,6 +593,54 @@ describe('saved-state recovery', () => {
 });
 
 describe('Pomodoro pause allowance', () => {
+  const pendingOvertime = (balance = 0) => {
+    let state = act(richState(balance), 'SET_SETTINGS', { settings: { endBehavior: 'overtime' } });
+    state = act(state, 'START');
+    return act(state, 'TICK', { now: NOW + 25 * MINUTE });
+  };
+
+  test('overtime rewards cannot be spent before the pause allowance is settled', () => {
+    let state = pendingOvertime();
+    expect(state.gems).toBe(25);
+    expect(spendableGems(state)).toBe(0);
+    state = act(state, 'BUY_EGG', { kind: 'basic', now: NOW + 25 * MINUTE });
+    expect(state.eggs).toHaveLength(0);
+    expect(state.event.type).toBe('error');
+    state = act(state, 'BUY_ITEM', { category: 'decorations', id: 'plant', now: NOW + 25 * MINUTE });
+    expect(state.owned.decorations).not.toContain('plant');
+    state = act(state, 'PAUSE', { now: NOW + 26 * MINUTE });
+    expect(spendableGems(normalizeState(state, NOW + 26 * MINUTE + 100))).toBe(0);
+    state = act(state, 'TICK', { now: NOW + 27 * MINUTE + 1 });
+    expect(state.gems).toBe(0);
+    expect(spendableGems(state)).toBe(0);
+    expect(state.eggs).toHaveLength(0);
+  });
+
+  test('previous rewards stay purchasable while current overtime gems are reserved', () => {
+    let state = pendingOvertime(50);
+    expect(spendableGems(state)).toBe(50);
+    state = act(state, 'BUY_EGG', { kind: 'basic', now: NOW + 25 * MINUTE });
+    state = act(state, 'BUY_ITEM', { category: 'decorations', id: 'plant', now: NOW + 25 * MINUTE });
+    expect(state.eggs).toHaveLength(1);
+    expect(state.owned.decorations).toContain('plant');
+    expect(state.gems).toBe(30);
+    expect(spendableGems(state)).toBe(5);
+    state = act(state, 'PAUSE', { now: NOW + 26 * MINUTE });
+    state = normalizeState(state, NOW + 27 * MINUTE + 1);
+    expect(state.gems).toBe(5);
+    expect(spendableGems(state)).toBe(5);
+  });
+
+  test.each(['FINISH_FOCUS', 'START_BREAK'])('%s releases the current overtime reward for purchases', (type) => {
+    let state = pendingOvertime();
+    state = act(state, type, { now: NOW + 26 * MINUTE });
+    expect(state.gems).toBe(26);
+    expect(spendableGems(state)).toBe(26);
+    state = act(state, 'BUY_EGG', { kind: 'basic', now: NOW + 26 * MINUTE });
+    expect(state.eggs).toHaveLength(1);
+    expect(state.gems).toBe(1);
+  });
+
   test('two pauses of exactly one minute keep the complete reward', () => {
     let state = act(createInitialState(NOW), 'START');
     for (const minute of [1, 4]) {

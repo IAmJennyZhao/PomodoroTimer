@@ -53,6 +53,15 @@ test('a fully studied egg hatches into a room resident', () => {
   expect(getState().eggs).toHaveLength(0);
 });
 
+test('shop explains why ongoing overtime rewards are not yet spendable', () => {
+  let initial = gameReducer(createInitialState(NOW), { type: 'SET_SETTINGS', settings: { endBehavior: 'overtime' }, now: NOW });
+  initial = gameReducer(initial, { type: 'START', now: NOW });
+  initial = gameReducer(initial, { type: 'TICK', now: NOW + 25 * 60000 });
+  renderPanel(ShopPanel, initial);
+  expect(screen.getByRole('button', { name: /Buy basic egg/ })).toBeDisabled();
+  expect(screen.getByText(/Finish this session to spend the 25 earned so far/)).toBeInTheDocument();
+});
+
 test('mystery guarantee and its different odds are disclosed before buying', () => {
   renderPanel(ShopPanel, { ...createInitialState(NOW), pity: 4 });
   expect(screen.getByText('Rare+ next roll')).toBeInTheDocument();

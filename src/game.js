@@ -144,6 +144,13 @@ const tasksFrom = (value, legacy = "") => Array.isArray(value) ? sanitizeTasks(v
 export const animationCount = (animal) => 1 + integer(animal?.upgrades, 0, MAX_UPGRADES, 0);
 export const gemBonus = (state) => Math.min(0.5,
   state.animals.filter((animal) => animal.upgrades >= MAX_UPGRADES).length * 0.1);
+export function spendableGems(state) {
+  const { timer } = state;
+  const provisional = timer.mode === "focus" && timer.workMode === "pomodoro" && timer.overtime
+    && ["running", "paused"].includes(timer.status)
+    ? state.history.find((entry) => entry.id === timer.id) : null;
+  return Math.max(0, state.gems - (provisional?.gems ?? provisional?.minutes ?? 0));
+}
 export const pauseRemainingTime = (timer, now = Date.now()) =>
   timer?.status === "paused" && timer.mode === "focus" && timer.workMode === "pomodoro" && finite(timer.pauseStartedAt)
     ? Math.max(0, PAUSE_LIMIT_MS - Math.max(0, timeNow(now) - timer.pauseStartedAt)) : PAUSE_LIMIT_MS;
@@ -809,10 +816,11 @@ export function gameReducer(state, action) {
     case "BUY_EGG": {
       if (!["basic", "mystery"].includes(action.kind)) return state;
       const price = action.kind === "basic" ? 25 : 60;
-      if (state.gems < price)
+      const available = spendableGems(state);
+      if (available < price)
         return fail(
           state,
-          `You need ${price - state.gems} more Shilligems for this egg.`,
+          `You need ${price - available} more available Shilligems for this egg.`,
           now,
         );
       let rarity = "basic";
@@ -890,10 +898,11 @@ export function gameReducer(state, action) {
       if (!Array.isArray(catalog)) return state;
       const item = catalog.find((entry) => entry.id === action.id);
       if (!item || state.owned[action.category].includes(item.id)) return state;
-      if (state.gems < item.price)
+      const available = spendableGems(state);
+      if (available < item.price)
         return fail(
           state,
-          `You need ${item.price - state.gems} more Shilligems for ${item.name.toLowerCase()}.`,
+          `You need ${item.price - available} more available Shilligems for ${item.name.toLowerCase()}.`,
           now,
         );
       return withEvent(

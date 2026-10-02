@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ACCESSORIES, BACKGROUNDS, DECORATIONS } from "./game";
+import { ACCESSORIES, BACKGROUNDS, DECORATIONS, spendableGems } from "./game";
 import { Accessory, Icon, RangeField, Sprite } from "./ui";
 import RoomBackdrop from "./RoomBackdrop";
 
@@ -9,6 +9,7 @@ const DEFAULT_PLACEMENTS = {
 };
 
 export default function DecoratePanel({ state, act, arranging, setArranging, selection, setSelection }) {
+  const available = spendableGems(state);
   const [category, setCategory] = useState("decorations");
   const [friendId, setFriendId] = useState(state.animals[0]?.id || "");
   const friend = state.animals.find(animal => animal.id === friendId) || state.animals[0];
@@ -60,8 +61,9 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
         <div className="segmented" role="group" aria-label="Decoration categories">
           {[['decorations', 'Furniture'], ['backgrounds', 'Room style'], ['accessories', 'Accessories']].map(([id, name]) => <button type="button" key={id} aria-pressed={category === id} className={category === id ? "selected" : ""} onClick={() => setCategory(id)}>{name}</button>)}
         </div>
-        <div className="wallet-line"><Icon name="gem" size={18} /><strong>{state.gems.toLocaleString()}</strong></div>
+        <div className="wallet-line"><Icon name="gem" size={18} /><strong>{available.toLocaleString()}</strong></div>
       </div>
+      {available < state.gems && <p className="small pending-reward">{available} Shilligems available · Finish this session to spend the {state.gems - available} earned so far.</p>}
       {category === "accessories" && <label className="field-label">Animal<select value={friend?.id || ""} onChange={event => setFriendId(event.target.value)}>
         {state.animals.map(animal => <option key={animal.id} value={animal.id}>{animal.name} · {animal.rarity}</option>)}
       </select></label>}
@@ -73,7 +75,7 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
             {category === "backgrounds" ? <RoomBackdrop theme={item.id} preview /> : category === "accessories" ? <div className="accessory-preview">{item.id === "none" ? <span aria-hidden="true">—</span> : <Accessory id={item.id} />}</div> : <Sprite kind="object" id={item.id} />}
             <h3>{item.name}</h3>
             {category === "backgrounds" && <p className="room-item-description">Wall, floor & window</p>}
-            <button type="button" className="small-button" disabled={active || (!owned && state.gems < item.price)} aria-label={owned ? `${active ? "Using" : category === "decorations" ? "Add" : "Use"} ${item.name}` : `Unlock ${item.name} for ${item.price} Shilligems`} onClick={() => owned ? applyItem(item) : act({ type: "BUY_ITEM", category, id: item.id })}>
+            <button type="button" className="small-button" disabled={active || (!owned && available < item.price)} aria-label={owned ? `${active ? "Using" : category === "decorations" ? "Add" : "Use"} ${item.name}` : `Unlock ${item.name} for ${item.price} Shilligems`} onClick={() => owned ? applyItem(item) : act({ type: "BUY_ITEM", category, id: item.id })}>
               {active ? <><Icon name="check" size={16} /> {category === "backgrounds" ? "Active" : "Wearing"}</> : owned ? category === "decorations" ? <><Icon name="plus" size={16} /> Add to room</> : "Use" : <><Icon name="gem" size={16} /> {item.price}</>}
             </button>
           </section>;

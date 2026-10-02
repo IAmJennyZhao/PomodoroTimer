@@ -12,7 +12,9 @@ The descriptions below summarize the generation briefs. They are not exact promp
 | `animals-sheet.png` | Transparent 3 × 2 sheet of six individual companions, ordered left to right, top to bottom: cat, dog, squirrel, rabbit, fox, deer. Soft illustrated forms, gentle expressions and pastel pencil texture. |
 | `objects-sheet.png` | Transparent 3 × 2 sheet of collection and room objects, ordered left to right, top to bottom: everyday egg, rare egg, dreamy egg, leafy plant, cushion, book stack. Colors and texture match the animal companions and rooms. |
 
-The app displays the room paintings as full-screen backgrounds and selects individual cells from the two transparent sheets for companions and objects. Idle motion is provided by the interface rather than baked into the illustrations.
+The app now uses a code-drawn SVG room shell in `src/RoomBackdrop.js`: warm plaster, subtle paper texture, pastel flooring and a right-hand arched window. Movable furniture is drawn separately so the couch, rug, shelves, plants and tables can be placed or removed. The original room paintings are retained as source references. No raster images were regenerated for this change.
+
+Companions and eggs keep their original transparent-sheet artwork. Pet upgrades unlock additional gentle interface animations rather than replacing the animal illustrations. Reduced-motion preferences disable this movement.
 
 `public/favicon.svg` is an original, code-drawn botanical icon using the same cream, sage, lavender and coral palette. It is not generated raster artwork.
 

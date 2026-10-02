@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ACCESSORIES, ANIMALS, RARITIES, RARITY_STARS, EGG_MINUTES, animationCount, gemBonus } from "./game";
+import { useEffect, useRef, useState } from "react";
+import { ACCESSORIES, ANIMALS, RARITIES, RARITY_STARS, EGG_MINUTES, animationCount, gemBonus, spendableGems } from "./game";
 import { AnimalArt, Icon, InfoTip, Sprite } from "./ui";
 import "./collection.css";
 
@@ -16,6 +16,10 @@ export function RarityStars({ rarity, label = true }) {
 
 export function AnimalsPanel({ state, act, selected, setSelected }) {
   const [mystery, setMystery] = useState(null);
+  const mysteryDetails = useRef(null);
+  useEffect(() => {
+    if (mystery) mysteryDetails.current?.scrollIntoView?.({ block: "nearest" });
+  }, [mystery]);
   const animal = state.animals.find((friend) => friend.id === selected) || state.animals[0];
   const discovered = new Set(state.animals.map((friend) => `${friend.species}:${friend.rarity}`));
   const missing = RARITIES.flatMap((rarity) => ANIMALS.filter((species) => !discovered.has(`${species.id}:${rarity}`)).map((species) => ({ ...species, rarity })));
@@ -57,7 +61,7 @@ export function AnimalsPanel({ state, act, selected, setSelected }) {
           </button>)}</div>
         </section>}
       </div>
-      {mystery ? <section className="detail-card collection-detail mystery-detail" aria-label="Undiscovered pet details" aria-live="polite">
+      {mystery ? <section ref={mysteryDetails} className="detail-card collection-detail mystery-detail" aria-label="Undiscovered pet details" aria-live="polite">
         <span className="mystery-mark" aria-hidden="true">?</span>
         <RarityStars rarity={mystery.rarity} />
         <h3>{titleCase(mystery.rarity)} {mystery.name}</h3>
@@ -90,13 +94,15 @@ export function AnimalsPanel({ state, act, selected, setSelected }) {
 
 export function ShopPanel({ state, act }) {
   const activeSession = state.timer.mode === "focus" && ["running", "paused"].includes(state.timer.status);
+  const available = spendableGems(state);
   return <>
+    {available < state.gems && <p className="small pending-reward">{available} Shilligems available · Finish this session to spend the {state.gems - available} earned so far.</p>}
     <div className="egg-options">
       <section className="egg-card">
         <Sprite kind="object" id="basic" />
         <h3>Basic egg</h3><RarityStars rarity="basic" />
         <p className="egg-description">25 focus minutes · a little beginning</p>
-        <button type="button" className="secondary-button full-width" aria-label="Buy basic egg for 25 Shilligems" disabled={state.gems < 25} onClick={() => act({ type: "BUY_EGG", kind: "basic" })}>Buy <Icon name="gem" /> 25</button>
+        <button type="button" className="secondary-button full-width" aria-label="Buy basic egg for 25 Shilligems" disabled={available < 25} onClick={() => act({ type: "BUY_EGG", kind: "basic" })}>Buy <Icon name="gem" /> 25</button>
       </section>
       <section className="egg-card">
         <Sprite kind="object" id="dreamy" />
@@ -107,7 +113,7 @@ export function ShopPanel({ state, act }) {
         </InfoTip></div>
         <span className="mystery-range">★★–★★★★ <span>2–4 star surprise</span></span>
         <p className="egg-description">{state.pity >= 4 ? "Rare+ next roll" : `Rare+ within ${5 - state.pity} rolls`}</p>
-        <button type="button" className="secondary-button full-width" aria-label="Roll mystery egg for 60 Shilligems" disabled={state.gems < 60} onClick={() => act({ type: "BUY_EGG", kind: "mystery" })}>Roll <Icon name="gem" /> 60</button>
+        <button type="button" className="secondary-button full-width" aria-label="Roll mystery egg for 60 Shilligems" disabled={available < 60} onClick={() => act({ type: "BUY_EGG", kind: "mystery" })}>Roll <Icon name="gem" /> 60</button>
       </section>
     </div>
     <div className="egg-rarity-guide" aria-label="Egg rarities">{RARITIES.map((rarity) => <div key={rarity}>

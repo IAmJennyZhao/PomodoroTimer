@@ -1,6 +1,25 @@
 # Implementation verification
 
-Verified on October 1, 2026. Browser checks used an isolated operating-system temporary save folder, never the personal save folder.
+## October 2 feature update
+
+Verified against an isolated temporary profile on ports 3020/3021. No personal save data was used or changed.
+
+| Change | Evidence |
+| --- | --- |
+| Movable notepad | Drag and arrow-key movement, viewport clamping and saved normalized coordinates covered by interaction tests. Browser notes and position persisted through reload. |
+| Two one-minute Pomodoro pauses | Boundary tests cover exactly 60 seconds, exceeding 60 seconds, the third pause, reload, delayed ticks, overtime revocation and idempotency. Browser third pause showed forfeiture; finishing preserved one minute of study history and left the existing wallet balance intact. |
+| One egg per study session | Tests cover oldest default selection, explicit deselection, selection locked at start, reload, no spillover and legacy ready eggs. Browser session advanced only its Basic egg from 24/25 to ready; the other egg stayed at 0/50. Hatching added a Basic squirrel. |
+| Rarity tiles and pet upgrades | Four star tiers appear in the shop and collection. Clicking a Dreamy Fox mystery tile revealed its Dreamy egg source and 100-minute requirement. Tests cover duplicate merging, six upgrades, seven animations, the 50% bonus cap and later-copy consolation. |
+| Bare room and movable furniture | Browser placed couch, rug, bookshelf, window plants and side table independently, then dragged the cat onto the couch. Position persisted at about x76%, y60%. Arrangement controls are buttons, with keyboard and slider alternatives. |
+| Multiple tasks and tags | Browser completed a Chemistry session with two tasks; the journal showed the task list and one minute under Chemistry. A later session retained live task edits and completion checks. Tests cover tag normalization, task editing, date ranges and overlapping tag totals. |
+| Reward integrity | Regression tests prevent spending provisional overtime rewards to escape a later pause penalty. Earlier rewards stay spendable. Integer-percent arithmetic avoids floating-point rounding losses. |
+| Responsive layout | Shop visually inspected at 320px and journal at 390px. DOM measurements confirmed no horizontal overflow; selected mystery details were scrolled into the 320px viewport. Normal browser viewport restored afterward. |
+
+Current automated checks: **189 tests across 11 React/domain/UI suites**, **17 server/startup tests**, and a successful production build with CI warnings treated as errors. `git diff --check` passes. The existing Browserslist-data notice remains informational.
+
+## Earlier verification
+
+The sections below record the October 1 implementation before these changes. Duplicate residents, immediate hatching and painted room backgrounds described there have been superseded above. Browser checks used an isolated operating-system temporary save folder, never the personal save folder.
 
 ## Focus flow refinement
 
