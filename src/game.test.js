@@ -1,12 +1,14 @@
 import {
   ANIMALS, PRESETS, createInitialState, gameReducer, normalizeState,
   remainingTime, elapsedTime, isCountingUp, canTakeBreak, MAX_TRACKED_MS, formatTime, formatElapsedTime, todayStats,
+  EGG_MINUTES, RARITY_STARS, MAX_UPGRADES, animationCount, gemBonus, pauseRemainingTime,
 } from './game';
 
 const MINUTE = 60_000;
 const NOW = new Date(2026, 9, 1, 12).getTime();
 const act = (state, type, extra = {}) => gameReducer(state, { type, now: NOW, ...extra });
 const richState = (gems = 1000) => ({ ...createInitialState(NOW), gems });
+const readyEggs = (state) => ({ ...state, eggs: state.eggs.map(egg => ({ ...egg, progressMinutes: egg.requiredMinutes })) });
 
 describe('focus sessions and rewards', () => {
   test('a fresh save has a free companion, a full classic timer, and no rewards', () => {
@@ -22,14 +24,14 @@ describe('focus sessions and rewards', () => {
     expect(remainingTime(state.timer, NOW + 18 * MINUTE + 1234)).toBe(7 * MINUTE - 1234);
     state = act(state, 'TICK', { now: NOW + 26 * MINUTE });
     expect(state.gems).toBe(25);
-    expect(state.history).toEqual([{ id: expect.any(String), task: '', minutes: 25, completedAt: NOW + 25 * MINUTE }]);
+    expect(state.history).toEqual([expect.objectContaining({ id: expect.any(String), task: '', minutes: 25, completedAt: NOW + 25 * MINUTE })]);
     expect(state.timer.mode).toBe('focus');
     expect(state.timer.status).toBe('complete');
     expect(act(state, 'TICK', { now: NOW + 100 * MINUTE })).toBe(state);
     expect(state.event.type).toBe('focus-complete');
   });
 
-  test('pause and reload retain exact time; paused wall time earns nothing', () => {
+  test('an overlong pause retains exact work time but forfeits rewards across reload', () => {
     let state = act(createInitialState(NOW), 'START');
     state = act(state, 'PAUSE', { now: NOW + 2 * MINUTE + 456 });
     const remaining = 23 * MINUTE - 456;
@@ -41,7 +43,8 @@ describe('focus sessions and rewards', () => {
     state = act(state, 'START', { now: NOW + 100 * MINUTE });
     expect(state.timer.endsAt).toBe(NOW + 100 * MINUTE + remaining);
     state = act(state, 'TICK', { now: state.timer.endsAt });
-    expect(state.gems).toBe(25);
+    expect(state.gems).toBe(0);
+    expect(state.timer.rewardForfeited).toBe(true);
     expect(state.history).toHaveLength(1);
   });
 
@@ -306,15 +309,15 @@ describe('work modes and intentional break choices', () => {
     expect(state.event.gems).toBe(2);
   });
 
-  test('overtime pauses and reloads with no second base reward', () => {
+  test('overtime pauses and reloads within the limit with no second base reward', () => {
     let state = act(overtime(), 'START');
     state = act(state, 'PAUSE', { now: NOW + 2 * MINUTE + 300 });
     expect(state.timer.status).toBe('paused');
     expect(state.gems).toBe(1);
-    state = normalizeState(state, NOW + 100 * MINUTE);
-    expect(elapsedTime(state.timer, NOW + 100 * MINUTE)).toBe(2 * MINUTE + 300);
-    state = act(state, 'START', { now: NOW + 100 * MINUTE });
-    state = act(state, 'START_BREAK', { mode: 'longBreak', now: NOW + 101 * MINUTE });
+    state = normalizeState(state, NOW + 3 * MINUTE);
+    expect(elapsedTime(state.timer, NOW + 3 * MINUTE)).toBe(2 * MINUTE + 300);
+    state = act(state, 'START', { now: NOW + 3 * MINUTE });
+    state = act(state, 'START_BREAK', { mode: 'longBreak', now: NOW + 4 * MINUTE });
     expect(state.timer).toEqual(expect.objectContaining({ mode: 'longBreak', status: 'running' }));
     expect(state.gems).toBe(3);
     expect(state.history).toHaveLength(1);
@@ -414,7 +417,7 @@ describe('eggs, inventory, and room ownership', () => {
   test('basic eggs cost 25 Shilligems and do not consume rare pity', () => {
     const state = act({ ...richState(25), pity: 3 }, 'BUY_EGG', { kind: 'basic', roll: 0.99 });
     expect(state.gems).toBe(0);
-    expect(state.eggs).toEqual([{ id: expect.any(String), rarity: 'everyday' }]);
+    expect(state.eggs).toEqual([expect.objectContaining({ id: expect.any(String), rarity: 'basic', progressMinutes: 0, requiredMinutes: 25 })]);
     expect(state.pity).toBe(3);
   });
 
@@ -446,9 +449,10 @@ describe('eggs, inventory, and room ownership', () => {
     expect(state.event.type).toBe('error');
   });
 
-  test('hatching consumes each egg once, keeps duplicate species, and uses unique animal IDs', () => {
+  test('hatching consumes each egg once and upgrades matching species and rarity', () => {
     let state = richState();
     for (let count = 0; count < 3; count += 1) state = act(state, 'BUY_EGG', { kind: 'basic' });
+    state = readyEggs(state);
     const ids = state.eggs.map(egg => egg.id);
     for (const id of ids) {
       state = act(state, 'HATCH_EGG', { id, roll: 0 });
@@ -457,14 +461,16 @@ describe('eggs, inventory, and room ownership', () => {
       expect(state).toBe(hatched);
     }
     expect(state.eggs).toHaveLength(0);
-    expect(state.animals).toHaveLength(4);
+    expect(state.animals).toHaveLength(2);
     expect(state.animals.every(animal => animal.species === 'cat')).toBe(true);
-    expect(new Set(state.animals.map(animal => animal.id)).size).toBe(4);
+    expect(new Set(state.animals.map(animal => animal.id)).size).toBe(2);
+    expect(state.animals[1].upgrades).toBe(2);
     expect(state.gems).toBe(925);
   });
 
   test.each(ANIMALS)('can hatch $name while preserving the egg rarity', (species) => {
     let state = act(richState(), 'BUY_EGG', { kind: 'mystery', roll: 1 });
+    state = readyEggs(state);
     state = act(state, 'HATCH_EGG', { id: state.eggs[0].id, roll: ANIMALS.indexOf(species) / ANIMALS.length });
     expect(state.animals[1]).toEqual(expect.objectContaining({ species: species.id, rarity: 'dreamy' }));
   });
@@ -501,14 +507,14 @@ describe('eggs, inventory, and room ownership', () => {
     expect(state.room.decorations[0]).toEqual(expect.objectContaining({ x: 5, y: 85 }));
     const id = state.room.decorations[0].id;
     state = act(state, 'MOVE_DECORATION', { id, x: 200, y: -1 });
-    expect(state.room.decorations[0]).toEqual(expect.objectContaining({ x: 95, y: 48 }));
+    expect(state.room.decorations[0]).toEqual(expect.objectContaining({ x: 95, y: 20 }));
     state = act(state, 'MOVE_ANIMAL', { id: 'starter-cat', x: 500, y: -400 });
-    expect(state.animals[0]).toEqual(expect.objectContaining({ x: 95, y: 48 }));
+    expect(state.animals[0]).toEqual(expect.objectContaining({ x: 95, y: 20 }));
     state = act(state, 'MOVE_ANIMAL', { id: 'starter-cat', x: NaN, y: undefined });
-    expect(state.animals[0]).toEqual(expect.objectContaining({ x: 95, y: 48 }));
+    expect(state.animals[0]).toEqual(expect.objectContaining({ x: 95, y: 20 }));
     state = act(state, 'REMOVE_DECORATION', { id });
     expect(state.room.decorations).toEqual([]);
-    expect(state.owned.decorations).toEqual(['plant']);
+    expect(state.owned.decorations).toContain('plant');
   });
 });
 
@@ -533,11 +539,11 @@ describe('saved-state recovery', () => {
     expect(state.event).toBe(null);
     expect(state.owned.backgrounds).toEqual(['sunroom', 'moonroom']);
     expect(state.animals).toHaveLength(1);
-    expect(state.animals[0]).toEqual(expect.objectContaining({ rarity: 'everyday', accessory: 'none', x: 95, y: 48 }));
+    expect(state.animals[0]).toEqual(expect.objectContaining({ rarity: 'everyday', accessory: 'none', x: 95, y: 20 }));
     expect(state.animals[0].name).toHaveLength(40);
     expect(state.room.background).toBe('sunroom');
     expect(state.room.decorations).toEqual([{ id: 'plant', item: 'plant', x: 5, y: 85 }]);
-    expect(state.eggs).toEqual([{ id: 'egg', rarity: 'rare' }]);
+    expect(state.eggs).toEqual([expect.objectContaining({ id: 'egg', rarity: 'rare', progressMinutes: 0, requiredMinutes: 75 })]);
     expect(state.history).toHaveLength(1);
     expect(state.settings).toEqual(expect.objectContaining({ focusMinutes: 25, breakMinutes: 60, longBreakMinutes: 1, dailyGoal: 1, longBreakEvery: 1, autoStartFocus: false, ambient: { rain: 0, fire: 1, noise: 0 } }));
   });
@@ -583,5 +589,202 @@ describe('saved-state recovery', () => {
     state = act(state, 'TICK', { now: state.timer.endsAt });
     expect(state.gems).toBe(Number.MAX_SAFE_INTEGER);
     expect(Number.isSafeInteger(state.gems)).toBe(true);
+  });
+});
+
+describe('Pomodoro pause allowance', () => {
+  test('two pauses of exactly one minute keep the complete reward', () => {
+    let state = act(createInitialState(NOW), 'START');
+    for (const minute of [1, 4]) {
+      state = act(state, 'PAUSE', { now: NOW + minute * MINUTE });
+      expect(pauseRemainingTime(state.timer, NOW + minute * MINUTE + 30_000)).toBe(30_000);
+      state = act(state, 'START', { now: NOW + (minute + 1) * MINUTE });
+    }
+    expect(state.timer.pauseCount).toBe(2);
+    expect(state.timer.rewardForfeited).toBe(false);
+    state = act(state, 'TICK', { now: state.timer.endsAt });
+    expect(state.gems).toBe(25);
+    expect(state.history[0].gems).toBe(25);
+  });
+
+  test('one millisecond over a pause limit is enforced by tick and cannot be recovered by resume', () => {
+    let state = act(createInitialState(NOW), 'START');
+    state = act(state, 'PAUSE', { now: NOW + MINUTE });
+    state = act(state, 'TICK', { now: NOW + 2 * MINUTE + 1 });
+    expect(state.timer.rewardForfeited).toBe(true);
+    expect(state.event.type).toBe('reward-forfeited');
+    state = act(state, 'START', { now: NOW + 2 * MINUTE + 1 });
+    state = act(state, 'TICK', { now: state.timer.endsAt });
+    expect(state.history[0]).toEqual(expect.objectContaining({ minutes: 25, gems: 0, rewardForfeited: true }));
+    expect(todayStats(state, state.history[0].completedAt).gems).toBe(0);
+    state = act(state, 'RESET');
+    expect(state.timer.rewardForfeited).toBe(false);
+    expect(state.timer.pauseCount).toBe(0);
+  });
+
+  test('the third pause forfeits only this session reward, including base overtime reward, once', () => {
+    let state = act(richState(40), 'SET_SETTINGS', { settings: { focusMinutes: 1, endBehavior: 'overtime' } });
+    state = act(state, 'START');
+    state = act(state, 'TICK', { now: NOW + MINUTE });
+    expect(state.gems).toBe(41);
+    for (const minute of [2, 3, 4]) {
+      state = act(state, 'PAUSE', { now: NOW + minute * MINUTE });
+      if (minute < 4) state = act(state, 'START', { now: NOW + minute * MINUTE + 1 });
+    }
+    expect(state.timer.rewardForfeited).toBe(true);
+    expect(state.gems).toBe(40);
+    expect(state.history[0].gems).toBe(0);
+    state = normalizeState(state, NOW + 10 * MINUTE);
+    state = act(state, 'START', { now: NOW + 10 * MINUTE });
+    state = act(state, 'FINISH_FOCUS', { now: NOW + 12 * MINUTE });
+    expect(state.gems).toBe(40);
+    expect(state.history).toHaveLength(1);
+    expect(state.history[0].minutes).toBeGreaterThan(1);
+    expect(normalizeState(state, NOW + 20 * MINUTE).gems).toBe(40);
+  });
+
+  test('breaks have no pause limit', () => {
+    let state = act(createInitialState(NOW), 'START');
+    state = act(state, 'TICK', { now: state.timer.endsAt });
+    state = act(state, 'START_BREAK');
+    for (let i = 0; i < 4; i += 1) {
+      state = act(state, 'PAUSE', { now: NOW + i * 10 * MINUTE });
+      state = act(state, 'START', { now: NOW + (i + 1) * 10 * MINUTE });
+    }
+    expect(state.timer.pauseCount).toBe(0);
+    expect(state.timer.rewardForfeited).toBe(false);
+    expect(state.gems).toBe(25);
+  });
+});
+
+describe('single egg incubation and companion progression', () => {
+  test('one to four star rarities have increasing incubation requirements', () => {
+    expect(RARITY_STARS).toEqual({ basic: 1, everyday: 2, rare: 3, dreamy: 4 });
+    expect(EGG_MINUTES).toEqual({ basic: 25, everyday: 50, rare: 75, dreamy: 100 });
+  });
+
+  test('only the egg selected when focus starts receives credited minutes, without overflow', () => {
+    let state = act(richState(), 'BUY_EGG', { kind: 'basic' });
+    state = act(state, 'BUY_EGG', { kind: 'basic', now: NOW + 1 });
+    const [first, second] = state.eggs;
+    expect(state.selectedEggId).toBe(first.id);
+    state = act(state, 'SET_SETTINGS', { settings: { workMode: 'countup' } });
+    state = act(state, 'START');
+    state = act(state, 'SELECT_EGG', { id: second.id, now: NOW + 5 * MINUTE });
+    state = normalizeState(state, NOW + 10 * MINUTE);
+    expect(state.timer.eggId).toBe(first.id);
+    state = act(state, 'FINISH_FOCUS', { now: NOW + 60 * MINUTE });
+    expect(state.eggs.map(egg => egg.progressMinutes)).toEqual([25, 0]);
+    expect(normalizeState(state, NOW + 65 * MINUTE).eggs.map(egg => egg.progressMinutes)).toEqual([25, 0]);
+    state = act(state, 'RESET');
+    state = act(state, 'START');
+    expect(state.timer.eggId).toBe(second.id);
+    state = act(state, 'FINISH_FOCUS', { now: NOW + 10 * MINUTE });
+    expect(state.eggs.map(egg => egg.progressMinutes)).toEqual([25, 10]);
+  });
+
+  test('deselect survives reload and progress is required to hatch', () => {
+    let state = act(richState(), 'BUY_EGG', { kind: 'basic' });
+    const id = state.eggs[0].id;
+    const tooEarly = act(state, 'HATCH_EGG', { id });
+    expect(tooEarly.eggs).toBe(state.eggs);
+    expect(tooEarly.event.type).toBe('error');
+    state = act(state, 'SELECT_EGG', { id: null });
+    state = normalizeState(state, NOW);
+    expect(state.selectedEggId).toBe(null);
+    state = act(state, 'START');
+    state = act(state, 'TICK', { now: state.timer.endsAt });
+    expect(state.eggs[0].progressMinutes).toBe(0);
+  });
+
+  test('hatching the selected egg selects the next oldest egg', () => {
+    let state = act(richState(), 'BUY_EGG', { kind: 'basic' });
+    state = act(state, 'BUY_EGG', { kind: 'mystery', now: NOW + 1 });
+    state = readyEggs(state);
+    const secondId = state.eggs[1].id;
+    state = act(state, 'HATCH_EGG', { id: state.selectedEggId, roll: 0 });
+    expect(state.selectedEggId).toBe(secondId);
+  });
+
+  test('six duplicate upgrades unlock seven animations and a bounded gem bonus', () => {
+    let state = richState();
+    for (let i = 0; i < 7; i += 1) {
+      state = act(state, 'BUY_EGG', { kind: 'mystery', roll: 0 });
+      // Keep this upgrade scenario independent of mystery pity.
+      state = { ...state, pity: 0 };
+      state = readyEggs(state);
+      state = act(state, 'HATCH_EGG', { id: state.eggs[0].id, roll: 0 });
+    }
+    expect(state.animals).toHaveLength(1);
+    expect(state.animals[0].upgrades).toBe(MAX_UPGRADES);
+    expect(animationCount(state.animals[0])).toBe(7);
+    expect(gemBonus(state)).toBe(0.1);
+    expect(state.event).toEqual(expect.objectContaining({ duplicate: true, capped: true, gems: 5 }));
+    const gems = state.gems;
+    state = act(state, 'START');
+    state = act(state, 'TICK', { now: state.timer.endsAt });
+    expect(state.gems - gems).toBe(27);
+    expect(gemBonus({ animals: Array(8).fill({ upgrades: 6 }) })).toBe(0.5);
+  });
+
+  test('legacy eggs stay hatchable and duplicate residents merge without losing the first pet identity', () => {
+    const saved = createInitialState(NOW);
+    delete saved.progressionVersion;
+    saved.eggs = [{ id: 'old-egg', rarity: 'rare' }];
+    delete saved.selectedEggId;
+    saved.animals.push({ ...saved.animals[0], id: 'second-cat' }, { ...saved.animals[0], id: 'third-cat' });
+    const state = normalizeState(saved, NOW);
+    expect(state.eggs[0]).toEqual(expect.objectContaining({ progressMinutes: 75, requiredMinutes: 75 }));
+    expect(state.selectedEggId).toBe('old-egg');
+    expect(state.animals).toHaveLength(1);
+    expect(state.animals[0]).toEqual(expect.objectContaining({ id: 'starter-cat', name: 'Miso', upgrades: 2 }));
+    expect(normalizeState(state, NOW).animals[0].upgrades).toBe(2);
+  });
+
+  test('pet bonuses do not lose whole gems to floating point rounding', () => {
+    let state = createInitialState(NOW);
+    state.animals = ANIMALS.slice(0, 4).map((animal, index) => ({
+      ...state.animals[0], id: `maxed:${index}`, species: animal.id, upgrades: 6,
+    }));
+    state = act(state, 'SET_SETTINGS', { settings: { focusMinutes: 45 } });
+    state = act(state, 'START');
+    state = act(state, 'TICK', { now: state.timer.endsAt });
+    expect(state.gems).toBe(63);
+    expect(state.history[0].gems).toBe(63);
+  });
+});
+
+describe('session metadata and movable room features', () => {
+  test('multiple tasks and normalized tags persist in history and stay editable after completion', () => {
+    let state = act(createInitialState(NOW), 'SET_TASKS', { tasks: [
+      { id: 'chem', text: 'Chemistry', done: false }, { id: 'work', text: 'Email draft', done: true },
+    ] });
+    state = act(state, 'SET_TAGS', { tags: [' Chemistry ', 'chemistry', 'Deep   work', '', null] });
+    expect(state.timer.tags).toEqual(['Chemistry', 'Deep work']);
+    state = act(state, 'START');
+    state = act(state, 'TICK', { now: state.timer.endsAt });
+    expect(state.history[0].tasks).toHaveLength(2);
+    state = act(state, 'SET_TASK', { task: 'Organic chemistry' });
+    state = act(state, 'SET_TAGS', { tags: ['Studying'] });
+    state = normalizeState(state, NOW + 30 * MINUTE);
+    expect(state.history[0].tasks[0].text).toBe('Organic chemistry');
+    expect(state.history[0].tasks[1].done).toBe(true);
+    expect(state.history[0].tags).toEqual(['Studying']);
+    state = act(state, 'RESET');
+    expect(state.timer.tags).toEqual(['Studying']);
+    expect(state.timer.tasks).toHaveLength(2);
+  });
+
+  test('furniture starts in inventory and notepad and couch-height pet placement survive reload', () => {
+    let state = createInitialState(NOW);
+    expect(state.room.decorations).toHaveLength(0);
+    expect(state.owned.decorations).toEqual(expect.arrayContaining(['couch', 'rug', 'bookshelf', 'window-plants', 'table', 'side-table']));
+    state = act(state, 'PLACE_DECORATION', { item: 'couch', x: 50, y: 45 });
+    state = act(state, 'MOVE_ANIMAL', { id: 'starter-cat', x: 50, y: 37 });
+    state = act(state, 'MOVE_NOTEPAD', { x: 0.2, y: 0.6 });
+    state = normalizeState(state, NOW);
+    expect(state.room.notepadPosition).toEqual({ x: 0.2, y: 0.6 });
+    expect(state.animals[0].y).toBe(37);
+    expect(state.room.decorations[0].item).toBe('couch');
   });
 });

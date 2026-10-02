@@ -1,9 +1,14 @@
 const MINUTE = 60_000;
 export const MAX_TRACKED_MS = 24 * 60 * MINUTE;
-const RARITIES = ["everyday", "rare", "dreamy"];
+export const RARITIES = ["basic", "everyday", "rare", "dreamy"];
+export const RARITY_STARS = { basic: 1, everyday: 2, rare: 3, dreamy: 4 };
+export const EGG_MINUTES = { basic: 25, everyday: 50, rare: 75, dreamy: 100 };
+export const MAX_PAUSES = 2;
+export const PAUSE_LIMIT_MS = MINUTE;
+export const MAX_UPGRADES = 6;
 const MODES = ["focus", "break", "longBreak"];
 const MAX_MINUTES = { focus: 180, break: 60, longBreak: 120 };
-const ROOM_BOUNDS = { minX: 5, maxX: 95, minY: 48, maxY: 85 };
+const ROOM_BOUNDS = { minX: 5, maxX: 95, minY: 20, maxY: 85 };
 
 export const ANIMALS = [
   { id: "cat", name: "Cat", emoji: "🐈", color: "#e8a06b" },
@@ -43,6 +48,12 @@ export const ACCESSORIES = [
 ];
 
 export const DECORATIONS = [
+  { id: "couch", name: "Soft sofa", price: 0, emoji: "🛋️" },
+  { id: "rug", name: "Woven rug", price: 0, emoji: "🧶" },
+  { id: "bookshelf", name: "Little bookshelf", price: 0, emoji: "📚" },
+  { id: "window-plants", name: "Window garden", price: 0, emoji: "🌱" },
+  { id: "table", name: "Coffee table", price: 0, emoji: "☕" },
+  { id: "side-table", name: "Side table", price: 0, emoji: "🪑" },
   { id: "plant", name: "Leafy friend", price: 20, emoji: "🪴" },
   { id: "cushion", name: "Cozy cushion", price: 25, emoji: "🛋️" },
   { id: "books", name: "Book stack", price: 30, emoji: "📚" },
@@ -107,6 +118,37 @@ const roomX = (value, fallback = 50) =>
 const roomY = (value, fallback = 76) =>
   clamp(value, ROOM_BOUNDS.minY, ROOM_BOUNDS.maxY, fallback);
 
+const starterDecorations = () => DECORATIONS.filter((item) => item.price === 0).map((item) => item.id);
+const sanitizeTasks = (value) => {
+  if (!Array.isArray(value)) return [];
+  const ids = new Set();
+  return value.filter(isRecord).slice(0, 12).map((task, index) => {
+    let id = validId(task.id) ? task.id : `task:${index}`;
+    while (ids.has(id)) id = `${id}:${index}`;
+    ids.add(id);
+    return { id, text: cleanText(task.text, 200), done: task.done === true };
+  }).filter((task) => task.text.trim());
+};
+const sanitizeTags = (value) => {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set();
+  return value.map((tag) => cleanText(tag, 32).trim().replace(/\s+/g, " ")).filter((tag) => {
+    const key = tag.toLowerCase();
+    if (!tag || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 8);
+};
+const tasksFrom = (value, legacy = "") => Array.isArray(value) ? sanitizeTasks(value)
+  : legacy.trim() ? [{ id: "primary", text: legacy, done: false }] : [];
+export const animationCount = (animal) => 1 + integer(animal?.upgrades, 0, MAX_UPGRADES, 0);
+export const gemBonus = (state) => Math.min(0.5,
+  state.animals.filter((animal) => animal.upgrades >= MAX_UPGRADES).length * 0.1);
+export const pauseRemainingTime = (timer, now = Date.now()) =>
+  timer?.status === "paused" && timer.mode === "focus" && timer.workMode === "pomodoro" && finite(timer.pauseStartedAt)
+    ? Math.max(0, PAUSE_LIMIT_MS - Math.max(0, timeNow(now) - timer.pauseStartedAt)) : PAUSE_LIMIT_MS;
+const oldestEggId = (eggs) => [...eggs].sort((a, b) => a.createdAt - b.createdAt)[0]?.id ?? null;
+
 function settingsFrom(value, base = DEFAULT_SETTINGS) {
   const input = isRecord(value) ? value : {};
   const next = { ...base, ambient: { ...base.ambient } };
@@ -150,6 +192,13 @@ function freshTimer(mode, settings, now, previous) {
     elapsedMs: 0,
     startedAt: null,
     task: previous?.task || "",
+    tasks: previous?.tasks || [],
+    tags: previous?.tags || [],
+    pauseCount: 0,
+    pauseStartedAt: null,
+    rewardForfeited: false,
+    eggId: null,
+    gemBonus: 0,
     cycle: previous?.cycle || 0,
     id: `session:${now}:${serial + 1}`,
   };
@@ -170,6 +219,7 @@ export function createInitialState(now = Date.now()) {
   const settings = settingsFrom(DEFAULT_SETTINGS);
   return {
     schemaVersion: 1,
+    progressionVersion: 2,
     gems: 0,
     animals: [
       {
@@ -181,11 +231,13 @@ export function createInitialState(now = Date.now()) {
         x: 28,
         y: 76,
         placed: true,
+        upgrades: 0,
       },
     ],
-    room: { background: "sunroom", decorations: [] },
-    owned: { backgrounds: ["sunroom"], accessories: ["none"], decorations: [] },
+    room: { background: "sunroom", decorations: [], notepadPosition: null },
+    owned: { backgrounds: ["sunroom"], accessories: ["none"], decorations: starterDecorations() },
     eggs: [],
+    selectedEggId: null,
     settings,
     timer: freshTimer("focus", settings, timestamp),
     history: [],
@@ -246,7 +298,7 @@ export function todayStats(state, now = Date.now()) {
   return {
     sessions: sessions.length,
     minutes,
-    gems: minutes,
+    gems: sessions.reduce((sum, entry) => sum + (entry.gems ?? entry.minutes), 0),
     goal: state.settings.dailyGoal,
     progress: Math.min(1, sessions.length / state.settings.dailyGoal),
   };
@@ -258,25 +310,56 @@ function creditFocus(state, elapsed, completedAt) {
   const existing = state.history.find((entry) => entry.id === state.timer.id);
   const previousMinutes = existing?.minutes || 0;
   const addedMinutes = Math.max(0, minutes - previousMinutes);
-  if (!minutes || (!addedMinutes && existing)) return { state, addedMinutes: 0, minutes };
+  if (!minutes || (!addedMinutes && existing)) return { state, addedMinutes: 0, addedGems: 0, minutes };
+  const previousGems = existing?.gems ?? previousMinutes;
+  const earnedGems = state.timer.rewardForfeited ? 0
+    : Math.floor(minutes * (100 + Math.round((state.timer.gemBonus || 0) * 100)) / 100);
+  const addedGems = Math.max(0, earnedGems - previousGems);
   const entry = {
     id: state.timer.id,
-    task: existing?.task ?? state.timer.task.trim(),
+    task: state.timer.task.trim(),
+    tasks: sanitizeTasks(state.timer.tasks),
+    tags: sanitizeTags(state.timer.tags),
     minutes: Math.max(previousMinutes, minutes),
+    gems: state.timer.rewardForfeited ? 0 : Math.max(previousGems, earnedGems),
+    rewardForfeited: state.timer.rewardForfeited,
     completedAt,
   };
   return {
     state: {
       ...state,
-      gems: Math.min(Number.MAX_SAFE_INTEGER, state.gems + addedMinutes),
+      gems: Math.min(Number.MAX_SAFE_INTEGER, state.gems + addedGems),
+      eggs: state.eggs.map((egg) => egg.id === state.timer.eggId
+        ? { ...egg, progressMinutes: Math.min(egg.requiredMinutes, egg.progressMinutes + addedMinutes) } : egg),
       history: existing
         ? state.history.map((item) => item.id === entry.id ? entry : item)
         : [...state.history, entry],
       timer: { ...state.timer, cycle: state.timer.cycle + (existing ? 0 : 1) },
     },
     addedMinutes,
+    addedGems,
     minutes,
   };
+}
+
+function forfeitReward(state, now) {
+  if (state.timer.rewardForfeited) return state;
+  const credited = state.history.find((entry) => entry.id === state.timer.id);
+  const revoked = credited?.gems ?? credited?.minutes ?? 0;
+  return withEvent({
+    ...state,
+    gems: Math.max(0, state.gems - revoked),
+    history: state.history.map((entry) => entry.id === state.timer.id
+      ? { ...entry, gems: 0, rewardForfeited: true } : entry),
+    timer: { ...state.timer, rewardForfeited: true },
+  }, "reward-forfeited", "Pause limit exceeded · this Pomodoro's Shilligems are lost", now, { gems: -revoked });
+}
+
+function settlePause(state, now) {
+  const { timer } = state;
+  if (timer.mode !== "focus" || timer.workMode !== "pomodoro" || timer.rewardForfeited) return state;
+  return timer.pauseCount > MAX_PAUSES || (timer.status === "paused" && finite(timer.pauseStartedAt)
+    && now - timer.pauseStartedAt > PAUSE_LIMIT_MS) ? forfeitReward(state, now) : state;
 }
 
 function completeFocus(state, now) {
@@ -296,14 +379,16 @@ function completeFocus(state, now) {
     },
     state.timer.overtime ? "focus-finished" : "focus-complete",
     credited.minutes
-      ? `Focus complete · +${credited.addedMinutes} Shilligem${credited.addedMinutes === 1 ? "" : "s"}`
+      ? state.timer.rewardForfeited ? "Focus complete · Shilligems forfeited after pause limit"
+        : `Focus complete · +${credited.addedGems} Shilligem${credited.addedGems === 1 ? "" : "s"}`
       : "Session ended · under 1 min",
     now,
-    { gems: credited.addedMinutes, minutes: credited.minutes },
+    { gems: credited.addedGems, minutes: credited.minutes },
   );
 }
 
 function settleTimer(state, now, allowAutoStart = true) {
+  state = settlePause(state, now);
   const { timer, settings } = state;
   if (timer.status !== "running") return state;
   if (isCountingUp(timer)) {
@@ -316,6 +401,8 @@ function settleTimer(state, now, allowAutoStart = true) {
     const next = freshTimer("focus", settings, now, timer);
     if (allowAutoStart && settings.autoStartFocus) {
       next.status = "running";
+      next.eggId = state.selectedEggId;
+      next.gemBonus = gemBonus(state);
       if (isCountingUp(next)) next.startedAt = now;
       else next.endsAt = now + next.durationMs;
     }
@@ -336,9 +423,10 @@ function settleTimer(state, now, allowAutoStart = true) {
   const result = withEvent(
     { ...credited.state, timer: next },
     "focus-complete",
-    `Focus complete · +${credited.addedMinutes} Shilligem${credited.addedMinutes === 1 ? "" : "s"}`,
+    timer.rewardForfeited ? "Focus complete · Shilligems forfeited after pause limit"
+      : `Focus complete · +${credited.addedGems} Shilligem${credited.addedGems === 1 ? "" : "s"}`,
     now,
-    { gems: credited.addedMinutes, minutes: credited.minutes },
+    { gems: credited.addedGems, minutes: credited.minutes },
   );
   // A delayed tick/reload may cross the cap, but never creates another work session.
   return overtime && elapsedTime(next, now) >= MAX_TRACKED_MS
@@ -355,7 +443,7 @@ export function normalizeState(saved, now = Date.now()) {
   for (const [category, catalog, required] of [
     ["backgrounds", BACKGROUNDS, ["sunroom"]],
     ["accessories", ACCESSORIES, ["none"]],
-    ["decorations", DECORATIONS, []],
+    ["decorations", DECORATIONS, starterDecorations()],
   ]) {
     owned[category] = [
       ...new Set([
@@ -394,7 +482,14 @@ export function normalizeState(saved, now = Date.now()) {
       x: roomX(animal.x),
       y: roomY(animal.y),
       placed: animal.placed !== false,
+      upgrades: integer(animal.upgrades, 0, MAX_UPGRADES, 0),
     }));
+  const residents = [];
+  for (const animal of animals) {
+    const previous = residents.find((item) => item.species === animal.species && item.rarity === animal.rarity);
+    if (previous) previous.upgrades = Math.min(MAX_UPGRADES, previous.upgrades + animal.upgrades + 1);
+    else residents.push(animal);
+  }
   const roomInput = isRecord(saved.room) ? saved.room : {};
   const decorationIds = new Set();
   const decorations = (
@@ -430,7 +525,14 @@ export function normalizeState(saved, now = Date.now()) {
       eggIds.add(egg.id);
       return true;
     })
-    .map(({ id, rarity }) => ({ id, rarity }));
+    .map((egg, index) => ({
+      id: egg.id,
+      rarity: egg.rarity,
+      requiredMinutes: EGG_MINUTES[egg.rarity],
+      progressMinutes: integer(egg.progressMinutes, 0, EGG_MINUTES[egg.rarity],
+        saved.progressionVersion !== 2 ? EGG_MINUTES[egg.rarity] : 0),
+      createdAt: finite(egg.createdAt) && egg.createdAt >= 0 ? egg.createdAt : index,
+    }));
   const historyIds = new Set();
   const history = (Array.isArray(saved.history) ? saved.history : [])
     .filter((entry) => {
@@ -450,7 +552,12 @@ export function normalizeState(saved, now = Date.now()) {
     .map((entry) => ({
       id: entry.id,
       task: cleanText(entry.task, 200),
+      tasks: tasksFrom(entry.tasks, cleanText(entry.task, 200)),
+      tags: sanitizeTags(entry.tags),
       minutes: integer(entry.minutes, 1, MAX_TRACKED_MS / MINUTE, 25),
+      gems: entry.rewardForfeited === true ? 0 : integer(entry.gems, 0, Number.MAX_SAFE_INTEGER,
+        integer(entry.minutes, 1, MAX_TRACKED_MS / MINUTE, 25)),
+      rewardForfeited: entry.rewardForfeited === true,
       completedAt: entry.completedAt,
     }));
   const timerInput = isRecord(saved.timer) ? saved.timer : {};
@@ -476,6 +583,16 @@ export function normalizeState(saved, now = Date.now()) {
     timer.durationMs,
   );
   timer.task = cleanText(timerInput.task, 200);
+  timer.tasks = tasksFrom(timerInput.tasks, timer.task);
+  timer.tags = sanitizeTags(timerInput.tags);
+  timer.pauseCount = integer(timerInput.pauseCount, 0, Number.MAX_SAFE_INTEGER, 0);
+  timer.pauseStartedAt = finite(timerInput.pauseStartedAt) && timerInput.pauseStartedAt >= 0
+    ? Math.min(timestamp, timerInput.pauseStartedAt) : null;
+  timer.rewardForfeited = timerInput.rewardForfeited === true
+    || history.some((entry) => entry.id === timerInput.id && entry.rewardForfeited);
+  timer.eggId = eggs.some((egg) => egg.id === timerInput.eggId) ? timerInput.eggId
+    : saved.progressionVersion !== 2 ? oldestEggId(eggs) : null;
+  timer.gemBonus = clamp(timerInput.gemBonus, 0, 0.5, 0);
   timer.cycle = integer(timerInput.cycle, 0, Number.MAX_SAFE_INTEGER, 0);
   timer.id = validId(timerInput.id) ? timerInput.id : timer.id;
   timer.status = ["idle", "paused", "running", "complete"].includes(timerInput.status)
@@ -503,19 +620,31 @@ export function normalizeState(saved, now = Date.now()) {
     timer.remainingMs = timer.durationMs;
     timer.elapsedMs = 0;
     timer.overtime = false;
+    timer.pauseCount = 0;
+    timer.pauseStartedAt = null;
+    timer.rewardForfeited = false;
+    timer.eggId = null;
   }
+  if (timer.status === "paused" && timer.mode === "focus" && timer.workMode === "pomodoro"
+    && timer.pauseStartedAt === null) timer.pauseStartedAt = timestamp;
   let result = {
     schemaVersion: 1,
+    progressionVersion: 2,
     gems: integer(saved.gems, 0, Number.MAX_SAFE_INTEGER, 0),
-    animals: animals.length ? animals : initial.animals,
+    animals: residents.length ? residents : initial.animals,
     room: {
       background: owned.backgrounds.includes(roomInput.background)
         ? roomInput.background
         : "sunroom",
       decorations,
+      notepadPosition: isRecord(roomInput.notepadPosition)
+        ? { x: clamp(roomInput.notepadPosition.x, 0, 1, 0.8), y: clamp(roomInput.notepadPosition.y, 0, 1, 0.5) }
+        : null,
     },
     owned,
     eggs,
+    selectedEggId: saved.selectedEggId === null ? null
+      : eggs.some((egg) => egg.id === saved.selectedEggId) ? saved.selectedEggId : oldestEggId(eggs),
     settings,
     timer,
     history,
@@ -523,8 +652,7 @@ export function normalizeState(saved, now = Date.now()) {
     pity: integer(saved.pity, 0, 4, 0),
     event: null,
   };
-  if (timer.status === "running") result = settleTimer(result, timestamp, false);
-  return result;
+  return settleTimer(result, timestamp, false);
 }
 
 function randomRoll(value) {
@@ -541,9 +669,15 @@ function uniqueId(prefix, now, collection) {
 export function gameReducer(state, action) {
   if (!isRecord(action)) return state;
   const now = timeNow(action.now);
+  state = settlePause(state, now);
   switch (action.type) {
     case "START": {
       if (["running", "complete"].includes(state.timer.status)) return state;
+      state = { ...state, timer: { ...state.timer,
+        eggId: state.timer.status === "idle" ? state.selectedEggId : state.timer.eggId,
+        gemBonus: state.timer.status === "idle" ? gemBonus(state) : state.timer.gemBonus,
+        pauseStartedAt: null,
+      } };
       if (isCountingUp(state.timer)) {
         return {
           ...state,
@@ -564,8 +698,14 @@ export function gameReducer(state, action) {
     case "PAUSE": {
       if (state.timer.status !== "running") return state;
       // An explicit pause at the break deadline must never start the next work session.
-      const settled = settleTimer(state, now, false);
+      let settled = settleTimer(state, now, false);
       if (settled.timer.status !== "running" || settled.timer.mode !== state.timer.mode) return settled;
+      const limited = settled.timer.mode === "focus" && settled.timer.workMode === "pomodoro";
+      settled = { ...settled, timer: { ...settled.timer,
+        pauseCount: settled.timer.pauseCount + (limited ? 1 : 0),
+        pauseStartedAt: limited ? now : null,
+      } };
+      settled = settlePause(settled, now);
       if (isCountingUp(settled.timer)) {
         return {
           ...settled,
@@ -616,11 +756,25 @@ export function gameReducer(state, action) {
         ? completeFocus(settled, now) : settled;
       return { ...updated, timer: freshTimer(action.mode, updated.settings, now, updated.timer) };
     }
-    case "SET_TASK":
-      return {
-        ...state,
-        timer: { ...state.timer, task: cleanText(action.task, 200) },
-      };
+    case "SET_TASK": {
+      const text = cleanText(action.task, 200);
+      const tasks = [...(state.timer.tasks || [])];
+      if (tasks.length) tasks[0] = { ...tasks[0], text };
+      else if (text.trim()) tasks.push({ id: "primary", text, done: false });
+      return gameReducer(state, { type: "SET_TASKS", tasks, now });
+    }
+    case "SET_TASKS": {
+      const tasks = sanitizeTasks(action.tasks);
+      const task = tasks[0]?.text || "";
+      return { ...state, timer: { ...state.timer, tasks, task },
+        history: state.history.map((entry) => entry.id === state.timer.id
+          ? { ...entry, tasks, task: task.trim() } : entry) };
+    }
+    case "SET_TAGS": {
+      const tags = sanitizeTags(action.tags);
+      return { ...state, timer: { ...state.timer, tags },
+        history: state.history.map((entry) => entry.id === state.timer.id ? { ...entry, tags } : entry) };
+    }
     case "SET_SETTINGS": {
       const settings = settingsFrom(action.settings, state.settings);
       return {
@@ -644,6 +798,14 @@ export function gameReducer(state, action) {
     }
     case "SET_SCRATCHPAD":
       return { ...state, scratchpad: cleanText(action.text, 10_000) };
+    case "MOVE_NOTEPAD":
+      return { ...state, room: { ...state.room, notepadPosition: {
+        x: clamp(action.x, 0, 1, state.room.notepadPosition?.x ?? 0.8),
+        y: clamp(action.y, 0, 1, state.room.notepadPosition?.y ?? 0.5),
+      } } };
+    case "SELECT_EGG":
+      return action.id === null || state.eggs.some((egg) => egg.id === action.id)
+        ? { ...state, selectedEggId: action.id } : state;
     case "BUY_EGG": {
       if (!["basic", "mystery"].includes(action.kind)) return state;
       const price = action.kind === "basic" ? 25 : 60;
@@ -653,7 +815,7 @@ export function gameReducer(state, action) {
           `You need ${price - state.gems} more Shilligems for this egg.`,
           now,
         );
-      let rarity = "everyday";
+      let rarity = "basic";
       let pity = state.pity;
       if (action.kind === "mystery") {
         const roll = randomRoll(action.roll);
@@ -661,16 +823,18 @@ export function gameReducer(state, action) {
         if (pity >= 4 && rarity === "everyday") rarity = "rare";
         pity = rarity === "everyday" ? pity + 1 : 0;
       }
-      const egg = { id: uniqueId("egg", now, state.eggs), rarity };
+      const egg = { id: uniqueId("egg", now, state.eggs), rarity,
+        requiredMinutes: EGG_MINUTES[rarity], progressMinutes: 0, createdAt: now };
       return withEvent(
         {
           ...state,
           gems: state.gems - price,
           pity,
           eggs: [...state.eggs, egg],
+          selectedEggId: state.eggs.length ? state.selectedEggId : egg.id,
         },
         "egg-bought",
-        "Egg ready to hatch",
+        `Egg tucked away · ${egg.requiredMinutes} focus minutes to hatch`,
         now,
         { egg },
       );
@@ -678,6 +842,8 @@ export function gameReducer(state, action) {
     case "HATCH_EGG": {
       const egg = state.eggs.find((item) => item.id === action.id);
       if (!egg) return state;
+      if (egg.progressMinutes < egg.requiredMinutes)
+        return fail(state, `${egg.requiredMinutes - egg.progressMinutes} more focus minutes until this egg can hatch.`, now);
       const species =
         ANIMALS[
           Math.min(
@@ -685,7 +851,9 @@ export function gameReducer(state, action) {
             Math.floor(randomRoll(action.roll) * ANIMALS.length),
           )
         ];
-      const animal = {
+      const existing = state.animals.find((animal) => animal.species === species.id && animal.rarity === egg.rarity);
+      const capped = existing?.upgrades >= MAX_UPGRADES;
+      const animal = existing ? { ...existing, upgrades: Math.min(MAX_UPGRADES, (existing.upgrades || 0) + 1) } : {
         id: uniqueId("animal", now, state.animals),
         species: species.id,
         rarity: egg.rarity,
@@ -694,17 +862,23 @@ export function gameReducer(state, action) {
         x: 25 + ((state.animals.length * 17) % 55),
         y: 65 + (state.animals.length % 3) * 8,
         placed: true,
+        upgrades: 0,
       };
+      const eggs = state.eggs.filter((item) => item.id !== egg.id);
       return withEvent(
         {
           ...state,
-          animals: [...state.animals, animal],
-          eggs: state.eggs.filter((item) => item.id !== egg.id),
+          gems: Math.min(Number.MAX_SAFE_INTEGER, state.gems + (capped ? 5 : 0)),
+          animals: existing ? state.animals.map((item) => item.id === existing.id ? animal : item) : [...state.animals, animal],
+          eggs,
+          selectedEggId: state.selectedEggId === egg.id ? oldestEggId(eggs) : state.selectedEggId,
         },
         "animal-hatched",
-        `Welcome, little ${species.name.toLowerCase()}!`,
+        capped ? `${animal.name} is already maxed · +5 Shilligems`
+          : existing ? `${animal.name} grew closer · animation ${animationCount(animal)} unlocked!`
+            : `Welcome, little ${species.name.toLowerCase()}!`,
         now,
-        { animal },
+        { animal, duplicate: Boolean(existing), upgrades: animal.upgrades, capped, gems: capped ? 5 : 0 },
       );
     }
     case "BUY_ITEM": {

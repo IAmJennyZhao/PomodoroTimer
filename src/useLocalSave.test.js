@@ -180,6 +180,13 @@ test.each([
   let saved = gameReducer(createInitialState(startedAt), { type: 'SET_SETTINGS', settings: { workMode, endBehavior }, now: startedAt });
   saved = gameReducer(saved, { type: 'START', now: startedAt });
   saved = { ...gameReducer(saved, { type: 'PAUSE', now: startedAt + minutes * 60000 }), event: null };
+  // An expired Pomodoro pause forfeits its reward; the settled save remains stable.
+  saved = { ...gameReducer(saved, { type: 'TICK', now: NOW }), event: null };
+  if (workMode === 'pomodoro') {
+    expect(saved.timer.rewardForfeited).toBe(true);
+    expect(saved.gems).toBe(0);
+    expect(saved.history[0].gems).toBe(0);
+  }
   const originalTimer = saved.timer;
   global.fetch.mockResolvedValueOnce(response(envelope(saved)));
   const { result } = renderHook(useLocalSave);
