@@ -79,8 +79,8 @@ async function serveStatic(request, response, buildDir, pathname) {
 }
 
 async function createAppServer({ dataDir, buildDir = path.resolve(__dirname, '..', 'build'), dev = false, devPort = 3000 } = {}) {
-  if (dev && (!Number.isInteger(devPort) || devPort < 1024 || devPort > 65535 || devPort === 3001)) {
-    throw new Error('PORT must be an integer from 1024 to 65535, excluding 3001 (the local save service port).');
+  if (dev && (!Number.isInteger(devPort) || devPort < 1024 || devPort > 65535)) {
+    throw new Error('PORT must be an integer from 1024 to 65535.');
   }
   const store = await createStore({ dataDir });
   const server = http.createServer(async (request, response) => {

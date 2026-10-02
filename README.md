@@ -11,15 +11,17 @@ npm ci
 npm start
 ```
 
-Open **http://127.0.0.1:3000**. This command runs both the React development app and its local save service. Keep the terminal open while using the app. Both servers listen only on your computer's loopback interface.
+Open the **Pomodoro app** address printed in the terminal (normally **http://127.0.0.1:3000**). This command runs both the React development app and its local save service. If either port is busy, it automatically tries the next port until it finds an available one, with no confirmation prompt. Keep the terminal open while using the app. Both servers listen only on your computer's loopback interface.
 
-If port 3000 is already in use, choose another frontend port. For example, in PowerShell:
+To choose different starting ports, set `PORT` for the frontend and `POMODORO_API_PORT` for the save service. For example, in PowerShell:
 
 ```powershell
-$env:PORT='3002'; npm start
+$env:PORT='4000'
+$env:POMODORO_API_PORT='4001'
+npm start
 ```
 
-Then open **http://127.0.0.1:3002**. `PORT` must be an integer from 1024 to 65535, excluding 3001, which is reserved for the development save service.
+Both values must be integers from 1024 to 65535. The frontend and save service always use separate ports, and the proxy follows the selected save-service port automatically. Use the printed app address if a starting port is occupied.
 
 For a production build:
 
@@ -42,7 +44,7 @@ The app uses `state.json` with `state.backup.json` as a recovery copy. Writes re
 
 No account or cloud service is involved. Runtime saves never go into the build. Git ignores common save/export filenames as an extra precaution. You can copy the save folder to back it up while the app is closed. The default data folder is shared between development and production runs.
 
-For testing or a separate profile, set `POMODORO_DATA_DIR` to another directory **outside this repository** before launching. The service rejects repository folders, including symlink aliases into the repository. `POMODORO_API_PORT` changes the production service port; development uses the frontend `PORT` (default 3000) and save service port 3001.
+For testing or a separate profile, set `POMODORO_DATA_DIR` to another directory **outside this repository** before launching. The service rejects repository folders, including symlink aliases into the repository. `POMODORO_API_PORT` changes the production service port; development uses `PORT` (default 3000) and `POMODORO_API_PORT` (default 3001) as starting ports and advances past occupied ports.
 
 ## Focus and collection
 

@@ -150,7 +150,7 @@ test('custom frontend ports are validated and only the configured development or
   assert.equal((await put(port, state(25), 0, { Origin: 'http://localhost:3002' })).status, 200);
   assert.equal((await request(port, { headers: { Origin: 'http://localhost:3000' } })).status, 403);
   assert.match((await request(port, { route: '/' })).data.error, /127\.0\.0\.1:3002/);
-  for (const devPort of [NaN, 0, 1023, 65536, 3001, 3002.5]) {
+  for (const devPort of [NaN, 0, 1023, 65536, 3002.5]) {
     await assert.rejects(createAppServer({ dev: true, devPort }), /PORT must be an integer/);
   }
 });

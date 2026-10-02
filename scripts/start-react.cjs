@@ -8,11 +8,20 @@ function loopbackConfig(createConfig) {
   });
 }
 
-if (require.main === module) {
+function startReact({ choosePort, proxyTarget } = {}) {
   process.env.BABEL_ENV = 'development';
   process.env.NODE_ENV = 'development';
   process.env.HOST = '127.0.0.1';
   require('react-scripts/config/env');
+
+  // CRA chooses the frontend port before preparing its proxy. Start the save
+  // service in that step, then point the proxy at its actual bound port.
+  const utils = require('react-dev-utils/WebpackDevServerUtils');
+  if (choosePort) utils.choosePort = choosePort;
+  if (proxyTarget) {
+    const prepareProxy = utils.prepareProxy;
+    utils.prepareProxy = (_configuredProxy, ...args) => prepareProxy(proxyTarget(), ...args);
+  }
 
   // CRA 5.0.1 passes an undefined LAN hostname when HOST is loopback. With a
   // proxy enabled, that becomes the invalid allowedHosts: [undefined]. Adapt
@@ -24,4 +33,6 @@ if (require.main === module) {
   require('react-scripts/scripts/start');
 }
 
-module.exports = { loopbackConfig };
+module.exports = { loopbackConfig, startReact };
+
+if (require.main === module) require('./dev.cjs').main();
