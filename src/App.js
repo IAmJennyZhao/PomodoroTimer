@@ -192,6 +192,8 @@ export default function App() {
       setFocusView(false);
       setPanel(null);
       if (state.settings.soundEnabled) engine.current?.chime();
+    } else if (event.type === "egg-bought") {
+      setToast("Egg added");
     } else {
       setToast(event.message);
       if (event.type === "break-complete" && state.settings.soundEnabled)

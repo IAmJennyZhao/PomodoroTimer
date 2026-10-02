@@ -1,5 +1,20 @@
 # Implementation verification
 
+## Candy-Pastel Atelier visual update
+
+The selected 04 mockup is now implemented with newly generated raster artwork in `public/art/atelier/`. Exact prompts are saved in `docs/atelier-art-prompts.json`. Earlier visual checks below describe previous versions.
+
+Verified with an isolated temporary profile on ports 3030/3031. Personal saves were not used or modified during QA.
+
+- Cream rectangular timer, real pencil/pastel card and button textures, flat cream navigation, right window with gingham curtain, movable pistachio couch and a labeled upper-right Daily goal note.
+- Strawberry gumball machine and Basic pedestal with interactive HTML prices and stars; small selectable nest with patterned eggs and paper cups. Odds, rarity tiers and hatch rules are behind info controls.
+- A real one-minute pause showed a changing pause clock, then a single **Pause ended / Session gems lost** alert. Resume received focus, navigation returned, and the frozen focus clock was replaced. Resume continued the remaining focus time.
+- Purchases, nest selection, multiple-task editing, tags and notepad movement were exercised in Chrome. The temporary wallet changed from 240 to 180 after a mystery purchase, with a fourth egg added and the previous selection preserved.
+- Tests cover the one-time arrangement migration and preservation of custom or deliberately cleared rooms, plus accessible countdown/alert states and reduced shop copy.
+- Desktop (1862×894 CSS pixels), mobile (355×767) and narrow mobile (320×640) were visually inspected. The 320px timer fits between x19 and x301 with no horizontal page overflow. The short shop viewport scrolls vertically, and its nest scrolls horizontally for additional eggs. Moon and garden themes, saved notes/position after reload, and keyboard pet movement from y68% to y63% were also verified. Temporary viewport overrides were reset afterward.
+
+Automated checks: **190 tests across 11 React/domain/UI suites**, **17 server/startup checks**, and a successful production build with CI warnings treated as errors. A stale ESLint cache from an earlier edit was removed; uncached lint and the build pass. The existing Browserslist-data notice remains informational.
+
 ## October 2 feature update
 
 Verified against an isolated temporary profile on ports 3020/3021. No personal save data was used or changed.

@@ -1,6 +1,28 @@
 # Little Room artwork
 
-The five raster assets in `public/art/` were generated for this app during the implementation session using the built-in ImageGen tool. These are new app assets, guided by a soft pastel illustration direction: cream paper, lavender shadows, coral pink, buttery yellow, botanical details, and visible pencil-like texture.
+The active artwork lives in `public/art/atelier/`, regenerated using the built-in `image_gen` tool to match the selected **04 Candy-Pastel Atelier** mockup. The medium is oil pastel and colored pencil on cream cotton paper: broken pigment, imperfect sketch edges, strawberry pink, pistachio green and faded cornflower blue. All labels and controls are real HTML, separate from the artwork.
+
+The exact production prompts are saved in [atelier-art-prompts.json](atelier-art-prompts.json). The furniture prompt includes its final gutter correction. Original generated files remain in the image-generation folder; the app consumes copies committed inside this repository.
+
+| Active asset | Use |
+| --- | --- |
+| `room-sunroom.png` | Bare apricot wall, warm wooden floor, right window and strawberry gingham curtain. |
+| `room-moonroom.png` | The same shell in lavender evening colors. |
+| `room-greenhouse.png` | The same shell in sage and cream garden colors. |
+| `shop-backdrop.png` | Illustrated shop wall, counter, window, daisies and peripheral leaves. |
+| `furniture-sheet.png` | Nine transparent movable decorations: couch, rug, bookshelf, window plants, table, side table, plant, cushion, books. |
+| `animals-sheet.png` | Six transparent companions, in cat / dog / squirrel / rabbit / fox / deer order. |
+| `eggs-sheet.png` | Four transparent patterned eggs: Basic daisies, Everyday hearts, Rare leaves, Dreamy stars. |
+| `gumball-machine.png` | Strawberry machine with an empty plaque for interactive HTML controls. |
+| `interface-sheet.png` | Transparent timer paper, strawberry button swatch, pedestal, egg cup, Daily goal note and accessories. |
+
+`RoomBackdrop` renders the room PNG. `ArtFragment` uses SVG viewports solely to display selected PNG regions; it does not redraw or replace the illustrations. Furniture remains separate and movable. New rooms receive a removable Atelier furniture arrangement; only untouched legacy starter rooms receive it during migration. Custom arrangements and already-cleared rooms are preserved.
+
+Pet upgrades retain their gentle animations; reduced-motion preferences disable movement. `public/favicon.svg` and the small control icons remain code-drawn for clarity.
+
+## Earlier artwork archive
+
+The five older raster assets in `public/art/` are retained as source references, but are no longer used by the app. The following briefs document their earlier generation.
 
 The descriptions below summarize the generation briefs. They are not exact prompt transcripts. They contain no personal tasks, saved progress, or other private user data.
 
@@ -12,11 +34,6 @@ The descriptions below summarize the generation briefs. They are not exact promp
 | `animals-sheet.png` | Transparent 3 × 2 sheet of six individual companions, ordered left to right, top to bottom: cat, dog, squirrel, rabbit, fox, deer. Soft illustrated forms, gentle expressions and pastel pencil texture. |
 | `objects-sheet.png` | Transparent 3 × 2 sheet of collection and room objects, ordered left to right, top to bottom: everyday egg, rare egg, dreamy egg, leafy plant, cushion, book stack. Colors and texture match the animal companions and rooms. |
 
-The app now uses a code-drawn SVG room shell in `src/RoomBackdrop.js`: warm plaster, subtle paper texture, pastel flooring and a right-hand arched window. Movable furniture is drawn separately so the couch, rug, shelves, plants and tables can be placed or removed. The original room paintings are retained as source references. No raster images were regenerated for this change.
-
-Companions and eggs keep their original transparent-sheet artwork. Pet upgrades unlock additional gentle interface animations rather than replacing the animal illustrations. Reduced-motion preferences disable this movement.
-
-`public/favicon.svg` is an original, code-drawn botanical icon using the same cream, sage, lavender and coral palette. It is not generated raster artwork.
 
 ## Generation prompt set
 
