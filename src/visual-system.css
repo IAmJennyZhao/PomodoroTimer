@@ -10,7 +10,8 @@
   --coral: #b95146;
   --coral-hover: #a9453c;
   --sage: #e0e6cc;
-  --sage-strong: #657e52;
+  --sage-strong: #5a7248;
+  --progress-track: #dedcc5;
   --gem-blue: #4d819e;
   --danger: #a34e40;
   --shadow: 2px 5px 16px #5845261c;
@@ -31,6 +32,7 @@ body { color: var(--ink); background: var(--paper-shade); font-family: var(--fon
 .app :is(.session-editor-tools, .session-task-row.done .session-task-text, .session-task-text::placeholder) { color: var(--muted); }
 .app :is(.timer-phase, .clock-caption, .elapsed-total, .work-mode-tabs button) { font-size: 12px; }
 .app :is(.field-label, .toggle-line, .range-field > span) { font-size: 14px; }
+.app :is(.save-info p, .session-editor-tools > span, .session-tag, .number-field > span:last-child, .session-duration-grid .number-field) { color: var(--muted); font-size: 12px; }
 
 /* The same lightly grained stationery under every shared surface. */
 .paper, .info-content {
@@ -85,17 +87,20 @@ body { color: var(--ink); background: var(--paper-shade); font-family: var(--fon
 /* Existing painted timer and daily note retain their artwork. */
 .timer-card.paper, .focus-view .timer-card.paper, .daily-pill.paper { background: none; border: 0; box-shadow: none; }
 .workspace-shop.paper { background: none; border: 0; box-shadow: none; }
+.loading-screen { background: var(--paper-shade); backdrop-filter: none; }
+.loading-card > svg { color: var(--sage-strong); }
 
 /* One readable pencil icon family, including icons in portaled help. */
 .atelier-icon { flex-shrink: 0; vertical-align: middle; }
 .icon-pencil-echo { opacity: .2; stroke-width: 1; }
 .app :is(.timer-tools .icon-button, .reset-button, .session-settings-button, .session-edit-button, .notepad-drag-handle > svg), .info-button { color: var(--ink); opacity: 1; }
+.app :is(.skip-button, .resident-label, .session-task-summary) { color: var(--ink); }
 .gem-pill > svg, .wallet-line > svg { color: var(--gem-blue); fill: #bed8e6; }
 .sound-bars i { background: var(--sage-strong); }
 .toast > svg { color: var(--sage-strong); }
 
 /* Pigment on primary actions, cream/sage on secondary actions. */
-.app :is(.primary-button:not(.start-button), .secondary-button, .small-button, .pastel-purchase) {
+.app :is(.primary-button:not(:where(.start-button)), .secondary-button, .small-button, .pastel-purchase) {
   background-image: var(--paper-grain);
   border: 1px solid var(--line);
   border-radius: var(--control-radius);
@@ -113,16 +118,25 @@ body { color: var(--ink); background: var(--paper-shade); font-family: var(--fon
 .app :is(.primary-button:not(.start-button), .secondary-button, .small-button):disabled { background-color: #ece4d4; color: #72705d !important; border-color: #cfc3aa; opacity: 1; box-shadow: none; filter: none; transform: none; }
 .app .start-button { font-family: var(--font-ui); font-weight: 400; }
 .app .pastel-button-art { filter: brightness(.83) saturate(.9); }
-.app .pastel-purchase { background: none; border: 0; box-shadow: none; }
+.app .pastel-purchase { background: none; border: 0; box-shadow: none; font-size: 18px; }
+.app :is(.pastel-purchase, .start-button):disabled { opacity: 1; color: var(--muted) !important; filter: none; transform: none; }
+.app :is(.pastel-purchase, .start-button):disabled .pastel-button-art { filter: grayscale(.9) opacity(.15); }
+.app .pastel-purchase:disabled svg:not(.pastel-cutout) { color: var(--muted); fill: none; }
 .app :is(.text-button, .journal-text-button, .furniture-buy, .session-editor-tools button) { color: var(--sage-strong); text-underline-offset: 3px; }
 .app :is(.text-button, .journal-text-button, .furniture-buy, .session-editor-tools button):hover:enabled { color: var(--ink); text-decoration: underline; }
 .app :is(.text-button, .furniture-buy, .session-editor-tools button):disabled { color: var(--muted); opacity: .75; }
-.app :is(.icon-button, .session-settings-button, .info-button, .session-edit-button), .info-button {
+.app :is(.icon-button, .session-settings-button, .info-button, .session-edit-button, .session-remove-button, .session-tag button, .session-add-field button), .info-button {
   border-radius: var(--control-radius);
   transition: background-color .15s;
 }
-.app :is(.icon-button, .session-settings-button, .session-edit-button):hover:enabled,
+.app :is(.icon-button, .session-settings-button, .session-edit-button, .session-remove-button, .session-tag button, .session-add-field button, .sound-pill):hover:enabled,
 .info-button:hover, .info-button[aria-expanded="true"], .session-settings-button[aria-expanded="true"] { background-color: var(--sage); }
+.app :is(.icon-button, .info-button, .session-settings-button, .session-edit-button, .session-remove-button, .session-tag button, .session-add-field button, .sound-pill):active:enabled { background-color: #cbd8b6; box-shadow: inset 0 1px 2px #47382124; }
+.app :is(.text-button, .journal-text-button, .furniture-buy, .session-editor-tools button):active:enabled { color: var(--ink); background-color: var(--sage); }
+.app :is(.start-button, .pastel-purchase):active:enabled { filter: brightness(.9); }
+.app :is(.session-remove-button, .session-tag button, .session-add-field button) { color: var(--ink); }
+.app .session-add-field button { background-color: var(--sage); }
+.app .session-add-field button:disabled { background-color: var(--paper-shade); color: var(--muted); opacity: 1; }
 .app :is(.header-notes, .settings-button.paper, .gem-pill) { background-image: none; box-shadow: none; }
 .app-header .top-nav.paper { background: none; border: 0; box-shadow: none; }
 .app :is(.sound-pill, .widget-move-handle, .selection-close) { background-color: var(--paper); background-image: var(--paper-grain); border-color: var(--line); color: var(--ink); }
@@ -137,17 +151,19 @@ body { color: var(--ink); background: var(--paper-shade); font-family: var(--fon
   color: var(--ink);
   font-size: 14px;
   font-weight: 400;
+  white-space: nowrap;
   box-shadow: none;
 }
 .app :is(.segmented button.selected, .segmented button.active, .journal-choices button.selected, .journal-overview-toolbar .journal-choices button.selected) { background-color: var(--sage); border-color: var(--sage-strong); box-shadow: inset 0 -2px #879d6838; }
 .app :is(.segmented button, .journal-choices button):hover:enabled { background-color: var(--sage); }
+.app :is(.segmented button, .journal-choices button):active:enabled { box-shadow: inset 0 2px 3px #47382124; }
 .app .work-mode-tabs button { padding: 5px 0; color: var(--muted); background: none; }
 .app .work-mode-tabs button.active { color: var(--ink); text-decoration: underline; text-decoration-color: var(--coral); text-underline-offset: 4px; text-decoration-thickness: 2px; }
 .app .top-nav button.active::after { background-color: var(--coral); }
 .app .top-nav button:hover { background-color: #e0e6cc80; }
 
 /* Native input semantics with illustrated appearance; keyboard behavior is unchanged. */
-.app :is(.field-label select, .field-label input, .number-field input, .app textarea) { background-color: var(--paper); color: var(--ink); border-color: var(--line); border-radius: var(--control-radius); }
+.app :is(.field-label select, .field-label input, .number-field input, textarea) { background-color: var(--paper); color: var(--ink); border-color: var(--line); border-radius: var(--control-radius); }
 .app :is(.field-label select, .number-field input) { background-image: var(--paper-grain); }
 .app :is(input, textarea)::placeholder { color: var(--muted); opacity: 1; }
 .app :is(.session-task-row, .session-add-field) { background: var(--paper); border-color: var(--line); border-radius: var(--control-radius); }
@@ -181,13 +197,21 @@ body { color: var(--ink); background: var(--paper-shade); font-family: var(--fon
 }
 .app .toggle-line input[type="checkbox"]:checked { border-color: var(--sage-strong); background-color: var(--sage-strong); background-position: calc(100% - 1px) center; }
 .app .range-field input[type="range"] { appearance: none; height: 24px; margin: 8px 0; background: transparent; cursor: pointer; }
-.app .range-field input[type="range"]::-webkit-slider-runnable-track { height: 7px; background: linear-gradient(to right, var(--sage-strong) var(--range-progress), #dedcc5 var(--range-progress)); border: 1px solid #aeb397; border-radius: 6px 5px 6px 4px; }
+.app .range-field input[type="range"]::-webkit-slider-runnable-track { height: 7px; background: linear-gradient(to right, var(--sage-strong) var(--range-progress), var(--progress-track) var(--range-progress)); border: 1px solid #aeb397; border-radius: 6px 5px 6px 4px; }
 .app .range-field input[type="range"]::-webkit-slider-thumb { appearance: none; width: 19px; height: 19px; margin-top: -7px; border: 1px solid #9f9f7e; border-radius: 50%; background: var(--paper); box-shadow: 1px 2px 3px #574a2726; }
-.app .range-field input[type="range"]::-moz-range-track { height: 6px; background: #dedcc5; border: 1px solid #aeb397; border-radius: 6px; }
+.app .range-field input[type="range"]::-moz-range-track { height: 6px; background: var(--progress-track); border: 1px solid #aeb397; border-radius: 6px; }
 .app .range-field input[type="range"]::-moz-range-progress { height: 6px; background: var(--sage-strong); border-radius: 6px; }
 .app .range-field input[type="range"]::-moz-range-thumb { width: 17px; height: 17px; border: 1px solid #9f9f7e; border-radius: 50%; background: var(--paper); }
 .range-field output { color: var(--muted); font-variant-numeric: tabular-nums; }
 .app :is(.session-tag, .journal-session-tags > span, .wallet-line) { background: var(--sage); color: var(--ink); border-radius: var(--control-radius); }
+.app :is(.journal-goal progress, .nest-progress) { background: var(--progress-track); accent-color: var(--sage-strong); }
+.app :is(.journal-goal progress, .nest-progress)::-webkit-progress-bar { background: var(--progress-track); }
+.app :is(.journal-goal progress, .journal-goal.complete progress, .nest-progress)::-webkit-progress-value { background: var(--sage-strong); }
+.app :is(.journal-goal progress, .journal-goal.complete progress, .nest-progress)::-moz-progress-bar { background: var(--sage-strong); }
+.app .journal-goal-count span { color: var(--muted); }
+.app .journal-session-icon { color: var(--sage-strong); background: var(--sage); }
+.app .journal-tag-meter { background: var(--progress-track); }
+.app .journal-tag-meter > span { background: var(--sage-strong); }
 
 /* Focus is visible on paper and pigment; disabled controls remain legible. */
 :is(button, input, textarea, select, summary, a):focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
@@ -207,7 +231,14 @@ body { color: var(--ink); background: var(--paper-shade); font-family: var(--fon
 @media (max-width: 600px) {
   .app :is(.segmented button, .journal-choices button, .journal-overview-toolbar .journal-choices button) { font-size: 12px; }
   .app :is(.small-button, .secondary-button, .primary-button:not(.start-button)) { font-size: 12px; }
+  .app .pastel-purchase { font-size: 13px; }
   .app :is(.furniture-stock, .library-item small, .timer-options, .session-reward) { font-size: 11px; }
+}
+@media (max-width: 700px) {
+  .app .arrange-toolbar .field-label { font-size: 0; }
+}
+@media (max-width: 360px) {
+  .app .arrange-toolbar { gap: 5px 3px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .app :is(button, input, select) { transition: none; }

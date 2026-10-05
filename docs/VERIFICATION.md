@@ -1,5 +1,18 @@
 # Implementation verification
 
+## Phase 1: Shared visual system
+
+Verified in Chrome against an isolated temporary save folder on ports 4173/4174. The visual direction follows the cream paper, colored pencil, coral and pistachio materials in `output/mockups/cohesive-atelier-v2/`.
+
+- Shared tokens and reusable SVG grain/frame assets now style panels, cards, controls and portaled help. Paper panels use coral pencil edges and restrained tape accents; existing painted timer and shop artwork retain their own surfaces.
+- Georgia typography and olive text are consistent across navigation, panels, task editing and controls. Small metadata is more legible, and the shared SVG icons have a subtle pencil echo without adding accessibility-tree entries.
+- Primary, secondary, text and icon buttons share hover, pressed, disabled and keyboard-focus treatments. Painted purchase buttons retain their intended sizes and artwork; disabled prices use readable text rather than fading the entire control.
+- Navigation, work modes, decorating categories and journal tabs use the same coral/pistachio selection vocabulary. Journal period selection was exercised in the browser.
+- Native checkbox, radio and range inputs retain keyboard behavior. Space changed a settings toggle and a completion radio; ArrowRight changed Rain from 30% to 31%, updating both its value and the styled fill. Keyboard focus was visible. Temporary preferences were tested only in the isolated profile.
+- Desktop (1862 x 894 CSS pixels), narrow mobile (320 x 640) and tablet (769 x 800) were visually checked. Mobile settings, scratchpad, collection, decorating, arrangement and journal fit without horizontal page overflow. The selected arrangement toolbar fits on one row; its library scrolls independently. Viewport overrides were reset after QA.
+
+Checks: **195 passing tests in 11 suites**, successful production build with CI warnings treated as errors, and clean diff checks. This pass changes shared presentation and control styling; page-specific redesigns remain separate phases.
+
 ## Room controls and UI consistency
 
 Verified in Chrome against an isolated temporary profile on ports 3040/3041. Browser checks used a real one-minute pause and disposable test currency; personal saves were not used for QA.
