@@ -1,5 +1,17 @@
 # Implementation verification
 
+## Phase 3: Room arrangement
+
+Verified in Chrome against the isolated temporary save folder on ports 4173/4174, following `output/mockups/cohesive-atelier-v2/05-arrange.png`.
+
+- The bottom paper workbench combines selection, four arrow nudges, Remove and Done with a horizontal illustrated library. Previous/Next browse controls respond to scroll boundaries; selecting an item brings its tile into view. Instructions are behind an info button. The Furniture shop shortcut opens the furniture catalogue even after entering from Accessories.
+- Placed furniture stays selectable from its library tile. Repeated clicks cycle its copies, while a separate plus button adds an available copy. A second isolated cushion purchase reduced gems from 275 to 250; adding consumed its stock, cycling selected each of two copies without adding another, and Remove returned a copy to stock. Adding that copy again left two cushions placed and no remaining Add action.
+- Selected furniture has a coral dashed outline, a sage library tile and a 32px X. X clears selection and returns focus to the object without removing it. A temporary arrangement zoom keeps existing artwork above the tray; the normal room retains its saved coordinates and original art proportions. A native phone drag moved the sofa with the pointer, and Shift-arrow movement saved its new position. Regression tests cover the grab offset through the zoom.
+- Timer and Daily goal have small centered move handles, library entries and the same outline/X controls. Native phone drags, arrow keys and toolbar nudges moved them; the goal stopped 12px above the tray. Both widget positions and the sofa position survived reload. Widget Remove stays disabled. The phone timer uses a compact editing preview; Done restores the normal timer controls.
+- Desktop (1862 x 894 CSS pixels), tablet (769 x 800), and narrow mobile (320 x 640) were visually inspected. The tablet toolbar fits on one row. The phone workbench fits the page width, its library scrolls independently, and browse targets measure 28 x 100px. Desktop browsing controls disable when the entire library fits. Temporary viewport overrides were reset.
+
+Checks: **200 passing tests in 11 suites**, successful production build with CI warnings treated as errors, and clean diff checks. Stable checkpoints cover the library/controls and final responsive movement refinements. Personal saves were not used for QA.
+
 ## Phase 2: Main panels
 
 Verified in Chrome against an isolated temporary save folder on ports 4173/4174, following the Pets album, Decorate catalogue, and Journal notebook mockups in `output/mockups/cohesive-atelier-v2/`.
