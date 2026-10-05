@@ -470,6 +470,7 @@ test('arranging exposes a room library, deselects furniture, and saves widget po
   expect(screen.getByRole('button', { name: 'Position Soft sofa' })).toHaveAttribute('aria-pressed', 'false');
   const rect = jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function () {
     return this.classList.contains('app') ? { left: 0, top: 0, width: 1200, height: 800 }
+      : this.classList.contains('workspace-decorate') ? { left: 0, top: 620, width: 1200, height: 180 }
       : { left: 200, top: 150, width: 300, height: 250 };
   });
   fireEvent.keyDown(screen.getByRole('button', { name: 'Move timer' }), { key: 'ArrowRight' });
@@ -483,6 +484,37 @@ test('arranging exposes a room library, deselects furniture, and saves widget po
   fireEvent.click(screen.getByRole('button', { name: 'Close panel' }));
   expect(screen.queryByRole('region', { name: 'Room library' })).not.toBeInTheDocument();
   rect.mockRestore();
+});
+
+test('furniture dragging preserves its grab offset through the temporary arrangement zoom', async () => {
+  const saved = createInitialState(NOW);
+  saved.room.decorations = [{ id: 'zoom-sofa', item: 'couch', x: 50, y: 50 }];
+  saved.animals[0].placed = false;
+  jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function () {
+    if (this.classList.contains('workspace-decorate')) return { left: 0, top: 400, width: 1200, height: 400 };
+    if (['app', 'room-scene', 'room-objects'].some(name => this.classList.contains(name))) return { left: 0, top: 0, width: 1200, height: 800 };
+    return { left: 100, top: 150, width: 300, height: 250 };
+  });
+  jest.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function () { return this.classList.contains('room-resident') ? 300 : 0; });
+  jest.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(function () { return this.classList.contains('room-resident') ? 400 : 0; });
+  const { container } = await openRoom(saved);
+  fireEvent.click(screen.getByRole('button', { name: 'Decorate' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));
+  const scale = Number(container.querySelector('.room-objects').style.getPropertyValue('--room-edit-scale'));
+  expect(scale).toBeGreaterThan(0);
+  expect(scale).toBeLessThan(1);
+  const originalPointerEvent = window.PointerEvent;
+  window.PointerEvent = MouseEvent;
+  const sofa = screen.getByRole('button', { name: 'Position Soft sofa' });
+  fireEvent.pointerDown(sofa, { button: 0, clientX: 500, clientY: 400 });
+  expect(sofa).toHaveFocus();
+  fireEvent.pointerMove(sofa, { clientX: 560, clientY: 440 });
+  fireEvent.pointerUp(sofa);
+  await advance(1000);
+  const position = latestWrite().state.room.decorations[0];
+  expect(position.x).toBeCloseTo(50 + 60 / (1200 * scale) * 100);
+  expect(position.y).toBeCloseTo(50 + 40 / (800 * scale) * 100);
+  window.PointerEvent = originalPointerEvent;
 });
 
 test('an expired pause raises one concise alert, chimes, and resumes the remaining focus time', async () => {

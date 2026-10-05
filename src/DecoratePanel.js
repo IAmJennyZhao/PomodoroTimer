@@ -17,7 +17,7 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
       act({ type: "PLACE_DECORATION", item: item.id, ...(ATELIER_PLACEMENTS[item.id] || { x: 35, y: 72 }) });
     }
   }
-  if (arranging) return <ArrangePanel state={state} act={act} setArranging={setArranging} selection={selection} setSelection={setSelection} onNudgeWidget={onNudgeWidget} />;
+  if (arranging) return <ArrangePanel state={state} act={act} setArranging={setArranging} selection={selection} setSelection={setSelection} onNudgeWidget={onNudgeWidget} onOpenShop={() => { setCategory("decorations"); setSelection(null); setArranging(false); }} />;
   return <div className={`decoration-catalog catalogue-${category}`}>
       <div className="panel-toolbar catalog-toolbar">
         <div className="segmented" role="group" aria-label="Decoration categories">

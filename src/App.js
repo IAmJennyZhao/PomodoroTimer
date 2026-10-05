@@ -27,6 +27,7 @@ import {
 import TimerCard, { QuickScratchpad } from "./TimerCard";
 import RoomBackdrop from "./RoomBackdrop";
 import RoomWidget from "./RoomWidget";
+import RoomObjects from "./RoomObjects";
 import DecoratePanel from "./DecoratePanel";
 import {
   AnimalsPanel,
@@ -263,6 +264,7 @@ export default function App() {
       return;
     }
     event.preventDefault();
+    event.currentTarget.focus();
     event.currentTarget.setPointerCapture?.(event.pointerId);
     setSelection({ type, id: item.id });
     setDrag({ type, id: item.id, x: item.x, y: item.y, originX: item.x, originY: item.y, pointerX: event.clientX, pointerY: event.clientY });
@@ -270,15 +272,16 @@ export default function App() {
   const moveDrag = (event) => {
     if (!drag || !sceneRef.current) return;
     const bounds = sceneRef.current.getBoundingClientRect();
+    const scale = Number(sceneRef.current.style.getPropertyValue("--room-edit-scale")) || 1;
     setDrag((previous) => ({
       ...previous,
       x: Math.max(
         5,
-        Math.min(95, previous.originX + ((event.clientX - previous.pointerX) / bounds.width) * 100),
+        Math.min(95, previous.originX + ((event.clientX - previous.pointerX) / bounds.width / scale) * 100),
       ),
       y: Math.max(
         20,
-        Math.min(85, previous.originY + ((event.clientY - previous.pointerY) / bounds.height) * 100),
+        Math.min(85, previous.originY + ((event.clientY - previous.pointerY) / bounds.height / scale) * 100),
       ),
     }));
   };
@@ -294,7 +297,8 @@ export default function App() {
     }
   };
   const renderResident = (item, type) => {
-    const position = drag?.id === item.id ? drag : item;
+    const position = drag?.type === type && drag.id === item.id ? drag : item;
+    const chosen = arranging && selection?.type === type && selection.id === item.id;
     const name =
       type === "animal"
         ? item.name
@@ -302,15 +306,17 @@ export default function App() {
     return (
       <div
         key={item.id}
-        className={`room-resident ${type} ${type === "decoration" ? `decoration-${item.item}` : ""} ${arranging ? "draggable" : ""} ${selection?.id === item.id && arranging ? "chosen" : ""}`}
+        className={`room-resident ${type} ${type === "decoration" ? `decoration-${item.item}` : ""} ${arranging ? "draggable" : ""} ${chosen ? "chosen" : ""}`}
         style={{
-          left: `${position.x}%`,
-          top: `${position.y}%`,
-          zIndex: arranging && selection?.id === item.id ? 250 : item.item === "rug" ? 1 : (type === "animal" ? 160 : 2) + Math.round(position.y),
+          left: arranging ? "calc(50% + (var(--room-x) - 50) * var(--room-edit-scale, 1) * 1%)" : `${position.x}%`,
+          top: arranging ? "calc(var(--room-y) * var(--room-edit-scale, 1) * 1%)" : `${position.y}%`,
+          "--room-x": position.x,
+          "--room-y": position.y,
+          zIndex: chosen ? 250 : item.item === "rug" ? 1 : (type === "animal" ? 160 : 2) + Math.round(position.y),
           "--delay": `${-(state.animals.findIndex((animal) => animal.id === item.id) * 1.37)}s`,
         }}
       >
-      <button className="resident-hitbox" aria-pressed={arranging ? selection?.id === item.id : undefined}
+      <button className="resident-hitbox" aria-pressed={arranging ? chosen : undefined}
         aria-label={
           arranging
             ? `Position ${name}`
@@ -349,7 +355,7 @@ export default function App() {
         )}
         <span className="resident-label">{name}</span>
       </button>
-      {arranging && selection?.id === item.id && <button className="selection-close" aria-label={`Deselect ${name}`} onClick={() => setSelection(null)}><Icon name="close" size={16} /></button>}
+      {chosen && <button className="selection-close" aria-label={`Deselect ${name}`} onClick={event => { event.currentTarget.parentElement.querySelector(".resident-hitbox").focus(); setSelection(null); }}><Icon name="close" size={16} /></button>}
       </div>
     );
   };
@@ -360,18 +366,19 @@ export default function App() {
       <div
         className="room-scene"
         inert={(panel && !arranging) || focusView ? "" : undefined}
-        ref={sceneRef}
         aria-label={
           BACKGROUNDS.find((item) => item.id === state.room.background)?.name
         }
       >
         <RoomBackdrop theme={state.room.background} />
+        <RoomObjects ref={sceneRef} arranging={arranging}>
         {state.room.decorations.map((item) =>
           renderResident(item, "decoration"),
         )}
         {state.animals
           .filter((item) => item.placed)
           .map((item) => renderResident(item, "animal"))}
+        </RoomObjects>
       </div>
       <div className="room-vignette" />
       <header className="app-header" hidden={focusView}>

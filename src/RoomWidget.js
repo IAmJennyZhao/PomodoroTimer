@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
+import { forwardRef, useCallback, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
 import { Icon } from "./ui";
 
 // Saved positions use the top-left corner, relative to the room. Clamp the
@@ -8,30 +8,32 @@ const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, c
   const pointer = useRef(null);
   const [draft, setDraft] = useState(null);
   const [location, setLocation] = useState(null);
+  const clampLocation = useCallback((left, top, room, bounds) => {
+    const dock = arranging ? ref.current.parentElement.querySelector(".workspace-decorate")?.getBoundingClientRect() : null;
+    const minTop = (window.innerWidth <= 600 ? 104 : 74) + (arranging ? 36 : 0);
+    const bottom = dock ? dock.top - room.top - 12 : room.height - 12;
+    return { left: Math.max(12, Math.min(room.width - bounds.width - 12, left)),
+      top: Math.max(minTop, Math.min(bottom - bounds.height, top)) };
+  }, [arranging]);
   useLayoutEffect(() => {
     const place = () => {
       if (!position || !ref.current) { setLocation(null); return; }
       const room = ref.current.parentElement.getBoundingClientRect();
       const bounds = ref.current.getBoundingClientRect();
-      const minTop = (window.innerWidth <= 600 ? 104 : 74) + (arranging ? 30 : 0);
-      setLocation({
-        left: Math.max(12, Math.min(room.width - bounds.width - 12, room.width * position.x / 100)),
-        top: Math.max(minTop, Math.min(room.height - bounds.height - 12, room.height * position.y / 100)),
-      });
+      setLocation(clampLocation(room.width * position.x / 100, room.height * position.y / 100, room, bounds));
     };
     place();
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(place) : null;
     if (ref.current) observer?.observe(ref.current);
+    const dock = ref.current?.parentElement.querySelector(".workspace-decorate");
+    if (arranging && dock) observer?.observe(dock);
     window.addEventListener("resize", place);
     return () => { observer?.disconnect(); window.removeEventListener("resize", place); };
-  }, [position, hidden, arranging]);
+  }, [position, hidden, arranging, clampLocation]);
   function move(left, top) {
     const room = ref.current.parentElement.getBoundingClientRect();
     const bounds = ref.current.getBoundingClientRect();
-    const next = {
-      left: Math.max(12, Math.min(room.width - bounds.width - 12, left)),
-      top: Math.max((window.innerWidth <= 600 ? 104 : 74) + (arranging ? 30 : 0), Math.min(room.height - bounds.height - 12, top)),
-    };
+    const next = clampLocation(left, top, room, bounds);
     setDraft(next);
     return { x: next.left / room.width * 100, y: next.top / room.height * 100 };
   }
@@ -48,6 +50,7 @@ const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, c
   useImperativeHandle(controlRef, () => ({ nudge }));
   return <Tag ref={ref} className={`${className} room-widget ${arranging ? "arrange-widget" : ""} ${selected ? "chosen" : ""}`} hidden={hidden}
     style={rendered ? { left: rendered.left, top: rendered.top, right: "auto", transform: "none" } : undefined}>
+    {arranging && id === "timer" && <span className="widget-preview-name" aria-hidden="true">Timer</span>}
     <div className="widget-content" inert={arranging ? "" : undefined}>{children}</div>
     {arranging && <>
       <span className="visually-hidden" id={`${id}-move-help`}>Drag to move. Arrow keys nudge; Shift moves farther.</span>
@@ -78,7 +81,7 @@ const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, c
           event.preventDefault();
           nudge(event.key.replace("Arrow", "").toLowerCase(), event.shiftKey);
         }}><Icon name="move" size={20} /></button>
-      {selected && <button className="selection-close" aria-label={`Deselect ${name}`} onClick={onDeselect}><Icon name="close" size={16} /></button>}
+      {selected && <button className="selection-close" aria-label={`Deselect ${name}`} onClick={() => { ref.current.querySelector(".widget-move-handle").focus(); onDeselect(); }}><Icon name="close" size={16} /></button>}
     </>}
   </Tag>;
 });

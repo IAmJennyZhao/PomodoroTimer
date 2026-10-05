@@ -85,6 +85,7 @@ export function Icon({ name, size = 22, className = "", ...props }) {
     collapse: <path d="M3 8h5V3M16 3v5h5M8 21v-5H3M21 16h-5v5" />,
     mute: <path d="M3 9h4l5-5v16l-5-5H3ZM16 9l6 6M16 15l6-6" />,
     move: <path d="M12 3v18M3 12h18M9 6l3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3m12-6 3 3-3 3" />,
+    clock: <><circle cx="12" cy="12" r="9" /><path d="M12 6v6l4 3" /></>,
   };
   return (
     <svg

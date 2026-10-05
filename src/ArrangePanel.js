@@ -4,7 +4,7 @@ import { Icon, InfoTip, Sprite } from "./ui";
 
 const directions = ["left", "right", "up", "down"];
 
-export default function ArrangePanel({ state, act, setArranging, selection, setSelection, onNudgeWidget }) {
+export default function ArrangePanel({ state, act, setArranging, selection, setSelection, onNudgeWidget, onOpenShop }) {
   const libraryRef = useRef(null);
   const [edges, setEdges] = useState({ start: true, end: true });
   const selectedObject = selection?.type === "animal" ? state.animals.find(item => item.id === selection.id && item.placed)
@@ -25,6 +25,15 @@ export default function ArrangePanel({ state, act, setArranging, selection, setS
     window.addEventListener("resize", measure);
     return () => { library.removeEventListener("scroll", measure); observer?.disconnect(); window.removeEventListener("resize", measure); };
   }, [state.owned.decorations, state.animals]);
+  useEffect(() => {
+    const library = libraryRef.current;
+    const tile = library.querySelector(".library-item.selected");
+    if (!tile) return;
+    const bounds = library.getBoundingClientRect();
+    const item = tile.getBoundingClientRect();
+    const delta = item.left < bounds.left ? item.left - bounds.left : item.right > bounds.right ? item.right - bounds.right : 0;
+    if (delta) library.scrollBy({ left: delta, behavior: state.settings.reducedMotion ? "auto" : "smooth" });
+  }, [selection, state.settings.reducedMotion]);
   const browse = direction => libraryRef.current.scrollBy({ left: direction * libraryRef.current.clientWidth * .75, behavior: state.settings.reducedMotion ? "auto" : "smooth" });
   function nudge(direction) {
     if (!selectedObject) return;
@@ -79,8 +88,8 @@ export default function ArrangePanel({ state, act, setArranging, selection, setS
           onClick={() => { if (!animal.placed) act({ type: "PLACE_ANIMAL", id: animal.id, placed: true }); setSelection({ type: "animal", id: animal.id }); }}>
           <Sprite id={animal.species} rarity={animal.rarity} /><span>{animal.name}</span><small>{animal.placed ? "In room" : "Add"}</small>
         </button>)}
-        {[["timer", "Timer", "focus"], ["goal", "Daily goal", "check"]].map(([id, name, icon]) => <button type="button" key={id} className={`library-item library-widget ${selection?.type === "widget" && selection.id === id ? "selected" : ""}`} aria-label={`Select ${name}`} aria-pressed={selection?.type === "widget" && selection.id === id} onClick={() => setSelection({ type: "widget", id })}><span className="widget-sketch"><Icon name={icon} size={30} /></span><span>{name}</span><small>Move</small></button>)}
-        <button type="button" className="library-item library-shop" onClick={() => { setSelection(null); setArranging(false); }}><Icon name="plus" size={26} /><span>Furniture shop</span></button>
+        {[["timer", "Timer", "clock"], ["goal", "Daily goal", "check"]].map(([id, name, icon]) => <button type="button" key={id} className={`library-item library-widget ${selection?.type === "widget" && selection.id === id ? "selected" : ""}`} aria-label={`Select ${name}`} aria-pressed={selection?.type === "widget" && selection.id === id} onClick={() => setSelection({ type: "widget", id })}><span className="widget-sketch"><Icon name={icon} size={30} /></span><span>{name}</span><small>Move</small></button>)}
+        <button type="button" className="library-item library-shop" onClick={onOpenShop}><Icon name="plus" size={26} /><span>Furniture shop</span></button>
       </div>
       <button type="button" className="icon-button library-next" disabled={edges.end} aria-label="Next library items" onClick={() => browse(1)}><Icon name="arrow" size={20} /></button>
     </div>

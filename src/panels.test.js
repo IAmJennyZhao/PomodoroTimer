@@ -98,12 +98,22 @@ test('decoration purchases can be used, equipped, positioned, and removed withou
   fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));
   expect(screen.queryByRole('button', { name: 'Add Cozy cushion' })).not.toBeInTheDocument();
   fireEvent.change(screen.getByRole('combobox', { name: 'Selected item' }), { target: { value: `decoration:${first}` } });
-  fireEvent.change(screen.getByRole('slider', { name: 'Left to right' }), { target: { value: '88' } });
-  fireEvent.change(screen.getByRole('slider', { name: 'Higher to lower' }), { target: { value: '80' } });
-  expect(getState().room.decorations[0]).toMatchObject({ x: 88, y: 80 });
+  const beforeMove = { ...getState().room.decorations[0] };
+  fireEvent.click(screen.getByRole('button', { name: 'Move selected item right' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Move selected item up' }));
+  expect(getState().room.decorations[0]).toMatchObject({ x: beforeMove.x + 1, y: beforeMove.y - 1 });
   fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
   expect(getState().room.decorations).toHaveLength(1);
   expect(getState().owned.decorations).toContain('cushion');
+});
+
+test('the arrangement shop shortcut opens furniture after entering from accessories', () => {
+  renderPanel(DecoratePanel);
+  fireEvent.click(screen.getByRole('button', { name: 'Accessories' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Furniture shop' }));
+  expect(screen.getByRole('button', { name: 'Furniture' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('heading', { name: 'Soft sofa' })).toBeInTheDocument();
 });
 
 test('undiscovered tiles reveal the matching egg and owned pets show six upgrade slots', () => {
