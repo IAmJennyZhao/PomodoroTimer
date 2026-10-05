@@ -1,0 +1,218 @@
+/* Shared Atelier materials and controls. Page composition stays in its own stylesheets. */
+:root {
+  --font-ui: Georgia, "Times New Roman", serif;
+  --paper: #fff8e9;
+  --paper-shade: #f2e8d3;
+  --ink: #30483e;
+  --muted: #686b58;
+  --cream: var(--paper);
+  --line: #cbb994;
+  --coral: #b95146;
+  --coral-hover: #a9453c;
+  --sage: #e0e6cc;
+  --sage-strong: #657e52;
+  --gem-blue: #4d819e;
+  --danger: #a34e40;
+  --shadow: 2px 5px 16px #5845261c;
+  --paper-grain: url("./art/paper-grain.svg");
+  --pencil-frame: url("./art/pencil-frame.svg");
+  --control-radius: 10px 12px 9px 11px / 11px 9px 12px 10px;
+  --focus-ring: #4e6e42;
+}
+
+body { color: var(--ink); background: var(--paper-shade); font-family: var(--font-ui); }
+.app { font-family: var(--font-ui); color: var(--ink); }
+.app :is(button, input, textarea, select), .info-content { font-family: var(--font-ui); }
+.app :is(h1, h2, h3), .drawer-heading h2, .hatch-modal h2 { font-family: var(--font-ui); font-weight: 400; color: var(--ink); }
+.app :is(.session-task-editor, .timer-options, .resident-label, .toast, .furniture-stock, .furniture-buy, .library-item small, .empty-state p, .break-idea strong),
+.arrange-toolbar .field-label, .info-disclosure { font-family: var(--font-ui); }
+.small, .muted, .field-label, .range-field, .toggle-line { color: var(--muted); }
+.app :is(.furniture-stock, .library-item small, .timer-options, .session-reward, .notes-save-state, .pet-level, .in-room) { font-size: 12px; }
+.app :is(.session-editor-tools, .session-task-row.done .session-task-text, .session-task-text::placeholder) { color: var(--muted); }
+.app :is(.timer-phase, .clock-caption, .elapsed-total, .work-mode-tabs button) { font-size: 12px; }
+.app :is(.field-label, .toggle-line, .range-field > span) { font-size: 14px; }
+
+/* The same lightly grained stationery under every shared surface. */
+.paper, .info-content {
+  background-color: var(--paper);
+  background-image: var(--paper-grain);
+  border-color: var(--line);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+.drawer:not(.workspace-shop), .hatch-modal, .loading-card, .info-content, .save-warning, .toast {
+  border: 7px solid transparent;
+  border-image: var(--pencil-frame) 16 / 7px / 0 stretch;
+  border-radius: 12px;
+  background-color: var(--paper);
+  background-image: var(--paper-grain);
+}
+.drawer-heading { border-bottom: 1px solid var(--line); }
+.drawer:not(.workspace-shop):not(.movable-notes)::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  right: 50px;
+  width: 38px;
+  height: 20px;
+  background-color: #f8e1ce;
+  background-image: linear-gradient(90deg, #d78f7a70 50%, transparent 50%), linear-gradient(#d78f7a70 50%, transparent 50%);
+  background-size: 8px 8px;
+  border: 1px solid #ce9e7e70;
+  box-shadow: 1px 2px 2px #6b493315;
+  transform: rotate(7deg);
+  pointer-events: none;
+}
+.drawer-heading h2 { line-height: 1.25; }
+.drawer-heading .icon-button { margin: 0; }
+.drawer-content, .info-content { scrollbar-color: #a9ae8c transparent; }
+.info-content { font: 14px/1.6 var(--font-ui); box-shadow: 2px 6px 20px #58452626; }
+.info-content :is(p, strong) { color: inherit; }
+.info-content code { color: var(--muted); }
+.app-header { background-color: var(--paper); background-image: var(--paper-grain); border-color: var(--line); }
+.app :is(.detail-card, .shop-item, .animal-card, .journal-card, .journal-metrics > div, .library-item, .mystery-tile, .preset-button, .session-end-choice) {
+  background-color: var(--paper);
+  background-image: var(--paper-grain);
+  border: 1px solid var(--line);
+  border-radius: var(--control-radius);
+  box-shadow: inset 0 0 0 2px #fffdf54d;
+}
+.app :is(.animal-card.selected, .mystery-tile.selected, .preset-button.selected, .session-end-choice.selected) {
+  background-color: var(--sage);
+  border-color: var(--sage-strong);
+  box-shadow: inset 0 0 0 2px #fffaf07a;
+}
+/* Existing painted timer and daily note retain their artwork. */
+.timer-card.paper, .focus-view .timer-card.paper, .daily-pill.paper { background: none; border: 0; box-shadow: none; }
+.workspace-shop.paper { background: none; border: 0; box-shadow: none; }
+
+/* One readable pencil icon family, including icons in portaled help. */
+.atelier-icon { flex-shrink: 0; vertical-align: middle; }
+.icon-pencil-echo { opacity: .2; stroke-width: 1; }
+.app :is(.timer-tools .icon-button, .reset-button, .session-settings-button, .session-edit-button, .notepad-drag-handle > svg), .info-button { color: var(--ink); opacity: 1; }
+.gem-pill > svg, .wallet-line > svg { color: var(--gem-blue); fill: #bed8e6; }
+.sound-bars i { background: var(--sage-strong); }
+.toast > svg { color: var(--sage-strong); }
+
+/* Pigment on primary actions, cream/sage on secondary actions. */
+.app :is(.primary-button:not(.start-button), .secondary-button, .small-button, .pastel-purchase) {
+  background-image: var(--paper-grain);
+  border: 1px solid var(--line);
+  border-radius: var(--control-radius);
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: 14px;
+  box-shadow: inset 0 0 0 2px #fff9e733, 0 2px 0 #83674616;
+  transition: background-color .15s, border-color .15s, box-shadow .15s;
+}
+.app .primary-button:not(.start-button) { background-color: var(--coral); border-color: #9f453b; border-radius: 24px 26px 23px 25px / 23px 22px 24px 23px; color: #fffaf0 !important; }
+.app :is(.secondary-button, .small-button) { background-color: var(--sage); color: var(--ink) !important; }
+.app .primary-button:not(.start-button):hover:enabled { background-color: var(--coral-hover); filter: none; transform: none; }
+.app :is(.secondary-button, .small-button):hover:enabled { background-color: #d2ddbb; border-color: var(--sage-strong); }
+.app :is(.primary-button:not(.start-button), .secondary-button, .small-button):active:enabled { box-shadow: inset 0 2px 3px #47382124; }
+.app :is(.primary-button:not(.start-button), .secondary-button, .small-button):disabled { background-color: #ece4d4; color: #72705d !important; border-color: #cfc3aa; opacity: 1; box-shadow: none; filter: none; transform: none; }
+.app .start-button { font-family: var(--font-ui); font-weight: 400; }
+.app .pastel-button-art { filter: brightness(.83) saturate(.9); }
+.app .pastel-purchase { background: none; border: 0; box-shadow: none; }
+.app :is(.text-button, .journal-text-button, .furniture-buy, .session-editor-tools button) { color: var(--sage-strong); text-underline-offset: 3px; }
+.app :is(.text-button, .journal-text-button, .furniture-buy, .session-editor-tools button):hover:enabled { color: var(--ink); text-decoration: underline; }
+.app :is(.text-button, .furniture-buy, .session-editor-tools button):disabled { color: var(--muted); opacity: .75; }
+.app :is(.icon-button, .session-settings-button, .info-button, .session-edit-button), .info-button {
+  border-radius: var(--control-radius);
+  transition: background-color .15s;
+}
+.app :is(.icon-button, .session-settings-button, .session-edit-button):hover:enabled,
+.info-button:hover, .info-button[aria-expanded="true"], .session-settings-button[aria-expanded="true"] { background-color: var(--sage); }
+.app :is(.header-notes, .settings-button.paper, .gem-pill) { background-image: none; box-shadow: none; }
+.app-header .top-nav.paper { background: none; border: 0; box-shadow: none; }
+.app :is(.sound-pill, .widget-move-handle, .selection-close) { background-color: var(--paper); background-image: var(--paper-grain); border-color: var(--line); color: var(--ink); }
+
+/* Paper tabs: shared selection, hover and pressed states. */
+.app :is(.segmented, .journal-choices) { background: none; border: 0; border-radius: 0; gap: 4px; padding: 0; }
+.app :is(.segmented button, .journal-choices button, .journal-overview-toolbar .journal-choices button) {
+  background-color: var(--paper-shade);
+  background-image: var(--paper-grain);
+  border: 1px solid var(--line);
+  border-radius: var(--control-radius);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 400;
+  box-shadow: none;
+}
+.app :is(.segmented button.selected, .segmented button.active, .journal-choices button.selected, .journal-overview-toolbar .journal-choices button.selected) { background-color: var(--sage); border-color: var(--sage-strong); box-shadow: inset 0 -2px #879d6838; }
+.app :is(.segmented button, .journal-choices button):hover:enabled { background-color: var(--sage); }
+.app .work-mode-tabs button { padding: 5px 0; color: var(--muted); background: none; }
+.app .work-mode-tabs button.active { color: var(--ink); text-decoration: underline; text-decoration-color: var(--coral); text-underline-offset: 4px; text-decoration-thickness: 2px; }
+.app .top-nav button.active::after { background-color: var(--coral); }
+.app .top-nav button:hover { background-color: #e0e6cc80; }
+
+/* Native input semantics with illustrated appearance; keyboard behavior is unchanged. */
+.app :is(.field-label select, .field-label input, .number-field input, .app textarea) { background-color: var(--paper); color: var(--ink); border-color: var(--line); border-radius: var(--control-radius); }
+.app :is(.field-label select, .number-field input) { background-image: var(--paper-grain); }
+.app :is(input, textarea)::placeholder { color: var(--muted); opacity: 1; }
+.app :is(.session-task-row, .session-add-field) { background: var(--paper); border-color: var(--line); border-radius: var(--control-radius); }
+.app :is(.session-task-row, .session-add-field):focus-within { border-color: var(--focus-ring); box-shadow: 0 0 0 2px #657e5226; }
+.app :is(.session-task-row .session-task-text, .session-add-field input) { background: transparent; color: var(--ink); }
+.app input[type="checkbox"], .app input[type="radio"] {
+  appearance: none;
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  border: 1px solid #8c9779;
+  background-color: var(--paper);
+  border-radius: 4px 5px 3px 4px;
+  flex-shrink: 0;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.app input[type="checkbox"]:checked { background-color: var(--sage); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m3 8 3 3 7-7' fill='none' stroke='%2330483e' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.app input[type="radio"] { border-radius: 50%; }
+.app input[type="radio"]:checked { border-color: var(--sage-strong); background: radial-gradient(circle, var(--sage-strong) 0 4px, var(--paper) 5px); }
+.app .toggle-line input[type="checkbox"] {
+  width: 42px;
+  height: 24px;
+  border-radius: 14px 13px 12px 13px;
+  background-color: #d9d6c5;
+  background-image: radial-gradient(circle, #fffaf0 0 8px, #b9b08e 8.5px 9px, transparent 9.5px);
+  background-size: 20px 20px;
+  background-position: 1px center;
+  background-repeat: no-repeat;
+  transition: background-color .15s, background-position .15s;
+}
+.app .toggle-line input[type="checkbox"]:checked { border-color: var(--sage-strong); background-color: var(--sage-strong); background-position: calc(100% - 1px) center; }
+.app .range-field input[type="range"] { appearance: none; height: 24px; margin: 8px 0; background: transparent; cursor: pointer; }
+.app .range-field input[type="range"]::-webkit-slider-runnable-track { height: 7px; background: linear-gradient(to right, var(--sage-strong) var(--range-progress), #dedcc5 var(--range-progress)); border: 1px solid #aeb397; border-radius: 6px 5px 6px 4px; }
+.app .range-field input[type="range"]::-webkit-slider-thumb { appearance: none; width: 19px; height: 19px; margin-top: -7px; border: 1px solid #9f9f7e; border-radius: 50%; background: var(--paper); box-shadow: 1px 2px 3px #574a2726; }
+.app .range-field input[type="range"]::-moz-range-track { height: 6px; background: #dedcc5; border: 1px solid #aeb397; border-radius: 6px; }
+.app .range-field input[type="range"]::-moz-range-progress { height: 6px; background: var(--sage-strong); border-radius: 6px; }
+.app .range-field input[type="range"]::-moz-range-thumb { width: 17px; height: 17px; border: 1px solid #9f9f7e; border-radius: 50%; background: var(--paper); }
+.range-field output { color: var(--muted); font-variant-numeric: tabular-nums; }
+.app :is(.session-tag, .journal-session-tags > span, .wallet-line) { background: var(--sage); color: var(--ink); border-radius: var(--control-radius); }
+
+/* Focus is visible on paper and pigment; disabled controls remain legible. */
+:is(button, input, textarea, select, summary, a):focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+.app :is(button, input, textarea, select, .arrange-library):focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+.app .primary-button:focus-visible { outline-color: var(--ink); }
+.app .session-task-summary .session-task-text:focus-visible { outline: 2px solid var(--focus-ring); }
+.app :is(input, select, textarea):disabled { cursor: not-allowed; color: var(--muted); opacity: .75; }
+.app :is(.library-item, .animal-card, .mystery-tile, .preset-button):hover:enabled { border-color: var(--sage-strong); background-color: #eaf0dc; }
+.app :is(.library-item, .animal-card, .mystery-tile, .preset-button):active:enabled { box-shadow: inset 0 0 0 2px #8ca27066; }
+.app .library-item:disabled { background-color: var(--paper-shade); color: var(--muted); }
+.app .library-item:disabled > :is(.furniture-art, .sprite) { opacity: .85; }
+.app .session-end-choice:focus-within { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.app :is(.session-reward.forfeited, .journal-session-forfeited, .save-warning) { color: var(--danger); }
+.app .pause-expired { color: var(--ink); }
+::selection { background: var(--sage); color: var(--ink); }
+
+@media (max-width: 600px) {
+  .app :is(.segmented button, .journal-choices button, .journal-overview-toolbar .journal-choices button) { font-size: 12px; }
+  .app :is(.small-button, .secondary-button, .primary-button:not(.start-button)) { font-size: 12px; }
+  .app :is(.furniture-stock, .library-item small, .timer-options, .session-reward) { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app :is(button, input, select) { transition: none; }
+}
+@media (forced-colors: active) {
+  .app input[type="checkbox"], .app input[type="radio"], .app .range-field input[type="range"] { appearance: auto; background: none; }
+  .drawer:not(.workspace-shop), .hatch-modal, .loading-card, .info-content, .save-warning, .toast { border-image: none; border: 1px solid CanvasText; }
+}

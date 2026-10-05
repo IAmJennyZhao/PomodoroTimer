@@ -20,7 +20,7 @@ export const PANEL_NAMES = {
   notes: "Scratchpad",
 };
 
-export function Icon({ name, size = 22, ...props }) {
+export function Icon({ name, size = 22, className = "", ...props }) {
   const paths = {
     leaf: (
       <path d="M12 21V10M12 15C3 16 2 9 3 5c7 0 10 4 9 10ZM12 11c0-7 5-9 9-9 1 6-2 10-9 9Z" />
@@ -97,9 +97,12 @@ export function Icon({ name, size = 22, ...props }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
+      focusable="false"
+      className={`atelier-icon icon-${name} ${className}`}
       {...props}
     >
-      {paths[name] || paths.leaf}
+      <g className="icon-pencil-echo" transform="translate(.25 .2)">{paths[name] || paths.leaf}</g>
+      <g>{paths[name] || paths.leaf}</g>
     </svg>
   );
 }
@@ -359,6 +362,7 @@ export function RangeField({
         max={max}
         step={step}
         value={value}
+        style={{ "--range-progress": `${Math.max(0, Math.min(100, (value - min) / (max - min || 1) * 100))}%` }}
         onChange={(event) => onChange(Number(event.target.value))}
       />
     </label>

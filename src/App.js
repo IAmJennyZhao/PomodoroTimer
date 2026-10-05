@@ -37,6 +37,7 @@ import {
   SessionControls,
 } from "./panels";
 import "./atelier.css";
+import "./visual-system.css";
 
 const BREAK_IDEAS = [
   [
