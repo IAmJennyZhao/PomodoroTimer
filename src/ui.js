@@ -237,6 +237,7 @@ export function Drawer({ name, title, onClose, children, position, onMove }) {
   const location = useRef(null);
   const [notesPosition, setNotesPosition] = useState(null);
   const movable = name === "notes";
+  const headingId = movable ? "scratchpad-heading" : "panel-heading";
   const savedX = position?.x;
   const savedY = position?.y;
   const moveNotes = (left, top) => {
@@ -286,7 +287,8 @@ export function Drawer({ name, title, onClose, children, position, onMove }) {
       className={`drawer workspace workspace-${name} paper ${movable ? "movable-notes" : ""}`}
       style={movable && notesPosition ? notesPosition : undefined}
       role="dialog"
-      aria-labelledby="panel-heading"
+      id={movable ? "scratchpad" : undefined}
+      aria-labelledby={headingId}
     >
       {["animals", "decorate", "journal"].includes(name) && <div className="paper-corners" aria-hidden="true"><i /><i /><i /><i /></div>}
       <header className="drawer-heading">
@@ -320,9 +322,9 @@ export function Drawer({ name, title, onClose, children, position, onMove }) {
               current.top + (event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0),
             ));
           }}>
-          <Icon name="move" size={19} /><span><span className="notepad-heading" id="panel-heading">{PANEL_NAMES[name]}</span><small className="visually-hidden" id="notepad-move-help">Drag to move · arrow keys to nudge</small></span>
+          <Icon name="move" size={19} /><span><span className="notepad-heading" id={headingId}>{PANEL_NAMES[name]}</span><small className="visually-hidden" id="notepad-move-help">Drag to move · arrow keys to nudge</small></span>
         </button> : <div>
-          <h2 id="panel-heading">{title || PANEL_NAMES[name]}</h2>
+          <h2 id={headingId}>{title || PANEL_NAMES[name]}</h2>
         </div>}
         <button
           ref={closeRef}

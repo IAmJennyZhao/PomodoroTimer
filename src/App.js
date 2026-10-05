@@ -78,6 +78,7 @@ export default function App() {
   const { state, dispatch, ready, status, error } = persistence;
   const [now, setNow] = useState(Date.now());
   const [panel, setPanel] = useState(null);
+  const [notesOpen, setNotesOpen] = useState(false);
   const [focusView, setFocusView] = useState(false);
   const focusedSession = useRef(null);
   const [silencedAlarm, setSilencedAlarm] = useState(null);
@@ -142,7 +143,7 @@ export default function App() {
   const counting = isCountingUp(state.timer);
   const elapsed = elapsedTime(state.timer, now);
   const displayTime = counting ? Math.max(0, elapsed - (state.timer.overtime ? state.timer.durationMs : 0)) : remaining;
-  const sidePanel = ["settings", "session", "sound", "notes"].includes(panel);
+  const sidePanel = ["settings", "session", "sound"].includes(panel);
   const widePanel = Boolean(panel) && !sidePanel && !arranging;
   useEffect(() => {
     if (!ready) return;
@@ -233,6 +234,7 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [hatch, arranging, selection]);
   const openPanel = (id) => {
+    if (id === "notes") { setNotesOpen(previous => !previous); return; }
     setPanel((previous) => (previous === id ? null : id));
     if (id !== "decorate") setArranging(false);
   };
@@ -406,7 +408,7 @@ export default function App() {
               </button>
             ))}
           </nav>
-          <button className="icon-button header-notes" aria-label="Open notepad" title="Notepad" onClick={() => openPanel("notes")}><Icon name="note" size={22} /></button>
+          <button className="icon-button header-notes" aria-label="Open notepad" title="Notepad" aria-pressed={notesOpen} aria-expanded={notesOpen} aria-controls="scratchpad" onClick={() => openPanel("notes")}><Icon name="note" size={22} /></button>
           <button
             className="icon-button paper settings-button"
             aria-label="Settings"
@@ -420,7 +422,7 @@ export default function App() {
         arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "timer"}
         onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "timer", ...position })} hidden={widePanel}>
         <TimerCard state={state} act={act} now={now} ready={ready} blocked={status === "conflict"}
-          onToggleTimer={timerAction} panel={panel} openPanel={openPanel}
+          onToggleTimer={timerAction} panel={panel} openPanel={openPanel} notesOpen={notesOpen}
           focusView={focusView} setFocusView={setFocusView}
           alarmSilenced={silencedAlarm === state.timer.id}
           silenceAlarm={() => { engine.current?.stopAlarm(); setSilencedAlarm(state.timer.id); }}
@@ -471,9 +473,7 @@ export default function App() {
       </footer>
       {widePanel && <div className="workspace-dismiss" onClick={closePanel} />}
       {panel && (
-        <Drawer key={panel} name={panel} title={arranging ? "Arrange room" : undefined} onClose={closePanel}
-          position={state.room.notepadPosition}
-          onMove={(position) => act({ type: "MOVE_NOTEPAD", ...position })}>
+        <Drawer key={panel} name={panel} title={arranging ? "Arrange room" : undefined} onClose={closePanel}>
           {panel === "animals" && (
             <AnimalsPanel
               state={state}
@@ -510,9 +510,12 @@ export default function App() {
             <SettingsPanel state={state} act={act} persistence={persistence} />
           )}
           {panel === "session" && <SessionControls state={state} act={act} />}
-          {panel === "notes" && <QuickScratchpad state={state} act={act} saveStatus={status} />}
         </Drawer>
       )}
+      {notesOpen && <Drawer name="notes" onClose={() => setNotesOpen(false)} position={state.room.notepadPosition}
+        onMove={position => act({ type: "MOVE_NOTEPAD", ...position })}>
+        <QuickScratchpad state={state} act={act} saveStatus={status} />
+      </Drawer>}
       <div className="toast-region" role="status" aria-live="polite">
         {toast && (
           <div className="toast paper">

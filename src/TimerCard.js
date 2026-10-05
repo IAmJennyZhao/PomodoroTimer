@@ -5,7 +5,7 @@ import SessionTasks from "./SessionTasks";
 import { ArtFragment, PastelButtonArt } from "./AtelierArt";
 
 export default function TimerCard({ state, act, now, ready, blocked, onToggleTimer,
-  openPanel, panel, focusView, setFocusView, alarmSilenced, silenceAlarm,
+  openPanel, panel, notesOpen, focusView, setFocusView, alarmSilenced, silenceAlarm,
   alarmBlocked, retryAlarm, tip, nextTip }) {
   const { timer, settings } = state;
   const counting = isCountingUp(timer);
@@ -43,7 +43,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
         </div> : <span className="timer-phase">{complete ? "Session complete" : breakTime ? (timer.mode === "longBreak" ? "Long break" : "Short break") : timer.overtime ? "Overtime" : timer.workMode === "countup" ? "Count up" : "Pomodoro"}</span>}
         <div className="timer-tools">
           <button className="icon-button" aria-label="Open scratchpad" title="Scratchpad"
-            aria-expanded={panel === "notes"} onClick={() => openPanel("notes")}><Icon name="note" size={18} /></button>
+            aria-expanded={Boolean(notesOpen)} aria-pressed={Boolean(notesOpen)} aria-controls="scratchpad" onClick={() => openPanel("notes")}><Icon name="note" size={18} /></button>
           {(focusView || (!breakTime && timer.status === "running")) && <button className="icon-button" aria-label={focusView ? "Leave focus view" : "Enter focus view"}
             title={focusView ? "Leave focus view" : "Enter focus view"} onClick={() => setFocusView(!focusView)}><Icon name={focusView ? "collapse" : "expand"} size={17} /></button>}
         </div>

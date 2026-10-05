@@ -138,6 +138,8 @@ body { color: var(--ink); background: var(--paper-shade); font-family: var(--fon
 .app .session-add-field button { background-color: var(--sage); }
 .app .session-add-field button:disabled { background-color: var(--paper-shade); color: var(--muted); opacity: 1; }
 .app :is(.header-notes, .settings-button.paper, .gem-pill) { background-image: none; box-shadow: none; }
+.app .header-notes[aria-pressed="true"], .app .timer-tools .icon-button[aria-pressed="true"] { background: var(--sage); box-shadow: inset 0 0 0 1px var(--sage-strong); border-radius: var(--control-radius); }
+.app .movable-notes { z-index: 320; }
 .app-header .top-nav.paper { background: none; border: 0; box-shadow: none; }
 .app :is(.sound-pill, .widget-move-handle, .selection-close) { background-color: var(--paper); background-image: var(--paper-grain); border-color: var(--line); color: var(--ink); }
 

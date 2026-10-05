@@ -364,6 +364,40 @@ test('focus view hides distractions while scratchpad remains reachable and saves
   expect(screen.queryByRole('navigation', { name: 'Main navigation' })).not.toBeInTheDocument();
 });
 
+test('scratchpad remains mounted and positioned across panels and closes only through its controls', async () => {
+  await openRoom();
+  fireEvent.click(screen.getByRole('button', { name: 'Open notepad' }));
+  const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
+  const textbox = within(notes).getByRole('textbox', { name: 'Notes' });
+  fireEvent.change(textbox, { target: { value: 'Keep this thought while changing settings' } });
+  fireEvent.keyDown(within(notes).getByRole('button', { name: 'Move notepad' }), { key: 'ArrowLeft', shiftKey: true });
+  const location = notes.getAttribute('style');
+  for (const name of ['Settings', 'Decorate', 'Journal']) {
+    fireEvent.click(screen.getByRole('button', { name, exact: true }));
+    expect(screen.getByRole('dialog', { name })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Scratchpad' })).toBe(notes);
+    expect(textbox).toHaveValue('Keep this thought while changing settings');
+    expect(notes).toHaveAttribute('style', location);
+    expect(screen.getByRole('button', { name: 'Open notepad' })).toHaveAttribute('aria-pressed', 'true');
+  }
+  fireEvent.keyDown(window, { key: 'Escape' });
+  expect(notes).toBeVisible();
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  expect(notes).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Open scratchpad' })).toHaveAttribute('aria-pressed', 'true');
+  await advance(350);
+  expect(latestWrite().state.scratchpad).toBe('Keep this thought while changing settings');
+  fireEvent.click(within(notes).getByRole('button', { name: 'Close panel' }));
+  expect(screen.queryByRole('dialog', { name: 'Scratchpad' })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Open scratchpad' }));
+  leaveFocus();
+  fireEvent.click(screen.getByRole('button', { name: 'Settings', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Open notepad' }));
+  expect(screen.queryByRole('dialog', { name: 'Scratchpad' })).not.toBeInTheDocument();
+  expect(screen.getByRole('dialog', { name: 'Settings' })).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Open notepad' })).toHaveAttribute('aria-pressed', 'false');
+});
+
 test('a completed Pomodoro repeats its alarm until muted and waits for an explicit break choice', async () => {
   await openRoom();
   fireEvent.click(screen.getByRole('button', { name: 'Start' }));
