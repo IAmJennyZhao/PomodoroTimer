@@ -1,5 +1,17 @@
 # Implementation verification
 
+## Enhancements before Phase 4
+
+Verified in Chrome with the isolated temporary save folder on ports 4173/4174. These changes supersede the earlier arrangement arrow controls and pause-dot presentation described below.
+
+- Arrangement has no movement-arrow toolbar. The background and furniture share the same scale and vertical offset, preserving their relationship to the painted floor. The rug uses its natural 385:246 aspect ratio instead of a forced 4.6:1 frame; its selection bounds now match the art. It stays beneath furniture even when selected. A native phone drag moved it exactly 20px right and 5px up without shifting the background, then reversed that movement.
+- The scratchpad is independent of the active panel, with a separate accessible heading. A native drag placed it at x90/y110 on desktop; opening Settings retained the same position and content. Both notes buttons show a sage pressed state. Integration tests cover Settings, Decorate, Journal, Escape and focus transitions, plus closing only through X or a notes toggle.
+- Pause/Resume is a small button at the timer's upper left. Its count changes from Pause (2/2) to Pause (1/2) after a pause, without a separate dot row. The Pomodoro label and Reset button are removed. The real pause clock remained live and Resume continued the saved focus remainder. Letting a real pause expire produced one Pause ended / Session gems lost alert and focused Resume while preserving the open scratchpad and its pressed button states.
+- Stop requires a continuous five-second pointer, Space or Enter hold. Tests verify no action at 4,999ms, one action at 5,000ms, and cancellation on release, pointer cancellation, leaving the button/tab/window, loss of focus, disabled state or unmount. A normal native browser click did not stop the timer. App tests verify unfinished sessions receive no reward and completing focus during a hold preserves the completed session.
+- Focus view centers and enlarges the timer, with 176px clock type on desktop, about 169px on tablet, and 92px on the narrow phone. Saved room positions still apply outside focus view. Desktop (1862 x 894 CSS pixels), tablet (769 x 800), and mobile (320 x 640) layouts were visually inspected without horizontal page overflow. Temporary viewport overrides were reset.
+
+Checks: **210 passing tests in 12 suites**, successful production build with CI warnings treated as errors, and clean diff checks. Stable checkpoints cover arrangement/rug bounds, persistent notes, and focus controls. Personal saves were not used for QA.
+
 ## Phase 3: Room arrangement
 
 Verified in Chrome against the isolated temporary save folder on ports 4173/4174, following `output/mockups/cohesive-atelier-v2/05-arrange.png`.
