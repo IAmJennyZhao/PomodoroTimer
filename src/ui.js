@@ -410,7 +410,7 @@ export function useModalFocus(dialogRef, buttonRef, focusKey = true) {
     (buttonRef.current || dialogRef.current)?.focus();
     return () => {
       siblings.forEach((element, index) => { if (!inert[index]) element.removeAttribute("inert"); });
-      const target = previous?.isConnected && previous !== document.body
+      const target = previous?.isConnected && previous !== document.body && !backdrop?.contains(previous)
         ? previous
         : document.querySelector(".drawer-heading button") ||
           document.querySelector(".top-nav button");

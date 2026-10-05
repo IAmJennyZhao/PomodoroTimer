@@ -183,6 +183,7 @@ test('failed local loads show a retry action and never replace a private save wi
   render(<App />);
   await settle();
   expect(screen.getByRole('heading', { name: 'Couldn’t load your room' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Try again' })).toHaveFocus();
   expect(screen.getByRole('button', { name: 'Start' })).toBeDisabled();
   await advance(60 * MINUTE);
   expect(writes()).toHaveLength(0);
@@ -191,6 +192,7 @@ test('failed local loads show a retry action and never replace a private save wi
   fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
   await settle();
   expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Focus', exact: true })).toHaveFocus();
   expect(screen.getByRole('button', { name: 'Start' })).toBeEnabled();
   expect(screen.getByRole('button', { name: '73 Shilligems, open egg shop' })).toBeInTheDocument();
   await advance(1000);

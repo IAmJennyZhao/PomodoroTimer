@@ -1,5 +1,23 @@
 # Implementation verification
 
+## Phase 5: Alerts and popups
+
+Reevaluated the running app against the pause, completion, and hatch mockups (`12-pause-expired.png`, `13-session-complete.png`, and `14-hatch.png`) in `output/mockups/cohesive-atelier-v2/`. Feedback now shares cream paper, pencil frames, pigment stamps, restrained copy, and painted celebration actions.
+
+- Pause expiry replaces the clock with one bell / **Pause ended / Session gems lost** alert. A third pause says **Pause limit reached**. Optional details explain that study time can still be recorded. Browser checks verified one alert, focused Resume, and the preserved 24:50 remainder after resuming. Existing tests cover the deadline boundary, one chime, and reward forfeiture.
+- Completion has a centered check/title, quiet break choices, and a persistent receipt showing actual recorded minutes and earned gems. Empty task prompts disappear. The receipt survives notification expiry and uses the saved session rather than changed preferences. Tests cover normal and forfeited results, daily-goal feedback, and overtime audio behavior.
+- Hatch sheets use coral frames, gingham corners, a larger portrait, static confetti, centered rarity stars, a painted Done capsule, and X. New pets, the sixth upgrade / seven animations / 10% bonus, and capped-copy +5 Shilligems were checked in Chrome. Background controls become inert while the celebration is open; Tab cycles between X and Done, Escape closes, and focus returns to the workspace when the consumed egg button disappears. The room remains undimmed and scratchpad contents remain intact.
+- Portaled help notes have a visible heading and close control. Phone measurements kept the 296px-wide note between x12 and x308. Closing returns focus to its trigger; Escape and outside-interaction regressions pass. Notifications have a stamp and X, pause expiry while hovered or focused, and restore previous focus when dismissed.
+- Failed saves show **Changes not saved / Your edits are still here**, Retry, and optional details. A temporary loopback-only fault proxy verified that a note draft survives failure and is written after Retry. An external revision change produced **Save changed elsewhere / Reload replaces this window's edits**; explicit reload restored the saved version. Load failure offers Try again and optional connection help, traps focus, and restores the room and Focus button after recovery.
+
+Desktop (1862 x 894 CSS pixels), tablet (769 x 800), and phone (320 x 640) feedback compositions were inspected. Completion, help, hatch, notification, and save messages fit the phone width without horizontal page overflow. Static confetti adds no looping animation. Forced-color styles preserve borders and readable actions.
+
+QA used only the isolated temporary save folder on ports 4175/4176 and a temporary production-build preview on 4177. All QA tabs were closed, the viewport override reset, the fault proxy stopped, and the complete baseline state restored and compared: 250 gems, 24 history entries, three pets, idle timer, original notes and positions. Personal saves were not used.
+
+Checks: **223 passing tests across 12 suites**, a successful final production build with CI warnings treated as errors, and clean diff checks. The existing Browserslist-data notice is informational. Stable implementation checkpoints cover pause/completion and hatch/help/save messages; the final checkpoint records verification and load-recovery focus.
+
+Separate follow-up observed during QA: at 320 x 640, an empty shop nest can overlap the Basic purchase pointer hit area. Keyboard purchase works; the overlap disappears after the nest is populated. This shop layout issue remains for a separate pass.
+
 ## Phase 4: Utility panels
 
 Verified in Chrome with the isolated temporary save folder on ports 4175/4176, following the scratchpad, session settings, settings, and sounds mockups in `output/mockups/cohesive-atelier-v2/`.
