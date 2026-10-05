@@ -194,6 +194,52 @@ test('editing durations preserves an active timer and explains when changes appl
   expect(screen.getByText(/Hold Stop to end this timer/)).toBeInTheDocument();
 });
 
+test('duration buttons step typed values once and respect timer and cadence limits', () => {
+  const { getState } = renderPanel(SessionControls);
+  const focus = screen.getByRole('spinbutton', { name: 'Focus time min' });
+  fireEvent.click(screen.getByRole('button', { name: 'Increase focus time' }));
+  expect(getState().settings.focusMinutes).toBe(26);
+  expect(getState().timer.durationMs).toBe(26 * 60000);
+  fireEvent.change(focus, { target: { value: '42' } });
+  fireEvent.blur(focus);
+  fireEvent.click(screen.getByRole('button', { name: 'Increase focus time' }));
+  expect(focus).toHaveValue(43);
+  fireEvent.change(focus, { target: { value: '180' } });
+  fireEvent.blur(focus);
+  expect(screen.getByRole('button', { name: 'Increase focus time' })).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Decrease focus time' }));
+  expect(focus).toHaveValue(179);
+  fireEvent.change(focus, { target: { value: '' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Decrease focus time' }));
+  expect(focus).toHaveValue(178);
+  const cadence = screen.getByRole('spinbutton', { name: 'Long break every sessions' });
+  fireEvent.change(cadence, { target: { value: '1' } });
+  fireEvent.blur(cadence);
+  expect(screen.getByRole('button', { name: 'Decrease long break every' })).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Increase long break every' }));
+  expect(getState().settings.longBreakEvery).toBe(2);
+});
+
+test('duration buttons preserve an active session and count-up has only break controls', () => {
+  let initial = gameReducer(createInitialState(NOW), { type: 'SET_SETTINGS', settings: { workMode: 'countup' }, now: NOW });
+  initial = gameReducer(initial, { type: 'START', now: NOW });
+  const { getState } = renderPanel(SessionControls, initial);
+  expect(screen.queryByRole('button', { name: 'Increase focus time' })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Increase short break' }));
+  expect(getState().settings.breakMinutes).toBe(6);
+  expect(getState().timer).toEqual(initial.timer);
+});
+
+test('compact save status retains conflict recovery and its explicit reload action', () => {
+  const persistence = { status: 'conflict', recovered: true, reload: jest.fn() };
+  renderPanel(SettingsPanel, createInitialState(NOW), { persistence });
+  expect(screen.getByRole('status')).toHaveTextContent('Changed in another window');
+  expect(screen.getByText('Recovered from backup.')).toBeInTheDocument();
+  expect(screen.getByText(/Reloading replaces this window/)).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Reload saved version' }));
+  expect(persistence.reload).toHaveBeenCalledTimes(1);
+});
+
 test('focus end choices save the setting and keep explanations behind an info button', () => {
   const { getState } = renderPanel(SessionControls);
   expect(screen.getByRole('radio', { name: 'Repeat alarm' })).toBeChecked();

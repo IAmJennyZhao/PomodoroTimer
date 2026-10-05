@@ -86,6 +86,9 @@ export function Icon({ name, size = 22, className = "", ...props }) {
     mute: <path d="M3 9h4l5-5v16l-5-5H3ZM16 9l6 6M16 15l6-6" />,
     move: <path d="M12 3v18M3 12h18M9 6l3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3m12-6 3 3-3 3" />,
     clock: <><circle cx="12" cy="12" r="9" /><path d="M12 6v6l4 3" /></>,
+    cup: <><path d="M4 9h13v5a6.5 6.5 0 0 1-13 0ZM17 10h2a3 3 0 0 1 0 6h-2M3 22h16M7 3v3m4-4v4m4-3v3" /></>,
+    bell: <><path d="M5 17h14l-2-3V9a5 5 0 0 0-10 0v5ZM10 21h4M12 2v2" /></>,
+    music: <><path d="M9 18V5l11-3v14M9 9l11-3" /><ellipse cx="6" cy="19" rx="3" ry="2" /><ellipse cx="17" cy="17" rx="3" ry="2" /></>,
   };
   return (
     <svg

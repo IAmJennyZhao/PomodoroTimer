@@ -1,0 +1,68 @@
+/* Small stationery sheets beside the room's painted timer. */
+.app :is(.workspace-settings, .workspace-session, .workspace-sound).paper {
+  border: 9px solid transparent;
+  border-image: url("./art/utility-frame.svg") 16 / 9px / 0 stretch;
+  border-radius: 12px;
+}
+.app :is(.workspace-settings, .workspace-session, .workspace-sound) > .drawer-heading {
+  padding: 16px 18px 10px;
+  border: 0;
+}
+.app :is(.workspace-settings, .workspace-session, .workspace-sound) > .drawer-content { padding: 8px 18px 20px; }
+.app :is(.workspace-settings, .workspace-session, .workspace-sound) .toggle-line { color: var(--ink); min-height: 44px; margin: 0; font-size: 16px; }
+.app .workspace-settings .settings-toggles { border: 0; border-bottom: 1px solid var(--line); padding: 0 0 12px; margin: 0 0 16px; }
+.app .workspace-settings .settings-toggles .toggle-line { min-height: 52px; margin: 0; }
+.app .workspace-settings .save-info { display: block; padding: 0; }
+.app .local-save-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.app .local-save-row h3 { font-size: 16px; margin: 0 auto 0 0; }
+.app .local-save-status { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 18px 16px 17px 15px; background: var(--paper-shade); color: var(--muted); font-size: 12px; }
+.app .local-save-status.save-saved { background: var(--sage); color: var(--ink); }
+.app .local-save-status:is(.save-error, .save-conflict) { color: var(--danger); background: #f3dfca; }
+.app .workspace-settings .save-info :is(p, button) { margin-top: 10px; }
+.app .workspace-settings .save-info [role="alert"] { color: var(--danger); }
+
+/* Duration fields are a two-by-two form with pencil capsules and clear units. */
+.app .session-presets { display: flex; gap: 7px; margin: 0 0 18px; padding-bottom: 17px; border-bottom: 1px solid var(--line); }
+.app .session-presets .preset-button { min-height: 38px; padding: 7px 5px; border-radius: 22px 24px 21px 23px; }
+.app .session-presets .preset-button strong { font-size: 14px; }
+.app .session-presets .preset-button.selected { background-color: var(--coral); color: #fffaf0; border-color: var(--coral-hover); box-shadow: inset 0 0 0 2px #fff9e77a; }
+.app .session-presets .preset-button.selected:hover { background-color: var(--coral-hover); }
+.app .session-duration-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 14px; }
+.app .session-duration-grid .number-field { display: flex; flex-direction: column; align-items: stretch; justify-content: start; gap: 6px; padding: 0; margin: 0; grid-column: auto; }
+.app .number-field > label { display: flex; align-items: center; gap: 7px; color: var(--ink); font-size: 14px; line-height: 1.4; }
+.app .number-field .icon-focus { color: var(--coral); fill: #ecd0b6; }
+.app .number-field .icon-leaf { color: var(--sage-strong); fill: var(--sage); }
+.app .number-field > .duration-stepper { display: grid; grid-template-columns: 32px minmax(0, 1fr) 32px; gap: 0; min-height: 42px; border: 1px solid var(--line); border-radius: 24px 22px 23px 21px; background: var(--paper-grain), #fffaf0; box-shadow: inset 0 0 0 2px #fffdf54d; }
+.app .session-duration-grid .number-field .duration-stepper input { width: 100%; min-width: 0; border: 0; border-radius: 0; background: transparent; padding: 5px 0; font-size: 23px; color: var(--ink); appearance: textfield; }
+.app .duration-stepper input::-webkit-inner-spin-button, .app .duration-stepper input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+.app .duration-stepper button { display: flex; align-items: center; justify-content: center; border: 0; border-radius: 50%; background: transparent; color: var(--ink); padding: 0; }
+.app .duration-stepper button:hover:enabled { background: var(--sage); }
+.app .duration-stepper button:active:enabled { background: #cbd8b6; }
+.app .duration-stepper button:disabled { color: var(--line); cursor: default; }
+.app .duration-stepper:focus-within { border-color: var(--focus-ring); }
+.app .number-field > .duration-unit { text-align: center; font-size: 12px; color: var(--muted); }
+.app .session-break-heading { margin: 0 0 18px; }
+.app .session-completion-settings { border: 0; margin: 20px 0 0; padding: 0; min-width: 0; }
+.app .session-completion-settings legend { display: flex; align-items: center; justify-content: space-between; width: 100%; border-top: 1px solid var(--line); padding: 16px 0 8px; font-size: 16px; color: var(--ink); }
+.app .session-end-options { gap: 0; margin: 0; }
+.app .session-controls .session-end-choice, .app .session-controls .session-end-choice.selected { min-height: 42px; padding: 6px 3px; gap: 10px; border: 0; border-radius: 0; background: none; box-shadow: none; color: var(--ink); font-size: 14px; }
+.app .session-end-choice:focus-within { outline: none; }
+.app .session-end-choice input:focus-visible { outline: 2px solid var(--focus-ring); }
+.app .session-timing-note { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px; }
+
+@media (max-width: 950px) {
+  .app .session-duration-grid { gap: 18px 10px; }
+  .app .number-field > label { gap: 5px; font-size: 13px; }
+  .app .number-field > .duration-stepper { grid-template-columns: 28px minmax(0, 1fr) 28px; }
+}
+@media (max-width: 600px) {
+  .app :is(.workspace-settings, .workspace-session, .workspace-sound).paper { bottom: auto; max-height: calc(100dvh - 150px); }
+  .app :is(.workspace-settings, .workspace-session, .workspace-sound) > .drawer-heading { padding: 12px 12px 8px; }
+  .app :is(.workspace-settings, .workspace-session, .workspace-sound) > .drawer-content { padding: 6px 12px 16px; }
+  .app .session-presets { margin-bottom: 14px; padding-bottom: 14px; }
+  .app .session-duration-grid { gap: 14px 10px; }
+}
+@media (forced-colors: active) {
+  .app :is(.workspace-settings, .workspace-session, .workspace-sound).paper { border: 1px solid CanvasText; border-image: none; }
+  .app .session-presets .preset-button.selected { border: 2px solid Highlight; }
+}

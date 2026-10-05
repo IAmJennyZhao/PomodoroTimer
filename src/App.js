@@ -42,6 +42,7 @@ import "./visual-system.css";
 import "./main-panels.css";
 import "./arrangement.css";
 import "./timer-refinements.css";
+import "./utility-panels.css";
 
 const BREAK_IDEAS = [
   [
