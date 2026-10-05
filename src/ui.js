@@ -10,7 +10,7 @@ export const RARITY_NAMES = {
   dreamy: "Dreamy",
 };
 export const PANEL_NAMES = {
-  animals: "Animals",
+  animals: "Pets",
   shop: "Egg shop",
   decorate: "Decorate",
   journal: "Journal",
@@ -285,6 +285,7 @@ export function Drawer({ name, title, onClose, children, position, onMove }) {
       role="dialog"
       aria-labelledby="panel-heading"
     >
+      {["animals", "decorate", "journal"].includes(name) && <div className="paper-corners" aria-hidden="true"><i /><i /><i /><i /></div>}
       <header className="drawer-heading">
         {movable ? <button type="button" className="notepad-drag-handle" aria-label="Move notepad" aria-describedby="notepad-move-help"
           onPointerDown={(event) => {

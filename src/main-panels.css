@@ -1,0 +1,111 @@
+/* Album, sketch catalogue and notebook compositions built on the shared materials. */
+:root {
+  --book-frame: url("./art/book-frame.svg");
+  --book-rings: url("./art/book-rings.svg");
+  --leaf-sprig: url("./art/leaf-sprig.svg");
+  --book-edge: #b9956a;
+}
+.app :is(.workspace-animals, .workspace-journal).paper,
+.app:not(.is-arranging) .workspace-decorate.paper {
+  width: min(1160px, calc(100% - 80px));
+  border: 11px solid transparent;
+  border-image: var(--book-frame) 24 / 11px / 0 stretch;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px #694e2d26, inset 0 0 0 3px #dfcbb52e;
+}
+.app :is(.workspace-animals, .workspace-journal) > .drawer-heading,
+.app:not(.is-arranging) .workspace-decorate > .drawer-heading { padding: 20px 34px 12px; border: 0; }
+.app :is(.workspace-animals, .workspace-journal) .drawer-heading h2,
+.app:not(.is-arranging) .workspace-decorate .drawer-heading h2 { font-size: 32px; }
+.app :is(.workspace-animals, .workspace-journal) > .drawer-content,
+.app:not(.is-arranging) .workspace-decorate > .drawer-content { padding: 10px 34px 26px; }
+.app .drawer:is(.workspace-animals, .workspace-journal)::before,
+.app:not(.is-arranging) .workspace-decorate::before { content: none; }
+.paper-corners { position: absolute; inset: 3px; z-index: 2; pointer-events: none; }
+.paper-corners i { position: absolute; width: 42px; height: 42px; background: #f9e7ce; background-image: linear-gradient(90deg, #d78f7a80 50%, transparent 50%), linear-gradient(#d78f7a80 50%, transparent 50%); background-size: 10px 10px; clip-path: polygon(0 0, 100% 0, 0 100%); }
+.paper-corners i:nth-child(1) { top: 0; left: 0; }
+.paper-corners i:nth-child(2) { top: 0; right: 0; transform: rotate(90deg); }
+.paper-corners i:nth-child(3) { bottom: 0; right: 0; transform: rotate(180deg); }
+.paper-corners i:nth-child(4) { bottom: 0; left: 0; transform: rotate(270deg); }
+.is-arranging .workspace-decorate .paper-corners { display: none; }
+
+/* Pets: two album pages, small collection portraits and one larger detail portrait. */
+.app .workspace-animals::after { content: ""; position: absolute; pointer-events: none; top: 10px; bottom: 10px; left: calc(57.143% - 11px); width: 32px; transform: translateX(-50%); background: var(--book-rings) center top / 32px 80px repeat-y, linear-gradient(90deg, transparent, #c7b28e29 35%, #bda77f57 49%, #fffaf0 55%, transparent); }
+.pet-album > .panel-toolbar { width: calc(57.143% - 32px); margin-bottom: 20px; }
+.pet-album > .panel-toolbar > span { font-size: 14px; }
+.app .pet-album .collection-layout { grid-template-columns: minmax(0, 1.2fr) minmax(280px, .9fr); gap: 64px; }
+.app .pet-album .collection-grid { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; }
+.app .pet-album .animal-card { padding: 12px 12px 10px; display: flex; flex-direction: column; align-items: center; gap: 5px; border-radius: 7px 10px 8px 6px; }
+.app .pet-album .animal-card > .animal-art { width: 108px; max-width: 100%; }
+.app .pet-album .animal-card strong { font-size: 17px; }
+.app .pet-album .animal-card .rarity-stars { margin: 0; }
+.app .pet-album .animal-card .in-room { margin: 0; font-size: 12px; color: var(--muted); }
+.app .pet-album .undiscovered-collection { margin-top: 24px; border-top: 1px solid var(--line); padding-top: 16px; }
+.app .pet-album .undiscovered-collection h3 { font-size: 19px; margin: 0 0 14px; }
+.app .pet-album .mystery-grid { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; }
+.app .pet-album .mystery-tile { min-height: 78px; border-radius: 4px 7px 5px 6px; }
+.app .pet-album .mystery-mark { font-size: 31px; color: #859171; }
+.app .pet-album .mystery-tile .rarity-stars > span { font-size: 11px; letter-spacing: 1px; }
+.app .pet-album .collection-detail { border: 0; box-shadow: none; background: none; padding: 0 4px; top: 0; }
+.app .pet-album .pet-portrait { width: min(100%, 250px); margin: 0 auto; padding: 8px 18px; background: var(--leaf-sprig) left bottom / 38px 56px no-repeat; border: 1px solid #d0bea17a; border-radius: 9px 6px 8px 5px; }
+.app .pet-album .pet-portrait .animal-art { width: 100%; }
+.app .pet-album .collection-detail h3 { font-size: 26px; margin: 12px 0 8px; }
+.app .pet-album .collection-detail > .rarity-stars { margin: 0; }
+.app .pet-album .upgrade-track { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); gap: 8px; }
+.app .pet-album .upgrade-track > span { width: 32px; height: 32px; justify-content: center; background: var(--paper); color: #9ba387; border-color: #b5bea4; }
+.app .pet-album .upgrade-track > span.earned { background: var(--sage); color: var(--sage-strong); border-color: var(--sage-strong); }
+.app .pet-album .upgrade-track .atelier-icon { fill: currentColor; stroke-width: .8; }
+.app .pet-album .collection-detail > p { margin: 8px 0 18px; font-size: 13px; }
+.app .pet-album .collection-detail > .toggle-line { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 14px 0; margin: 0 0 16px; }
+.app .pet-album .collection-detail .field-label { margin: 0; }
+.app .pet-album .collection-detail .field-label select { font-size: 14px; }
+.app .pet-album .mystery-detail { position: sticky; padding-top: 42px; min-height: 350px; }
+.app .pet-album .mystery-detail > .mystery-mark { font-size: 72px; }
+.app .pet-album .mystery-detail > .sprite { width: 125px; margin: 16px auto; }
+.app .pet-album .mystery-detail > p { font-size: 16px; }
+
+@media (max-width: 850px) {
+  .app :is(.workspace-animals, .workspace-journal).paper,
+  .app:not(.is-arranging) .workspace-decorate.paper { width: calc(100% - 32px); }
+  .app .workspace-animals::after { content: none; }
+  .app .pet-album .collection-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .pet-album > .panel-toolbar { width: 100%; }
+  .app .pet-album .collection-detail { position: static; grid-row: 1; display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 8px 18px; text-align: left; padding: 0 0 22px; border-bottom: 1px solid var(--line); }
+  .app .pet-album .pet-portrait { grid-row: 1 / span 3; padding: 5px; width: 112px; }
+  .app .pet-album .collection-detail h3 { margin: 4px 0; font-size: 23px; }
+  .app .pet-album .collection-detail > .rarity-stars { align-items: flex-start; }
+  .app .pet-album .upgrade-track { grid-column: 1 / -1; margin-top: 8px; padding-top: 12px; justify-content: flex-start; }
+  .app .pet-album .collection-detail > p,
+  .app .pet-album .collection-detail > .toggle-line,
+  .app .pet-album .collection-detail > .field-label { grid-column: 1 / -1; }
+  .app .pet-album .collection-detail > p { margin: 0 0 6px; }
+  .app .pet-album .collection-detail > .toggle-line { padding: 10px 0; margin-bottom: 4px; }
+  .app .pet-album .collection-detail > .field-label { display: flex; align-items: center; gap: 14px; }
+  .app .pet-album .collection-detail .field-label select { min-width: 0; flex: 1; margin: 0; }
+  .app .pet-album .mystery-detail { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px; min-height: 0; padding: 28px 0 22px; text-align: center; }
+  .app .pet-album .mystery-detail > .mystery-mark { font-size: 42px; }
+  .app .pet-album .mystery-detail > .sprite { width: 78px; margin: 0; }
+  .app .pet-album .mystery-detail > p { width: 100%; font-size: 14px; }
+}
+@media (max-width: 600px) {
+  .app :is(.workspace-animals, .workspace-journal).paper,
+  .app:not(.is-arranging) .workspace-decorate.paper { width: auto; left: 8px; right: 8px; bottom: 10px; border-width: 8px; border-image-width: 8px; }
+  .app :is(.workspace-animals, .workspace-journal) > .drawer-heading,
+  .app:not(.is-arranging) .workspace-decorate > .drawer-heading { padding: 13px 18px 9px; }
+  .app :is(.workspace-animals, .workspace-journal) .drawer-heading h2,
+  .app:not(.is-arranging) .workspace-decorate .drawer-heading h2 { font-size: 27px; }
+  .app :is(.workspace-animals, .workspace-journal) > .drawer-content,
+  .app:not(.is-arranging) .workspace-decorate > .drawer-content { padding: 8px 18px 20px; }
+  .paper-corners i { width: 28px; height: 28px; background-size: 8px 8px; }
+  .pet-album > .panel-toolbar { margin-bottom: 12px; }
+  .app .pet-album .collection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app .pet-album .animal-card > .animal-art { width: 86px; }
+  .app .pet-album .mystery-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .app .pet-album .mystery-tile { min-height: 68px; }
+  .app .pet-album .mystery-tile .rarity-stars > span { font-size: 10px; letter-spacing: 0; }
+  .app .pet-album .collection-detail { grid-template-columns: 90px minmax(0, 1fr); gap: 6px 12px; }
+  .app .pet-album .pet-portrait { width: 90px; }
+  .app .pet-album .collection-detail h3 { font-size: 21px; }
+  .app .pet-album .upgrade-track { gap: 6px; }
+  .app .pet-album .upgrade-track > span { width: 28px; height: 28px; }
+}

@@ -149,7 +149,7 @@ test('focus earnings buy an egg and the next study session makes it hatchable', 
   expect(screen.queryByRole('dialog', { name: 'Cat joined!' })).not.toBeInTheDocument();
   expect(screen.getByRole('dialog', { name: 'Egg shop' })).toBeInTheDocument();
 
-  fireEvent.click(screen.getByRole('button', { name: 'Animals', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Pets', exact: true }));
   expect(screen.getByRole('button', { name: 'Select Cat, basic Cat, animal 2' })).toBeInTheDocument();
   await advance(350);
   expect(latestWrite().state).toMatchObject({ gems: 25, eggs: [], history: [{ minutes: 25 }, { minutes: 25 }] });
@@ -211,7 +211,7 @@ test('header navigation opens named panels, restores the opener after Escape, an
   expect(screen.queryByRole('button', { name: 'Little Room home' })).not.toBeInTheDocument();
   expect(within(navigation).getByRole('button', { name: 'Focus' })).toHaveAttribute('aria-current', 'page');
   for (const [label, title] of [
-    ['Animals', 'Animals'], ['Egg shop', 'Egg shop'],
+    ['Pets', 'Pets'], ['Egg shop', 'Egg shop'],
     ['Decorate', 'Decorate'], ['Journal', 'Journal'],
   ]) {
     const opener = within(navigation).getByRole('button', { name: label, exact: true });

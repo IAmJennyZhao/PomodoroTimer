@@ -38,6 +38,7 @@ import {
 } from "./panels";
 import "./atelier.css";
 import "./visual-system.css";
+import "./main-panels.css";
 
 const BREAK_IDEAS = [
   [
@@ -383,7 +384,7 @@ export default function App() {
           <nav className="top-nav paper" aria-label="Main navigation">
             {[
               ["focus", "focus", "Focus"],
-              ["animals", "paw", "Animals"],
+              ["animals", "paw", "Pets"],
               ["shop", "egg", "Egg shop"],
               ["decorate", "plant", "Decorate"],
               ["journal", "book", "Journal"],
@@ -391,7 +392,7 @@ export default function App() {
               <button key={id} className={id === (panel || "focus") ? "active" : ""}
                 aria-label={label} aria-current={id === (panel || "focus") ? "page" : undefined}
                 onClick={() => (id === "focus" ? closePanel() : openPanel(id))}>
-                <span>{{ Animals: "Pets", "Egg shop": "Shop", Decorate: "Room" }[label] || label}</span>
+                <span>{{ "Egg shop": "Shop", Decorate: "Room" }[label] || label}</span>
                 {id === "shop" && state.eggs.length > 0 && <i>{state.eggs.length}</i>}
               </button>
             ))}
