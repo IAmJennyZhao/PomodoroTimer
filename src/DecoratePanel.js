@@ -4,7 +4,7 @@ import { Accessory, Icon, Sprite } from "./ui";
 import RoomBackdrop from "./RoomBackdrop";
 import ArrangePanel from "./ArrangePanel";
 
-export default function DecoratePanel({ state, act, arranging, setArranging, selection, setSelection, onNudgeWidget }) {
+export default function DecoratePanel({ state, act, arranging, setArranging, selection, setSelection }) {
   const available = spendableGems(state);
   const [category, setCategory] = useState("decorations");
   const [friendId, setFriendId] = useState(state.animals[0]?.id || "");
@@ -17,7 +17,7 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
       act({ type: "PLACE_DECORATION", item: item.id, ...(ATELIER_PLACEMENTS[item.id] || { x: 35, y: 72 }) });
     }
   }
-  if (arranging) return <ArrangePanel state={state} act={act} setArranging={setArranging} selection={selection} setSelection={setSelection} onNudgeWidget={onNudgeWidget} onOpenShop={() => { setCategory("decorations"); setSelection(null); setArranging(false); }} />;
+  if (arranging) return <ArrangePanel state={state} act={act} setArranging={setArranging} selection={selection} setSelection={setSelection} onOpenShop={() => { setCategory("decorations"); setSelection(null); setArranging(false); }} />;
   return <div className={`decoration-catalog catalogue-${category}`}>
       <div className="panel-toolbar catalog-toolbar">
         <div className="segmented" role="group" aria-label="Decoration categories">

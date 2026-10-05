@@ -79,8 +79,7 @@
 .sound-pill { background: #fff6e4dd; border-radius: 5px; color: #5c6b56; }
 .room-resident { filter: none; width: clamp(130px, 15vw, 235px); }
 .room-resident.decoration-couch { width: clamp(360px, 43vw, 700px); }
-.room-resident.decoration-rug { width: clamp(420px, 63vw, 1000px); }
-.room-resident.decoration-rug .furniture-art { aspect-ratio: 4.6 !important; }
+.room-resident.decoration-rug { width: clamp(360px, 45vw, 740px); }
 .room-resident.decoration-bookshelf { width: clamp(140px, 16vw, 280px); }
 .room-resident.decoration-side-table { width: clamp(120px, 14vw, 220px); }
 .room-resident.decoration-table { width: clamp(170px, 24vw, 360px); }
@@ -184,7 +183,7 @@
   .session-markers { margin-top: 8px; }
   .room-resident { width: 120px; }
   .room-resident.decoration-couch { width: 85vw; }
-  .room-resident.decoration-rug { width: 100vw; }
+  .room-resident.decoration-rug { width: 95vw; }
   .room-resident.decoration-bookshelf { width: 32vw; }
   .room-resident.decoration-side-table { width: 27vw; }
   .room-resident.decoration-table { width: 42vw; }

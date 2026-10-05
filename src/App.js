@@ -92,8 +92,6 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const engine = useRef(null);
   const sceneRef = useRef(null);
-  const timerWidgetRef = useRef(null);
-  const goalWidgetRef = useRef(null);
   const lastEvent = useRef(null);
   const previousFurniture = useRef(state.room.decorations.length);
   useEffect(() => {
@@ -309,10 +307,10 @@ export default function App() {
         className={`room-resident ${type} ${type === "decoration" ? `decoration-${item.item}` : ""} ${arranging ? "draggable" : ""} ${chosen ? "chosen" : ""}`}
         style={{
           left: arranging ? "calc(50% + (var(--room-x) - 50) * var(--room-edit-scale, 1) * 1%)" : `${position.x}%`,
-          top: arranging ? "calc(var(--room-y) * var(--room-edit-scale, 1) * 1%)" : `${position.y}%`,
+          top: arranging ? "calc(var(--room-edit-top, 0px) + var(--room-y) * var(--room-edit-scale, 1) * 1%)" : `${position.y}%`,
           "--room-x": position.x,
           "--room-y": position.y,
-          zIndex: chosen ? 250 : item.item === "rug" ? 1 : (type === "animal" ? 160 : 2) + Math.round(position.y),
+          zIndex: item.item === "rug" ? 1 : chosen ? 250 : (type === "animal" ? 160 : 2) + Math.round(position.y),
           "--delay": `${-(state.animals.findIndex((animal) => animal.id === item.id) * 1.37)}s`,
         }}
       >
@@ -370,8 +368,8 @@ export default function App() {
           BACKGROUNDS.find((item) => item.id === state.room.background)?.name
         }
       >
-        <RoomBackdrop theme={state.room.background} />
         <RoomObjects ref={sceneRef} arranging={arranging}>
+        <RoomBackdrop theme={state.room.background} />
         {state.room.decorations.map((item) =>
           renderResident(item, "decoration"),
         )}
@@ -418,7 +416,7 @@ export default function App() {
           </button>
         </div>
       </header>
-      <RoomWidget ref={timerWidgetRef} as="main" id="timer" name="timer" className="focus-area" position={state.room.widgets?.timer}
+      <RoomWidget as="main" id="timer" name="timer" className="focus-area" position={state.room.widgets?.timer}
         arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "timer"}
         onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "timer", ...position })} hidden={widePanel}>
         <TimerCard state={state} act={act} now={now} ready={ready} blocked={status === "conflict"}
@@ -432,7 +430,7 @@ export default function App() {
           }}
           tip={BREAK_IDEAS[tip]} nextTip={() => setTip((previous) => (previous + 1 + Math.floor(Math.random() * (BREAK_IDEAS.length - 1))) % BREAK_IDEAS.length)} />
       </RoomWidget>
-      <RoomWidget ref={goalWidgetRef} id="goal" name="daily goal" className="daily-goal-note" position={state.room.widgets?.goal}
+      <RoomWidget id="goal" name="daily goal" className="daily-goal-note" position={state.room.widgets?.goal}
         arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "goal"}
         onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "goal", ...position })} hidden={focusView || widePanel}>
         <button
@@ -493,7 +491,6 @@ export default function App() {
               setArranging={setArranging}
               selection={selection}
               setSelection={setSelection}
-              onNudgeWidget={(id, direction) => (id === "timer" ? timerWidgetRef : goalWidgetRef).current?.nudge(direction)}
             />
           )}
           {panel === "journal" && (

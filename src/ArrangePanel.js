@@ -2,9 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ATELIER_PLACEMENTS, DECORATIONS, decorationAvailable, decorationQuantity } from "./game";
 import { Icon, InfoTip, Sprite } from "./ui";
 
-const directions = ["left", "right", "up", "down"];
-
-export default function ArrangePanel({ state, act, setArranging, selection, setSelection, onNudgeWidget, onOpenShop }) {
+export default function ArrangePanel({ state, act, setArranging, selection, setSelection, onOpenShop }) {
   const libraryRef = useRef(null);
   const [edges, setEdges] = useState({ start: true, end: true });
   const selectedObject = selection?.type === "animal" ? state.animals.find(item => item.id === selection.id && item.placed)
@@ -35,14 +33,6 @@ export default function ArrangePanel({ state, act, setArranging, selection, setS
     if (delta) library.scrollBy({ left: delta, behavior: state.settings.reducedMotion ? "auto" : "smooth" });
   }, [selection, state.settings.reducedMotion]);
   const browse = direction => libraryRef.current.scrollBy({ left: direction * libraryRef.current.clientWidth * .75, behavior: state.settings.reducedMotion ? "auto" : "smooth" });
-  function nudge(direction) {
-    if (!selectedObject) return;
-    if (selection.type === "widget") { onNudgeWidget?.(selection.id, direction); return; }
-    const axis = ["left", "right"].includes(direction) ? "x" : "y";
-    const delta = ["left", "up"].includes(direction) ? -1 : 1;
-    act({ type: selection.type === "animal" ? "MOVE_ANIMAL" : "MOVE_DECORATION", id: selectedObject.id,
-      [axis]: Math.max(axis === "x" ? 5 : 20, Math.min(axis === "x" ? 95 : 85, selectedObject[axis] + delta)) });
-  }
   return <div className="arrange-panel">
     <div className="arrange-toolbar">
       <label className="field-label"><span className="visually-hidden">Selected item</span>
@@ -57,9 +47,6 @@ export default function ArrangePanel({ state, act, setArranging, selection, setS
       </label>
       <button type="button" className="icon-button arrange-deselect" aria-label="Deselect item" disabled={!selectedObject} onClick={() => setSelection(null)}><Icon name="close" size={18} /></button>
       <InfoTip label="Arrange controls">Drag an item or its move handle. Arrow keys nudge; Shift moves farther. Click a library tile to select placed furniture; click again to select its next copy.</InfoTip>
-      <div className="arrange-nudges" role="group" aria-label="Move selected item">
-        {directions.map(direction => <button type="button" className="small-button" key={direction} disabled={!selectedObject} aria-label={`Move selected item ${direction}`} onClick={() => nudge(direction)}><span className={`nudge-arrow nudge-${direction}`}><Icon name="arrow" size={18} /></span></button>)}
-      </div>
       <button type="button" className="text-button arrange-remove" disabled={!selectedObject || selection.type === "widget"} onClick={() => {
         act(selection.type === "animal" ? { type: "PLACE_ANIMAL", id: selectedObject.id, placed: false } : { type: "REMOVE_DECORATION", id: selectedObject.id });
         setSelection(null);

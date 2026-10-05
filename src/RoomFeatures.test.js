@@ -58,18 +58,15 @@ test("decoration library uses an explicit arrange action and places free furnitu
   expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: "PLACE_DECORATION", item: "couch" }));
 });
 
-test("arrangement arrow controls move pets above the floor and clamp at the upper boundary", () => {
+test("arrangement uses drag selection without visible movement arrows", () => {
   const state = createInitialState(1);
   state.animals[0].y = 35;
   const dispatch = jest.fn();
   const props = { state, act: dispatch, arranging: true, setArranging: () => {}, selection: { type: "animal", id: state.animals[0].id }, setSelection: () => {} };
-  const { rerender } = render(<DecoratePanel {...props} />);
-  fireEvent.click(screen.getByRole("button", { name: "Move selected item up" }));
-  expect(dispatch).toHaveBeenLastCalledWith({ type: "MOVE_ANIMAL", id: state.animals[0].id, y: 34 });
-  state.animals[0].y = 20;
-  rerender(<DecoratePanel {...props} />);
-  fireEvent.click(screen.getByRole("button", { name: "Move selected item up" }));
-  expect(dispatch).toHaveBeenLastCalledWith({ type: "MOVE_ANIMAL", id: state.animals[0].id, y: 20 });
+  render(<DecoratePanel {...props} />);
+  expect(screen.queryByRole("group", { name: "Move selected item" })).not.toBeInTheDocument();
+  expect(screen.getByRole("combobox", { name: "Selected item" })).toHaveValue(`animal:${state.animals[0].id}`);
+  expect(dispatch).not.toHaveBeenCalled();
 });
 
 test("placed library furniture stays selectable and cycles copies without placing another", () => {
@@ -90,16 +87,13 @@ test("placed library furniture stays selectable and cycles copies without placin
   expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: "PLACE_DECORATION", item: "couch" }));
 });
 
-test("library widgets select and use arrow controls without exposing Remove", () => {
+test("library widgets select without exposing Remove", () => {
   const state = createInitialState(1);
   const select = jest.fn();
-  const nudge = jest.fn();
-  render(<DecoratePanel state={state} act={() => {}} arranging setArranging={() => {}} selection={{ type: "widget", id: "timer" }} setSelection={select} onNudgeWidget={nudge} />);
+  render(<DecoratePanel state={state} act={() => {}} arranging setArranging={() => {}} selection={{ type: "widget", id: "timer" }} setSelection={select} />);
   fireEvent.click(screen.getByRole("button", { name: "Select Daily goal" }));
   expect(select).toHaveBeenCalledWith({ type: "widget", id: "goal" });
   expect(screen.getByRole("button", { name: "Remove" })).toBeDisabled();
-  fireEvent.click(screen.getByRole("button", { name: "Move selected item right" }));
-  expect(nudge).toHaveBeenCalledWith("timer", "right");
 });
 
 test("duplicate upgrades unlock additional visible room animations", () => {

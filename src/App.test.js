@@ -470,6 +470,7 @@ test('arranging exposes a room library, deselects furniture, and saves widget po
   expect(screen.getByRole('button', { name: 'Position Soft sofa' })).toHaveAttribute('aria-pressed', 'false');
   const rect = jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function () {
     return this.classList.contains('app') ? { left: 0, top: 0, width: 1200, height: 800 }
+      : this.classList.contains('app-header') ? { left: 0, top: 0, width: 1200, height: 62, bottom: 62 }
       : this.classList.contains('workspace-decorate') ? { left: 0, top: 620, width: 1200, height: 180 }
       : { left: 200, top: 150, width: 300, height: 250 };
   });
@@ -492,6 +493,7 @@ test('furniture dragging preserves its grab offset through the temporary arrange
   saved.animals[0].placed = false;
   jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function () {
     if (this.classList.contains('workspace-decorate')) return { left: 0, top: 400, width: 1200, height: 400 };
+    if (this.classList.contains('app-header')) return { left: 0, top: 0, width: 1200, height: 62, bottom: 62 };
     if (['app', 'room-scene', 'room-objects'].some(name => this.classList.contains(name))) return { left: 0, top: 0, width: 1200, height: 800 };
     return { left: 100, top: 150, width: 300, height: 250 };
   });
@@ -503,6 +505,9 @@ test('furniture dragging preserves its grab offset through the temporary arrange
   const scale = Number(container.querySelector('.room-objects').style.getPropertyValue('--room-edit-scale'));
   expect(scale).toBeGreaterThan(0);
   expect(scale).toBeLessThan(1);
+  // The background receives the same camera variables as the furniture.
+  // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+  expect(container.querySelector('.room-backdrop').parentElement).toBe(container.querySelector('.room-objects'));
   const originalPointerEvent = window.PointerEvent;
   window.PointerEvent = MouseEvent;
   const sofa = screen.getByRole('button', { name: 'Position Soft sofa' });

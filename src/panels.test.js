@@ -98,10 +98,7 @@ test('decoration purchases can be used, equipped, positioned, and removed withou
   fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));
   expect(screen.queryByRole('button', { name: 'Add Cozy cushion' })).not.toBeInTheDocument();
   fireEvent.change(screen.getByRole('combobox', { name: 'Selected item' }), { target: { value: `decoration:${first}` } });
-  const beforeMove = { ...getState().room.decorations[0] };
-  fireEvent.click(screen.getByRole('button', { name: 'Move selected item right' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Move selected item up' }));
-  expect(getState().room.decorations[0]).toMatchObject({ x: beforeMove.x + 1, y: beforeMove.y - 1 });
+  expect(screen.queryByRole('button', { name: 'Move selected item right' })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
   expect(getState().room.decorations).toHaveLength(1);
   expect(getState().owned.decorations).toContain('cushion');
