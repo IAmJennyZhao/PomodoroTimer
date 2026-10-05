@@ -43,7 +43,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
               onClick={() => act({ type: "SET_SETTINGS", settings: { workMode: id } })}>{label}</button>
           ))}
         </div> : <div className="timer-session-controls">
-          {active && <button ref={resumeRef} type="button" className="pause-button" disabled={!ready || blocked} onClick={onToggleTimer}>
+          {active && <button ref={resumeRef} type="button" className={`pause-button ${paused ? "resume-button" : ""}`} disabled={!ready || blocked} onClick={onToggleTimer}>
             {paused ? "Resume" : limitedPauses ? `Pause (${pausesLeft}/${MAX_PAUSES})` : "Pause"}
           </button>}
           {active && !breakTime && <HoldToStop key={`${timer.id}:${timer.status}`} disabled={!ready || blocked} onStop={() => act({ type: "RESET" })} />}
@@ -101,6 +101,6 @@ export function QuickScratchpad({ state, act, saveStatus }) {
   useEffect(() => { notes.current?.focus(); }, []);
   return <div className="quick-notes">
     <textarea ref={notes} id="quick-notes" aria-label="Notes" placeholder="Save a thought for later…" maxLength={10000} value={state.scratchpad} onChange={(event) => act({ type: "SET_SCRATCHPAD", text: event.target.value })} />
-    <span className="notes-save-state" role="status">{saveStatus === "saved" ? "Saved" : saveStatus === "saving" ? "Saving…" : saveStatus === "error" || saveStatus === "conflict" ? "Not saved" : ""}</span>
+    <span className="notes-save-state" data-save-status={saveStatus} role="status">{saveStatus === "saved" ? "Saved" : saveStatus === "saving" ? "Saving…" : saveStatus === "error" || saveStatus === "conflict" ? "Not saved" : ""}</span>
   </div>;
 }

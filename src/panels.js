@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useState } from "react";
 import { PRESETS } from "./game";
 import { Icon, RangeField, InfoTip } from "./ui";
+import { PastelButtonArt } from "./AtelierArt";
 export { AnimalsPanel, ShopPanel } from "./CollectionPanels";
 export { default as DecoratePanel } from "./DecoratePanel";
 export { default as JournalPanel } from "./JournalPanel";
@@ -36,21 +37,24 @@ export function SoundPanel({
     }
   }
   return (
-    <>
-      <button
-        type="button"
-        className="secondary-button full-width"
-        onClick={togglePlayback}
-        disabled={starting}
-        aria-pressed={playing}
-      >
-        <Icon name={playing ? "pause" : "play"} />{" "}
-        {starting
-          ? "Starting…"
-          : playing
-            ? "Pause sounds"
-            : "Play sounds"}
-      </button>
+    <div className="sound-mixer">
+      <div className="sound-playback-row">
+        <button
+          type="button"
+          className="primary-button sound-playback"
+          aria-label={starting ? "Starting sounds" : playing ? "Pause sounds" : "Play sounds"}
+          onClick={togglePlayback}
+          disabled={starting}
+          aria-pressed={playing}
+        >
+          <PastelButtonArt />
+          <Icon name={playing ? "pause" : "play"} />{" "}
+          {starting ? "Starting…" : playing ? "Pause" : "Play"}
+        </button>
+        <InfoTip label="Sound playback">
+          Levels save automatically. Press Play to start the mix.
+        </InfoTip>
+      </div>
       <div className="mixer">
         {[
           {
@@ -67,6 +71,7 @@ export function SoundPanel({
           },
         ].map((channel) => (
           <section key={channel.id}>
+            <Icon name={channel.id} size={32} className="sound-channel-art" />
             <RangeField
               label={channel.name}
               value={Math.round(state.settings.ambient[channel.id] * 100)}
@@ -99,10 +104,7 @@ export function SoundPanel({
           }
         />
       </label>
-      <InfoTip label="Sound playback">
-        Levels are saved automatically. Press Play sounds to start the mix.
-      </InfoTip>
-    </>
+    </div>
   );
 }
 

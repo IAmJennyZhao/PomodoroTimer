@@ -89,6 +89,9 @@ export function Icon({ name, size = 22, className = "", ...props }) {
     cup: <><path d="M4 9h13v5a6.5 6.5 0 0 1-13 0ZM17 10h2a3 3 0 0 1 0 6h-2M3 22h16M7 3v3m4-4v4m4-3v3" /></>,
     bell: <><path d="M5 17h14l-2-3V9a5 5 0 0 0-10 0v5ZM10 21h4M12 2v2" /></>,
     music: <><path d="M9 18V5l11-3v14M9 9l11-3" /><ellipse cx="6" cy="19" rx="3" ry="2" /><ellipse cx="17" cy="17" rx="3" ry="2" /></>,
+    rain: <><path d="M11 2C9 6 4 11 4 15a7 7 0 0 0 14 0C18 11 13 6 11 2Z" /><path d="M8 13c-2 4-1 6 2 7M20 3l-2 4" /></>,
+    fire: <><path d="M13 2c2 6-1 7 1 10 2-1 3-3 3-5 4 5 5 7 4 11-1 3-4 4-9 4s-8-2-9-6c-1-3 1-7 3-9 0 4 2 5 3 5 2-4-1-7 4-10Z" /><path d="M12 12c0 3-4 5-3 8 1 3 5 3 7 0 1-2-1-4-2-5 0 3-1 3-2-3Z" /></>,
+    noise: <path d="M2 6c4-5 6 5 10 0s6 5 10 0M2 12c4-5 6 5 10 0s6 5 10 0M2 18c4-5 6 5 10 0s6 5 10 0" />,
   };
   return (
     <svg

@@ -28,7 +28,7 @@
 .app .session-presets .preset-button.selected { background-color: var(--coral); color: #fffaf0; border-color: var(--coral-hover); box-shadow: inset 0 0 0 2px #fff9e77a; }
 .app .session-presets .preset-button.selected:hover { background-color: var(--coral-hover); }
 .app .session-duration-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 14px; }
-.app .session-duration-grid .number-field { display: flex; flex-direction: column; align-items: stretch; justify-content: start; gap: 6px; padding: 0; margin: 0; grid-column: auto; }
+.app .session-duration-grid .number-field { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 6px; padding: 0; margin: 0; grid-column: auto; }
 .app .number-field > label { display: flex; align-items: center; gap: 7px; color: var(--ink); font-size: 14px; line-height: 1.4; }
 .app .number-field .icon-focus { color: var(--coral); fill: #ecd0b6; }
 .app .number-field .icon-leaf { color: var(--sage-strong); fill: var(--sage); }
@@ -50,6 +50,52 @@
 .app .session-end-choice input:focus-visible { outline: 2px solid var(--focus-ring); }
 .app .session-timing-note { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px; }
 
+/* A ruled loose note, with the whole heading still acting as its move handle. */
+.app .workspace-notes.movable-notes.paper { border: 9px solid transparent; border-image: var(--book-frame) 24 / 9px / 0 stretch; border-radius: 12px; box-shadow: 3px 7px 20px #5b4b2c25; }
+.app .movable-notes::before { background-color: #e8bb6bd9; background-image: var(--paper-grain); height: 22px; width: 52px; left: calc(50% - 26px); border-radius: 1px 2px 0 1px; }
+.app .movable-notes > .drawer-heading { padding: 12px 14px 7px; border: 0; gap: 8px; }
+.app .movable-notes .notepad-drag-handle { position: relative; padding: 6px 0; }
+.app .movable-notes .notepad-drag-handle > svg { position: absolute; left: 0; }
+.app .movable-notes .notepad-drag-handle > span { width: 100%; padding-left: 40px; text-align: center; }
+.app .movable-notes .notepad-heading { font-size: 22px; }
+.app .movable-notes .drawer-heading > .icon-button { width: 32px; min-width: 32px; height: 32px; padding: 5px; }
+.app .movable-notes > .drawer-content { padding: 0 14px 12px; }
+.app .movable-notes .quick-notes textarea { display: block; width: 100%; height: 280px; min-height: 168px; max-height: min(48dvh, calc(100dvh - 140px)); margin: 5px 0 8px; padding: 3px 10px; border: 0; border-radius: 0; background: repeating-linear-gradient(transparent 0 27px, #bca78470 27px 28px); color: var(--ink); font: italic 16px/28px Georgia, serif; resize: vertical; }
+.app .movable-notes .quick-notes textarea:focus { outline: none; box-shadow: inset 2px 0 #81966a; }
+.app .notes-save-state[data-save-status="error"], .app .notes-save-state[data-save-status="conflict"] { color: var(--danger); }
+
+/* Sound channels are pencil illustrations with pigment level tracks. */
+.app .sound-playback-row { display: grid; grid-template-columns: 24px 1fr 24px; gap: 6px; align-items: center; margin-bottom: 22px; }
+.app .sound-playback-row > .info-disclosure { grid-column: 3; }
+.app .workspace-sound .sound-playback { grid-column: 2; justify-self: center; position: relative; isolation: isolate; display: flex; align-items: center; justify-content: center; gap: 9px; width: 166px; min-height: 49px; padding: 8px 16px; border: 0; border-radius: 25px; background: none; box-shadow: none; color: #fffaf0; font-size: 18px; }
+.app .workspace-sound .sound-playback:hover:enabled { background: none; filter: brightness(.94); }
+.app .workspace-sound .sound-playback:active:enabled { box-shadow: none; filter: brightness(.88); }
+.app .workspace-sound .sound-playback:disabled { background: none; color: var(--muted) !important; }
+.app .sound-playback:disabled .pastel-button-art { filter: grayscale(.9) opacity(.15); }
+.app .sound-playback > .icon-play { fill: currentColor; }
+.app .sound-mixer .mixer { margin: 0 0 14px; }
+.app .sound-mixer .mixer > section { display: grid; grid-template-columns: 32px minmax(0, 1fr); align-items: center; gap: 12px; margin: 0 0 20px; padding: 0; border: 0; }
+.app .sound-channel-art.icon-rain { color: #5886a2; }
+.app .sound-channel-art.icon-rain > g > path:first-child { fill: #c4dce1; }
+.app .sound-channel-art.icon-fire { color: #c56f49; }
+.app .sound-channel-art.icon-fire > g > path:first-child { fill: #eac289; }
+.app .sound-channel-art.icon-fire > g > path:last-child { fill: #fff0ad; }
+.app .sound-channel-art.icon-noise { color: #5886a2; }
+.app .sound-mixer .range-field { position: relative; display: block; margin: 0; }
+.app .sound-mixer .range-field > span { font-size: 16px; color: var(--ink); }
+.app .sound-mixer .range-field output { position: absolute; right: 0; bottom: 8px; width: 38px; text-align: right; font-size: 13px; line-height: 16px; }
+.app .sound-mixer .range-field input[type="range"] { width: calc(100% - 44px); height: 32px; margin: 4px 0 0; }
+.app .sound-mixer .range-field input[type="range"]::-webkit-slider-runnable-track { border-color: #b7b29b; background: linear-gradient(to right, var(--coral) var(--range-progress), var(--progress-track) var(--range-progress)); height: 8px; }
+.app .sound-mixer .range-field input[type="range"]::-webkit-slider-thumb { margin-top: -6px; border-color: #b39174; box-shadow: 1px 2px 3px #574a2726, inset 0 0 0 2px #fffdf54d; }
+.app .sound-mixer .range-field input[type="range"]::-moz-range-progress { background: var(--coral); }
+.app .sound-mixer > .toggle-line { border-top: 1px solid var(--line); padding-top: 12px; }
+
+/* Quiet timer actions use the same paper capsules and sage selection. */
+.app .timer-session-controls :is(.pause-button, .stop-button) { border-radius: 19px 21px 18px 20px; box-shadow: inset 0 0 0 2px #fffdf54d; }
+.app .timer-session-controls .resume-button { background-color: var(--sage); border-color: var(--sage-strong); }
+.app .timer-session-controls .stop-button:hover:enabled { border-color: #bc8870; background-color: #faeddd; }
+.app .timer-session-controls :is(.pause-button, .stop-button):disabled { color: var(--muted); background-color: var(--paper-shade); }
+
 @media (max-width: 950px) {
   .app .session-duration-grid { gap: 18px 10px; }
   .app .number-field > label { gap: 5px; font-size: 13px; }
@@ -61,8 +107,14 @@
   .app :is(.workspace-settings, .workspace-session, .workspace-sound) > .drawer-content { padding: 6px 12px 16px; }
   .app .session-presets { margin-bottom: 14px; padding-bottom: 14px; }
   .app .session-duration-grid { gap: 14px 10px; }
+  .app .sound-mixer .mixer > section { gap: 10px; margin-bottom: 16px; }
+  .app .sound-playback-row { margin-bottom: 18px; }
 }
 @media (forced-colors: active) {
   .app :is(.workspace-settings, .workspace-session, .workspace-sound).paper { border: 1px solid CanvasText; border-image: none; }
   .app .session-presets .preset-button.selected { border: 2px solid Highlight; }
+  .app .workspace-notes.movable-notes.paper { border: 1px solid CanvasText; border-image: none; }
+  .app .workspace-sound .sound-playback { border: 1px solid ButtonText; background: ButtonFace; color: ButtonText !important; }
+  .app .workspace-sound .sound-playback .pastel-button-art { display: none; }
+  .app .movable-notes .quick-notes textarea:focus { outline: 1px solid Highlight; }
 }
