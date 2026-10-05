@@ -1,18 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { ACCESSORIES, ANIMALS, RARITIES, RARITY_STARS, EGG_MINUTES, animationCount, gemBonus } from "./game";
-import { AnimalArt, Icon, InfoTip, Sprite } from "./ui";
+import { AnimalArt, Icon, InfoTip, RarityStars, Sprite } from "./ui";
 import "./collection.css";
+export { RarityStars } from "./ui";
 
 const titleCase = (value) => value.charAt(0).toUpperCase() + value.slice(1);
 const speciesName = (animal) => ANIMALS.find((species) => species.id === animal.species)?.name || "Animal";
-
-export function RarityStars({ rarity, label = true }) {
-  const stars = RARITY_STARS[rarity];
-  return <span className={`rarity-stars ${rarity}`} aria-label={`${stars} ${stars === 1 ? "star" : "stars"}${label ? ` · ${titleCase(rarity)}` : ""}`}>
-    <span aria-hidden="true">{"★".repeat(stars)}</span>
-    {label && <span aria-hidden="true">{titleCase(rarity)}</span>}
-  </span>;
-}
 
 export function AnimalsPanel({ state, act, selected, setSelected }) {
   const [mystery, setMystery] = useState(null);

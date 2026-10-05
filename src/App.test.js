@@ -145,6 +145,9 @@ test('focus earnings buy an egg and the next study session makes it hatchable', 
   const welcome = within(hatch).getByRole('button', { name: 'Done' });
   expect(welcome).toHaveFocus();
   fireEvent.keyDown(welcome, { key: 'Tab', shiftKey: true });
+  const closeCelebration = within(hatch).getByRole('button', { name: 'Close celebration' });
+  expect(closeCelebration).toHaveFocus();
+  fireEvent.keyDown(closeCelebration, { key: 'Tab', shiftKey: true });
   expect(welcome).toHaveFocus();
   expect(screen.getByRole('button', { name: 'Miso, Everyday cat' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Cat, Basic cat' })).toBeInTheDocument();
@@ -278,7 +281,8 @@ test('a conflicting save blocks timer changes until the saved room is explicitly
   global.fetch.mockResolvedValueOnce(response({}, 409));
   fireEvent.change(screen.getByRole('textbox', { name: 'Session task' }), { target: { value: 'Local unsaved task' } });
   await advance(350);
-  expect(screen.getByRole('alert')).toHaveTextContent('This save changed in another window');
+  expect(screen.getByRole('alert')).toHaveTextContent('Save changed elsewhere');
+  expect(screen.getByRole('alert')).toHaveTextContent('Reload replaces this window’s edits.');
   expect(screen.getByRole('button', { name: 'Start' })).toBeDisabled();
   fireEvent.click(screen.getByRole('button', { name: 'Count up', exact: true }));
   expect(screen.getByRole('timer')).toHaveTextContent('25:00');
@@ -292,6 +296,22 @@ test('a conflicting save blocks timer changes until the saved room is explicitly
   expect(screen.getByRole('textbox', { name: 'Session task' })).toHaveValue('');
   expect(screen.getByRole('button', { name: 'Start' })).toBeEnabled();
   expect(screen.getByRole('button', { name: '10 Shilligems, open egg shop' })).toBeInTheDocument();
+});
+
+test('a failed save keeps local edits and the compact warning offers a working retry', async () => {
+  await openRoom();
+  global.fetch.mockResolvedValueOnce(response({}, 500));
+  fireEvent.change(screen.getByRole('textbox', { name: 'Session task' }), { target: { value: 'Keep this draft' } });
+  await advance(350);
+  expect(screen.getByRole('alert')).toHaveTextContent('Changes not saved');
+  expect(screen.getByRole('alert')).toHaveTextContent('Your edits are still here.');
+  expect(screen.getByRole('textbox', { name: 'Session task' })).toHaveValue('Keep this draft');
+  fireEvent.click(screen.getByRole('button', { name: 'Save details' }));
+  expect(screen.getByRole('note')).toHaveTextContent('Saving failed');
+  fireEvent.click(screen.getByRole('button', { name: 'Retry save' }));
+  await settle();
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(latestWrite().state.timer.task).toBe('Keep this draft');
 });
 
 test('session lengths are editable on the timer and a running session keeps its original duration', async () => {

@@ -39,14 +39,69 @@
 .app .session-receipt > span:nth-child(2) { color: var(--muted); }
 .app .session-receipt.forfeited > span:first-child { color: var(--danger); }
 .app .session-receipt.forfeited .icon-gem { fill: none; }
+
+/* Help and save messages are small notes; celebrations are larger taped sheets. */
+.info-content.feedback-note { z-index: 650; padding: 10px 13px 14px; border: 8px solid transparent; border-image: var(--book-frame) 24 / 8px / 0 stretch; border-radius: 10px; width: min(320px, calc(100vw - 24px)); font: 14px/1.55 var(--font-ui); }
+.info-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); padding-bottom: 7px; margin-bottom: 10px; }
+.info-heading h3 { color: var(--ink); font: 16px/1.3 var(--font-ui); margin: 0; }
+.info-heading .info-button { width: 30px; min-width: 30px; height: 30px; padding: 6px; }
+.info-body { color: var(--ink); overflow-wrap: anywhere; }
+.info-body p { margin: 0 0 9px; }
+.info-body > p:last-child { margin-bottom: 0; }
+.app .save-warning.feedback-note { display: flex; align-items: flex-start; gap: 11px; position: fixed; z-index: 400; top: 90px; left: 20px; width: min(360px, calc(100% - 24px)); max-width: none; padding: 13px; color: var(--ink); }
+.app.focus-view .save-warning.feedback-note { top: 20px; }
+.app .save-warning .feedback-emblem { display: inline-flex; margin-top: 1px; }
+.app .save-notice-copy { min-width: 0; flex: 1; }
+.app .save-notice-copy h2 { font-size: 18px; line-height: 1.3; margin: 0 0 5px; }
+.app .save-notice-copy p { font-size: 13px; color: var(--muted); margin: 0 0 11px; line-height: 1.45; }
+.app .save-notice-actions { display: flex; align-items: center; gap: 9px; }
+.app .save-warning .small-button { min-height: 38px; padding: 7px 12px; text-decoration: none; border: 1px solid var(--line); font-size: 13px; }
+.app .save-warning .info-button { padding: 5px; text-decoration: none; }
+.app .loading-screen { z-index: 700; background: var(--paper-shade); backdrop-filter: none; }
+.app .loading-card.feedback-note { width: min(400px, calc(100% - 24px)); padding: 28px; overflow: auto; max-height: calc(100dvh - 40px); }
+.app .loading-card > .feedback-emblem { width: 52px; height: 52px; }
+.app .loading-card h1 { font-size: 25px; line-height: 1.2; margin: 18px 0 10px; }
+.app .loading-card p { font-size: 14px; color: var(--muted); line-height: 1.5; }
+.app .loading-card .connection-details { margin: 18px 0 0; text-align: left; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.app .loading-card summary { cursor: pointer; text-align: center; text-decoration: underline; text-underline-offset: 3px; }
+.app .celebration-backdrop { z-index: 500; background: transparent; backdrop-filter: none; padding: 16px; }
+.app .hatch-modal.paper { position: relative; width: min(440px, calc(100vw - 32px)); padding: 24px 28px; border: 10px solid transparent; border-image: url("./art/utility-frame.svg") 16 / 10px / 0 stretch; border-radius: 12px; max-height: calc(100dvh - 32px); box-shadow: 0 9px 28px #5b4b2c38; }
+.app .hatch-close { position: absolute; z-index: 3; top: 11px; right: 11px; width: 34px; min-width: 34px; height: 34px; padding: 6px; }
+.app .hatch-portrait { position: relative; margin: 12px auto 0; width: 100%; height: 236px; }
+.app .hatch-modal .hatch-portrait .animal-art { position: relative; width: 224px; max-width: 100%; margin: 0 auto; animation: none; }
+.app .hatch-modal h2 { margin: 10px 0 8px; font-size: 31px; line-height: 1.2; overflow-wrap: anywhere; }
+.app .hatch-modal .rarity-stars { display: flex; justify-content: center; color: var(--coral); font-size: 20px; }
+.app .hatch-modal .hatch-details { color: var(--muted); font: 14px/1.5 var(--font-ui); margin: 10px 0 0; }
+.hatch-confetti { position: absolute; inset: 0; pointer-events: none; }
+.hatch-confetti i { position: absolute; width: 5px; height: 14px; border-radius: 60% 40% 45% 55%; background: var(--coral); opacity: .6; transform: rotate(-30deg); }
+.hatch-confetti i:nth-child(1) { left: 12%; top: 22%; }
+.hatch-confetti i:nth-child(2) { left: 4%; top: 49%; background: #d6ad5d; transform: rotate(64deg); }
+.hatch-confetti i:nth-child(3) { left: 20%; top: 69%; background: var(--sage-strong); transform: rotate(18deg); }
+.hatch-confetti i:nth-child(4) { right: 12%; top: 22%; transform: rotate(32deg); }
+.hatch-confetti i:nth-child(5) { right: 4%; top: 49%; background: var(--gem-blue); transform: rotate(-58deg); }
+.hatch-confetti i:nth-child(6) { right: 20%; top: 69%; background: #d6ad5d; transform: rotate(-20deg); }
+.hatch-confetti i:nth-child(7) { left: 32%; top: 6%; background: var(--sage-strong); transform: rotate(16deg); }
+.hatch-confetti i:nth-child(8) { right: 32%; top: 6%; background: var(--gem-blue); transform: rotate(-16deg); }
+.app .celebration-done.primary-button { position: relative; isolation: isolate; border: 0; background: none; box-shadow: none; width: 186px; min-height: 49px; margin-top: 15px; font-size: 20px; }
+.app .celebration-done.primary-button:hover:enabled { background: none; filter: brightness(.94); }
+.app .celebration-done.primary-button:active:enabled { box-shadow: none; filter: brightness(.88); }
 @media (max-width: 600px) {
   .app .toast-region { bottom: 56px; }
   .app .pause-expired strong { font-size: 29px; }
   .app .session-result-heading { font-size: 18px; }
   .app .session-complete .timer-digits { font-size: 64px; }
   .app .session-complete .break-buttons button { font-size: 14px; padding: 8px 6px; }
+  .app .save-warning.feedback-note { top: 108px; left: 12px; right: 12px; }
+  .app .hatch-modal.paper { padding: 20px 18px; }
+  .app .hatch-portrait { height: 190px; }
+  .app .hatch-modal .hatch-portrait .animal-art { width: 180px; }
+  .app .hatch-modal h2 { font-size: 27px; }
+  .app .loading-card.feedback-note { padding: 24px 18px; }
 }
 @media (forced-colors: active) {
   .app .feedback-note.paper { border-image: none; border: 1px solid CanvasText; }
   .feedback-emblem { border: 1px solid CanvasText; }
+  .info-content.feedback-note, .app .hatch-modal.paper { border-image: none; border: 1px solid CanvasText; }
+  .app .celebration-done.primary-button, .app .session-complete .break-buttons .primary-button { background: ButtonFace; color: ButtonText !important; border: 1px solid ButtonText; }
+  .app .celebration-done .pastel-button-art, .app .session-complete .break-buttons .pastel-button-art { display: none; }
 }

@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { FurnitureArt } from "./RoomBackdrop";
-import { ArtFragment, ATELIER_ART } from "./AtelierArt";
+import { ArtFragment, ATELIER_ART, PastelButtonArt } from "./AtelierArt";
+import { RARITY_STARS } from "./game";
 export const ART = `${process.env.PUBLIC_URL || ""}/art`;
 export const RARITY_NAMES = {
   basic: "Basic",
@@ -19,6 +20,15 @@ export const PANEL_NAMES = {
   session: "Session settings",
   notes: "Scratchpad",
 };
+
+export function RarityStars({ rarity, label = true }) {
+  const stars = RARITY_STARS[rarity];
+  const name = RARITY_NAMES[rarity];
+  return <span className={`rarity-stars ${rarity}`} aria-label={`${stars} ${stars === 1 ? "star" : "stars"}${label ? ` · ${name}` : ""}`}>
+    <span aria-hidden="true">{"★".repeat(stars)}</span>
+    {label && <span aria-hidden="true">{name}</span>}
+  </span>;
+}
 
 export function Icon({ name, size = 22, className = "", ...props }) {
   const paths = {
@@ -180,6 +190,10 @@ export function InfoTip({ label = "More info", children }) {
   const ref = useRef(null);
   const contentRef = useRef(null);
   const [position, setPosition] = useState({ left: 12, top: 12 });
+  const close = () => {
+    setOpen(false);
+    ref.current?.querySelector("button")?.focus();
+  };
   useLayoutEffect(() => {
     if (!open) return undefined;
     const place = () => {
@@ -190,14 +204,17 @@ export function InfoTip({ label = "More info", children }) {
       const below = anchor.bottom + 8;
       const top = below + content.height < window.innerHeight - 12
         ? below : Math.max(12, anchor.top - content.height - 8);
-      setPosition({ left, top });
+      setPosition(previous => previous.left === left && previous.top === top ? previous : { left, top });
     };
     place();
     window.addEventListener("resize", place);
     document.addEventListener("scroll", place, true);
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(place) : null;
+    if (contentRef.current) observer?.observe(contentRef.current);
     return () => {
       window.removeEventListener("resize", place);
       document.removeEventListener("scroll", place, true);
+      observer?.disconnect();
     };
   }, [open]);
   useEffect(() => {
@@ -216,15 +233,17 @@ export function InfoTip({ label = "More info", children }) {
     <span className="info-disclosure" ref={ref} onKeyDown={(event) => {
       if (open && event.key === "Escape") {
         event.stopPropagation();
-        setOpen(false);
-        ref.current?.querySelector("button")?.focus();
+        close();
       }
     }}>
       <button type="button" className="info-button" aria-label={label}
         aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>
         <Icon name="info" size={17} />
       </button>
-      {open && createPortal(<div ref={contentRef} className="info-content" style={position} role="note" id={id}>{children}</div>, document.body)}
+      {open && createPortal(<div ref={contentRef} className="info-content feedback-note" style={position} role="note" id={id} aria-labelledby={`${id}-title`}>
+        <div className="info-heading"><h3 id={`${id}-title`}>{label}</h3><button type="button" className="info-button" aria-label="Close details" onClick={close}><Icon name="close" size={17} /></button></div>
+        <div className="info-body">{children}</div>
+      </div>, document.body)}
     </span>
   );
 }
@@ -381,43 +400,64 @@ export function RangeField({
   );
 }
 
-export function HatchModal({ animal, duplicate = false, capped = false, onClose }) {
-  const buttonRef = useRef(null);
-  useEffect(() => {
+export function useModalFocus(dialogRef, buttonRef, focusKey = true) {
+  useLayoutEffect(() => {
     const previous = document.activeElement;
-    buttonRef.current?.focus();
+    const backdrop = dialogRef.current?.parentElement;
+    const siblings = Array.from(backdrop?.parentElement?.children || []).filter(element => element !== backdrop);
+    const inert = siblings.map(element => element.hasAttribute("inert"));
+    siblings.forEach(element => element.setAttribute("inert", ""));
+    (buttonRef.current || dialogRef.current)?.focus();
     return () => {
-      const target = previous?.isConnected
+      siblings.forEach((element, index) => { if (!inert[index]) element.removeAttribute("inert"); });
+      const target = previous?.isConnected && previous !== document.body
         ? previous
         : document.querySelector(".drawer-heading button") ||
           document.querySelector(".top-nav button");
       target?.focus();
     };
-  }, []);
+  }, [dialogRef, buttonRef, focusKey]);
+}
+
+export function trapDialogFocus(event, dialog) {
+  if (event.key !== "Tab") return;
+  const controls = Array.from(dialog?.querySelectorAll("button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary") || []);
+  event.preventDefault();
+  const index = controls.indexOf(document.activeElement);
+  controls[(index + (event.shiftKey ? -1 : 1) + controls.length) % controls.length]?.focus();
+}
+
+export function HatchModal({ animal, duplicate = false, capped = false, onClose }) {
+  const buttonRef = useRef(null);
+  const dialogRef = useRef(null);
+  useModalFocus(dialogRef, buttonRef);
   return (
-    <div className="modal-backdrop">
+    <div className="modal-backdrop celebration-backdrop">
       <section
+        ref={dialogRef}
         className={`hatch-modal paper ${animal.rarity}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="hatch-title"
+        aria-describedby={duplicate ? "hatch-details" : undefined}
         onKeyDown={(e) => {
-          if (e.key === "Tab") {
-            e.preventDefault();
-            buttonRef.current?.focus();
-          }
+          if (e.key === "Escape") { e.stopPropagation(); onClose(); }
+          else trapDialogFocus(e, dialogRef.current);
         }}
       >
-        <AnimalArt animal={animal} />
-        <span className={`rarity-label ${animal.rarity}`}>
-          {RARITY_NAMES[animal.rarity]} {animal.species}
-        </span>
+        <div className="paper-corners" aria-hidden="true"><i /><i /><i /><i /></div>
+        <button type="button" className="icon-button hatch-close" aria-label="Close celebration" onClick={onClose}><Icon name="close" /></button>
+        <div className="hatch-portrait" role="img" aria-label={`${animal.name}, ${RARITY_NAMES[animal.rarity]} ${animal.species}`}>
+          <div className="hatch-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>
+          <AnimalArt animal={animal} />
+        </div>
         <h2 id="hatch-title">{capped ? `${animal.name} is maxed!` : duplicate ? `${animal.name} leveled up!` : `${animal.name} joined!`}</h2>
-        {duplicate && <p className="small">{capped ? "+5 Shilligems for this extra friend." : animal.upgrades === 6
-          ? "All 7 animations unlocked · +10% focus Shilligems!"
-          : `Animation ${(animal.upgrades || 0) + 1} of 7 unlocked · ${animal.upgrades}/6 upgrades`}</p>}
-        <button ref={buttonRef} className="primary-button" onClick={onClose}>
-          Done <Icon name="paw" size={18} />
+        <RarityStars rarity={animal.rarity} label={false} />
+        {duplicate && <p id="hatch-details" className="hatch-details">{capped ? "+5 Shilligems" : animal.upgrades === 6
+          ? "All 7 animations · +10% focus gems"
+          : `Animation ${(animal.upgrades || 0) + 1} / 7 · Upgrade ${animal.upgrades} / 6`}</p>}
+        <button ref={buttonRef} type="button" className="primary-button celebration-done" onClick={onClose}>
+          <PastelButtonArt />Done
         </button>
       </section>
     </div>

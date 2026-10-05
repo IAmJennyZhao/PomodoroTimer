@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { InfoTip } from './ui';
+import { HatchModal, InfoTip } from './ui';
 
 test('info buttons disclose details on demand and identify their own content', () => {
   render(<>
@@ -24,6 +24,68 @@ test('info buttons disclose details on demand and identify their own content', (
   fireEvent.click(odds);
   expect(screen.queryByRole('note')).not.toBeInTheDocument();
   expect(odds).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('help notes have a named heading and close back to their own trigger', () => {
+  render(<InfoTip label="Pause limit details">Only this session’s gems are lost.</InfoTip>);
+  const trigger = screen.getByRole('button', { name: 'Pause limit details' });
+  fireEvent.click(trigger);
+  expect(screen.getByRole('note', { name: 'Pause limit details' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Pause limit details' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Close details' }));
+  expect(screen.queryByRole('note')).not.toBeInTheDocument();
+  expect(trigger).toHaveFocus();
+});
+
+test('celebrations trap focus between X and Done, then restore the opener and background', () => {
+  function Harness() {
+    const [open, setOpen] = useState(false);
+    return <><button onClick={() => setOpen(true)}>Open celebration</button>
+      {open && <HatchModal animal={{ name: 'Clover', species: 'rabbit', rarity: 'basic', upgrades: 0 }} onClose={() => setOpen(false)} />}</>;
+  }
+  render(<Harness />);
+  const opener = screen.getByRole('button', { name: 'Open celebration' });
+  opener.focus();
+  fireEvent.click(opener);
+  const done = screen.getByRole('button', { name: 'Done' });
+  const close = screen.getByRole('button', { name: 'Close celebration' });
+  expect(opener).toHaveAttribute('inert');
+  expect(done).toHaveFocus();
+  fireEvent.keyDown(done, { key: 'Tab' });
+  expect(close).toHaveFocus();
+  fireEvent.keyDown(close, { key: 'Tab' });
+  expect(done).toHaveFocus();
+  fireEvent.keyDown(done, { key: 'Escape' });
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  expect(opener).not.toHaveAttribute('inert');
+  expect(opener).toHaveFocus();
+  fireEvent.click(opener);
+  fireEvent.click(screen.getByRole('button', { name: 'Close celebration' }));
+  expect(opener).toHaveFocus();
+});
+
+test('a consumed hatch opener returns focus to the remaining workspace control', () => {
+  function Harness() {
+    const [open, setOpen] = useState(false);
+    return <><header className="drawer-heading"><button>Close panel</button></header>
+      {!open && <button onClick={() => setOpen(true)}>Hatch egg</button>}
+      {open && <HatchModal animal={{ name: 'Clover', species: 'rabbit', rarity: 'basic' }} onClose={() => setOpen(false)} />}</>;
+  }
+  render(<Harness />);
+  const opener = screen.getByRole('button', { name: 'Hatch egg' });
+  opener.focus();
+  fireEvent.click(opener);
+  fireEvent.click(screen.getByRole('button', { name: 'Done' }));
+  expect(screen.getByRole('button', { name: 'Close panel' })).toHaveFocus();
+});
+
+test.each([
+  [6, false, 'All 7 animations · +10% focus gems'],
+  [6, true, '+5 Shilligems'],
+])('duplicate celebrations retain upgrade bonuses and capped-copy rewards', (upgrades, capped, detail) => {
+  render(<HatchModal animal={{ name: 'Clover', species: 'rabbit', rarity: 'basic', upgrades }} duplicate capped={capped} onClose={jest.fn()} />);
+  expect(screen.getByRole('dialog')).toHaveAccessibleDescription(detail);
+  expect(screen.getByLabelText('1 star')).toBeInTheDocument();
 });
 
 test('Escape dismisses the open detail and restores focus without reaching the surrounding panel', () => {

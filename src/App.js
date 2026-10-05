@@ -26,7 +26,7 @@ import {
   HatchModal,
 } from "./ui";
 import TimerCard, { QuickScratchpad } from "./TimerCard";
-import { ToastNotice } from "./Feedback";
+import { RoomLoading, SaveNotice, ToastNotice } from "./Feedback";
 import RoomBackdrop from "./RoomBackdrop";
 import RoomWidget from "./RoomWidget";
 import RoomObjects from "./RoomObjects";
@@ -80,7 +80,7 @@ const BREAK_IDEAS = [
 
 export default function App() {
   const persistence = useLocalSave();
-  const { state, dispatch, ready, status, error } = persistence;
+  const { state, dispatch, ready, status } = persistence;
   const [now, setNow] = useState(Date.now());
   const [panel, setPanel] = useState(null);
   const [notesOpen, setNotesOpen] = useState(false);
@@ -526,42 +526,8 @@ export default function App() {
       <div className="toast-region" role="status" aria-live="polite">
         {toast && <ToastNotice notice={toast} onDismiss={() => setToast(null)} onPauseChange={setToastPaused} />}
       </div>
-      {ready && (status === "error" || status === "conflict") && (
-        <div className="save-warning paper" role="alert">
-          <span>{error || "Your latest changes have not been saved."}</span>
-          <button
-            onClick={
-              status === "conflict" ? persistence.reload : persistence.retrySave
-            }
-          >
-            {status === "conflict" ? "Reload saved room" : "Retry save"}
-          </button>
-        </div>
-      )}
-      {!ready && (
-        <div className="loading-screen">
-          <div className="paper loading-card">
-            <Icon name="leaf" size={40} />
-            <h1>
-              {error ? "Couldn’t load your room" : "Loading…"}
-            </h1>
-            <p>
-              {error}
-            </p>
-            {error && (
-              <>
-                <p className="small">
-                  Start the local app with <code>npm start</code>, then try
-                  again.
-                </p>
-                <button className="primary-button" onClick={persistence.reload}>
-                  Try again
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      {ready && (status === "error" || status === "conflict") && <SaveNotice persistence={persistence} />}
+      {!ready && <RoomLoading persistence={persistence} />}
       {hatch && <HatchModal animal={hatch.animal} duplicate={hatch.duplicate} capped={hatch.capped} onClose={() => setHatch(null)} />}
     </div>
   );
