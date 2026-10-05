@@ -1,5 +1,17 @@
 # Implementation verification
 
+## Phase 2: Main panels
+
+Verified in Chrome against an isolated temporary save folder on ports 4173/4174, following the Pets album, Decorate catalogue, and Journal notebook mockups in `output/mockups/cohesive-atelier-v2/`.
+
+- Pets uses two album pages with a central binding, small collection portraits, a larger selected portrait, and six paw upgrade slots. Fixtures with 0, 2, and 6 upgrades displayed the correct animation counts and filled slots. Accessories apply to the selected pet. Mystery details reveal only the egg source, and their close control stays inside the detail area on mobile.
+- Decorate uses three-column sketch cards on desktop and two columns on narrow phones, with accurate stock badges and distinct Buy, Add, and Placed actions. The repeated panel wallet is removed. An isolated cushion purchase reduced gems from 300 to 275, then placement consumed its available copy. Room styles and accessories use the same catalogue treatment. Accessory crops preserve proportions and exclude neighboring artwork. Arrange room and Done still open and close the room-editing interface.
+- Journal uses a side binding, four summary slips, coral pencil bars, goal circles, and side-by-side tag/recent sections on desktop. The circles match the actual daily goal; 4 of 5 filled correctly, and a goal of 24 wraps without overflow. Period totals matched fixture records: today 100 minutes / 4 sessions, seven days 300 minutes / 10 sessions, and thirty days 750 minutes / 24 sessions.
+- History is a semantic Date / Task / Time ledger, retaining task lists, tags, precise timestamps, durations, and forfeited-reward status. Load more expanded 20 records to all 24. Recent sessions omit repeated tag labels and keep full details available in History. Journal notes use ruled paper, and edited text persisted through reload. Empty history, empty overview, and blank notes were checked.
+- Desktop (1862 x 894 CSS pixels), tablet (769 x 800), and narrow mobile (320 x 640) compositions were visually inspected. All three panels fit the page width; long monthly summary values and the history ledger fit at 320px. Viewport overrides were reset after QA.
+
+Checks: **196 passing tests in 11 suites**, successful production build with CI warnings treated as errors, and clean diff checks. Stable implementation checkpoints cover Pets, Decorate, and Journal.
+
 ## Phase 1: Shared visual system
 
 Verified in Chrome against an isolated temporary save folder on ports 4173/4174. The visual direction follows the cream paper, colored pencil, coral and pistachio materials in `output/mockups/cohesive-atelier-v2/`.

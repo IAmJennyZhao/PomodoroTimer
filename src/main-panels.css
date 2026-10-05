@@ -89,6 +89,67 @@
 .app .decoration-catalog .catalogue-pet { display: flex; align-items: center; gap: 14px; max-width: 320px; margin: 0 0 18px; }
 .app .decoration-catalog .catalogue-pet select { margin: 0; min-width: 0; flex: 1; font-size: 14px; }
 
+/* Journal: a bound notebook, note slips, pencil charts and a ruled session ledger. */
+.app .workspace-journal::after { content: ""; position: absolute; pointer-events: none; top: 12px; bottom: 12px; left: 10px; width: 32px; background: var(--book-rings) center top / 32px 60px repeat-y; }
+.app .workspace-journal > .drawer-heading { padding-left: 56px; }
+.app .workspace-journal > .drawer-content { padding-left: 56px; }
+.app .journal-panel { color: var(--ink); }
+.app .journal-panel .journal-header { margin-bottom: 16px; gap: 14px; }
+.app .journal-panel .journal-choices button { padding: 10px 20px; }
+.app .journal-panel .journal-overview-toolbar .journal-choices button { padding: 8px 14px; }
+.app .journal-panel .journal-metrics { gap: 14px; margin-bottom: 18px; }
+.app .journal-panel .journal-metrics > div { position: relative; padding: 12px 18px 14px; border: 5px solid transparent; border-image: var(--book-frame) 24 / 5px / 0 stretch; border-radius: 5px; background: #fff9eb; box-shadow: none; }
+.app .journal-panel .journal-metrics > div::after { content: ""; position: absolute; pointer-events: none; right: 7px; bottom: 5px; width: 34px; height: 46px; background: var(--leaf-sprig) center / contain no-repeat; opacity: .55; }
+.app .journal-panel .journal-metrics dt { color: var(--muted); font-size: 14px; margin-bottom: 8px; }
+.app .journal-panel .journal-metrics dd { font-size: 30px; font-weight: 400; letter-spacing: -.02em; position: relative; z-index: 1; }
+.app .journal-panel .journal-card { border: 5px solid transparent; border-image: var(--book-frame) 24 / 5px / 0 stretch; border-radius: 5px; padding: 18px 20px; background: #fff9eb; box-shadow: none; }
+.app .journal-panel .journal-section-title :is(h3, label) { font-size: 20px; font-weight: 400; }
+.app .journal-panel .journal-visuals { grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr); gap: 16px; }
+.app .journal-panel .journal-chart-scale { left: 20px; top: 66px; height: 106px; color: var(--muted); font-size: 12px; }
+.app .journal-panel .journal-chart { height: 128px; margin-top: 20px; margin-left: 40px; background-size: 100% 106px; background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 35px, #bba98540 35px, #bba98540 36px); }
+.app .journal-panel .journal-bar-track { height: 106px; }
+.app .journal-panel .journal-bar { background: var(--paper-grain), linear-gradient(#d88777, #cc7365); border: 1px solid #b96458; border-radius: 3px 5px 1px 2px; }
+.app .journal-panel .journal-bar.empty { background: var(--progress-track); border: 0; }
+.app .journal-panel :is(.journal-bar-label, .journal-chart-unit) { color: var(--muted); font-size: 12px; }
+.app .journal-panel .journal-goal { display: flex; flex-direction: column; }
+.app .journal-panel .journal-goal-count { font-size: 34px; font-weight: 400; margin: 14px 0 6px; }
+.app .journal-panel .journal-goal-count span { font-size: 24px; }
+.app .journal-panel .journal-goal-caption { font-size: 13px; color: var(--muted); }
+.app .journal-panel .journal-goal-dots { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 16px; }
+.app .journal-panel .journal-goal-dots > span { width: 26px; height: 26px; border: 1px solid #8b9d76; border-radius: 47% 53% 51% 49%; background: var(--paper-grain), #f4f1e0; box-shadow: inset 0 0 0 2px #a2b28f20; }
+.app .journal-panel .journal-goal-dots > span.filled { background-color: #9eb88a; border-color: #6e895b; box-shadow: inset 0 0 0 2px #c2d3a980; }
+.app .journal-panel .journal-goal progress { position: absolute; width: 1px; height: 1px; margin: 0; clip-path: inset(50%); overflow: hidden; }
+.app .journal-panel .journal-goal-controls { font-size: 14px; gap: 12px; }
+.app .journal-panel .journal-goal-controls .small-button { width: 36px; height: 36px; }
+.app .journal-panel .journal-bottom { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; margin-top: 18px; }
+.app .journal-panel :is(.journal-tag-stats, .journal-recent) { margin: 0; }
+.app .journal-panel .journal-recent { padding-block: 14px; }
+.app .journal-panel .journal-recent .journal-ledger { margin-top: 12px; }
+.app .journal-panel .journal-recent .journal-ledger td { padding-block: 8px; }
+.app .journal-panel .journal-tag-breakdown { grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 20px; }
+.app .journal-panel .journal-tag-heading { font-size: 15px; }
+.app .journal-panel .journal-tag-heading strong { font-size: 15px; font-weight: 400; }
+.app .journal-panel .journal-tag-meter { height: 8px; border-radius: 3px 4px 2px 3px; margin-top: 7px; }
+.app .journal-panel .journal-tag-meter > span { background: var(--paper-grain), #cf7d6e; border-radius: inherit; }
+.app .journal-panel :is(.journal-tag-detail, .journal-text-button) { font-size: 12px; color: var(--muted); }
+.app .journal-panel .journal-ledger { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 16px; font-size: 14px; }
+.app .journal-panel .journal-ledger th { text-align: left; padding: 0 8px 10px; color: var(--muted); font-size: 13px; font-weight: 400; border-bottom: 1px solid var(--line); }
+.app .journal-panel .journal-ledger td { padding: 12px 8px; border-bottom: 1px solid #cbb99466; vertical-align: top; overflow-wrap: anywhere; }
+.app .journal-panel .journal-ledger tr:last-child td { border-bottom: 0; }
+.app .journal-panel .journal-ledger :is(th, td):last-child { width: 64px; text-align: right; padding-right: 0; white-space: nowrap; }
+.app .journal-panel .journal-ledger.with-date :is(th, td):first-child { width: 105px; padding-left: 0; }
+.app .journal-panel .journal-ledger strong { font-size: 15px; font-weight: 400; display: block; }
+.app .journal-panel .journal-ledger time { display: block; margin-top: 4px; font-size: 12px; color: var(--muted); }
+.app .journal-panel .journal-session-date time { margin-top: 0; }
+.app .journal-panel .journal-session-date time > span { display: block; margin-top: 4px; }
+.app .journal-panel :is(.journal-task-count, .journal-session-forfeited) { font-size: 12px; }
+.app .journal-panel .journal-task-count { color: var(--muted); }
+.app .journal-panel .journal-session-tags > span { font-size: 11px; }
+.app .journal-panel .journal-history { padding: 18px 20px; border: 5px solid transparent; border-image: var(--book-frame) 24 / 5px / 0 stretch; background: #fff9eb; }
+.app .journal-panel .journal-empty { font-size: 14px; color: var(--muted); line-height: 1.5; }
+.app .journal-panel .journal-notes textarea { color: var(--ink); padding: 15px 18px; min-height: 370px; line-height: 30px; background: repeating-linear-gradient(transparent 0 29px, #b7c5a65c 29px 30px), var(--paper-grain), var(--paper); background-position: 0 15px, 0 0; border: 1px solid var(--line); border-radius: 4px 6px 5px 3px; }
+.app .journal-panel .journal-note-count { color: var(--muted); font-size: 12px; }
+
 @media (max-width: 850px) {
   .app :is(.workspace-animals, .workspace-journal).paper,
   .app:not(.is-arranging) .workspace-decorate.paper { width: calc(100% - 32px); }
@@ -111,6 +172,8 @@
   .app .pet-album .mystery-detail > .mystery-mark { font-size: 42px; }
   .app .pet-album .mystery-detail > .sprite { width: 78px; margin: 0; }
   .app .pet-album .mystery-detail > p { width: 100%; font-size: 14px; }
+  .app .journal-panel .journal-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app .journal-panel :is(.journal-visuals, .journal-bottom) { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 600px) {
   .app :is(.workspace-animals, .workspace-journal).paper,
@@ -150,4 +213,33 @@
   .app .decoration-catalog.catalogue-backgrounds .shop-items { grid-template-columns: minmax(0, 1fr); }
   .app .decoration-catalog.catalogue-backgrounds .catalogue-art { height: auto; aspect-ratio: 1.8; }
   .app .decoration-catalog .accessory-preview > span { width: 82px; height: 82px; }
+  .app .workspace-journal::after { left: 0; width: 22px; background-size: 22px 60px; }
+  .app .workspace-journal > .drawer-heading { padding-left: 26px; }
+  .app .workspace-journal > .drawer-content { padding-left: 26px; }
+  .app .journal-panel .journal-header { gap: 12px; margin-bottom: 16px; }
+  .app .journal-panel .journal-tabs { width: 100%; }
+  .app .journal-panel .journal-tabs button { flex: 1; font-size: 12px; padding: 9px 5px; }
+  .app .journal-panel .journal-overview-toolbar { width: 100%; gap: 8px; }
+  .app .journal-panel .journal-overview-toolbar .journal-choices { flex: 1; }
+  .app .journal-panel .journal-overview-toolbar .journal-choices button { flex: 1; padding: 8px 6px; font-size: 12px; }
+  .app .journal-panel .journal-metrics { gap: 10px; }
+  .app .journal-panel .journal-metrics > div { padding: 12px 9px 14px; }
+  .app .journal-panel .journal-metrics dt { font-size: 12px; }
+  .app .journal-panel .journal-metrics dd { font-size: 23px; }
+  .app .journal-panel .journal-metrics > div::after { width: 25px; height: 35px; opacity: .35; }
+  .app .journal-panel :is(.journal-card, .journal-history) { padding: 14px 10px; }
+  .app .journal-panel .journal-section-title :is(h3, label) { font-size: 18px; }
+  .app .journal-panel .journal-chart-scale { left: 10px; top: 58px; font-size: 10px; }
+  .app .journal-panel .journal-chart { margin-left: 30px; }
+  .app .journal-panel .journal-chart.dense { gap: 3px; }
+  .app .journal-panel :is(.journal-bar-label, .journal-chart-unit) { font-size: 10px; }
+  .app .journal-panel .journal-goal-controls { margin-top: auto; }
+  .app .journal-panel .journal-ledger td { padding: 10px 5px; }
+  .app .journal-panel .journal-ledger.with-date :is(th, td):first-child { width: 65px; }
+  .app .journal-panel .journal-ledger :is(th, td):last-child { width: 45px; font-size: 12px; }
+  .app .journal-panel .journal-ledger strong { font-size: 13px; }
+  .app .journal-panel .journal-session-tags > span { font-size: 10px; padding: 2px 4px; }
+  .app .journal-panel :is(.journal-text-button, .journal-task-count, .journal-session-forfeited) { font-size: 11px; }
+  .app .journal-panel .journal-recent .journal-section-title { flex-wrap: wrap; }
+  .app .journal-panel .journal-notes textarea { padding-inline: 10px; min-height: 310px; }
 }

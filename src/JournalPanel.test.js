@@ -33,6 +33,7 @@ test("overview period controls update totals, average, active days, chart, and r
   expect(summary.getByText("20m")).toBeInTheDocument();
   expect(summary.getByText("2 / 7")).toBeInTheDocument();
   expect(screen.getByText("Yesterday's work")).toBeInTheDocument();
+  expect(screen.getByRole("table", { name: "Recent sessions" })).toBeInTheDocument();
   expect(screen.getByRole("list", { name: "Daily focus, focus minutes" }).children).toHaveLength(7);
   fireEvent.click(screen.getByRole("button", { name: "30 days" }));
   expect(screen.getByRole("list", { name: "Daily focus, focus minutes" }).children).toHaveLength(30);
@@ -66,11 +67,30 @@ test("history includes older records and loads more without losing entries", () 
   initial.history = Array.from({ length: 25 }, (_, index) => ({ id: `session-${index}`, task: `Work ${index}`, minutes: 25, completedAt: NOW - index * 86400000 }));
   renderJournal(initial);
   fireEvent.click(screen.getByRole("button", { name: "History" }));
+  const ledger = within(screen.getByRole("table", { name: "Session history" }));
+  expect(ledger.getAllByRole("columnheader").map((header) => header.textContent)).toEqual(["Date", "Task", "Time"]);
+  const latestRow = ledger.getByRole("row", { name: /Work 0/ });
+  expect(within(latestRow).getAllByRole("cell")[1]).toHaveTextContent("Work 0");
+  expect(latestRow.querySelector("time")).toHaveAttribute("datetime", new Date(NOW).toISOString());
+  expect(within(latestRow).getAllByRole("cell")[2]).toHaveTextContent("25 min");
   expect(screen.getByText("Work 0")).toBeInTheDocument();
   expect(screen.queryByText("Work 24")).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Load more" }));
   expect(screen.getByText("Work 24")).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Load more" })).not.toBeInTheDocument();
+});
+
+test("recent sessions omit repeated tag labels while history retains tags and timestamps", () => {
+  const initial = createInitialState(NOW);
+  initial.history = [{ id: "reading", task: "Reading", tags: ["Reading", "Study"], minutes: 25, completedAt: NOW }];
+  renderJournal(initial);
+  const recent = within(screen.getByRole("table", { name: "Recent sessions" }));
+  expect(recent.getByLabelText("Session tags")).toHaveTextContent("Study");
+  expect(recent.getByLabelText("Session tags")).not.toHaveTextContent("Reading");
+  fireEvent.click(screen.getByRole("button", { name: "View all" }));
+  const history = screen.getByRole("table", { name: "Session history" });
+  expect(within(history).getByLabelText("Session tags")).toHaveTextContent("ReadingStudy");
+  expect(history.querySelector("time")).toHaveAttribute("datetime", new Date(NOW).toISOString());
 });
 
 test("scratchpad saves edits while details stay behind its info control", () => {

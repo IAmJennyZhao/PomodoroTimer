@@ -22,33 +22,32 @@ function Choices({ label, items, value, onChange, className = "" }) {
   );
 }
 
-function SessionList({ sessions, showDate = true }) {
+function SessionList({ sessions, showDate = true, compact = false }) {
   if (!sessions.length) return <p className="journal-empty">No completed sessions yet.</p>;
   return (
-    <ol className="journal-sessions">
+    <table className={`journal-ledger ${showDate ? "with-date" : ""}`} aria-label={compact ? "Recent sessions" : "Session history"}>
+      <thead><tr>{showDate && <th scope="col">Date</th>}<th scope="col">Task</th><th scope="col">Time</th></tr></thead>
+      <tbody>
       {sessions.map((session) => {
         const tasks = Array.isArray(session.tasks) ? session.tasks.filter((task) => task?.text) : [];
-        const tags = sessionTags(session);
+        const taskText = tasks.length ? tasks.map((task) => task.text).join(" · ") : session.task || "Focus session";
+        const tags = sessionTags(session).filter((tag) => !compact || tag.toLowerCase() !== taskText.toLowerCase());
+        const completedAt = new Date(session.completedAt);
         return (
-        <li key={session.id}>
-          <span className="journal-session-icon"><Icon name="check" size={16} /></span>
-          <div>
-            <strong>{tasks.length ? tasks.map((task) => task.text).join(" · ") : session.task || "Focus session"}</strong>
+        <tr key={session.id}>
+          {showDate && <td className="journal-session-date"><time dateTime={completedAt.toISOString()}>{completedAt.toLocaleDateString([], { month: "short", day: "numeric", ...(!compact ? { year: "numeric" } : {}) })}{!compact && <span>{completedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>}</time></td>}
+          <td className="journal-session-task">
+            <strong>{taskText}</strong>
             {tasks.length > 1 && <span className="journal-task-count">{tasks.filter((task) => task.done).length} of {tasks.length} tasks done</span>}
             {tags.length > 0 && <div className="journal-session-tags" aria-label="Session tags">{tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}
-            <time dateTime={new Date(session.completedAt).toISOString()}>
-              {new Date(session.completedAt).toLocaleString([], {
-                ...(showDate ? { month: "short", day: "numeric" } : {}),
-                hour: "numeric",
-                minute: "2-digit",
-              })}
-            </time>
+            {!showDate && !compact && <time dateTime={completedAt.toISOString()}>{completedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</time>}
             {session.rewardForfeited && <span className="journal-session-forfeited">Session Shilligems forfeited</span>}
-          </div>
-          <span className="journal-session-duration">{session.minutes} min</span>
-        </li>
+          </td>
+          <td className="journal-session-duration">{session.minutes} min</td>
+        </tr>
       ); })}
-    </ol>
+      </tbody>
+    </table>
   );
 }
 
@@ -57,7 +56,7 @@ function TagStats({ analytics }) {
     <div className="journal-section-title"><h3>Focus by tag</h3>
       <InfoTip label="About tag statistics">Each tag receives the full duration of its session. Sessions with several tags appear in each tag's total, so tag totals can overlap. Untagged sessions include earlier sessions without tags.</InfoTip>
     </div>
-    {!analytics.tags.length ? <p className="journal-empty">Add a tag to a focus session to see where your time goes.</p>
+    {!analytics.tags.length ? <p className="journal-empty">No focus time yet.</p>
       : <ul className="journal-tag-breakdown">{analytics.tags.map((item) => <li key={item.tag ?? "__untagged"}
         aria-label={`${item.tag || "Untagged"}: ${item.minutes} focus minutes, ${item.sessions} ${item.sessions === 1 ? "session" : "sessions"}`}>
         <div className="journal-tag-heading"><span>{item.tag || "Untagged"}</span><strong>{formatFocusTime(item.minutes)}</strong></div>
@@ -118,6 +117,7 @@ function GoalCard({ state, act, now }) {
       </div>
       <strong className="journal-goal-count">{stats.sessions} <span>/ {stats.goal}</span></strong>
       <span className="journal-goal-caption">{stats.progress >= 1 ? "Goal reached" : "sessions today"}</span>
+      <div className="journal-goal-dots" aria-hidden="true">{Array.from({ length: stats.goal }, (_, index) => <span key={index} className={index < stats.sessions ? "filled" : ""} />)}</div>
       <progress aria-label="Daily focus goal" value={stats.progress} max={1} />
       <div className="journal-goal-controls">
         <button type="button" className="small-button" aria-label="Decrease daily goal" disabled={stats.goal <= 1} onClick={() => act({ type: "SET_SETTINGS", settings: { dailyGoal: stats.goal - 1 } })}><Icon name="minus" size={18} /></button>
@@ -169,11 +169,13 @@ export default function JournalPanel({ state, act, now = Date.now() }) {
             ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
           </dl>
           <div className="journal-visuals"><ActivityChart analytics={analytics} /><GoalCard state={state} act={act} now={now} /></div>
+          <div className="journal-bottom">
           <TagStats analytics={analytics} />
-          <section className="journal-recent">
+          <section className="journal-card journal-recent">
             <div className="journal-section-title"><h3>Recent sessions</h3><button className="journal-text-button" type="button" onClick={() => setTab("history")}>View all <Icon name="arrow" size={16} /></button></div>
-            <SessionList sessions={analytics.sessions.slice(0, 3)} showDate={period !== "today"} />
+            <SessionList sessions={analytics.sessions.slice(0, 3)} showDate={period !== "today"} compact />
           </section>
+          </div>
         </>
       )}
     </div>
