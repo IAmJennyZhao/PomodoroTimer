@@ -1,9 +1,9 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
 import { Icon } from "./ui";
 
 // Saved positions use the top-left corner, relative to the room. Clamp the
 // rendered location to the current screen without overwriting the saved layout.
-export default function RoomWidget({ as: Tag = "div", id, name, className, position, arranging, selected, onSelect, onMove, onDeselect, hidden, children }) {
+const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, className, position, arranging, selected, onSelect, onMove, onDeselect, hidden, children }, controlRef) {
   const ref = useRef(null);
   const pointer = useRef(null);
   const [draft, setDraft] = useState(null);
@@ -36,11 +36,22 @@ export default function RoomWidget({ as: Tag = "div", id, name, className, posit
     return { x: next.left / room.width * 100, y: next.top / room.height * 100 };
   }
   const rendered = draft || location;
+  function nudge(direction, large = false) {
+    const room = ref.current.parentElement.getBoundingClientRect();
+    const bounds = ref.current.getBoundingClientRect();
+    const step = large ? 40 : 10;
+    onSelect({ type: "widget", id });
+    onMove(move(bounds.left - room.left + (direction === "left" ? -step : direction === "right" ? step : 0),
+      bounds.top - room.top + (direction === "up" ? -step : direction === "down" ? step : 0)));
+    setDraft(null);
+  }
+  useImperativeHandle(controlRef, () => ({ nudge }));
   return <Tag ref={ref} className={`${className} room-widget ${arranging ? "arrange-widget" : ""} ${selected ? "chosen" : ""}`} hidden={hidden}
     style={rendered ? { left: rendered.left, top: rendered.top, right: "auto", transform: "none" } : undefined}>
     <div className="widget-content" inert={arranging ? "" : undefined}>{children}</div>
     {arranging && <>
-      <button className="widget-move-handle" aria-label={`Move ${name}`} aria-pressed={selected}
+      <span className="visually-hidden" id={`${id}-move-help`}>Drag to move. Arrow keys nudge; Shift moves farther.</span>
+      <button type="button" className="widget-move-handle" aria-label={`Move ${name}`} aria-describedby={`${id}-move-help`} aria-pressed={selected}
         onClick={() => onSelect({ type: "widget", id })}
         onPointerDown={event => {
           if (event.button !== 0) return;
@@ -65,15 +76,10 @@ export default function RoomWidget({ as: Tag = "div", id, name, className, posit
         onKeyDown={event => {
           if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
           event.preventDefault();
-          const room = ref.current.parentElement.getBoundingClientRect();
-          const bounds = ref.current.getBoundingClientRect();
-          const step = event.shiftKey ? 40 : 10;
-          onSelect({ type: "widget", id });
-          onMove(move(bounds.left - room.left + (event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0),
-            bounds.top - room.top + (event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0)));
-          setDraft(null);
-        }}><Icon name="move" size={17} /> {name}</button>
+          nudge(event.key.replace("Arrow", "").toLowerCase(), event.shiftKey);
+        }}><Icon name="move" size={20} /></button>
       {selected && <button className="selection-close" aria-label={`Deselect ${name}`} onClick={onDeselect}><Icon name="close" size={16} /></button>}
     </>}
   </Tag>;
-}
+});
+export default RoomWidget;

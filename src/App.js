@@ -39,6 +39,7 @@ import {
 import "./atelier.css";
 import "./visual-system.css";
 import "./main-panels.css";
+import "./arrangement.css";
 
 const BREAK_IDEAS = [
   [
@@ -90,6 +91,8 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const engine = useRef(null);
   const sceneRef = useRef(null);
+  const timerWidgetRef = useRef(null);
+  const goalWidgetRef = useRef(null);
   const lastEvent = useRef(null);
   const previousFurniture = useRef(state.room.decorations.length);
   useEffect(() => {
@@ -251,6 +254,7 @@ export default function App() {
   };
   const stats = todayStats(state, now);
   const startDrag = (event, type, item) => {
+    if (event.button !== 0 || event.isPrimary === false) return;
     if (!arranging) {
       if (type === "animal") {
         setSelectedAnimal(item.id);
@@ -407,7 +411,7 @@ export default function App() {
           </button>
         </div>
       </header>
-      <RoomWidget as="main" id="timer" name="timer" className="focus-area" position={state.room.widgets?.timer}
+      <RoomWidget ref={timerWidgetRef} as="main" id="timer" name="timer" className="focus-area" position={state.room.widgets?.timer}
         arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "timer"}
         onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "timer", ...position })} hidden={widePanel}>
         <TimerCard state={state} act={act} now={now} ready={ready} blocked={status === "conflict"}
@@ -421,7 +425,7 @@ export default function App() {
           }}
           tip={BREAK_IDEAS[tip]} nextTip={() => setTip((previous) => (previous + 1 + Math.floor(Math.random() * (BREAK_IDEAS.length - 1))) % BREAK_IDEAS.length)} />
       </RoomWidget>
-      <RoomWidget id="goal" name="daily goal" className="daily-goal-note" position={state.room.widgets?.goal}
+      <RoomWidget ref={goalWidgetRef} id="goal" name="daily goal" className="daily-goal-note" position={state.room.widgets?.goal}
         arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "goal"}
         onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "goal", ...position })} hidden={focusView || widePanel}>
         <button
@@ -482,6 +486,7 @@ export default function App() {
               setArranging={setArranging}
               selection={selection}
               setSelection={setSelection}
+              onNudgeWidget={(id, direction) => (id === "timer" ? timerWidgetRef : goalWidgetRef).current?.nudge(direction)}
             />
           )}
           {panel === "journal" && (

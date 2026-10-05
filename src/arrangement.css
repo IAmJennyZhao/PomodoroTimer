@@ -1,0 +1,65 @@
+/* One paper workbench, with a selectable library and quiet movement controls. */
+.app.is-arranging .workspace-decorate { border: 6px solid transparent; border-image: var(--book-frame) 24 / 6px / 0 stretch; border-radius: 8px; max-height: none; bottom: 12px; }
+.app.is-arranging .workspace-decorate::before { content: none; }
+.app.is-arranging .workspace-decorate .drawer-heading { position: absolute; inset: 9px 12px auto; pointer-events: none; padding: 0; height: 38px; }
+.app.is-arranging .workspace-decorate .drawer-heading h2 { font-size: 18px; }
+.app.is-arranging .workspace-decorate .drawer-heading > .icon-button { pointer-events: auto; }
+.app.is-arranging .workspace-decorate .drawer-content { padding: 8px 12px 8px; overflow: visible; }
+.app .arrange-panel .arrange-toolbar { gap: 8px; padding-left: 140px; padding-right: 38px; min-height: 38px; margin-bottom: 8px; }
+.app .arrange-panel .field-label { min-width: 0; }
+.app .arrange-panel .field-label select { width: 205px; margin: 0; padding: 8px 12px; font-size: 14px; }
+.app .arrange-panel .arrange-deselect { flex: 0 0 34px; width: 34px; height: 34px; }
+.app .arrange-panel .arrange-nudges { display: flex; gap: 6px; margin-left: auto; }
+.app .arrange-panel .arrange-nudges .small-button { display: grid; place-items: center; width: 36px; min-height: 36px; padding: 6px; }
+.nudge-arrow { display: inline-flex; }
+.nudge-left { transform: rotate(180deg); }
+.nudge-up { transform: rotate(-90deg); }
+.nudge-down { transform: rotate(90deg); }
+.app .arrange-panel .arrange-remove { padding: 8px 12px; font-size: 13px; }
+.app .arrange-panel .arrange-finish { margin-left: 6px; padding: 8px 18px; }
+.app .arrange-panel .library-browser { display: flex; align-items: center; gap: 7px; }
+.app .arrange-panel .library-browser > .icon-button { flex: 0 0 30px; width: 30px; min-width: 30px; padding: 4px; }
+.app .arrange-panel .arrange-library { flex: 1; min-width: 0; gap: 12px; padding: 5px 3px 10px; scroll-snap-type: x proximity; }
+.app .arrange-panel .library-card { position: relative; flex: 0 0 124px; scroll-snap-align: start; }
+.app .arrange-panel .library-card > .library-item { width: 100%; height: 100%; }
+.app .arrange-panel .library-item { flex: 0 0 124px; min-height: 112px; border: 4px solid transparent; border-image: var(--book-frame) 24 / 4px / 0 stretch; border-radius: 5px; padding: 6px 9px; scroll-snap-align: start; color: var(--ink); font-size: 13px; }
+.app .arrange-panel .library-item > :is(.furniture-art, .sprite) { opacity: 1; height: 62px; }
+.app .arrange-panel .library-item small { font-size: 12px; }
+.app .arrange-panel .library-item.selected { background-color: var(--sage); box-shadow: inset 0 0 0 1px #7e9466; }
+.app .arrange-panel .library-add { position: absolute; top: 3px; right: 3px; width: 28px; height: 28px; min-width: 28px; padding: 4px; border: 1px solid var(--sage-strong); background: var(--sage); border-radius: 50%; }
+.app .arrange-panel .widget-sketch { display: grid; place-items: center; width: 72px; height: 62px; border: 3px solid transparent; border-image: var(--book-frame) 24 / 3px / 0 stretch; background: var(--paper); margin-bottom: 3px; }
+.app .arrange-panel .library-shop { background-color: var(--sage); }
+.app .room-resident.chosen::after { inset: -6px; border: 2px dashed var(--coral); border-radius: 5px; box-shadow: 0 0 0 3px #fff6e799; }
+.app .arrange-widget.chosen { outline: 2px dashed var(--coral); outline-offset: 5px; }
+.app.is-arranging .room-resident .resident-label { display: none; }
+.app .selection-close { border: 1px solid var(--coral); border-radius: 5px 4px 6px 5px; color: var(--coral); background: var(--paper-grain), var(--paper); width: 32px; height: 32px; top: -19px; right: -19px; }
+.app .widget-move-handle { width: 38px; height: 34px; padding: 6px; left: 50%; top: -35px; transform: translateX(-50%); justify-content: center; border: 3px solid transparent; border-image: var(--book-frame) 24 / 3px / 0 stretch; border-radius: 4px; box-shadow: 0 2px 5px #55402a25; }
+.app .arrange-widget.chosen .widget-move-handle { background-color: var(--sage); }
+@media (max-width: 900px) {
+  .app.is-arranging .workspace-decorate .drawer-heading h2 { font-size: 16px; }
+  .app .arrange-panel .arrange-toolbar { padding-left: 118px; gap: 5px; }
+  .app .arrange-panel .field-label select { width: 155px; font-size: 13px; }
+  .app .arrange-panel .arrange-nudges { gap: 4px; }
+  .app .arrange-panel .arrange-finish { padding-inline: 12px; }
+}
+@media (max-width: 700px) {
+  .app.is-arranging .workspace-decorate { left: 6px; right: 6px; bottom: 6px; }
+  .app.is-arranging .workspace-decorate .drawer-heading h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .app.is-arranging .workspace-decorate .drawer-heading { inset-inline: 6px; top: 10px; }
+  .app.is-arranging .workspace-decorate .drawer-content { padding: 8px 7px 4px; }
+  .app .arrange-panel .arrange-toolbar { padding-left: 0; padding-right: 33px; display: grid; grid-template-columns: minmax(0, 1fr) 30px 30px auto; gap: 7px 4px; }
+  .app .arrange-panel .field-label { grid-column: 1; }
+  .app .arrange-panel .field-label select { width: 100%; font-size: 12px; padding: 7px 6px; }
+  .app .arrange-panel .arrange-deselect { width: 30px; height: 30px; }
+  .app .arrange-panel .arrange-finish { grid-column: 4; grid-row: 1; margin: 0; padding: 7px 9px; font-size: 12px; }
+  .app .arrange-panel .arrange-nudges { grid-column: 1 / 4; grid-row: 2; justify-content: flex-start; margin: 0; }
+  .app .arrange-panel .arrange-nudges .small-button { width: 32px; min-height: 32px; }
+  .app .arrange-panel .arrange-remove { grid-column: 4; grid-row: 2; padding: 5px; font-size: 12px; }
+  .app .arrange-panel .library-browser { gap: 2px; }
+  .app .arrange-panel .library-browser > .icon-button { flex-basis: 23px; width: 23px; min-width: 23px; }
+  .app .arrange-panel .arrange-library { gap: 8px; }
+  .app .arrange-panel :is(.library-card, .library-item) { flex-basis: 102px; }
+  .app .arrange-panel .library-item { min-height: 104px; font-size: 12px; padding-inline: 5px; }
+  .app .arrange-panel .library-item > :is(.furniture-art, .sprite) { height: 52px; }
+  .app .arrange-panel .library-item small { font-size: 11px; }
+}
