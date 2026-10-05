@@ -89,8 +89,12 @@ test('a completed focus session updates the wallet, daily goal, journal, break i
   expect(screen.getByRole('button', { name: 'Short break, 5 minutes' })).toBeEnabled();
   expect(screen.getByRole('button', { name: 'Long break, 15 minutes' })).toBeEnabled();
   expect(screen.getByRole('status')).toHaveTextContent('Daily goal complete!');
+  expect(screen.getByLabelText('25 Shilligems earned')).toBeInTheDocument();
   expect(engine.startAlarm).toHaveBeenCalledTimes(1);
   expect(engine.chime).not.toHaveBeenCalled();
+  await advance(7000);
+  expect(screen.queryByRole('button', { name: 'Dismiss notification' })).not.toBeInTheDocument();
+  expect(screen.getByLabelText('Session result')).toHaveTextContent('25 min');
 
   fireEvent.click(screen.getByRole('button', { name: 'Journal', exact: true }));
   const journal = screen.getByRole('dialog', { name: 'Journal' });
@@ -156,6 +160,19 @@ test('focus earnings buy an egg and the next study session makes it hatchable', 
   expect(latestWrite().state.animals).toHaveLength(2);
   expect(new Set(latestWrite().state.animals.map(animal => animal.id)).size).toBe(2);
   expect(latestWrite().state.animals.every(animal => animal.placed)).toBe(true);
+});
+
+test('a notification stays available while being read, then expires after leaving it', async () => {
+  await openRoom({ ...createInitialState(NOW), gems: 50 });
+  fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: /Buy basic egg/ }));
+  const notice = screen.getByText('Egg added').closest('.toast');
+  fireEvent.pointerEnter(notice);
+  await advance(7000);
+  expect(screen.getByText('Egg added')).toBeInTheDocument();
+  fireEvent.pointerLeave(notice);
+  await advance(6500);
+  expect(screen.queryByText('Egg added')).not.toBeInTheDocument();
 });
 
 test('failed local loads show a retry action and never replace a private save with defaults', async () => {

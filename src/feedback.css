@@ -1,0 +1,52 @@
+/* Feedback uses the room's paper, pencil lines, and restrained pigment stamps. */
+.feedback-emblem { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; color: var(--sage-strong); background: var(--paper-grain), var(--sage); }
+.feedback-emblem.success, .feedback-success .feedback-emblem { color: #fffaf0; background-color: var(--sage-strong); box-shadow: inset 0 0 0 2px #fffaf035; }
+.feedback-emblem.warning, .feedback-warning .feedback-emblem { color: var(--coral); background-color: #f3dfca; }
+.app .feedback-note.paper { border: 8px solid transparent; border-image: var(--book-frame) 24 / 8px / 0 stretch; border-radius: 10px; box-shadow: 2px 6px 16px #58452622; }
+.app .toast-region { position: fixed; top: auto; bottom: 20px; max-width: calc(100% - 24px); z-index: 350; }
+.app .toast.feedback-note { gap: 10px; padding: 8px 10px; font: 14px/1.5 var(--font-ui); color: var(--ink); }
+.app .toast.feedback-warning { color: var(--danger); }
+.app .toast.feedback-note > span:not(.feedback-emblem) { overflow-wrap: anywhere; }
+.app .toast.feedback-note .icon-button { width: 32px; min-width: 32px; height: 32px; padding: 6px; }
+
+.app .pause-alert { outline: none; }
+.app .pause-alert .timer-face { padding: 16px 0 8px; }
+.app .pause-expired { align-items: center; gap: 9px; min-height: 170px; }
+.app .pause-expired > .feedback-emblem { width: 48px; height: 48px; margin-bottom: 3px; }
+.app .pause-expired strong { font: 34px/1.15 var(--font-ui); color: var(--ink); }
+.app .pause-expired .pause-loss-copy { font-size: 14px; color: var(--danger); }
+.app .pause-expired > .info-disclosure { margin-top: 1px; }
+.app .session-result-heading { display: flex; align-items: center; justify-content: center; gap: 9px; margin: 0 0 14px; font-size: 20px; }
+.app .session-complete .timer-face { min-height: 0; padding: 12px 0 8px; }
+.app .session-complete .timer-digits { font-size: 74px; }
+.app .session-complete .session-task-summary > span { font-size: 15px; }
+.app .session-complete .break-choice-heading > span { display: none; }
+.app .session-complete .break-choice-heading { min-height: 0; margin: 0; justify-content: flex-end; }
+.app .session-complete .break-choice-heading > :is(button, span.small) { margin-bottom: 9px; }
+.app .session-complete .break-choices { margin-top: 12px; padding-top: 14px; }
+.app .session-complete .break-buttons button { display: flex; flex-direction: column; gap: 3px; min-height: 58px; font-size: 16px; border-radius: 28px 26px 27px 25px; }
+.app .session-complete .break-buttons button span { font-size: 12px; }
+.app .break-buttons .pastel-button-art { display: none; }
+.app .session-complete .break-buttons .primary-button { position: relative; isolation: isolate; border: 0; background: none; box-shadow: none; }
+.app .session-complete .break-buttons .primary-button .pastel-button-art { display: block; }
+.app .session-complete .break-buttons .primary-button:hover:enabled { background: none; filter: brightness(.94); }
+.app .session-complete .break-buttons .secondary-button { background-color: var(--paper); border-color: var(--sage-strong); }
+.app .session-complete .break-buttons button:disabled .pastel-button-art { filter: grayscale(.9) opacity(.15); }
+.app .session-complete .new-session { font-size: 13px; margin-top: 14px; text-decoration: underline; text-underline-offset: 3px; }
+.app .session-receipt { display: flex; align-items: center; gap: 12px; text-align: left; font: 13px/1.4 var(--font-ui); }
+.app .session-receipt > span:first-child { display: inline-flex; align-items: center; gap: 4px; color: var(--gem-blue); font-size: 15px; }
+.app .session-receipt .icon-gem { fill: #bed8e6; }
+.app .session-receipt > span:nth-child(2) { color: var(--muted); }
+.app .session-receipt.forfeited > span:first-child { color: var(--danger); }
+.app .session-receipt.forfeited .icon-gem { fill: none; }
+@media (max-width: 600px) {
+  .app .toast-region { bottom: 56px; }
+  .app .pause-expired strong { font-size: 29px; }
+  .app .session-result-heading { font-size: 18px; }
+  .app .session-complete .timer-digits { font-size: 64px; }
+  .app .session-complete .break-buttons button { font-size: 14px; padding: 8px 6px; }
+}
+@media (forced-colors: active) {
+  .app .feedback-note.paper { border-image: none; border: 1px solid CanvasText; }
+  .feedback-emblem { border: 1px solid CanvasText; }
+}

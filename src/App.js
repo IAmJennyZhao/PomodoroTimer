@@ -14,6 +14,7 @@ import {
   isCountingUp,
   remainingTime,
   todayStats,
+  MAX_PAUSES,
 } from "./game";
 import { createAmbientEngine } from "./audio";
 import {
@@ -25,6 +26,7 @@ import {
   HatchModal,
 } from "./ui";
 import TimerCard, { QuickScratchpad } from "./TimerCard";
+import { ToastNotice } from "./Feedback";
 import RoomBackdrop from "./RoomBackdrop";
 import RoomWidget from "./RoomWidget";
 import RoomObjects from "./RoomObjects";
@@ -43,6 +45,7 @@ import "./main-panels.css";
 import "./arrangement.css";
 import "./timer-refinements.css";
 import "./utility-panels.css";
+import "./feedback.css";
 
 const BREAK_IDEAS = [
   [
@@ -90,7 +93,12 @@ export default function App() {
   const [arranging, setArranging] = useState(false);
   const [drag, setDrag] = useState(null);
   const [tip, setTip] = useState(0);
-  const [toast, setToast] = useState("");
+  const [toast, setToast] = useState(null);
+  const [toastPaused, setToastPaused] = useState(false);
+  const notify = useCallback((message, tone = "info", visible = true) => {
+    setToast(message ? { message, tone, visible } : null);
+    if (!message || !visible) setToastPaused(false);
+  }, []);
   const [hatch, setHatch] = useState(null);
   const [playing, setPlaying] = useState(false);
   const engine = useRef(null);
@@ -185,42 +193,39 @@ export default function App() {
     document.title =
       state.timer.status === "running"
         ? `${state.timer.overtime ? "+" : ""}${counting ? formatElapsedTime(displayTime) : formatTime(displayTime)} · ${state.timer.mode === "focus" ? state.timer.overtime ? "Overtime" : state.timer.workMode === "countup" ? "Count up" : "Focus" : "Break"} — Little Room`
-        : state.timer.status === "paused" && state.timer.rewardForfeited ? "Pause ended · Little Room"
+        : state.timer.status === "paused" && state.timer.rewardForfeited ? `${state.timer.pauseCount > MAX_PAUSES ? "Pause limit reached" : "Pause ended"} · Little Room`
         : state.timer.status === "complete" ? "Time for a break · Little Room" : "Little Room · Focus";
-  }, [displayTime, counting, state.timer.status, state.timer.mode, state.timer.overtime, state.timer.workMode, state.timer.rewardForfeited]);
+  }, [displayTime, counting, state.timer.status, state.timer.mode, state.timer.overtime, state.timer.workMode, state.timer.rewardForfeited, state.timer.pauseCount]);
   useEffect(() => {
     const event = state.event;
     if (!event || event.id === lastEvent.current) return;
     lastEvent.current = event.id;
     if (event.type === "animal-hatched") setHatch(event);
-    else if (event.type === "focus-complete") {
+    else if (event.type === "focus-complete" || event.type === "focus-finished") {
       const stats = todayStats(state);
-      setToast(
-        stats.sessions === stats.goal
-          ? `Daily goal complete! ${event.message}`
-          : event.message,
-      );
+      const goalComplete = stats.sessions === stats.goal && event.minutes > 0;
+      notify(goalComplete ? "Daily goal complete!" : event.message, "success", goalComplete);
       setTip(Math.floor(Math.random() * BREAK_IDEAS.length));
-      if (state.timer.overtime) setToast("Target reached · counting up");
-      if (state.settings.soundEnabled && !(state.timer.status === "complete" && state.timer.workMode === "pomodoro" && state.timer.endBehavior === "remind")) engine.current?.chime();
+      if (state.timer.overtime && state.timer.status !== "complete") notify("Target reached · counting up");
+      if (event.type === "focus-complete" && state.settings.soundEnabled && !(state.timer.status === "complete" && state.timer.workMode === "pomodoro" && state.timer.endBehavior === "remind")) engine.current?.chime();
     } else if (event.type === "reward-forfeited") {
-      setToast("");
+      notify(null);
       setFocusView(false);
       setPanel(null);
       if (state.settings.soundEnabled) engine.current?.chime();
     } else if (event.type === "egg-bought") {
-      setToast("Egg added");
+      notify("Egg added");
     } else {
-      setToast(event.message);
+      notify(event.message, event.type === "notice" ? "warning" : "info");
       if (event.type === "break-complete" && state.settings.soundEnabled)
         engine.current?.chime();
     }
-  }, [state]);
+  }, [state, notify]);
   useEffect(() => {
-    if (!toast) return undefined;
-    const id = setTimeout(() => setToast(""), 6500);
+    if (!toast || toastPaused) return undefined;
+    const id = setTimeout(() => setToast(null), 6500);
     return () => clearTimeout(id);
-  }, [toast]);
+  }, [toast, toastPaused]);
   useEffect(() => {
     const onKey = (event) => {
       if (event.key === "Escape") {
@@ -505,7 +510,7 @@ export default function App() {
               engine={engine}
               playing={playing}
               setPlaying={setPlaying}
-              report={setToast}
+              report={message => notify(message, "warning")}
             />
           )}
           {panel === "settings" && (
@@ -519,19 +524,7 @@ export default function App() {
         <QuickScratchpad state={state} act={act} saveStatus={status} />
       </Drawer>}
       <div className="toast-region" role="status" aria-live="polite">
-        {toast && (
-          <div className="toast paper">
-            <Icon name="sparkle" size={20} />
-            <span>{toast}</span>
-            <button
-              className="icon-button"
-              onClick={() => setToast("")}
-              aria-label="Dismiss notification"
-            >
-              <Icon name="close" size={16} />
-            </button>
-          </div>
-        )}
+        {toast && <ToastNotice notice={toast} onDismiss={() => setToast(null)} onPauseChange={setToastPaused} />}
       </div>
       {ready && (status === "error" || status === "conflict") && (
         <div className="save-warning paper" role="alert">

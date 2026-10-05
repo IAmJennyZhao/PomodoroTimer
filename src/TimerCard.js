@@ -27,7 +27,12 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
   const bonus = timer.status === "idle" ? gemBonus(state) : timer.gemBonus || 0;
   const projectedGems = Math.floor(Math.round(timer.durationMs / 60000) * (100 + Math.round(bonus * 100)) / 100);
   const pauseExpired = limitedPauses && paused && forfeited;
+  const pauseTitle = timer.pauseCount > MAX_PAUSES ? "Pause limit reached" : "Pause ended";
   const showPauseClock = limitedPauses && paused && !forfeited;
+  const receipt = complete ? state.history.find(entry => entry.id === timer.id) : null;
+  const completedMinutes = receipt?.minutes ?? Math.floor(elapsed / 60000);
+  const completedGems = forfeited ? 0 : receipt?.gems ?? receipt?.minutes ?? 0;
+  const hasTask = Boolean(timer.task?.trim() || timer.tasks?.some(task => task.text.trim()));
   const resumeRef = useRef(null);
   useEffect(() => { if (pauseExpired) resumeRef.current?.focus(); }, [pauseExpired]);
   const startBreak = (mode) => act({ type: "START_BREAK", mode });
@@ -47,7 +52,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
             {paused ? "Resume" : limitedPauses ? `Pause (${pausesLeft}/${MAX_PAUSES})` : "Pause"}
           </button>}
           {active && !breakTime && <HoldToStop key={`${timer.id}:${timer.status}`} disabled={!ready || blocked} onStop={() => act({ type: "RESET" })} />}
-          {(complete || breakTime) && <span className="timer-phase">{complete ? "Session complete" : timer.mode === "longBreak" ? "Long break" : "Short break"}</span>}
+          {breakTime && <span className="timer-phase">{timer.mode === "longBreak" ? "Long break" : "Short break"}</span>}
         </div>}
         <div className="timer-tools">
           <button className="icon-button" aria-label="Open scratchpad" title="Scratchpad"
@@ -56,10 +61,15 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
             title={focusView ? "Leave focus view" : "Enter focus view"} onClick={() => setFocusView(!focusView)}><Icon name={focusView ? "collapse" : "expand"} size={17} /></button>}
         </div>
       </div>
-      {!breakTime && !pauseExpired && <SessionTasks timer={timer} history={state.history} act={act} minimal compact={focusView || complete} />}
+      {!breakTime && !pauseExpired && (!complete || hasTask) && <SessionTasks timer={timer} history={state.history} act={act} minimal compact={focusView || complete} />}
       <div className="timer-face">
-        {pauseExpired ? <div className="pause-expired" role="alert"><strong>Pause ended</strong><span>Session gems lost</span></div>
-          : <><div className={`timer-digits ${display.length > 6 ? "long-clock" : ""}`} role="timer" aria-label={showPauseClock ? `${formatTime(pauseRemainingTime(timer, now))} pause remaining` : `${display} ${counting ? timer.overtime ? "overtime" : "elapsed" : "remaining"}`}>
+        {pauseExpired ? <div className="pause-expired" role="alert">
+            <span className="feedback-emblem warning"><Icon name="bell" size={32} /></span>
+            <strong>{pauseTitle}</strong><span className="pause-loss-copy">Session gems lost</span>
+            <InfoTip label="Pause limit details">Only this session’s Shilligems are lost. Resume and finish to record your study time.</InfoTip>
+          </div>
+          : <>{complete && <div className="session-result-heading"><span className="feedback-emblem success"><Icon name="check" size={18} /></span><span>Session complete</span></div>}
+          <div className={`timer-digits ${display.length > 6 ? "long-clock" : ""}`} role="timer" aria-label={showPauseClock ? `${formatTime(pauseRemainingTime(timer, now))} pause remaining` : `${display} ${counting ? timer.overtime ? "overtime" : "elapsed" : "remaining"}`}>
             {showPauseClock ? formatTime(pauseRemainingTime(timer, now)) : display}</div>
           {showPauseClock && <span className="clock-caption">Pause</span>}
           {timer.overtime && !showPauseClock && <span className="clock-caption">Overtime</span>}
@@ -81,13 +91,17 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
           {repeating && settings.soundEnabled && alarmSilenced && <span className="small muted">Muted</span>}
         </div>
         <div className="break-buttons">
-          <button className={recommendedLong ? "secondary-button" : "primary-button"} aria-label={`Short break, ${settings.breakMinutes} minutes`} onClick={() => startBreak("break")} disabled={blocked}>Short break <span>{settings.breakMinutes}m</span></button>
-          <button className={recommendedLong ? "primary-button" : "secondary-button"} aria-label={`Long break, ${settings.longBreakMinutes} minutes`} onClick={() => startBreak("longBreak")} disabled={blocked}>Long break <span>{settings.longBreakMinutes}m</span></button>
+          <button className={recommendedLong ? "secondary-button" : "primary-button"} aria-label={`Short break, ${settings.breakMinutes} minutes`} onClick={() => startBreak("break")} disabled={blocked}><PastelButtonArt />Short break <span>{settings.breakMinutes}m</span></button>
+          <button className={recommendedLong ? "primary-button" : "secondary-button"} aria-label={`Long break, ${settings.longBreakMinutes} minutes`} onClick={() => startBreak("longBreak")} disabled={blocked}><PastelButtonArt />Long break <span>{settings.longBreakMinutes}m</span></button>
         </div>
         {complete && <button className="text-button new-session" onClick={() => act({ type: "SET_MODE", mode: "focus" })}>New session</button>}
       </div>}
       {!focusView && !pauseExpired && <div className="timer-options">
-        {!breakTime && !complete ? <span className={`session-reward ${forfeited ? "forfeited" : ""}`} aria-label={forfeited ? "0 Shilligems this session" : undefined}><Icon name="gem" size={15} />{forfeited ? "0" : counting ? `1 / min${bonus ? ` +${Math.round(bonus * 100)}%` : ""}` : `+${projectedGems}`}
+        {complete ? <div className={`session-receipt ${forfeited ? "forfeited" : ""}`} aria-label="Session result">
+          <span aria-label={`${completedGems} Shilligems earned`}><Icon name="gem" size={18} />+{completedGems}</span>
+          <span>{completedMinutes ? `${completedMinutes} min` : "Under 1 min"}</span>
+          {forfeited && <InfoTip label="Session reward details">Session gems were lost after the pause limit. Your {completedMinutes} focus minutes were recorded.</InfoTip>}
+        </div> : !breakTime ? <span className={`session-reward ${forfeited ? "forfeited" : ""}`} aria-label={forfeited ? "0 Shilligems this session" : undefined}><Icon name="gem" size={15} />{forfeited ? "0" : counting ? `1 / min${bonus ? ` +${Math.round(bonus * 100)}%` : ""}` : `+${projectedGems}`}
           <InfoTip label="Session rewards">Earn 1 Shilligem per completed focus minute{bonus ? ` with a ${Math.round(bonus * 100)}% pet bonus (rounded down)` : ""}. Max-level pets add 10% each, up to 50%, set when the session starts. Keep Pomodoro pauses within two pauses of one minute each to keep your reward. Count-up sessions are saved when you finish; sessions under one minute earn no reward.</InfoTip></span> : <span />}
         <button className="session-settings-button" aria-label="Session settings" title="Session settings" aria-expanded={panel === "session"} aria-controls={panel === "session" ? "panel-heading" : undefined} onClick={() => openPanel("session")}><Icon name="sliders" size={16} /></button>
       </div>}

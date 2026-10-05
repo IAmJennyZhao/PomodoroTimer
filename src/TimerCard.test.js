@@ -51,3 +51,37 @@ test("projected rewards include maxed-pet bonuses without floating-point roundin
   renderTimer(state);
   expect(screen.getByText("+63")).toBeInTheDocument();
 });
+
+test("the third pause names the limit instead of claiming its time expired", () => {
+  let state = actOn(createInitialState(NOW), "START");
+  for (let index = 0; index < 2; index += 1) {
+    state = actOn(state, "PAUSE", NOW + index * 2000);
+    state = actOn(state, "START", NOW + index * 2000 + 1000);
+  }
+  state = actOn(state, "PAUSE", NOW + 5000);
+  renderTimer(state, NOW + 5000);
+  expect(screen.getByRole("alert")).toHaveTextContent("Pause limit reached");
+  expect(screen.getByRole("button", { name: "Resume" })).toHaveFocus();
+});
+
+test("completed sessions retain the recorded reward after preferences change", () => {
+  let state = actOn(createInitialState(NOW), "START");
+  state = actOn(state, "TICK", NOW + 25 * 60000);
+  state = gameReducer(state, { type: "SET_SETTINGS", settings: { focusMinutes: 50 }, now: NOW + 25 * 60000 });
+  renderTimer(state, NOW + 25 * 60000);
+  expect(screen.getByLabelText("Session result")).toHaveTextContent("+2525 min");
+  expect(screen.getByLabelText("25 Shilligems earned")).toBeInTheDocument();
+  expect(screen.queryByText("What are you working on?")).not.toBeInTheDocument();
+  expect(screen.getByText("Session complete")).toBeInTheDocument();
+});
+
+test("a forfeited completion keeps its recorded minutes and zero reward", () => {
+  let state = actOn(createInitialState(NOW), "START");
+  state = actOn(state, "PAUSE", NOW + 10000);
+  state = actOn(state, "TICK", NOW + 71000);
+  state = actOn(state, "START", NOW + 71000);
+  state = actOn(state, "TICK", NOW + 27 * 60000);
+  renderTimer(state, NOW + 27 * 60000);
+  expect(screen.getByLabelText("0 Shilligems earned")).toBeInTheDocument();
+  expect(screen.getByLabelText("Session result")).toHaveTextContent("25 min");
+});
