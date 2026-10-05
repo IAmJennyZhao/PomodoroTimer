@@ -138,9 +138,11 @@ export function Sprite({
 }
 
 export function Accessory({ id }) {
-  const rect = { bow: [1094, 565, 309, 217], crown: [1091, 782, 208, 145], flower: [1320, 723, 192, 193] }[id];
+  const rect = { bow: [1098, 576, 290, 202], crown: [1091, 782, 208, 145], flower: [1318, 729, 190, 190] }[id];
   if (!rect) return null;
-  return <span aria-hidden="true" className={`pet-accessory accessory-${id}`}><ArtFragment rect={rect} /></span>;
+  const clipShape = id === "flower" ? <path d="M1390 729H1510V921H1318V778H1380Z" />
+    : id === "bow" ? <path d="M1098 576H1388V725L1310 778H1098Z" /> : undefined;
+  return <span aria-hidden="true" className={`pet-accessory accessory-${id}`}><ArtFragment rect={rect} preserveAspectRatio="xMidYMid meet" clipShape={clipShape} /></span>;
 }
 export function AnimalArt({ animal, className = "" }) {
   const motions = ["breathe", "sway", "hop", "wiggle", "stretch", "peek", "celebrate"];
