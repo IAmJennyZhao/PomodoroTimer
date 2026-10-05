@@ -1,5 +1,18 @@
 # Implementation verification
 
+## Phase 4: Utility panels
+
+Verified in Chrome with the isolated temporary save folder on ports 4175/4176, following the scratchpad, session settings, settings, and sounds mockups in `output/mockups/cohesive-atelier-v2/`.
+
+- Utility sheets have coral pencil frames, restrained tape, olive headings, cream grain, and consistent spacing. Settings uses three roomy toggle rows and one Local save / Saved / info strip. Error, backup recovery, retry, and conflict reload actions remain available; interaction tests cover these paths.
+- Session settings uses short Quick / Classic / Deep pills, a two-column duration form with illustrated labels, explicit minus/plus buttons, and separate units. Lightweight alarm rows replace boxed choices, with help beside the section heading. Tests verify stepping, typed drafts, min/max limits, cadence, active-session preservation, and count-up break-only settings. Browser stepping changed 25 to 26 and back; the count-up form retained the existing break preferences.
+- The scratchpad is a tan framed, taped, ruled sheet with a centered heading and italic writing. Its textarea has no rounded inner box; a narrow sage margin marks focus. Saved/error states remain visible. Editing and arrow-key movement worked; an added review line survived reload, and the original notes and position were restored. It remains independent when another panel opens.
+- Sound uses a small painted Play/Pause capsule, colored pencil rain/fire/wave icons, coral slider fills, and percentages beside the tracks. Extra channel divider lines and the standalone footer info button are removed. Real playback toggled successfully; ArrowRight changed Rain from 30% to 31%, then ArrowLeft restored 30%.
+- Pause/Resume and Stop use quiet paper capsules, with sage on Resume and the existing five-second hold progress. At phone width, a live Pomodoro paused with a ticking countdown, resumed with Pause (1/2), and ignored an ordinary Stop click. Existing hold-to-Stop and expired-pause regression tests remain green. The disposable timer was restored to idle, with the wallet and 24 history records unchanged.
+- Desktop (1862 x 894 CSS pixels), tablet (769 x 800), and narrow phone (320 x 640) utility compositions were inspected. All four panels fit the page width. The taller phone timer-settings sheet scrolls internally, while Settings and Sound keep compact heights. Temporary viewport overrides were reset.
+
+Checks: **213 passing tests across 12 suites**, a successful final production build with CI warnings treated as errors, and clean diff checks. Stable checkpoints cover timer/settings and scratchpad/sound/timer actions. Personal saves were not used for QA.
+
 ## Enhancements before Phase 4
 
 Verified in Chrome with the isolated temporary save folder on ports 4173/4174. These changes supersede the earlier arrangement arrow controls and pause-dot presentation described below.
