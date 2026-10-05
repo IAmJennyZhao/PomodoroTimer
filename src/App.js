@@ -41,6 +41,7 @@ import "./atelier.css";
 import "./visual-system.css";
 import "./main-panels.css";
 import "./arrangement.css";
+import "./timer-refinements.css";
 
 const BREAK_IDEAS = [
   [
@@ -418,7 +419,7 @@ export default function App() {
           </button>
         </div>
       </header>
-      <RoomWidget as="main" id="timer" name="timer" className="focus-area" position={state.room.widgets?.timer}
+      <RoomWidget as="main" id="timer" name="timer" className="focus-area" position={focusView ? null : state.room.widgets?.timer}
         arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "timer"}
         onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "timer", ...position })} hidden={widePanel}>
         <TimerCard state={state} act={act} now={now} ready={ready} blocked={status === "conflict"}

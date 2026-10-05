@@ -1,0 +1,29 @@
+/* Quiet session controls; the clock carries the emphasis. */
+.app .timer-session-controls { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.app .pause-button, .app .stop-button { border: 1px solid var(--line); border-radius: var(--control-radius); background: var(--paper-grain), var(--paper); color: var(--ink); padding: 7px 10px; min-height: 36px; font: 13px Georgia, serif; white-space: nowrap; }
+.app .pause-button:hover { background-color: var(--sage); }
+.app .stop-button { position: relative; overflow: hidden; display: flex; align-items: center; gap: 6px; color: var(--danger); touch-action: none; user-select: none; }
+.app .stop-button::before { content: ""; position: absolute; inset: 0; width: var(--hold-progress, 0%); background: #df9e8355; pointer-events: none; }
+.app .stop-button > span, .app .stop-button > small { position: relative; }
+.app .stop-button small { font: 10px Georgia, serif; color: var(--muted); }
+.app .timer-phase { font-size: 11px; }
+.app .timer-actions { margin-top: 8px; }
+.app.focus-view .focus-area { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(740px, calc(100% - 48px)); max-height: calc(100% - 48px); }
+.app.focus-view .timer-card { padding: 30px 48px 36px; }
+.app.focus-view .timer-face { min-height: 240px; display: flex; flex-direction: column; justify-content: center; padding: 25px 0; }
+.app.focus-view .timer-digits { font-size: clamp(120px, 22vw, 176px); line-height: 1.12; letter-spacing: -5px; }
+.app.focus-view .timer-digits.long-clock { font-size: clamp(72px, 15vw, 118px); }
+.app.focus-view .pause-expired { min-height: 160px; }
+.app.focus-view .timer-tools .icon-button { width: 32px; min-width: 32px; height: 32px; }
+@media (max-width: 700px) {
+  .app .timer-session-controls { gap: 5px; }
+  .app .pause-button, .app .stop-button { font-size: 12px; padding: 6px 7px; }
+  .app .stop-button { gap: 4px; }
+  .app .stop-button small { font-size: 9px; }
+  .app.focus-view .focus-area { width: calc(100% - 28px); max-height: calc(100% - 28px); }
+  .app.focus-view .timer-card { padding: 20px 20px 28px; }
+  .app.focus-view .timer-face { min-height: 180px; padding: 18px 0; }
+  .app.focus-view .timer-digits { font-size: clamp(92px, 17vw, 124px); letter-spacing: -3px; }
+  .app.focus-view .timer-digits.long-clock { font-size: clamp(54px, 11vw, 76px); letter-spacing: -2px; }
+  .app.focus-view .timer-tools .icon-button { width: 27px; min-width: 27px; height: 30px; }
+}

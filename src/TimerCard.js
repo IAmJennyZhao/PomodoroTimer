@@ -3,6 +3,7 @@ import { canTakeBreak, elapsedTime, formatElapsedTime, formatTime, gemBonus, isC
 import { Icon, InfoTip } from "./ui";
 import SessionTasks from "./SessionTasks";
 import { ArtFragment, PastelButtonArt } from "./AtelierArt";
+import HoldToStop from "./HoldToStop";
 
 export default function TimerCard({ state, act, now, ready, blocked, onToggleTimer,
   openPanel, panel, notesOpen, focusView, setFocusView, alarmSilenced, silenceAlarm,
@@ -30,17 +31,24 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
   const resumeRef = useRef(null);
   useEffect(() => { if (pauseExpired) resumeRef.current?.focus(); }, [pauseExpired]);
   const startBreak = (mode) => act({ type: "START_BREAK", mode });
+  const active = !complete && timer.status !== "idle";
   return (
     <section className={`timer-card paper ${counting ? "counting-up" : ""} ${complete ? "session-complete" : ""} ${pauseExpired ? "pause-alert" : ""}`} aria-label="Focus timer">
       <ArtFragment rect={[52, 101, 456, 364]} className="timer-paper-art" />
       <div className="timer-heading">
         {editable ? <div className="mode-tabs work-mode-tabs" role="group" aria-label="Work mode">
-          {[["pomodoro", "Pomodoro"], ["countup", "Count up"]].map(([id, label]) => (
+          {[["pomodoro", "Countdown"], ["countup", "Count up"]].map(([id, label]) => (
             <button key={id} type="button" aria-pressed={timer.workMode === id}
               className={timer.workMode === id ? "active" : ""}
               onClick={() => act({ type: "SET_SETTINGS", settings: { workMode: id } })}>{label}</button>
           ))}
-        </div> : <span className="timer-phase">{complete ? "Session complete" : breakTime ? (timer.mode === "longBreak" ? "Long break" : "Short break") : timer.overtime ? "Overtime" : timer.workMode === "countup" ? "Count up" : "Pomodoro"}</span>}
+        </div> : <div className="timer-session-controls">
+          {active && <button ref={resumeRef} type="button" className="pause-button" disabled={!ready || blocked} onClick={onToggleTimer}>
+            {paused ? "Resume" : limitedPauses ? `Pause (${pausesLeft}/${MAX_PAUSES})` : "Pause"}
+          </button>}
+          {active && !breakTime && <HoldToStop key={`${timer.id}:${timer.status}`} disabled={!ready || blocked} onStop={() => act({ type: "RESET" })} />}
+          {(complete || breakTime) && <span className="timer-phase">{complete ? "Session complete" : timer.mode === "longBreak" ? "Long break" : "Short break"}</span>}
+        </div>}
         <div className="timer-tools">
           <button className="icon-button" aria-label="Open scratchpad" title="Scratchpad"
             aria-expanded={Boolean(notesOpen)} aria-pressed={Boolean(notesOpen)} aria-controls="scratchpad" onClick={() => openPanel("notes")}><Icon name="note" size={18} /></button>
@@ -54,23 +62,16 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
           : <><div className={`timer-digits ${display.length > 6 ? "long-clock" : ""}`} role="timer" aria-label={showPauseClock ? `${formatTime(pauseRemainingTime(timer, now))} pause remaining` : `${display} ${counting ? timer.overtime ? "overtime" : "elapsed" : "remaining"}`}>
             {showPauseClock ? formatTime(pauseRemainingTime(timer, now)) : display}</div>
           {showPauseClock && <span className="clock-caption">Pause</span>}
+          {timer.overtime && !showPauseClock && <span className="clock-caption">Overtime</span>}
           {timer.overtime && !showPauseClock && <span className="elapsed-total">{formatElapsedTime(elapsed)} total</span>}</>}
       </div>
-      {limitedPauses && !forfeited && <div className="pause-budget" aria-label="Pomodoro pause allowance">
-        <span className="pause-dots" role="img" aria-label={`${pausesLeft} of ${MAX_PAUSES} pauses left, one minute each`}>
-          {Array.from({ length: MAX_PAUSES }, (_, i) => <i key={i} className={i < pausesLeft ? "available" : "used"} />)}
-        </span>
-        <InfoTip label="Pomodoro pause rules">Two pauses, one minute each. A third pause or more than one minute paused loses this session's Shilligems. Focus time still counts in your journal.</InfoTip>
-      </div>}
-      {!complete && <div className="timer-actions">
-        <button className="icon-button reset-button" aria-label="Reset timer" title="Reset session"
-          onClick={() => act({ type: "RESET" })}><Icon name="reset" size={19} /></button>
-        <button ref={resumeRef} className="primary-button start-button" disabled={!ready || blocked} onClick={onToggleTimer}>
+      {!complete && (timer.status === "idle" || counting || breakTime) && <div className="timer-actions">
+        {timer.status === "idle" && <button className="primary-button start-button" disabled={!ready || blocked} onClick={onToggleTimer}>
           <PastelButtonArt />
-          <span>{timer.status === "running" ? "Pause" : timer.status === "paused" ? "Resume" : "Start"}</span>
-        </button>
+          <span>Start</span>
+        </button>}
         {counting && timer.status !== "idle" ? <button className="icon-button finish-button" aria-label="Finish session" title="Finish session" onClick={() => act({ type: "FINISH_FOCUS" })}><Icon name="check" size={20} /></button>
-          : breakTime ? <button className="icon-button" aria-label="Skip break" title="Skip break" onClick={() => act({ type: "SET_MODE", mode: "focus" })}><Icon name="skip" size={19} /></button> : <span className="timer-action-spacer" />}
+          : breakTime ? <button className="icon-button" aria-label="Skip break" title="Skip break" onClick={() => act({ type: "SET_MODE", mode: "focus" })}><Icon name="skip" size={19} /></button> : null}
       </div>}
       {breakReady && <div className="break-choices">
         <div className="break-choice-heading">

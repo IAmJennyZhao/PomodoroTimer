@@ -7,16 +7,23 @@ const actOn = (state, type, now = NOW) => gameReducer(state, { type, now });
 const renderTimer = (state, now = NOW) => render(<TimerCard state={state} now={now} act={jest.fn()} ready blocked={false}
   onToggleTimer={jest.fn()} openPanel={jest.fn()} setFocusView={jest.fn()} tip={["Stretch", "Take a breath"]} />);
 
-test("Pomodoro displays its two one-minute pauses and a live remaining pause allowance", () => {
+test("pause counts stay in the small Pause button and the pause clock remains live", () => {
   let state = createInitialState(NOW);
   const { rerender } = renderTimer(state);
-  expect(screen.getByRole("img", { name: "2 of 2 pauses left, one minute each" })).toBeInTheDocument();
+  expect(screen.queryByRole("img", { name: /pauses left/ })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Reset timer" })).not.toBeInTheDocument();
+  expect(screen.queryByText("Pomodoro")).not.toBeInTheDocument();
   state = actOn(state, "START");
+  rerender(<TimerCard state={state} now={NOW} act={jest.fn()} ready onToggleTimer={jest.fn()} />);
+  expect(screen.getByRole("button", { name: "Pause (2/2)" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Stop session" })).toBeEnabled();
   state = actOn(state, "PAUSE", NOW + 10000);
   rerender(<TimerCard state={state} now={NOW + 40000} act={jest.fn()} ready onToggleTimer={jest.fn()} />);
   expect(screen.getByRole("timer", { name: "00:30 pause remaining" })).toHaveTextContent("00:30");
-  expect(screen.getByRole("img", { name: "1 of 2 pauses left, one minute each" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Resume" })).toBeEnabled();
+  state = actOn(state, "START", NOW + 40000);
+  rerender(<TimerCard state={state} now={NOW + 40000} act={jest.fn()} ready onToggleTimer={jest.fn()} />);
+  expect(screen.getByRole("button", { name: "Pause (1/2)" })).toBeEnabled();
 });
 
 test("forfeited Pomodoro rewards clearly show zero without hiding session controls", () => {

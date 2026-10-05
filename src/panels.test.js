@@ -191,7 +191,7 @@ test('editing durations preserves an active timer and explains when changes appl
   expect(screen.getByText('Applies next session')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Changing an active timer' }));
   expect(screen.getByText(/Your current session keeps its original times and end behavior/)).toBeInTheDocument();
-  expect(screen.getByText(/Reset the timer to apply changes now/)).toBeInTheDocument();
+  expect(screen.getByText(/Hold Stop to end this timer/)).toBeInTheDocument();
 });
 
 test('focus end choices save the setting and keep explanations behind an info button', () => {

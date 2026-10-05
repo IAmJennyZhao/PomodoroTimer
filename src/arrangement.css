@@ -2,7 +2,7 @@
 .room-objects { position: absolute; inset: 0; }
 .app.is-arranging .room-objects > .room-backdrop { top: var(--room-edit-top, 0px); bottom: auto; transform: scale(var(--room-edit-scale, 1)); transform-origin: 50% 0; box-shadow: 0 0 0 1px #b8a58780, 0 6px 18px #55402a20; }
 .app.is-arranging .room-resident { transform: translate(-50%, -50%) scale(var(--room-edit-scale, 1)); }
-.app.is-arranging .room-scene { isolation: auto; z-index: auto; }
+.app.is-arranging .room-scene { isolation: auto; z-index: auto; background: var(--paper-grain), var(--paper); }
 .app.is-arranging .focus-area { overflow: visible; max-height: none; }
 .app .arrange-widget.chosen { z-index: 260; }
 .app.is-arranging .workspace-decorate { border: 6px solid transparent; border-image: var(--book-frame) 24 / 6px / 0 stretch; border-radius: 8px; max-height: none; bottom: 12px; }

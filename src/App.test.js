@@ -78,7 +78,7 @@ test('a completed focus session updates the wallet, daily goal, journal, break i
   await openRoom(initial);
   fireEvent.change(screen.getByRole('textbox', { name: 'Session task' }), { target: { value: 'Finish my sketch' } });
   fireEvent.click(screen.getByRole('button', { name: 'Start' }));
-  expect(screen.getByRole('button', { name: 'Pause' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: /^Pause(?: \(\d\/2\))?$/ })).toBeEnabled();
   await advance(350);
 
   await wakeAt(NOW + 25 * MINUTE);
@@ -107,7 +107,7 @@ test('a completed focus session updates the wallet, daily goal, journal, break i
   const stoppedBeforeBreak = engine.stopAlarm.mock.calls.length;
   fireEvent.click(screen.getByRole('button', { name: 'Short break, 5 minutes' }));
   expect(screen.getByRole('timer')).toHaveTextContent('05:00');
-  expect(screen.getByRole('button', { name: 'Pause' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: /^Pause(?: \(\d\/2\))?$/ })).toBeEnabled();
   expect(screen.getByText('Stretch')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Another break idea' }));
   expect(screen.getByText('Rest your eyes')).toBeInTheDocument();
@@ -177,12 +177,12 @@ test('failed local loads show a retry action and never replace a private save wi
   expect(writes()).toHaveLength(0);
 });
 
-test('pause survives a tab wake, resume keeps the remaining duration, and reset abandons without reward', async () => {
+test('pause survives a tab wake, resume keeps the remaining duration, and held Stop abandons without reward', async () => {
   await openRoom();
   fireEvent.click(screen.getByRole('button', { name: 'Start' }));
   await wakeAt(NOW + 2 * MINUTE);
   expect(screen.getByRole('timer')).toHaveTextContent('23:00');
-  fireEvent.click(screen.getByRole('button', { name: 'Pause' }));
+  fireEvent.click(screen.getByRole('button', { name: /^Pause(?: \(\d\/2\))?$/ }));
   await wakeAt(NOW + 120 * MINUTE);
   expect(screen.getByRole('alert')).toHaveTextContent('Pause ended');
   expect(screen.queryByRole('timer')).not.toBeInTheDocument();
@@ -194,7 +194,8 @@ test('pause survives a tab wake, resume keeps the remaining duration, and reset 
   fireEvent.click(screen.getByRole('button', { name: 'Resume' }));
   await wakeAt(NOW + 121 * MINUTE);
   expect(screen.getByRole('timer')).toHaveTextContent('22:00');
-  fireEvent.click(screen.getByRole('button', { name: 'Reset timer' }));
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Stop session' }), { key: ' ' });
+  await advance(5000);
   expect(screen.getByRole('timer')).toHaveTextContent('25:00');
   expect(screen.getByRole('button', { name: 'Start' })).toBeEnabled();
   await wakeAt(NOW + 500 * MINUTE);
@@ -202,6 +203,18 @@ test('pause survives a tab wake, resume keeps the remaining duration, and reset 
   expect(screen.getByRole('button', { name: 'Daily progress: 0 of 4 sessions' })).toBeInTheDocument();
   await advance(350);
   expect(latestWrite().state).toMatchObject({ gems: 0, history: [], timer: { status: 'idle', remainingMs: 25 * MINUTE } });
+});
+
+test('finishing focus during a Stop hold cancels that hold and preserves the completed session', async () => {
+  await openRoom();
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  await wakeAt(NOW + 25 * MINUTE - 3000);
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Stop session' }), { key: ' ' });
+  await advance(3000);
+  expect(screen.getByRole('button', { name: 'New session' })).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Stop session' })).not.toBeInTheDocument();
+  await advance(3000);
+  expect(latestWrite().state).toMatchObject({ gems: 25, history: [{ minutes: 25 }], timer: { status: 'complete' } });
 });
 
 test('header navigation opens named panels, restores the opener after Escape, and tears down timers and audio', async () => {
@@ -296,7 +309,8 @@ test('session lengths are editable on the timer and a running session keeps its 
     timer: { status: 'running', durationMs: 30 * MINUTE },
   });
   fireEvent.click(screen.getByRole('button', { name: 'Close panel' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Reset timer' }));
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Stop session' }), { key: ' ' });
+  await advance(5000);
   expect(screen.getByRole('timer')).toHaveTextContent('10:00');
 
   fireEvent.click(screen.getByRole('button', { name: 'Settings', exact: true }));
@@ -331,7 +345,7 @@ test('egg odds are available on request and Escape closes help before the shop',
 
 test('focus view hides distractions while scratchpad remains reachable and saves without pausing', async () => {
   await openRoom();
-  expect(screen.getByRole('button', { name: 'Pomodoro', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: 'Countdown', exact: true })).toHaveAttribute('aria-pressed', 'true');
   expect(screen.queryByRole('button', { name: /Short break/ })).not.toBeInTheDocument();
   expect(screen.queryByRole('button', { name: /Long break/ })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Start' }));
@@ -339,7 +353,7 @@ test('focus view hides distractions while scratchpad remains reachable and saves
   expect(screen.queryByRole('navigation', { name: 'Main navigation' })).not.toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Settings', exact: true })).not.toBeInTheDocument();
   expect(screen.queryByRole('button', { name: /Daily progress/ })).not.toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Pause' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: /^Pause(?: \(\d\/2\))?$/ })).toBeEnabled();
 
   fireEvent.click(screen.getByRole('button', { name: 'Open scratchpad' }));
   const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
@@ -351,7 +365,7 @@ test('focus view hides distractions while scratchpad remains reachable and saves
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   expect(screen.getByRole('region', { name: 'Focus timer' })).toBeVisible();
   expect(screen.queryByRole('navigation', { name: 'Main navigation' })).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'Pause' }));
+  fireEvent.click(screen.getByRole('button', { name: /^Pause(?: \(\d\/2\))?$/ }));
   expect(screen.queryByRole('navigation', { name: 'Main navigation' })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Leave focus view' }));
   expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
@@ -359,7 +373,7 @@ test('focus view hides distractions while scratchpad remains reachable and saves
   fireEvent.click(screen.getByRole('button', { name: 'Resume' }));
   expect(screen.queryByRole('navigation', { name: 'Main navigation' })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Leave focus view' }));
-  expect(screen.getByRole('button', { name: 'Pause' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: /^Pause(?: \(\d\/2\))?$/ })).toBeEnabled();
   fireEvent.click(screen.getByRole('button', { name: 'Enter focus view' }));
   expect(screen.queryByRole('navigation', { name: 'Main navigation' })).not.toBeInTheDocument();
 });
@@ -413,7 +427,7 @@ test('a completed Pomodoro repeats its alarm until muted and waits for an explic
   expect(screen.getByRole('timer')).toHaveTextContent('00:00');
   fireEvent.click(screen.getByRole('button', { name: 'Long break, 15 minutes' }));
   expect(screen.getByRole('timer')).toHaveTextContent('15:00');
-  expect(screen.getByRole('button', { name: 'Pause' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: /^Pause(?: \(\d\/2\))?$/ })).toBeEnabled();
   await advance(350);
   expect(latestWrite().state).toMatchObject({ gems: 25, history: [{ minutes: 25 }], timer: { mode: 'longBreak', status: 'running' } });
 });
@@ -429,7 +443,7 @@ test('count up tracks active time, pauses cleanly, and credits whole minutes on 
   expect(document.title).toContain('02:30');
   expect(document.title).toMatch(/Count up/i);
   expect(screen.queryByRole('button', { name: /Short break/ })).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'Pause' }));
+  fireEvent.click(screen.getByRole('button', { name: /^Pause(?: \(\d\/2\))?$/ }));
   await wakeAt(NOW + 10 * MINUTE);
   expect(screen.getByRole('timer')).toHaveTextContent('02:30');
   fireEvent.click(screen.getByRole('button', { name: 'Finish session' }));
@@ -560,7 +574,7 @@ test('an expired pause raises one concise alert, chimes, and resumes the remaini
   await openRoom();
   fireEvent.click(screen.getByRole('button', { name: 'Start' }));
   await advance(20000);
-  fireEvent.click(screen.getByRole('button', { name: 'Pause' }));
+  fireEvent.click(screen.getByRole('button', { name: /^Pause(?: \(\d\/2\))?$/ }));
   await advance(30000);
   expect(screen.getByRole('timer', { name: '00:30 pause remaining' })).toHaveTextContent('00:30');
   expect(screen.queryByText(/focus left/)).not.toBeInTheDocument();

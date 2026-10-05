@@ -204,7 +204,7 @@ export function SessionControls({ state, act }) {
           <span className="small muted">Applies next session</span>
           <InfoTip label="Changing an active timer">
             Your current session keeps its original times and end behavior.
-            Reset the timer to apply changes now.
+            Hold Stop to end this timer and apply changes to a new session.
           </InfoTip>
         </div>
       )}
