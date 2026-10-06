@@ -1,5 +1,21 @@
 # Implementation verification
 
+## Animation pass 2: Everyday controls
+
+This pass addresses the earlier uneven button feedback and abrupt selected states. Ordinary primary, secondary, icon, text and purchase buttons now share content-only presses, a fixed hitbox, and immediate native activation. Navigation, timer modes, journal tabs, presets, collection/library cards and checkbox/radio choices share transition timing. Hover stays silent; activation gets a quiet tap or selection tick. Reward, panel-exit and room-drag choreography remain for their separate passes.
+
+- `Controls.js` preserves button DOM identity, refs and original child layouts. It handles pointer/touch down and release, Enter/Space, assistive clicks, auto-repeat suppression, pointer cancellation/outside release, lost capture, blur, hidden tabs and disabled updates. Native choices update on change. Sound preview owns its tap, and hold-to-stop retains its five-second safety behavior.
+- `tactile-controls.css` uses a 100ms press and 180ms release with 2% content compression and 1px travel, without spring/overshoot. Selected pigments and mounted navigation/mode underlines transition over 200ms. A selected collection/library card retains its pigment under hover; the previous hover rule could conceal selection. Reduced motion removes the travel and timing, including portaled help controls.
+- The audio engine drops requests until the previous interaction group finishes, in addition to its 100ms cooldown and pending-unlock guard. It never queues a delayed burst and leaves alerts/ambience independent. Preview distinguishes a dropped effect from an actual audio failure; rapid navigation or toggling no longer creates a misleading unavailable-audio message.
+
+Final production-build verification used isolated headless Chrome and temporary browser/save profiles. Native mouse presses on painted/plain primary, secondary, icon, text, purchase and collection controls measured exactly unchanged frame x/y/width/height, with computed content scale `0.98`, travel `1px` and duration `100ms`. Pointer actions ran immediately on release. Enter paused the timer while preserving the same focused button node; repeated keydown did not resume it. Space opened Pets on release, updated a native toggle with unchanged width/focus, and activated a journal period tab while retaining focus. Closing Pets restored its opener; keyboard closing of portaled help restored its trigger. A native phone touch press also retained its frame, compressed the icon and closed Settings on release.
+
+Selected collection and journal-tab colors, navigation underline opacity and 200ms transition timing were checked in the browser. App reduced motion yielded scale `1`, zero travel and zero duration. Disabled purchases had no press state, compression, shadow change, sound or gem change. Hover produced no tones. Ten rapid goal updates completed in approximately 55ms with one tap and no later queued sounds. A successful basic purchase deducted exactly 25 gems. No page exceptions occurred.
+
+Desktop (1280 x 800) and phone (320 x 640) screenshots were reviewed for Pets, Settings and the shop; narrow sheets had no horizontal page overflow. Existing timer, hold-to-stop, modal focus, task editing and persistence regressions pass. Personal saves were not used.
+
+Checks: **268 passing app tests across 14 suites**, **17 passing server tests**, successful production build with CI warnings treated as errors, and clean diff checks. The existing Browserslist-data notice remains informational. Stable checkpoints cover sound overlap prevention (`f588971`), controls and preview behavior (`b13b3d9`), and this verification record.
+
 ## Animation pass 1: Shared motion and sound rules
 
 This pass establishes the foundation for the earlier interaction findings: inconsistent press feedback, abrupt panel removal, and limited responses to successful actions. It standardizes existing effect timings and separates interaction sounds from timer alerts; additional button, panel-exit, task, placement, and hatch choreography remains for the later passes.
