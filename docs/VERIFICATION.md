@@ -1,5 +1,20 @@
 # Implementation verification
 
+## Animation pass 1: Shared motion and sound rules
+
+This pass establishes the foundation for the earlier interaction findings: inconsistent press feedback, abrupt panel removal, and limited responses to successful actions. It standardizes existing effect timings and separates interaction sounds from timer alerts; additional button, panel-exit, task, placement, and hatch choreography remains for the later passes.
+
+- Shared tokens define 100ms presses, 180ms releases, 200ms transitions, 480ms rewards, common easing/shadows, 2% compression, and small movement distances. Opt-in press/reward primitives animate a visual child rather than a positioned room element or drag hitbox.
+- The procedural engine has seven quiet effects: tap, selection, paper, check, purchase, placement, and hatch. Tests cover independent routing, safe volume clamping, silent configuration, blocked/unsupported audio, rapid requests, pending-unlock cancellation, partial node failures, cleanup, and preserved alarm/ambient behavior.
+- Saved interaction enable/volume controls and a preview button appear in both Settings and Sound. Tests cover old-save defaults, preservation of previously muted taps, malformed values, serialization, independent timer settings, rapid preview clicks, and stale preview results after muting. Start/pause/resume uses the interaction preference; alert chimes and repeat alarms retain their timer preference.
+- System and app reduced-motion preferences combine through a shared React hook/context, including portaled help. Pet animation-selection intervals stop while motion is reduced. Tests cover live system changes, app overrides that reduce further, unavailable matchMedia, and listener cleanup.
+
+Verification on the final production build used isolated headless Chrome with temporary browser/save profiles, because the normal computer-use runtime could not initialize its kernel assets. Desktop (1280 x 800) and phone (320 x 640) screenshots were reviewed; settings fit the narrow sheet, Sound scrolls to its controls, and neither creates horizontal page overflow. Preview works with timer alerts muted; interaction enable and volume survive reload. Real computed styles show the standard durations, then zero durations and disabled pet animation for both app and emulated system reduced motion, including help popovers. No page exceptions occurred.
+
+Native OfflineAudioContext rendering exercised all seven effects with the real browser synthesis/filter/mixer graph, adapting only the unlock/lifecycle boundary. At the default 35% level, rendered peaks ranged from approximately 0.004 to 0.010 full scale. This verifies output levels; subjective headphone/speaker listening remains a useful tuning step in later interaction passes.
+
+Checks: **250 passing app tests across 13 suites**, **17 passing server tests**, successful production build with CI warnings treated as errors, and clean diff checks. The existing Browserslist-data notice remains informational. Stable commits cover the audio palette and the shared motion/preferences implementation. Personal saves were not used.
+
 ## Phase 6: Final polish
 
 Reevaluated the current app and the earlier drawbacks against the illustrated room, shop, arrangement, album, and journal mockups in `output/mockups/cohesive-atelier-v2/`. The final pass keeps the established paper, pencil frames, olive type, coral actions, and sage selections while correcting uncovered screen sizes and long-data states.

@@ -71,6 +71,20 @@ Existing saves migrate automatically. Previously purchased eggs stay ready to ha
 
 Keep the app tab open for audible reminders. Enable **Timer sound** in Settings; if the browser blocks playback, **Enable alarm sound** is available on a completed Pomodoro. **Auto-start focus** optionally begins work after a chosen break, but reloading an expired break leaves the next session idle.
 
+## Interaction and motion settings
+
+**Interaction sounds** and **Interaction volume** are saved independently of **Timer sound** and ambient levels. Find them in Settings or Sound; **Preview sound** plays a quiet tap at the selected level. New rooms start at 35%. Existing saves that had timer sounds off keep their taps muted during migration. Start/pause/resume taps now follow the interaction setting; completion chimes and repeat alarms still follow Timer sound.
+
+**Reduce animation** and your operating system's reduced-motion preference both disable motion, including help popovers. The app cannot override a system request to reduce motion.
+
+The first animation pass establishes shared rules for subsequent interaction work:
+
+- `src/motion.css` defines 100ms presses, 180ms releases, 200ms transitions, and 480ms rewards, with common easing, 2% compression, 1px press travel, 2px reward lift, 8px entrance travel, and rest/pressed shadows. Existing control transitions and panel/toast/hatch entrances use these tokens. Slow pet idle cycles and the clock's linear progress indicator keep their own cadence.
+- The opt-in `motion-pressable` button and its `motion-visual` child keep visual transforms separate from hitboxes and room/widget positioning. `motion-reward` is available for short reward lifts. Later passes will apply these primitives to additional interactions.
+- `MotionPreferenceContext` carries the effective reduced-motion preference to portals and future JavaScript sequences. Motion tokens become zero-duration/zero-travel when reduced motion is active; don't wait for an animation event to perform a game action.
+- The existing engine exposes `setInteractionSfx({ enabled, volume })` and `playSfx(name)` for `tap`, `selection`, `paper`, `check`, `purchase`, `placement`, and `hatch`; `tap()` remains a convenience alias. Sounds share a soft C-major palette and short envelopes, with filtered noise for paper. No sound assets or new dependencies are needed.
+- SFX config is silent. Playback unlocks browser audio on demand, fails quietly, and drops requests during a pending unlock or within 100ms of another effect. A `false` result can mean muted or throttled as well as unavailable audio. Muting cancels active and pending SFX without affecting ambience or alerts. Connect later purchase/reward effects to confirmed successful events.
+
 ## Checks
 
 ```sh
