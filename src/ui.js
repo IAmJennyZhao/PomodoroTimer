@@ -1,3 +1,4 @@
+import { Button } from "./Controls";
 import { useContext, useEffect, useLayoutEffect, useId, useRef, useState } from "react";
 import { MotionPreferenceContext } from "./useReducedMotion";
 import { createPortal } from "react-dom";
@@ -239,12 +240,12 @@ export function InfoTip({ label = "More info", children }) {
         close();
       }
     }}>
-      <button type="button" className="info-button" aria-label={label}
+      <Button type="button" className="info-button" aria-label={label}
         aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>
         <Icon name="info" size={17} />
-      </button>
+      </Button>
       {open && createPortal(<div ref={contentRef} className={`info-content feedback-note ${reducedMotion ? "reduce-motion" : ""}`} style={position} role="note" id={id} aria-labelledby={`${id}-title`}>
-        <div className="info-heading"><h3 id={`${id}-title`}>{label}</h3><button type="button" className="info-button" aria-label="Close details" onClick={close}><Icon name="close" size={17} /></button></div>
+        <div className="info-heading"><h3 id={`${id}-title`}>{label}</h3><Button type="button" className="info-button" aria-label="Close details" onClick={close}><Icon name="close" size={17} /></Button></div>
         <div className="info-body">{children}</div>
       </div>, document.body)}
     </span>
@@ -354,14 +355,14 @@ export function Drawer({ name, title, onClose, children, position, onMove }) {
         </button> : <div>
           <h2 id={headingId}>{title || PANEL_NAMES[name]}</h2>
         </div>}
-        <button
+        <Button
           ref={closeRef}
           className="icon-button"
           onClick={onClose}
           aria-label="Close panel"
         >
           <Icon name="close" />
-        </button>
+        </Button>
       </header>
       <div className="drawer-content">{children}</div>
     </aside>
@@ -449,7 +450,7 @@ export function HatchModal({ animal, duplicate = false, capped = false, onClose 
         }}
       >
         <div className="paper-corners" aria-hidden="true"><i /><i /><i /><i /></div>
-        <button type="button" className="icon-button hatch-close" aria-label="Close celebration" onClick={onClose}><Icon name="close" /></button>
+        <Button type="button" className="icon-button hatch-close" aria-label="Close celebration" onClick={onClose}><Icon name="close" /></Button>
         <div className="hatch-portrait" role="img" aria-label={`${animal.name}, ${RARITY_NAMES[animal.rarity]} ${animal.species}`}>
           <div className="hatch-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>
           <AnimalArt animal={animal} />
@@ -459,9 +460,9 @@ export function HatchModal({ animal, duplicate = false, capped = false, onClose 
         {duplicate && <p id="hatch-details" className="hatch-details">{capped ? "+5 Shilligems" : animal.upgrades === 6
           ? "All 7 animations · +10% focus gems"
           : `Animation ${(animal.upgrades || 0) + 1} / 7 · Upgrade ${animal.upgrades} / 6`}</p>}
-        <button ref={buttonRef} type="button" className="primary-button celebration-done" onClick={onClose}>
+        <Button ref={buttonRef} type="button" className="primary-button celebration-done" onClick={onClose}>
           <PastelButtonArt />Done
-        </button>
+        </Button>
       </section>
     </div>
   );

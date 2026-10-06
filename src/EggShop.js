@@ -1,3 +1,4 @@
+import { Button } from "./Controls";
 import { ANIMALS, RARITIES, RARITY_STARS, EGG_MINUTES, spendableGems } from "./game";
 import { Icon, InfoTip, Sprite } from "./ui";
 import { ArtFragment, ATELIER_ART, PastelButtonArt } from "./AtelierArt";
@@ -17,17 +18,17 @@ export default function EggShop({ state, act }) {
         <Sprite kind="object" id="basic" className="basic-display-egg" />
         <ArtFragment rect={[1090, 126, 388, 349]} className="basic-pedestal" />
         <div className="basic-plaque"><h3>Basic</h3><span className="shop-stars" aria-label="1 star">★</span>
-          <button className="pastel-purchase" aria-label="Buy basic egg for 25 Shilligems" disabled={available < 25} onClick={() => act({ type: "BUY_EGG", kind: "basic" })}>
+          <Button className="pastel-purchase" aria-label="Buy basic egg for 25 Shilligems" disabled={available < 25} onClick={() => act({ type: "BUY_EGG", kind: "basic" })}>
             <PastelButtonArt /><span><Icon name="gem" size={18} />25</span>
-          </button>
+          </Button>
         </div>
       </section>
       <section className="mystery-machine" aria-label="Mystery egg machine">
         <img className="machine-art" src={`${ATELIER_ART}/gumball-machine.png`} alt="" />
         <div className="machine-plaque"><h3>Mystery</h3><span className="shop-stars" aria-label="2 to 4 stars">★★ ~ ★★★★</span>
-          <button className="pastel-purchase" aria-label="Roll mystery egg for 60 Shilligems" disabled={available < 60} onClick={() => act({ type: "BUY_EGG", kind: "mystery" })}>
+          <Button className="pastel-purchase" aria-label="Roll mystery egg for 60 Shilligems" disabled={available < 60} onClick={() => act({ type: "BUY_EGG", kind: "mystery" })}>
             <PastelButtonArt /><span><Icon name="gem" size={18} />Roll 60</span>
-          </button>
+          </Button>
         </div>
       </section>
       <div className="shop-odds"><InfoTip label="Egg odds">
@@ -46,14 +47,14 @@ export default function EggShop({ state, act }) {
         const ready = progress >= required;
         const selected = egg.id === state.selectedEggId;
         return <div className={`nest-egg ${selected ? "selected" : ""}`} key={egg.id}>
-          <button className="nest-select" aria-pressed={selected} aria-label={`${selected ? "Deselect" : "Select"} ${egg.rarity} egg ${index + 1}`} title={`${title(egg.rarity)} · ${RARITY_STARS[egg.rarity]} stars${index === 0 ? " · oldest" : ""}`} onClick={() => act({ type: "SELECT_EGG", id: selected ? null : egg.id })}>
+          <Button className="nest-select" aria-pressed={selected} aria-label={`${selected ? "Deselect" : "Select"} ${egg.rarity} egg ${index + 1}`} title={`${title(egg.rarity)} · ${RARITY_STARS[egg.rarity]} stars${index === 0 ? " · oldest" : ""}`} onClick={() => act({ type: "SELECT_EGG", id: selected ? null : egg.id })}>
             <Sprite kind="object" id={egg.rarity} />
             <ArtFragment rect={[84, 690, 369, 219]} className="egg-cup" />
             {selected && <span className="nest-check"><Icon name="check" size={15} /></span>}
-          </button>
+          </Button>
           <progress className="nest-progress" aria-label={`${title(egg.rarity)} egg ${index + 1} hatch progress`} value={progress} max={required} />
           <span className="egg-progress">{progress}/{required}</span>
-          <button className="text-button egg-hatch" disabled={!ready} aria-label={`Hatch ${egg.rarity} egg ${index + 1}`} onClick={() => act({ type: "HATCH_EGG", id: egg.id })}>{ready ? "Hatch" : <span aria-hidden="true">{"★".repeat(RARITY_STARS[egg.rarity])}</span>}</button>
+          <Button className="text-button egg-hatch" disabled={!ready} aria-label={`Hatch ${egg.rarity} egg ${index + 1}`} onClick={() => act({ type: "HATCH_EGG", id: egg.id })}>{ready ? "Hatch" : <span aria-hidden="true">{"★".repeat(RARITY_STARS[egg.rarity])}</span>}</Button>
         </div>;
       })}</div> : <p className="nest-empty">Choose a little beginning.</p>}
       {active && state.eggs.length > 0 && <span className="nest-next-session">Next session</span>}

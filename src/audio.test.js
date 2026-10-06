@@ -278,6 +278,24 @@ describe('ambient audio lifecycle', () => {
     await expect(engine.playSfx('paper')).resolves.toBe(false);
   });
 
+  test('SFX availability reports real audio failures without labelling muted or throttled requests as failures', async () => {
+    const onUnavailable = jest.fn();
+    engine.setInteractionSfx({ enabled: false });
+    await expect(engine.playSfx('tap', { onUnavailable })).resolves.toBe(false);
+    expect(onUnavailable).not.toHaveBeenCalled();
+    engine.setInteractionSfx({ enabled: true });
+    context.resume.mockRejectedValueOnce(new Error('User gesture required'));
+    await expect(engine.playSfx('tap', { onUnavailable })).resolves.toBe(false);
+    expect(onUnavailable).toHaveBeenCalledTimes(1);
+    await expect(engine.playSfx('tap', { onUnavailable })).resolves.toBe(true);
+    await expect(engine.playSfx('tap', { onUnavailable })).resolves.toBe(false);
+    expect(onUnavailable).toHaveBeenCalledTimes(1);
+    context.currentTime = 0.2;
+    context.createOscillator.mockImplementationOnce(() => { throw new Error('Unavailable audio node'); });
+    await expect(engine.playSfx('tap', { onUnavailable })).resolves.toBe(false);
+    expect(onUnavailable).toHaveBeenCalledTimes(2);
+  });
+
   test('unlock primes browser audio silently and reuses it for a later chime', async () => {
     await expect(engine.unlock()).resolves.toBe(true);
     expect(context.resume).toHaveBeenCalledTimes(1);

@@ -1,3 +1,4 @@
+import { Button } from "./Controls";
 import { useState } from "react";
 import { completedSessions, focusAnalytics, formatFocusTime, PERIODS, sessionTags } from "./analytics";
 import { todayStats } from "./game";
@@ -8,7 +9,7 @@ function Choices({ label, items, value, onChange, className = "" }) {
   return (
     <div className={`journal-choices ${className}`} role="group" aria-label={label}>
       {items.map((item) => (
-        <button
+        <Button
           key={item.id}
           type="button"
           aria-pressed={value === item.id}
@@ -16,7 +17,7 @@ function Choices({ label, items, value, onChange, className = "" }) {
           onClick={() => onChange(item.id)}
         >
           {item.name}
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -120,9 +121,9 @@ function GoalCard({ state, act, now }) {
       <div className="journal-goal-dots" aria-hidden="true">{Array.from({ length: stats.goal }, (_, index) => <span key={index} className={index < stats.sessions ? "filled" : ""} />)}</div>
       <progress aria-label="Daily focus goal" value={stats.progress} max={1} />
       <div className="journal-goal-controls">
-        <button type="button" className="small-button" aria-label="Decrease daily goal" disabled={stats.goal <= 1} onClick={() => act({ type: "SET_SETTINGS", settings: { dailyGoal: stats.goal - 1 } })}><Icon name="minus" size={18} /></button>
+        <Button type="button" className="small-button" aria-label="Decrease daily goal" disabled={stats.goal <= 1} onClick={() => act({ type: "SET_SETTINGS", settings: { dailyGoal: stats.goal - 1 } })}><Icon name="minus" size={18} /></Button>
         <span>{stats.goal} / day</span>
-        <button type="button" className="small-button" aria-label="Increase daily goal" disabled={stats.goal >= 24} onClick={() => act({ type: "SET_SETTINGS", settings: { dailyGoal: stats.goal + 1 } })}><Icon name="plus" size={18} /></button>
+        <Button type="button" className="small-button" aria-label="Increase daily goal" disabled={stats.goal >= 24} onClick={() => act({ type: "SET_SETTINGS", settings: { dailyGoal: stats.goal + 1 } })}><Icon name="plus" size={18} /></Button>
       </div>
     </section>
   );
@@ -156,7 +157,7 @@ export default function JournalPanel({ state, act, now = Date.now() }) {
         <section className="journal-history">
           <div className="journal-section-title"><h3>All sessions</h3><span>{history.length}</span></div>
           <SessionList sessions={history.slice(0, visibleSessions)} />
-          {history.length > visibleSessions && <button type="button" className="secondary-button journal-load-more" onClick={() => setVisibleSessions((count) => count + 20)}>Load more</button>}
+          {history.length > visibleSessions && <Button type="button" className="secondary-button journal-load-more" onClick={() => setVisibleSessions((count) => count + 20)}>Load more</Button>}
         </section>
       ) : (
         <>
@@ -172,7 +173,7 @@ export default function JournalPanel({ state, act, now = Date.now() }) {
           <div className="journal-bottom">
           <TagStats analytics={analytics} />
           <section className="journal-card journal-recent">
-            <div className="journal-section-title"><h3>Recent sessions</h3><button className="journal-text-button" type="button" onClick={() => setTab("history")}>View all <Icon name="arrow" size={16} /></button></div>
+            <div className="journal-section-title"><h3>Recent sessions</h3><Button className="journal-text-button" type="button" onClick={() => setTab("history")}>View all <Icon name="arrow" size={16} /></Button></div>
             <SessionList sessions={analytics.sessions.slice(0, 3)} showDate={period !== "today"} compact />
           </section>
           </div>

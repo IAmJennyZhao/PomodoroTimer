@@ -1,3 +1,4 @@
+import { Button } from "./Controls";
 import { forwardRef, useCallback, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
 import { Icon } from "./ui";
 
@@ -84,7 +85,7 @@ const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, c
           event.preventDefault();
           nudge(event.key.replace("Arrow", "").toLowerCase(), event.shiftKey);
         }}><Icon name="move" size={20} /></button>
-      {selected && <button className="selection-close" aria-label={`Deselect ${name}`} onClick={() => { ref.current.querySelector(".widget-move-handle").focus(); onDeselect(); }}><Icon name="close" size={16} /></button>}
+      {selected && <Button className="selection-close" aria-label={`Deselect ${name}`} onClick={() => { ref.current.querySelector(".widget-move-handle").focus(); onDeselect(); }}><Icon name="close" size={16} /></Button>}
     </>}
   </Tag>;
 });

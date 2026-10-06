@@ -1,3 +1,4 @@
+import { Button } from "./Controls";
 import { useRef } from "react";
 import { Icon, InfoTip, trapDialogFocus, useModalFocus } from "./ui";
 import { PastelButtonArt } from "./AtelierArt";
@@ -19,7 +20,7 @@ export function ToastNotice({ notice, onDismiss, onPauseChange }) {
     }}>
     <span className="feedback-emblem"><Icon name={notice.tone === "success" ? "check" : notice.tone === "warning" ? "info" : "leaf"} size={18} /></span>
     <span>{notice.message}</span>
-    <button type="button" className="icon-button" onClick={dismiss} aria-label="Dismiss notification"><Icon name="close" size={17} /></button>
+    <Button type="button" className="icon-button" onClick={dismiss} aria-label="Dismiss notification"><Icon name="close" size={17} /></Button>
   </div>;
 }
 
@@ -31,7 +32,7 @@ export function SaveNotice({ persistence }) {
       <h2 id="save-notice-title">{conflict ? "Save changed elsewhere" : "Changes not saved"}</h2>
       <p>{conflict ? "Reload replaces this window’s edits." : "Your edits are still here."}</p>
       <div className="save-notice-actions">
-        <button type="button" className="small-button" onClick={conflict ? persistence.reload : persistence.retrySave}>{conflict ? "Reload saved room" : "Retry save"}</button>
+        <Button type="button" className="small-button" onClick={conflict ? persistence.reload : persistence.retrySave}>{conflict ? "Reload saved room" : "Retry save"}</Button>
         <InfoTip label="Save details">{persistence.error || "Your latest changes have not been saved."}</InfoTip>
       </div>
     </div>
@@ -51,7 +52,7 @@ export function RoomLoading({ persistence }) {
       <h1 id="room-loading-title">{failed ? "Couldn’t load your room" : "Opening your room…"}</h1>
       {failed && <>
         <p>Check that the local app is running.</p>
-        <button ref={retry} type="button" className="primary-button celebration-done" onClick={persistence.reload}><PastelButtonArt />Try again</button>
+        <Button ref={retry} type="button" className="primary-button celebration-done" onClick={persistence.reload}><PastelButtonArt />Try again</Button>
         <details className="connection-details"><summary>Connection help</summary><p>{persistence.error}</p></details>
       </>}
     </section>

@@ -1,3 +1,4 @@
+import { Button, ControlFeedbackContext } from "./Controls";
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import "./layout.css";
@@ -49,6 +50,7 @@ import "./utility-panels.css";
 import "./feedback.css";
 import "./polish.css";
 import "./motion.css";
+import "./tactile-controls.css";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
 
@@ -108,6 +110,14 @@ export default function App() {
   const [hatch, setHatch] = useState(null);
   const [playing, setPlaying] = useState(false);
   const engine = useRef(null);
+  const playControlFeedback = useCallback(name => {
+    if (!ready || !state.settings.interactionSfxEnabled || state.settings.interactionSfxVolume === 0) return;
+    // Feedback never delays the action or turns unavailable audio into a UI error.
+    try {
+      const result = name === "tap" ? engine.current?.tap() : engine.current?.playSfx(name);
+      result?.catch(() => {});
+    } catch (_) { /* A silent interaction remains usable. */ }
+  }, [ready, state.settings.interactionSfxEnabled, state.settings.interactionSfxVolume]);
   const sceneRef = useRef(null);
   const lastEvent = useRef(null);
   const previousFurniture = useRef(state.room.decorations.length);
@@ -269,7 +279,6 @@ export default function App() {
       setPanel(null);
       if (state.timer.mode === "focus") setFocusView(true);
     }
-    if (state.settings.interactionSfxEnabled) engine.current?.tap();
     act({ type: state.timer.status === "running" ? "PAUSE" : "START" });
   };
   const stats = todayStats(state, now);
@@ -374,11 +383,12 @@ export default function App() {
         )}
         <span className="resident-label">{name}</span>
       </button>
-      {chosen && <button className="selection-close" aria-label={`Deselect ${name}`} onClick={event => { event.currentTarget.parentElement.querySelector(".resident-hitbox").focus(); setSelection(null); }}><Icon name="close" size={16} /></button>}
+      {chosen && <Button className="selection-close" aria-label={`Deselect ${name}`} onClick={event => { event.currentTarget.parentElement.querySelector(".resident-hitbox").focus(); setSelection(null); }}><Icon name="close" size={16} /></Button>}
       </div>
     );
   };
   return (
+    <ControlFeedbackContext.Provider value={playControlFeedback}>
     <MotionPreferenceContext.Provider value={reducedMotion}>
     <div
       className={`app ${state.room.background} ${reducedMotion ? "reduce-motion" : ""} ${panel ? "panel-open" : ""} ${widePanel ? "wide-panel-open" : ""} ${sidePanel ? "side-panel-open" : ""} ${focusView ? "focus-view" : ""} ${arranging ? "is-arranging" : ""}`}
@@ -402,9 +412,9 @@ export default function App() {
       </div>
       <div className="room-vignette" />
       <header className="app-header" hidden={focusView}>
-        <button className="room-brand" onClick={closePanel}>Little Room</button>
+        <Button className="room-brand" onClick={closePanel}>Little Room</Button>
         <div className="header-actions">
-          <button
+          <Button
             className="gem-pill paper"
             onClick={() => openPanel("shop")}
             aria-label={`${state.gems} ${state.gems === 1 ? "Shilligem" : "Shilligems"}, open egg shop`}
@@ -412,7 +422,7 @@ export default function App() {
           >
             <Icon name="gem" size={23} />
             <strong>{state.gems >= 10000 ? compactCount.format(state.gems) : state.gems.toLocaleString()}</strong>
-          </button>
+          </Button>
           <nav className="top-nav paper" aria-label="Main navigation">
             {[
               ["focus", "focus", "Focus"],
@@ -421,22 +431,22 @@ export default function App() {
               ["decorate", "plant", "Decorate"],
               ["journal", "book", "Journal"],
             ].map(([id, , label]) => (
-              <button key={id} className={id === (panel || "focus") ? "active" : ""}
+              <Button key={id} className={id === (panel || "focus") ? "active" : ""}
                 aria-label={label} aria-current={id === (panel || "focus") ? "page" : undefined}
                 onClick={() => (id === "focus" ? closePanel() : openPanel(id))}>
                 <span>{{ "Egg shop": "Shop", Decorate: "Room" }[label] || label}</span>
                 {id === "shop" && state.eggs.length > 0 && <i>{state.eggs.length}</i>}
-              </button>
+              </Button>
             ))}
           </nav>
-          <button className="icon-button header-notes" aria-label="Open notepad" title="Notepad" aria-pressed={notesOpen} aria-expanded={notesOpen} aria-controls="scratchpad" onClick={() => openPanel("notes")}><Icon name="note" size={22} /></button>
-          <button
+          <Button className="icon-button header-notes" aria-label="Open notepad" title="Notepad" aria-pressed={notesOpen} aria-expanded={notesOpen} aria-controls="scratchpad" onClick={() => openPanel("notes")}><Icon name="note" size={22} /></Button>
+          <Button
             className="icon-button paper settings-button"
             aria-label="Settings"
             onClick={() => openPanel("settings")}
           >
             <Icon name="settings" size={22} />
-          </button>
+          </Button>
         </div>
       </header>
       <RoomWidget as="main" id="timer" name="timer" className="focus-area" position={focusView ? null : state.room.widgets?.timer}
@@ -456,7 +466,7 @@ export default function App() {
       <RoomWidget id="goal" name="daily goal" className="daily-goal-note" position={state.room.widgets?.goal}
         arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "goal"}
         onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "goal", ...position })} hidden={focusView || widePanel}>
-        <button
+        <Button
           className={`daily-pill paper ${stats.progress === 1 ? "goal-reached" : ""}`}
           onClick={() => openPanel("journal")}
           aria-label={`Daily progress: ${stats.sessions} of ${stats.goal} sessions`}
@@ -478,10 +488,10 @@ export default function App() {
               ))}
             </span>}
           </span>
-        </button>
+        </Button>
       </RoomWidget>
       <footer className="room-footer" hidden={focusView}>
-        <button
+        <Button
           className={`sound-pill paper ${playing ? "playing" : ""}`}
           onClick={() => openPanel("sound")}
           aria-label="Soundscape mixer"
@@ -493,7 +503,7 @@ export default function App() {
           </span>
           <span>Sound</span>
           <Icon name="sound" size={18} />
-        </button>
+        </Button>
       </footer>
       {widePanel && <div className="workspace-dismiss" onClick={closePanel} />}
       {panel && (
@@ -548,5 +558,6 @@ export default function App() {
       {hatch && <HatchModal animal={hatch.animal} duplicate={hatch.duplicate} capped={hatch.capped} onClose={() => setHatch(null)} />}
     </div>
     </MotionPreferenceContext.Provider>
+    </ControlFeedbackContext.Provider>
   );
 }

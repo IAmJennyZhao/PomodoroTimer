@@ -1,0 +1,103 @@
+/* Fixed hitboxes, quiet pigment changes, and small content-only presses.
+   Children stay in their existing flex/block layout and keep positioning transforms. */
+.tactile-button {
+  transition: background-color var(--motion-transition-duration) var(--motion-ease),
+    border-color var(--motion-transition-duration) var(--motion-ease),
+    color var(--motion-transition-duration) var(--motion-ease),
+    box-shadow var(--motion-release-duration) var(--motion-ease-release),
+    filter var(--motion-release-duration) var(--motion-ease-release);
+}
+.tactile-button > :not(.visually-hidden) {
+  scale: 1;
+  translate: 0 0;
+  transition: scale var(--motion-release-duration) var(--motion-ease-release),
+    translate var(--motion-release-duration) var(--motion-ease-release);
+}
+.control-label { display: inline-block; }
+.tactile-button[data-pressed="true"]:enabled > :not(.visually-hidden) {
+  scale: var(--motion-press-scale);
+  translate: 0 var(--motion-press-y);
+  transition-duration: var(--motion-press-duration);
+}
+/* Higher-specificity application styles retain the palette and shapes. Only
+   transition timing is shared; the resting/selected shadows remain theirs. */
+.app button.tactile-button, .info-content button.tactile-button {
+  transition: background-color var(--motion-transition-duration) var(--motion-ease),
+    border-color var(--motion-transition-duration) var(--motion-ease),
+    color var(--motion-transition-duration) var(--motion-ease),
+    box-shadow var(--motion-release-duration) var(--motion-ease-release),
+    filter var(--motion-release-duration) var(--motion-ease-release);
+}
+.app button.tactile-button[data-pressed="true"]:enabled,
+.info-content button.tactile-button[data-pressed="true"]:enabled {
+  box-shadow: var(--motion-shadow-pressed);
+  transition-duration: var(--motion-press-duration);
+}
+.app :is(.start-button, .pastel-purchase, .celebration-done, .sound-playback, .daily-pill).tactile-button[data-pressed="true"]:enabled {
+  box-shadow: none;
+  filter: brightness(.94);
+}
+/* Remove the old primary-button movement of the whole hitbox. */
+.app .primary-button.tactile-button,
+.app .primary-button.tactile-button:is(:hover, :active) { transform: none; }
+
+/* Underlines stay mounted, so both entering and leaving selection can fade. */
+.app .top-nav button.tactile-button::after {
+  content: "";
+  position: absolute;
+  height: 3px;
+  bottom: 2px;
+  left: 4px;
+  right: 4px;
+  background: var(--coral);
+  transform: rotate(-1deg);
+  border-radius: 60% 35% 50% 40%;
+  opacity: 0;
+  transition: opacity var(--motion-transition-duration) var(--motion-ease);
+}
+.app .top-nav button.tactile-button.active::after { opacity: 1; }
+.app .work-mode-tabs button.tactile-button {
+  position: relative;
+  text-decoration: none;
+}
+.app .work-mode-tabs button.tactile-button::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 2px;
+  background: var(--coral);
+  opacity: 0;
+  transition: opacity var(--motion-transition-duration) var(--motion-ease);
+}
+.app .work-mode-tabs button.tactile-button.active::after { opacity: 1; }
+/* A hovered card still shows its selected pigment; hover must not erase it. */
+.app :is(.animal-card, .mystery-tile, .library-item).tactile-button.selected:hover:enabled {
+  background-color: var(--sage);
+}
+.app .session-end-choice {
+  transition: color var(--motion-transition-duration) var(--motion-ease),
+    background-color var(--motion-transition-duration) var(--motion-ease),
+    border-color var(--motion-transition-duration) var(--motion-ease);
+}
+.app input.tactile-choice {
+  transition: background-color var(--motion-transition-duration) var(--motion-ease),
+    border-color var(--motion-transition-duration) var(--motion-ease),
+    background-position var(--motion-transition-duration) var(--motion-ease),
+    box-shadow var(--motion-release-duration) var(--motion-ease-release);
+}
+.app input.tactile-choice[data-pressed="true"]:enabled { box-shadow: inset 0 1px 3px #47382135; }
+
+/* Disabled/aria-disabled controls never compress, including a mid-press update. */
+.tactile-button:is(:disabled, [aria-disabled="true"]) > :not(.visually-hidden) {
+  scale: 1;
+  translate: 0 0;
+  transition: none;
+}
+.tactile-button:is(:disabled, [aria-disabled="true"]) { cursor: default; }
+
+@media (forced-colors: active) {
+  .app .top-nav button.tactile-button::after,
+  .app .work-mode-tabs button.tactile-button::after { background: Highlight; }
+}

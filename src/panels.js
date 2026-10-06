@@ -1,3 +1,4 @@
+import { ChoiceInput, Button } from "./Controls";
 import React, { useEffect, useId, useRef, useState } from "react";
 import { PRESETS } from "./game";
 import { Icon, RangeField, InfoTip } from "./ui";
@@ -30,20 +31,23 @@ function InteractionSoundControls({ state, act, engine }) {
     nextPreviewAt.current = Date.now() + 120;
     const attempt = ++previewAttempt.current;
     try {
-      const played = await engine?.current?.playSfx("tap");
-      if (attempt === previewAttempt.current) setUnavailable(played === false);
+      let audioFailed = false;
+      await engine?.current?.playSfx("tap", { onUnavailable: () => { audioFailed = true; } });
+      if (attempt === previewAttempt.current) setUnavailable(audioFailed);
+    } catch (_) {
+      if (attempt === previewAttempt.current) setUnavailable(true);
     } finally {
       previewInFlight.current = false;
     }
   }
   return <section className="interaction-sound-controls" aria-label="Interaction sounds">
     <label className="toggle-line"><span>Interaction sounds</span>
-      <input type="checkbox" checked={enabled} onChange={event => configure({ interactionSfxEnabled: event.target.checked })} />
+      <ChoiceInput type="checkbox" checked={enabled} onChange={event => configure({ interactionSfxEnabled: event.target.checked })} />
     </label>
     <RangeField label="Interaction volume" value={Math.round(volume * 100)} suffix="%"
       onChange={value => configure({ interactionSfxVolume: value / 100 })} />
-    <button type="button" className="small-button" disabled={!enabled || volume === 0}
-      onClick={preview}><Icon name="sound" size={16} />Preview sound</button>
+    <Button type="button" className="small-button" sound={null} disabled={!enabled || volume === 0}
+      onClick={preview}><Icon name="sound" size={16} />Preview sound</Button>
     {unavailable && <p className="small" role="status">Audio unavailable. Try again.</p>}
   </section>;
 }
@@ -81,7 +85,7 @@ export function SoundPanel({
   return (
     <div className="sound-mixer">
       <div className="sound-playback-row">
-        <button
+        <Button
           type="button"
           className="primary-button sound-playback"
           aria-label={starting ? "Starting sounds" : playing ? "Pause sounds" : "Play sounds"}
@@ -92,7 +96,7 @@ export function SoundPanel({
           <PastelButtonArt />
           <Icon name={playing ? "pause" : "play"} />{" "}
           {starting ? "Starting…" : playing ? "Pause" : "Play"}
-        </button>
+        </Button>
         <InfoTip label="Sound playback">
           Levels save automatically. Press Play to start the mix.
         </InfoTip>
@@ -135,7 +139,7 @@ export function SoundPanel({
       </div>
       <label className="toggle-line">
         <span>Timer sound</span>
-        <input
+        <ChoiceInput
           type="checkbox"
           checked={state.settings.soundEnabled}
           onChange={(event) =>
@@ -169,8 +173,8 @@ function NumberSetting({ label, displayLabel = label, icon, value, min = 1, max,
     <div className="number-field">
       <label htmlFor={id}><Icon name={icon} size={20} />{displayLabel}</label>
       <div className="duration-stepper">
-        <button type="button" aria-label={`Decrease ${label.toLowerCase()}`} disabled={normalizedDraft() <= min}
-          onClick={() => commit(Math.max(min, normalizedDraft() - 1))}><Icon name="minus" size={16} /></button>
+        <Button type="button" aria-label={`Decrease ${label.toLowerCase()}`} disabled={normalizedDraft() <= min}
+          onClick={() => commit(Math.max(min, normalizedDraft() - 1))}><Icon name="minus" size={16} /></Button>
         <input
           id={id}
           aria-label={`${label} ${suffix}`}
@@ -185,8 +189,8 @@ function NumberSetting({ label, displayLabel = label, icon, value, min = 1, max,
             if (event.key === "Enter") event.currentTarget.blur();
           }}
         />
-        <button type="button" aria-label={`Increase ${label.toLowerCase()}`} disabled={normalizedDraft() >= max}
-          onClick={() => commit(Math.min(max, normalizedDraft() + 1))}><Icon name="plus" size={16} /></button>
+        <Button type="button" aria-label={`Increase ${label.toLowerCase()}`} disabled={normalizedDraft() >= max}
+          onClick={() => commit(Math.min(max, normalizedDraft() + 1))}><Icon name="plus" size={16} /></Button>
       </div>
       <span className="duration-unit">{suffix}</span>
     </div>
@@ -209,13 +213,13 @@ export function SessionControls({ state, act }) {
             ([key, value]) => state.settings[key] === value,
           );
           return (
-            <button type="button" key={preset.id}
+            <Button type="button" key={preset.id}
               className={`preset-button ${selected ? "selected" : ""}`}
               aria-pressed={selected}
               aria-label={`${preset.name}, ${preset.settings.focusMinutes} minute focus, ${preset.settings.breakMinutes} minute break`}
               onClick={() => act({ type: "SET_PRESET", id: preset.id })}>
               <strong>{{ quick: "Quick", classic: "Classic", deep: "Deep" }[preset.id] || preset.name}</strong>
-            </button>
+            </Button>
           );
         })}
       </div>}
@@ -243,7 +247,7 @@ export function SessionControls({ state, act }) {
             { id: "overtime", name: "Ding + count up", icon: "music" },
           ].map((option) => (
             <label className={`session-end-choice ${state.settings.endBehavior === option.id ? "selected" : ""}`} key={option.id}>
-              <input type="radio" name="focus-end-behavior" value={option.id}
+              <ChoiceInput type="radio" name="focus-end-behavior" value={option.id}
                 checked={state.settings.endBehavior === option.id}
                 onChange={() => act({ type: "SET_SETTINGS", settings: { endBehavior: option.id } })} />
               <Icon name={option.icon} size={20} /><span>{option.name}</span>
@@ -275,7 +279,7 @@ export function SettingsPanel({ state, act, persistence, engine }) {
         ].map((setting) => (
           <label className="toggle-line" key={setting.key}>
             <span>{setting.name}</span>
-            <input type="checkbox" checked={state.settings[setting.key]}
+            <ChoiceInput type="checkbox" checked={state.settings[setting.key]}
               onChange={(event) => act({ type: "SET_SETTINGS", settings: { [setting.key]: event.target.checked } })} />
           </label>
         ))}
@@ -297,12 +301,12 @@ export function SettingsPanel({ state, act, persistence, engine }) {
         {persistence.recovered && <p className="small">Recovered from backup.</p>}
         {persistence.error && <p role="alert" className="small">{persistence.error}</p>}
         {persistence.status === "error" && (
-          <button type="button" className="small-button" onClick={persistence.retrySave}>Retry saving</button>
+          <Button type="button" className="small-button" onClick={persistence.retrySave}>Retry saving</Button>
         )}
         {persistence.status === "conflict" && (
           <>
             <p className="small">Reloading replaces this window’s changes with the saved version.</p>
-            <button type="button" className="small-button" onClick={persistence.reload}>Reload saved version</button>
+            <Button type="button" className="small-button" onClick={persistence.reload}>Reload saved version</Button>
           </>
         )}
       </section>

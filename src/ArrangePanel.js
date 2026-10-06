@@ -1,3 +1,4 @@
+import { Button } from "./Controls";
 import { useEffect, useRef, useState } from "react";
 import { ATELIER_PLACEMENTS, DECORATIONS, decorationAvailable, decorationQuantity } from "./game";
 import { Icon, InfoTip, Sprite } from "./ui";
@@ -45,16 +46,16 @@ export default function ArrangePanel({ state, act, setArranging, selection, setS
           {state.room.decorations.map(item => <option key={item.id} value={`decoration:${item.id}`}>{furnitureName(item)}</option>)}
         </select>
       </label>
-      <button type="button" className="icon-button arrange-deselect" aria-label="Deselect item" disabled={!selectedObject} onClick={() => setSelection(null)}><Icon name="close" size={18} /></button>
+      <Button type="button" className="icon-button arrange-deselect" aria-label="Deselect item" disabled={!selectedObject} onClick={() => setSelection(null)}><Icon name="close" size={18} /></Button>
       <InfoTip label="Arrange controls">Drag an item or its move handle. Arrow keys nudge; Shift moves farther. Click a library tile to select placed furniture; click again to select its next copy.</InfoTip>
-      <button type="button" className="text-button arrange-remove" disabled={!selectedObject || selection.type === "widget"} onClick={() => {
+      <Button type="button" className="text-button arrange-remove" disabled={!selectedObject || selection.type === "widget"} onClick={() => {
         act(selection.type === "animal" ? { type: "PLACE_ANIMAL", id: selectedObject.id, placed: false } : { type: "REMOVE_DECORATION", id: selectedObject.id });
         setSelection(null);
-      }}>Remove</button>
-      <button type="button" className="secondary-button arrange-finish" onClick={() => { setSelection(null); setArranging(false); }}><Icon name="check" size={17} /> Done</button>
+      }}>Remove</Button>
+      <Button type="button" className="secondary-button arrange-finish" onClick={() => { setSelection(null); setArranging(false); }}><Icon name="check" size={17} /> Done</Button>
     </div>
     <div className="library-browser">
-      <button type="button" className="icon-button library-previous" disabled={edges.start} aria-label="Previous library items" onClick={() => browse(-1)}><span className="nudge-arrow nudge-left"><Icon name="arrow" size={20} /></span></button>
+      <Button type="button" className="icon-button library-previous" disabled={edges.start} aria-label="Previous library items" onClick={() => browse(-1)}><span className="nudge-arrow nudge-left"><Icon name="arrow" size={20} /></span></Button>
       <div ref={libraryRef} className="arrange-library" role="region" aria-label="Room library" tabIndex={0}>
         {DECORATIONS.filter(item => decorationQuantity(state, item.id) > 0).map(item => {
           const stock = decorationAvailable(state, item.id);
@@ -62,23 +63,23 @@ export default function ArrangePanel({ state, act, setArranging, selection, setS
           const selected = selection?.type === "decoration" && copies.some(copy => copy.id === selection.id);
           const add = () => act({ type: "PLACE_DECORATION", item: item.id, ...(ATELIER_PLACEMENTS[item.id] || { x: 50, y: 65 }) });
           return <div className="library-card" key={item.id}>
-            <button type="button" className={`library-item ${selected ? "selected" : ""}`} aria-pressed={selected} title={item.name}
+            <Button type="button" className={`library-item ${selected ? "selected" : ""}`} aria-pressed={selected} title={item.name}
               aria-label={copies.length ? `Select ${item.name}, ${copies.length} in room` : `Add ${item.name}, ${stock} available`}
               onClick={() => copies.length ? setSelection({ type: "decoration", id: copies[(copies.findIndex(copy => copy.id === selection?.id) + 1) % copies.length].id }) : add()}>
               <Sprite kind="object" id={item.id} /><span>{item.name}</span><small>{stock ? `${stock} available` : copies.length > 1 ? `${copies.length} in room` : "Placed"}</small>
-            </button>
-            {copies.length > 0 && stock > 0 && <button type="button" className="library-add icon-button" aria-label={`Add ${item.name}, ${stock} available`} onClick={add}><Icon name="plus" size={17} /></button>}
+            </Button>
+            {copies.length > 0 && stock > 0 && <Button type="button" className="library-add icon-button" aria-label={`Add ${item.name}, ${stock} available`} onClick={add}><Icon name="plus" size={17} /></Button>}
           </div>;
         })}
-        {state.animals.map(animal => <button type="button" className={`library-item ${selection?.type === "animal" && selection.id === animal.id ? "selected" : ""}`} key={animal.id}
+        {state.animals.map(animal => <Button type="button" className={`library-item ${selection?.type === "animal" && selection.id === animal.id ? "selected" : ""}`} key={animal.id}
           aria-pressed={selection?.type === "animal" && selection.id === animal.id} title={animal.name} aria-label={`${animal.placed ? "Select" : "Add"} ${animal.name}`}
           onClick={() => { if (!animal.placed) act({ type: "PLACE_ANIMAL", id: animal.id, placed: true }); setSelection({ type: "animal", id: animal.id }); }}>
           <Sprite id={animal.species} rarity={animal.rarity} /><span>{animal.name}</span><small>{animal.placed ? "In room" : "Add"}</small>
-        </button>)}
-        {[["timer", "Timer", "clock"], ["goal", "Daily goal", "check"]].map(([id, name, icon]) => <button type="button" key={id} className={`library-item library-widget ${selection?.type === "widget" && selection.id === id ? "selected" : ""}`} aria-label={`Select ${name}`} aria-pressed={selection?.type === "widget" && selection.id === id} onClick={() => setSelection({ type: "widget", id })}><span className="widget-sketch"><Icon name={icon} size={30} /></span><span>{name}</span><small>Move</small></button>)}
-        <button type="button" className="library-item library-shop" onClick={onOpenShop}><Icon name="plus" size={26} /><span>Furniture shop</span></button>
+        </Button>)}
+        {[["timer", "Timer", "clock"], ["goal", "Daily goal", "check"]].map(([id, name, icon]) => <Button type="button" key={id} className={`library-item library-widget ${selection?.type === "widget" && selection.id === id ? "selected" : ""}`} aria-label={`Select ${name}`} aria-pressed={selection?.type === "widget" && selection.id === id} onClick={() => setSelection({ type: "widget", id })}><span className="widget-sketch"><Icon name={icon} size={30} /></span><span>{name}</span><small>Move</small></Button>)}
+        <Button type="button" className="library-item library-shop" onClick={onOpenShop}><Icon name="plus" size={26} /><span>Furniture shop</span></Button>
       </div>
-      <button type="button" className="icon-button library-next" disabled={edges.end} aria-label="Next library items" onClick={() => browse(1)}><Icon name="arrow" size={20} /></button>
+      <Button type="button" className="icon-button library-next" disabled={edges.end} aria-label="Next library items" onClick={() => browse(1)}><Icon name="arrow" size={20} /></Button>
     </div>
   </div>;
 }

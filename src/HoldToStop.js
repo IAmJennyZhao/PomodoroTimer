@@ -1,3 +1,4 @@
+import { Button } from "./Controls";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 const HOLD_MS = 5000;
@@ -37,7 +38,7 @@ export default function HoldToStop({ onStop, disabled }) {
     hold.current = { source, id, interval, timeout };
   }
   return <>
-    <button type="button" className={`stop-button ${progress ? "holding" : ""}`} aria-label="Stop session" aria-describedby={helpId}
+    <Button type="button" sound={null} className={`stop-button ${progress ? "holding" : ""}`} aria-label="Stop session" aria-describedby={helpId}
       disabled={disabled} style={{ "--hold-progress": `${progress * 100}%` }}
       onPointerDown={event => {
         if (event.button !== 0 || event.isPrimary === false || disabled) return;
@@ -62,7 +63,7 @@ export default function HoldToStop({ onStop, disabled }) {
         if (hold.current?.source === "keyboard" && hold.current.id === event.key) { event.preventDefault(); cancel(); }
       }}>
       <span>Stop</span><small aria-hidden="true">{progress ? `Hold ${Math.ceil((1 - progress) * 5)}s` : "Hold 5s"}</small>
-    </button>
+    </Button>
     <span className="visually-hidden" id={helpId}>Hold for five seconds to abandon this timer. Release to cancel.</span>
   </>;
 }

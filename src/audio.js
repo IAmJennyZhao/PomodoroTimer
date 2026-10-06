@@ -396,7 +396,7 @@ export function createAmbientEngine() {
     }
   }
 
-  async function playSfx(name = "tap") {
+  async function playSfx(name = "tap", { onUnavailable } = {}) {
     if (destroyed || !interactionEnabled || interactionVolume === 0 || interactionPending ||
       !Object.prototype.hasOwnProperty.call(SFX_PALETTE, name)) return false;
     const generation = interactionGeneration;
@@ -404,9 +404,11 @@ export function createAmbientEngine() {
     interactionPending = true;
     try {
       const available = await ready();
-      if (!available || destroyed || generation !== interactionGeneration ||
-        !interactionEnabled || interactionVolume === 0 || !context ||
-        context.currentTime - lastInteractionAt < SFX_COOLDOWN_SECONDS ||
+      if (destroyed || generation !== interactionGeneration ||
+        !interactionEnabled || interactionVolume === 0) return false;
+      // A throttled/muted request is expected, not an unavailable audio device.
+      if (!available || !context) { onUnavailable?.(); return false; }
+      if (context.currentTime - lastInteractionAt < SFX_COOLDOWN_SECONDS ||
         context.currentTime < interactionEndsAt) return false;
       const previousEffects = new Set(effects);
       const sound = SFX_PALETTE[name];
@@ -419,9 +421,12 @@ export function createAmbientEngine() {
         interactionEndsAt = context.currentTime + (sound === "paper" ? 0.15
           : Math.max(...sound.map(([, offset, length]) => offset + length + 0.02)));
       }
-      else effects.forEach(effect => {
-        if (!previousEffects.has(effect) && effect.kind === "interaction") cancelEffect(effect);
-      });
+      else {
+        effects.forEach(effect => {
+          if (!previousEffects.has(effect) && effect.kind === "interaction") cancelEffect(effect);
+        });
+        onUnavailable?.();
+      }
       return played;
     } finally {
       interactionPending = false;

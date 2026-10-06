@@ -291,7 +291,7 @@ test('header navigation opens named panels, restores the opener after Escape, an
     ['Decorate', 'Decorate'], ['Journal', 'Journal'],
   ]) {
     const opener = within(navigation).getByRole('button', { name: label, exact: true });
-    opener.focus();
+    act(() => opener.focus());
     fireEvent.click(opener);
     expect(screen.getByRole('dialog', { name: title })).toBeInTheDocument();
     expect(opener).toHaveAttribute('aria-current', 'page');

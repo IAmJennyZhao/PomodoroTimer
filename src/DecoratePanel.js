@@ -1,3 +1,4 @@
+import { Button } from "./Controls";
 import { useState } from "react";
 import { ACCESSORIES, ATELIER_PLACEMENTS, BACKGROUNDS, DECORATIONS, decorationAvailable, decorationQuantity, spendableGems } from "./game";
 import { Accessory, Icon, Sprite } from "./ui";
@@ -21,9 +22,9 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
   return <div className={`decoration-catalog catalogue-${category}`}>
       <div className="panel-toolbar catalog-toolbar">
         <div className="segmented" role="group" aria-label="Decoration categories">
-          {[['decorations', 'Furniture'], ['backgrounds', 'Room style'], ['accessories', 'Accessories']].map(([id, name]) => <button type="button" key={id} aria-pressed={category === id} className={category === id ? "selected" : ""} onClick={() => setCategory(id)}>{name}</button>)}
+          {[['decorations', 'Furniture'], ['backgrounds', 'Room style'], ['accessories', 'Accessories']].map(([id, name]) => <Button type="button" key={id} aria-pressed={category === id} className={category === id ? "selected" : ""} onClick={() => setCategory(id)}>{name}</Button>)}
         </div>
-        <button type="button" className="primary-button arrange-start" onClick={() => setArranging(true)}><Icon name="move" size={18} /> Arrange room</button>
+        <Button type="button" className="primary-button arrange-start" onClick={() => setArranging(true)}><Icon name="move" size={18} /> Arrange room</Button>
       </div>
       {available < state.gems && <p className="small pending-reward">{available} Shilligems available · Finish this session to spend the {state.gems - available} earned so far.</p>}
       {category === "accessories" && <label className="field-label catalogue-pet">Pet<select value={friend?.id || ""} onChange={event => setFriendId(event.target.value)}>
@@ -42,11 +43,11 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
             <h3>{item.name}</h3>
             <div className="catalogue-status">{stockLabel && <span className={owned ? "stock-badge" : "muted"} aria-label={furniture && owned ? `${quantity} owned, ${stock} available` : undefined}>{stockLabel}</span>}</div>
             <div className="catalogue-actions">
-              <button type="button" className={owned ? "small-button" : "primary-button"} disabled={active || (furniture && owned ? stock === 0 : !owned && available < item.price)} aria-label={owned ? `${active ? "Using" : furniture ? stock ? "Add" : "Placed" : "Use"} ${item.name}` : `Unlock ${item.name} for ${item.price} Shilligems`} onClick={() => owned ? applyItem(item) : act({ type: "BUY_ITEM", category, id: item.id })}>
+              <Button type="button" className={owned ? "small-button" : "primary-button"} disabled={active || (furniture && owned ? stock === 0 : !owned && available < item.price)} aria-label={owned ? `${active ? "Using" : furniture ? stock ? "Add" : "Placed" : "Use"} ${item.name}` : `Unlock ${item.name} for ${item.price} Shilligems`} onClick={() => owned ? applyItem(item) : act({ type: "BUY_ITEM", category, id: item.id })}>
                 {active ? <><Icon name="check" size={16} /> {category === "backgrounds" ? "Active" : "Wearing"}</> : owned ? furniture ? stock ? <><Icon name="plus" size={16} /> Add</> : "Placed" : "Use" : "Buy"}
-              </button>
+              </Button>
               {!owned && <span className="catalogue-price"><Icon name="gem" size={18} /> {item.price}</span>}
-              {furniture && owned && <button className="text-button furniture-buy" disabled={available < item.price || quantity >= 999} aria-label={`Buy another ${item.name} for ${item.price} Shilligems`} onClick={() => act({ type: "BUY_ITEM", category, id: item.id })}>Buy more <Icon name="gem" size={14} /> {item.price}</button>}
+              {furniture && owned && <Button className="text-button furniture-buy" disabled={available < item.price || quantity >= 999} aria-label={`Buy another ${item.name} for ${item.price} Shilligems`} onClick={() => act({ type: "BUY_ITEM", category, id: item.id })}>Buy more <Icon name="gem" size={14} /> {item.price}</Button>}
             </div>
           </section>;
         })}

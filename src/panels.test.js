@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { createInitialState, gameReducer } from './game';
 import { AnimalsPanel, DecoratePanel, SessionControls, SettingsPanel, ShopPanel, SoundPanel } from './panels';
 
@@ -160,7 +160,7 @@ test.each([SoundPanel, SettingsPanel])('interaction preferences and preview work
   expect(getState().settings).toMatchObject({ soundEnabled: false, interactionSfxVolume: 0.62 });
   expect(engine.current.setInteractionSfx).toHaveBeenLastCalledWith({ enabled: true, volume: 0.62 });
   fireEvent.click(screen.getByRole('button', { name: 'Preview sound' }));
-  await waitFor(() => expect(engine.current.playSfx).toHaveBeenCalledWith('tap'));
+  await waitFor(() => expect(engine.current.playSfx).toHaveBeenCalledWith('tap', { onUnavailable: expect.any(Function) }));
   fireEvent.click(screen.getByRole('checkbox', { name: 'Interaction sounds' }));
   expect(engine.current.setInteractionSfx).toHaveBeenLastCalledWith({ enabled: false, volume: 0.62 });
   expect(screen.getByRole('button', { name: 'Preview sound' })).toBeDisabled();
@@ -172,12 +172,15 @@ test.each([SoundPanel, SettingsPanel])('interaction preferences and preview work
 });
 
 test('a blocked preview is recoverable without changing sound preferences', async () => {
-  const engine = { current: { playSfx: jest.fn().mockResolvedValueOnce(false).mockResolvedValue(true) } };
+  const engine = { current: { playSfx: jest.fn().mockImplementationOnce(async (name, { onUnavailable }) => {
+    onUnavailable();
+    return false;
+  }).mockResolvedValue(true) } };
   const { getState } = renderPanel(SettingsPanel, createInitialState(NOW), { engine, persistence: { status: 'saved' } });
   fireEvent.click(screen.getByRole('button', { name: 'Preview sound' }));
   await screen.findByText('Audio unavailable. Try again.');
   expect(getState().settings.interactionSfxEnabled).toBe(true);
-  await new Promise(resolve => setTimeout(resolve, 125));
+  await act(async () => { await new Promise(resolve => setTimeout(resolve, 125)); });
   fireEvent.click(screen.getByRole('button', { name: 'Preview sound' }));
   await waitFor(() => expect(screen.queryByText('Audio unavailable. Try again.')).not.toBeInTheDocument());
 });
@@ -192,6 +195,13 @@ test('rapid previews and a preview muted during unlock do not report an audio fa
   fireEvent.click(screen.getByRole('checkbox', { name: 'Interaction sounds' }));
   finishPreview(false);
   await waitFor(() => expect(screen.getByRole('button', { name: 'Preview sound' })).toBeDisabled());
+  expect(screen.queryByText('Audio unavailable. Try again.')).not.toBeInTheDocument();
+});
+
+test('a preview dropped behind another interaction stays silent without an audio error', async () => {
+  const engine = { current: { playSfx: jest.fn().mockResolvedValue(false) } };
+  renderPanel(SettingsPanel, createInitialState(NOW), { engine, persistence: { status: 'saved' } });
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Preview sound' })));
   expect(screen.queryByText('Audio unavailable. Try again.')).not.toBeInTheDocument();
 });
 
