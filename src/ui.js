@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useId, useRef, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useId, useRef, useState } from "react";
+import { MotionPreferenceContext } from "./useReducedMotion";
 import { createPortal } from "react-dom";
 import { FurnitureArt } from "./RoomBackdrop";
 import { ArtFragment, ATELIER_ART, PastelButtonArt } from "./AtelierArt";
@@ -162,15 +163,16 @@ export function Accessory({ id }) {
   return <span aria-hidden="true" className={`pet-accessory accessory-${id}`}><ArtFragment rect={rect} preserveAspectRatio="xMidYMid meet" clipShape={clipShape} /></span>;
 }
 export function AnimalArt({ animal, className = "" }) {
+  const reducedMotion = useContext(MotionPreferenceContext);
   const motions = ["breathe", "sway", "hop", "wiggle", "stretch", "peek", "celebrate"];
   const unlocked = Math.min(7, Math.max(1, (animal.upgrades || 0) + 1));
   const [motion, setMotion] = useState(0);
   const animate = className.includes("idle-animal");
   useEffect(() => {
-    if (!animate || unlocked < 2) return undefined;
+    if (!animate || reducedMotion || unlocked < 2) return undefined;
     const interval = setInterval(() => setMotion(previous => (previous + 1) % unlocked), 12000);
     return () => clearInterval(interval);
-  }, [animate, unlocked]);
+  }, [animate, reducedMotion, unlocked]);
   return (
     <span className={`animal-art pet-motion-${motions[motion % unlocked]} ${className}`} data-animations={unlocked}>
       <Sprite id={animal.species} rarity={animal.rarity} />
@@ -185,6 +187,7 @@ export function AnimalArt({ animal, className = "" }) {
 }
 
 export function InfoTip({ label = "More info", children }) {
+  const reducedMotion = useContext(MotionPreferenceContext);
   const [open, setOpen] = useState(false);
   const id = useId();
   const ref = useRef(null);
@@ -240,7 +243,7 @@ export function InfoTip({ label = "More info", children }) {
         aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>
         <Icon name="info" size={17} />
       </button>
-      {open && createPortal(<div ref={contentRef} className="info-content feedback-note" style={position} role="note" id={id} aria-labelledby={`${id}-title`}>
+      {open && createPortal(<div ref={contentRef} className={`info-content feedback-note ${reducedMotion ? "reduce-motion" : ""}`} style={position} role="note" id={id} aria-labelledby={`${id}-title`}>
         <div className="info-heading"><h3 id={`${id}-title`}>{label}</h3><button type="button" className="info-button" aria-label="Close details" onClick={close}><Icon name="close" size={17} /></button></div>
         <div className="info-body">{children}</div>
       </div>, document.body)}

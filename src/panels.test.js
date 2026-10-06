@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { createInitialState, gameReducer } from './game';
 import { AnimalsPanel, DecoratePanel, SessionControls, SettingsPanel, ShopPanel, SoundPanel } from './panels';
 
@@ -151,6 +151,50 @@ test('sound playback is user initiated and each saved channel controls the actua
   expect(engine.current.stop).toHaveBeenCalledTimes(1);
 });
 
+test.each([SoundPanel, SettingsPanel])('interaction preferences and preview work separately from timer sound in %p', async Panel => {
+  const engine = { current: { setInteractionSfx: jest.fn(), playSfx: jest.fn().mockResolvedValue(true) } };
+  const { getState } = renderPanel(Panel, createInitialState(NOW), { engine, persistence: { status: 'saved' } });
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Timer sound' }));
+  expect(screen.getByRole('checkbox', { name: 'Interaction sounds' })).toBeChecked();
+  fireEvent.change(screen.getByRole('slider', { name: 'Interaction volume' }), { target: { value: '62' } });
+  expect(getState().settings).toMatchObject({ soundEnabled: false, interactionSfxVolume: 0.62 });
+  expect(engine.current.setInteractionSfx).toHaveBeenLastCalledWith({ enabled: true, volume: 0.62 });
+  fireEvent.click(screen.getByRole('button', { name: 'Preview sound' }));
+  await waitFor(() => expect(engine.current.playSfx).toHaveBeenCalledWith('tap'));
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Interaction sounds' }));
+  expect(engine.current.setInteractionSfx).toHaveBeenLastCalledWith({ enabled: false, volume: 0.62 });
+  expect(screen.getByRole('button', { name: 'Preview sound' })).toBeDisabled();
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Timer sound' }));
+  expect(getState().settings).toMatchObject({ soundEnabled: true, interactionSfxEnabled: false });
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Interaction sounds' }));
+  fireEvent.change(screen.getByRole('slider', { name: 'Interaction volume' }), { target: { value: '0' } });
+  expect(screen.getByRole('button', { name: 'Preview sound' })).toBeDisabled();
+});
+
+test('a blocked preview is recoverable without changing sound preferences', async () => {
+  const engine = { current: { playSfx: jest.fn().mockResolvedValueOnce(false).mockResolvedValue(true) } };
+  const { getState } = renderPanel(SettingsPanel, createInitialState(NOW), { engine, persistence: { status: 'saved' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Preview sound' }));
+  await screen.findByText('Audio unavailable. Try again.');
+  expect(getState().settings.interactionSfxEnabled).toBe(true);
+  await new Promise(resolve => setTimeout(resolve, 125));
+  fireEvent.click(screen.getByRole('button', { name: 'Preview sound' }));
+  await waitFor(() => expect(screen.queryByText('Audio unavailable. Try again.')).not.toBeInTheDocument());
+});
+
+test('rapid previews and a preview muted during unlock do not report an audio failure', async () => {
+  let finishPreview;
+  const engine = { current: { setInteractionSfx: jest.fn(), playSfx: jest.fn(() => new Promise(resolve => { finishPreview = resolve; })) } };
+  renderPanel(SettingsPanel, createInitialState(NOW), { engine, persistence: { status: 'saved' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Preview sound' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Preview sound' }));
+  expect(engine.current.playSfx).toHaveBeenCalledTimes(1);
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Interaction sounds' }));
+  finishPreview(false);
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Preview sound' })).toBeDisabled());
+  expect(screen.queryByText('Audio unavailable. Try again.')).not.toBeInTheDocument();
+});
+
 test('unavailable audio reports a recoverable error without pretending playback started', async () => {
   const report = jest.fn();
   renderPanel(SoundPanel, createInitialState(NOW), { engine: { current: { start: jest.fn().mockResolvedValue(false) } }, report });
@@ -233,7 +277,7 @@ test('duration buttons preserve an active session and count-up has only break co
 test('compact save status retains conflict recovery and its explicit reload action', () => {
   const persistence = { status: 'conflict', recovered: true, reload: jest.fn() };
   renderPanel(SettingsPanel, createInitialState(NOW), { persistence });
-  expect(screen.getByRole('status')).toHaveTextContent('Changed in another window');
+  expect(within(screen.getByRole('region', { name: 'Local save' })).getByRole('status')).toHaveTextContent('Changed in another window');
   expect(screen.getByText('Recovered from backup.')).toBeInTheDocument();
   expect(screen.getByText(/Reloading replaces this window/)).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Reload saved version' }));

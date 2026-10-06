@@ -1,10 +1,52 @@
-import React, { useEffect, useId, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import { PRESETS } from "./game";
 import { Icon, RangeField, InfoTip } from "./ui";
 import { PastelButtonArt } from "./AtelierArt";
 export { AnimalsPanel, ShopPanel } from "./CollectionPanels";
 export { default as DecoratePanel } from "./DecoratePanel";
 export { default as JournalPanel } from "./JournalPanel";
+
+function InteractionSoundControls({ state, act, engine }) {
+  const [unavailable, setUnavailable] = useState(false);
+  const previewAttempt = useRef(0);
+  const previewInFlight = useRef(false);
+  const nextPreviewAt = useRef(0);
+  useEffect(() => () => { previewAttempt.current += 1; }, []);
+  const { interactionSfxEnabled: enabled, interactionSfxVolume: volume } = state.settings;
+  function configure(settings) {
+    previewAttempt.current += 1;
+    engine?.current?.setInteractionSfx({
+      enabled: settings.interactionSfxEnabled ?? enabled,
+      volume: settings.interactionSfxVolume ?? volume,
+    });
+    setUnavailable(false);
+    act({ type: "SET_SETTINGS", settings });
+  }
+  async function preview() {
+    // A dropped rapid request is not an audio failure. Also ignore a preview
+    // that completes after preferences change or this sheet closes.
+    if (previewInFlight.current || Date.now() < nextPreviewAt.current) return;
+    previewInFlight.current = true;
+    nextPreviewAt.current = Date.now() + 120;
+    const attempt = ++previewAttempt.current;
+    try {
+      const played = await engine?.current?.playSfx("tap");
+      if (attempt === previewAttempt.current) setUnavailable(played === false);
+    } finally {
+      previewInFlight.current = false;
+    }
+  }
+  return <section className="interaction-sound-controls" aria-label="Interaction sounds">
+    <label className="toggle-line"><span>Interaction sounds</span>
+      <input type="checkbox" checked={enabled} onChange={event => configure({ interactionSfxEnabled: event.target.checked })} />
+    </label>
+    <RangeField label="Interaction volume" value={Math.round(volume * 100)} suffix="%"
+      onChange={value => configure({ interactionSfxVolume: value / 100 })} />
+    <button type="button" className="small-button" disabled={!enabled || volume === 0}
+      onClick={preview}><Icon name="sound" size={16} />Preview sound</button>
+    {unavailable && <p className="small" role="status">Audio unavailable. Try again.</p>}
+  </section>;
+}
 
 export function SoundPanel({
   state,
@@ -104,6 +146,7 @@ export function SoundPanel({
           }
         />
       </label>
+      <InteractionSoundControls state={state} act={act} engine={engine} />
     </div>
   );
 }
@@ -221,7 +264,7 @@ export function SessionControls({ state, act }) {
   );
 }
 
-export function SettingsPanel({ state, act, persistence }) {
+export function SettingsPanel({ state, act, persistence, engine }) {
   return (
     <>
       <div className="settings-toggles">
@@ -237,7 +280,8 @@ export function SettingsPanel({ state, act, persistence }) {
           </label>
         ))}
       </div>
-      <section className="save-info">
+      <InteractionSoundControls state={state} act={act} engine={engine} />
+      <section className="save-info" aria-label="Local save">
         <div className="local-save-row">
           <h3>Local save</h3>
           <span className={`local-save-status save-${persistence.status}`} role="status">

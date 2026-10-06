@@ -5,6 +5,7 @@ import "./timer-flow.css";
 import "./RoomFeatures.css";
 import { ArtFragment } from "./AtelierArt";
 import useLocalSave from "./useLocalSave";
+import useReducedMotion, { MotionPreferenceContext } from "./useReducedMotion";
 import {
   BACKGROUNDS,
   DECORATIONS,
@@ -47,6 +48,7 @@ import "./timer-refinements.css";
 import "./utility-panels.css";
 import "./feedback.css";
 import "./polish.css";
+import "./motion.css";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
 
@@ -84,6 +86,7 @@ const BREAK_IDEAS = [
 export default function App() {
   const persistence = useLocalSave();
   const { state, dispatch, ready, status } = persistence;
+  const reducedMotion = useReducedMotion(state.settings.reducedMotion);
   const [now, setNow] = useState(Date.now());
   const [panel, setPanel] = useState(null);
   const [notesOpen, setNotesOpen] = useState(false);
@@ -138,6 +141,12 @@ export default function App() {
     for (const [key, value] of Object.entries(state.settings.ambient))
       engine.current?.setVolume(key, value);
   }, [state.settings.ambient]);
+  useEffect(() => {
+    engine.current?.setInteractionSfx({
+      enabled: state.settings.interactionSfxEnabled,
+      volume: state.settings.interactionSfxVolume,
+    });
+  }, [state.settings.interactionSfxEnabled, state.settings.interactionSfxVolume]);
   useEffect(() => {
     if (!ready) return undefined;
     const tick = () => {
@@ -260,7 +269,7 @@ export default function App() {
       setPanel(null);
       if (state.timer.mode === "focus") setFocusView(true);
     }
-    if (state.settings.soundEnabled) engine.current?.tap();
+    if (state.settings.interactionSfxEnabled) engine.current?.tap();
     act({ type: state.timer.status === "running" ? "PAUSE" : "START" });
   };
   const stats = todayStats(state, now);
@@ -370,8 +379,9 @@ export default function App() {
     );
   };
   return (
+    <MotionPreferenceContext.Provider value={reducedMotion}>
     <div
-      className={`app ${state.room.background} ${state.settings.reducedMotion ? "reduce-motion" : ""} ${panel ? "panel-open" : ""} ${widePanel ? "wide-panel-open" : ""} ${sidePanel ? "side-panel-open" : ""} ${focusView ? "focus-view" : ""} ${arranging ? "is-arranging" : ""}`}
+      className={`app ${state.room.background} ${reducedMotion ? "reduce-motion" : ""} ${panel ? "panel-open" : ""} ${widePanel ? "wide-panel-open" : ""} ${sidePanel ? "side-panel-open" : ""} ${focusView ? "focus-view" : ""} ${arranging ? "is-arranging" : ""}`}
     >
       <div
         className="room-scene"
@@ -521,7 +531,7 @@ export default function App() {
             />
           )}
           {panel === "settings" && (
-            <SettingsPanel state={state} act={act} persistence={persistence} />
+            <SettingsPanel state={state} act={act} persistence={persistence} engine={engine} />
           )}
           {panel === "session" && <SessionControls state={state} act={act} />}
         </Drawer>
@@ -537,5 +547,6 @@ export default function App() {
       {!ready && <RoomLoading persistence={persistence} />}
       {hatch && <HatchModal animal={hatch.animal} duplicate={hatch.duplicate} capped={hatch.capped} onClose={() => setHatch(null)} />}
     </div>
+    </MotionPreferenceContext.Provider>
   );
 }

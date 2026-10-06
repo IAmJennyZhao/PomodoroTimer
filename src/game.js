@@ -88,6 +88,8 @@ const DEFAULT_SETTINGS = {
   autoStartBreaks: false,
   autoStartFocus: false,
   soundEnabled: true,
+  interactionSfxEnabled: true,
+  interactionSfxVolume: 0.35,
   reducedMotion: false,
   ambient: { rain: 0.3, fire: 0, noise: 0 },
 };
@@ -183,10 +185,16 @@ function settingsFrom(value, base = DEFAULT_SETTINGS) {
     "autoStartBreaks",
     "autoStartFocus",
     "soundEnabled",
+    "interactionSfxEnabled",
     "reducedMotion",
   ]) {
     if (typeof input[key] === "boolean") next[key] = input[key];
   }
+  // Old saves used Timer sound to mute taps too. Preserve that silence once
+  // on load; subsequent settings edits keep the two preferences independent.
+  if (base === DEFAULT_SETTINGS && input.interactionSfxEnabled === undefined && input.soundEnabled === false)
+    next.interactionSfxEnabled = false;
+  next.interactionSfxVolume = clamp(input.interactionSfxVolume, 0, 1, base.interactionSfxVolume);
   for (const key of ["rain", "fire", "noise"]) {
     next.ambient[key] = clamp(input.ambient?.[key], 0, 1, base.ambient[key]);
   }

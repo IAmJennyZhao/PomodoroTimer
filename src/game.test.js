@@ -10,6 +10,36 @@ const act = (state, type, extra = {}) => gameReducer(state, { type, now: NOW, ..
 const richState = (gems = 1000) => ({ ...createInitialState(NOW), gems });
 const readyEggs = (state) => ({ ...state, eggs: state.eggs.map(egg => ({ ...egg, progressMinutes: egg.requiredMinutes })) });
 
+describe('interaction sound preferences', () => {
+  test('older saves get quiet defaults and preserve previously muted taps', () => {
+    const saved = createInitialState(NOW);
+    delete saved.settings.interactionSfxEnabled;
+    delete saved.settings.interactionSfxVolume;
+    expect(normalizeState(saved, NOW).settings).toMatchObject({ interactionSfxEnabled: true, interactionSfxVolume: 0.35 });
+    saved.settings.soundEnabled = false;
+    expect(normalizeState(saved, NOW).settings).toMatchObject({ interactionSfxEnabled: false, interactionSfxVolume: 0.35 });
+  });
+
+  test('SFX enable and volume survive serialization independently of timer alerts', () => {
+    let state = act(createInitialState(NOW), 'SET_SETTINGS', {
+      settings: { interactionSfxEnabled: false, interactionSfxVolume: 0.62 },
+    });
+    state = normalizeState(JSON.parse(JSON.stringify(state)), NOW);
+    expect(state.settings).toMatchObject({ soundEnabled: true, interactionSfxEnabled: false, interactionSfxVolume: 0.62 });
+    state = act(state, 'SET_SETTINGS', { settings: { soundEnabled: false, interactionSfxEnabled: true } });
+    expect(normalizeState(state, NOW).settings).toMatchObject({ soundEnabled: false, interactionSfxEnabled: true, interactionSfxVolume: 0.62 });
+  });
+
+  test('invalid preferences fall back safely and volumes clamp at both ends', () => {
+    let state = act(createInitialState(NOW), 'SET_SETTINGS', { settings: { interactionSfxEnabled: 'false', interactionSfxVolume: NaN } });
+    expect(state.settings).toMatchObject({ interactionSfxEnabled: true, interactionSfxVolume: 0.35 });
+    state = act(state, 'SET_SETTINGS', { settings: { interactionSfxVolume: 10 } });
+    expect(state.settings.interactionSfxVolume).toBe(1);
+    state = act(state, 'SET_SETTINGS', { settings: { interactionSfxVolume: -1 } });
+    expect(state.settings.interactionSfxVolume).toBe(0);
+  });
+});
+
 describe('focus sessions and rewards', () => {
   test('a fresh save has a free companion, a full classic timer, and no rewards', () => {
     const state = createInitialState(NOW);

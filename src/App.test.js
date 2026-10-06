@@ -40,6 +40,27 @@ async function wakeAt(timestamp) {
   await settle();
 }
 
+test('saved interaction volume configures the engine and taps remain independent of timer alerts', async () => {
+  const saved = createInitialState(NOW);
+  saved.settings.soundEnabled = false;
+  saved.settings.interactionSfxVolume = 0.62;
+  await openRoom(saved);
+  expect(engine.setInteractionSfx).toHaveBeenLastCalledWith({ enabled: true, volume: 0.62 });
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  expect(engine.tap).toHaveBeenCalledTimes(1);
+  fireEvent.click(screen.getByRole('button', { name: /^Pause/ }));
+  leaveFocus();
+  fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Interaction sounds' }));
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Timer sound' }));
+  await advance(500);
+  expect(latestWrite().state.settings).toMatchObject({ interactionSfxEnabled: false, interactionSfxVolume: 0.62, soundEnabled: true });
+  fireEvent.click(screen.getByRole('button', { name: 'Close panel' }));
+  engine.tap.mockClear();
+  fireEvent.click(screen.getByRole('button', { name: 'Resume' }));
+  expect(engine.tap).not.toHaveBeenCalled();
+});
+
 beforeEach(() => {
   jest.useFakeTimers();
   jest.setSystemTime(NOW);
@@ -50,7 +71,8 @@ beforeEach(() => {
     start: jest.fn().mockResolvedValue(true), stop: jest.fn(),
     tap: jest.fn().mockResolvedValue(true), chime: jest.fn().mockResolvedValue(true),
     unlock: jest.fn().mockResolvedValue(true), startAlarm: jest.fn().mockReturnValue(true), stopAlarm: jest.fn(),
-    setVolume: jest.fn(), destroy: jest.fn().mockResolvedValue(),
+    setVolume: jest.fn(), setInteractionSfx: jest.fn(), playSfx: jest.fn().mockResolvedValue(true),
+    destroy: jest.fn().mockResolvedValue(),
   };
   createAmbientEngine.mockReset().mockReturnValue(engine);
   global.fetch = jest.fn(async (url, options) => {

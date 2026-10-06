@@ -32,7 +32,7 @@
 .daily-pill strong { font-size: 11px; }
 .session-markers { margin-top: 5px; }
 .sound-pill { min-height: 45px; padding: 10px 15px; gap: 9px; }
-.drawer { top: 100px; bottom: 30px; left: 50%; right: auto; transform: translateX(-50%); width: min(960px, calc(100% - 64px)); border-radius: 25px; animation: workspace-in .2s ease; background: #fffaf5fc; box-shadow: 0 18px 65px #4d384b30; }
+.drawer { top: 100px; bottom: 30px; left: 50%; right: auto; transform: translateX(-50%); width: min(960px, calc(100% - 64px)); border-radius: 25px; animation: workspace-in var(--motion-transition-duration) var(--motion-ease); background: #fffaf5fc; box-shadow: 0 18px 65px #4d384b30; }
 .workspace-settings, .workspace-sound { width: min(500px, calc(100% - 48px)); bottom: auto; max-height: calc(100% - 126px); }
 .drawer-heading { align-items: center; padding: 20px 28px 17px; flex-shrink: 0; }
 .drawer-heading h2 { font-size: 27px; margin: 0; }

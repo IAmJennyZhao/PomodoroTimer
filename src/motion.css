@@ -1,0 +1,79 @@
+/* Shared motion vocabulary. New effects opt in on an inner visual layer;
+   never animate a room/widget positioning transform or a drag hitbox. */
+:root {
+  --motion-press-duration: 100ms;
+  --motion-release-duration: 180ms;
+  --motion-transition-duration: 200ms;
+  --motion-reward-duration: 480ms;
+  --motion-ease: cubic-bezier(.2, .7, .2, 1);
+  --motion-ease-release: cubic-bezier(.2, .8, .25, 1);
+  --motion-press-scale: .98;
+  --motion-press-y: 1px;
+  --motion-hover-y: -1px;
+  --motion-lift-y: -2px;
+  --motion-enter-y: 8px;
+  --motion-shadow-rest: inset 0 0 0 2px #fff9e733, 0 2px 0 #83674616;
+  --motion-shadow-pressed: inset 0 2px 3px #47382124;
+}
+
+/* Reusable primitives for the next passes; no blanket button/room transforms. */
+.motion-pressable {
+  transition: box-shadow var(--motion-release-duration) var(--motion-ease-release);
+}
+.motion-pressable > .motion-visual {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: inherit;
+  transition: transform var(--motion-release-duration) var(--motion-ease-release);
+}
+.motion-pressable:active:enabled > .motion-visual {
+  transform: translateY(var(--motion-press-y)) scale(var(--motion-press-scale));
+  transition-duration: var(--motion-press-duration);
+}
+.app .motion-pressable:active:enabled {
+  box-shadow: var(--motion-shadow-pressed);
+  transition-duration: var(--motion-press-duration);
+}
+.motion-reward { animation: motion-reward var(--motion-reward-duration) var(--motion-ease-release); }
+@keyframes motion-reward {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(var(--motion-lift-y)); }
+}
+
+/* Zero tokens also let future JS/WAAPI effects read the effective preference.
+   The class is shared with help popovers rendered outside the app container. */
+.reduce-motion {
+  --motion-press-duration: 0ms;
+  --motion-release-duration: 0ms;
+  --motion-transition-duration: 0ms;
+  --motion-reward-duration: 0ms;
+  --motion-press-scale: 1;
+  --motion-press-y: 0px;
+  --motion-hover-y: 0px;
+  --motion-lift-y: 0px;
+  --motion-enter-y: 0px;
+}
+.reduce-motion, .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-press-duration: 0ms;
+    --motion-release-duration: 0ms;
+    --motion-transition-duration: 0ms;
+    --motion-reward-duration: 0ms;
+    --motion-press-scale: 1;
+    --motion-press-y: 0px;
+    --motion-hover-y: 0px;
+    --motion-lift-y: 0px;
+    --motion-enter-y: 0px;
+  }
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

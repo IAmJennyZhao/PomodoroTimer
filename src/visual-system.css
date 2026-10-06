@@ -107,14 +107,16 @@ body { color: var(--ink); background: var(--paper-shade); font-family: var(--fon
   font-family: var(--font-ui);
   font-weight: 400;
   font-size: 14px;
-  box-shadow: inset 0 0 0 2px #fff9e733, 0 2px 0 #83674616;
-  transition: background-color .15s, border-color .15s, box-shadow .15s;
+  box-shadow: var(--motion-shadow-rest);
+  transition: background-color var(--motion-transition-duration) var(--motion-ease),
+    border-color var(--motion-transition-duration) var(--motion-ease),
+    box-shadow var(--motion-release-duration) var(--motion-ease-release);
 }
 .app .primary-button:not(.start-button) { background-color: var(--coral); border-color: #9f453b; border-radius: 24px 26px 23px 25px / 23px 22px 24px 23px; color: #fffaf0 !important; }
 .app :is(.secondary-button, .small-button) { background-color: var(--sage); color: var(--ink) !important; }
 .app .primary-button:not(.start-button):hover:enabled { background-color: var(--coral-hover); filter: none; transform: none; }
 .app :is(.secondary-button, .small-button):hover:enabled { background-color: #d2ddbb; border-color: var(--sage-strong); }
-.app :is(.primary-button:not(.start-button), .secondary-button, .small-button):active:enabled { box-shadow: inset 0 2px 3px #47382124; }
+.app :is(.primary-button:not(.start-button), .secondary-button, .small-button):active:enabled { box-shadow: var(--motion-shadow-pressed); transition-duration: var(--motion-press-duration); }
 .app :is(.primary-button:not(.start-button), .secondary-button, .small-button):disabled { background-color: #ece4d4; color: #72705d !important; border-color: #cfc3aa; opacity: 1; box-shadow: none; filter: none; transform: none; }
 .app .start-button { font-family: var(--font-ui); font-weight: 400; }
 .app .pastel-button-art { filter: brightness(.83) saturate(.9); }
@@ -127,7 +129,7 @@ body { color: var(--ink); background: var(--paper-shade); font-family: var(--fon
 .app :is(.text-button, .furniture-buy, .session-editor-tools button):disabled { color: var(--muted); opacity: .75; }
 .app :is(.icon-button, .session-settings-button, .info-button, .session-edit-button, .session-remove-button, .session-tag button, .session-add-field button), .info-button {
   border-radius: var(--control-radius);
-  transition: background-color .15s;
+  transition: background-color var(--motion-transition-duration) var(--motion-ease);
 }
 .app :is(.icon-button, .session-settings-button, .session-edit-button, .session-remove-button, .session-tag button, .session-add-field button, .sound-pill):hover:enabled,
 .info-button:hover, .info-button[aria-expanded="true"], .session-settings-button[aria-expanded="true"] { background-color: var(--sage); }
@@ -195,7 +197,8 @@ body { color: var(--ink); background: var(--paper-shade); font-family: var(--fon
   background-size: 20px 20px;
   background-position: 1px center;
   background-repeat: no-repeat;
-  transition: background-color .15s, background-position .15s;
+  transition: background-color var(--motion-transition-duration) var(--motion-ease),
+    background-position var(--motion-transition-duration) var(--motion-ease);
 }
 .app .toggle-line input[type="checkbox"]:checked { border-color: var(--sage-strong); background-color: var(--sage-strong); background-position: calc(100% - 1px) center; }
 .app .range-field input[type="range"] { appearance: none; height: 24px; margin: 8px 0; background: transparent; cursor: pointer; }
