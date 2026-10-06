@@ -47,6 +47,7 @@ export function createAmbientEngine() {
   let interactionGeneration = 0;
   let interactionPending = false;
   let lastInteractionAt = -Infinity;
+  let interactionEndsAt = -Infinity;
   let crackleBuffer = null;
   let crackleInterval = null;
   let idleTimeout = null;
@@ -353,6 +354,7 @@ export function createAmbientEngine() {
       // Also invalidate an effect awaiting browser unlock: unmuting later must
       // never replay a click made before/during mute.
       interactionGeneration += 1;
+      interactionEndsAt = -Infinity;
       effects.forEach(effect => {
         if (effect.kind === "interaction") cancelEffect(effect);
       });
@@ -404,12 +406,19 @@ export function createAmbientEngine() {
       const available = await ready();
       if (!available || destroyed || generation !== interactionGeneration ||
         !interactionEnabled || interactionVolume === 0 || !context ||
-        context.currentTime - lastInteractionAt < SFX_COOLDOWN_SECONDS) return false;
+        context.currentTime - lastInteractionAt < SFX_COOLDOWN_SECONDS ||
+        context.currentTime < interactionEndsAt) return false;
       const previousEffects = new Set(effects);
       const sound = SFX_PALETTE[name];
       const played = sound === "paper" ? paperShuffle()
         : sound.every(note => tone(...note, "interaction", interactionOutput));
-      if (played) lastInteractionAt = context.currentTime;
+      if (played) {
+        lastInteractionAt = context.currentTime;
+        // One interaction sound group at a time, including multi-note effects.
+        // Alerts/ambience keep their independent routing and are never cut off.
+        interactionEndsAt = context.currentTime + (sound === "paper" ? 0.15
+          : Math.max(...sound.map(([, offset, length]) => offset + length + 0.02)));
+      }
       else effects.forEach(effect => {
         if (!previousEffects.has(effect) && effect.kind === "interaction") cancelEffect(effect);
       });

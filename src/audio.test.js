@@ -240,6 +240,27 @@ describe('ambient audio lifecycle', () => {
     expect(context.createOscillator).toHaveBeenCalledTimes(2);
   });
 
+  test('longer SFX cannot stack after the click cooldown, while alerts remain independent', async () => {
+    await expect(engine.playSfx('hatch')).resolves.toBe(true);
+    context.currentTime = 0.11;
+    await expect(engine.playSfx('tap')).resolves.toBe(false);
+    expect(context.createOscillator).toHaveBeenCalledTimes(4);
+    await expect(engine.chime()).resolves.toBe(true);
+    expect(context.createOscillator).toHaveBeenCalledTimes(7);
+    context.currentTime = 0.55;
+    await expect(engine.playSfx('selection')).resolves.toBe(true);
+    expect(context.createOscillator).toHaveBeenCalledTimes(8);
+  });
+
+  test('muting a long effect releases its overlap reservation for subsequent gestures', async () => {
+    await engine.playSfx('hatch');
+    engine.setInteractionSfx({ enabled: false });
+    engine.setInteractionSfx({ enabled: true });
+    context.currentTime = 0.11;
+    await expect(engine.tap()).resolves.toBe(true);
+    expect(context.createOscillator).toHaveBeenCalledTimes(5);
+  });
+
   test('unknown, blocked, and partially failed SFX fail quietly without orphaned notes', async () => {
     await expect(engine.playSfx('toString')).resolves.toBe(false);
     expect(globalThis.AudioContext).not.toHaveBeenCalled();
