@@ -10,7 +10,10 @@ const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, c
   const [location, setLocation] = useState(null);
   const clampLocation = useCallback((left, top, room, bounds) => {
     const dock = arranging ? ref.current.parentElement.querySelector(".workspace-decorate")?.getBoundingClientRect() : null;
-    const minTop = (window.innerWidth <= 600 ? 104 : 74) + (arranging ? 36 : 0);
+    const narrowLandscape = window.innerWidth >= 500 && window.innerWidth <= 600 && window.innerHeight <= 500;
+    const header = narrowLandscape ? ref.current.parentElement.querySelector(".app-header")?.getBoundingClientRect() : null;
+    const minTop = header ? header.bottom - room.top + (arranging ? 48 : 12)
+      : (window.innerWidth <= 600 ? 104 : 74) + (arranging ? 36 : 0);
     const bottom = dock ? dock.top - room.top - 12 : room.height - 12;
     return { left: Math.max(12, Math.min(room.width - bounds.width - 12, left)),
       top: Math.max(minTop, Math.min(bottom - bounds.height, top)) };

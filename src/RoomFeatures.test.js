@@ -2,6 +2,7 @@ import React from "react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { AnimalArt, clampNotepadPosition, Drawer } from "./ui";
 import DecoratePanel from "./DecoratePanel";
+import RoomWidget from "./RoomWidget";
 import { createInitialState } from "./game";
 
 test("notepad moves with keyboard, saves its position, and stays visible on resize", () => {
@@ -94,6 +95,34 @@ test("library widgets select without exposing Remove", () => {
   fireEvent.click(screen.getByRole("button", { name: "Select Daily goal" }));
   expect(select).toHaveBeenCalledWith({ type: "widget", id: "goal" });
   expect(screen.getByRole("button", { name: "Remove" })).toBeDisabled();
+});
+
+test("landscape widget nudging stays below the compact header and above the workbench", () => {
+  const originalWidth = window.innerWidth;
+  const originalHeight = window.innerHeight;
+  Object.defineProperty(window, "innerWidth", { writable: true, configurable: true, value: 568 });
+  Object.defineProperty(window, "innerHeight", { writable: true, configurable: true, value: 320 });
+  const rect = jest.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function () {
+    if (this.classList.contains("app-header")) return { left: 0, top: 0, bottom: 54, width: 568, height: 54 };
+    if (this.classList.contains("workspace-decorate")) return { left: 6, top: 170, bottom: 314, width: 556, height: 144 };
+    if (this.classList.contains("room-widget")) return { left: parseFloat(this.style.left) || 18, top: parseFloat(this.style.top) || 102, width: 170, height: 54 };
+    return { left: 0, top: 0, width: 568, height: 320 };
+  });
+  const onMove = jest.fn();
+  try {
+    render(<div><header className="app-header" /><RoomWidget id="timer" name="timer" position={{ x: 20, y: 80 }} arranging selected
+      onMove={onMove} onSelect={() => {}} onDeselect={() => {}}><span>25:00</span></RoomWidget><div className="workspace-decorate" /></div>);
+    const handle = screen.getByRole("button", { name: "Move timer" });
+    fireEvent.keyDown(handle, { key: "ArrowUp", shiftKey: true });
+    expect(onMove.mock.calls[0][0].y / 100 * 320).toBeCloseTo(102);
+    fireEvent.keyDown(handle, { key: "ArrowDown", shiftKey: true });
+    expect(onMove.mock.calls[1][0].y / 100 * 320).toBeCloseTo(104);
+    expect(onMove.mock.calls[1][0].y / 100 * 320 + 54).toBeCloseTo(170 - 12);
+  } finally {
+    rect.mockRestore();
+    Object.defineProperty(window, "innerWidth", { writable: true, configurable: true, value: originalWidth });
+    Object.defineProperty(window, "innerHeight", { writable: true, configurable: true, value: originalHeight });
+  }
 });
 
 test("duplicate upgrades unlock additional visible room animations", () => {

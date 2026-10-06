@@ -9,6 +9,7 @@
 .app .daily-goal-meter { display: block; margin-top: 6px; width: 78px; height: 4px; background: var(--line); border-radius: 3px; overflow: hidden; }
 .app .daily-goal-meter > i { display: block; height: 100%; background: var(--sage-strong); }
 .app .session-complete .timer-digits.long-clock { font-size: clamp(40px, 12vw, 60px); }
+.app .timer-digits.long-clock { font-size: clamp(40px, 12vw, 64px); }
 .info-content.feedback-note .info-heading { position: sticky; top: -10px; z-index: 1; background: var(--paper); }
 .app .arrange-panel .library-item { min-width: 0; }
 .app .arrange-panel .library-item > span:not(.widget-sketch) { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -23,7 +24,7 @@
 }
 
 /* A shallow workbench leaves room for moving widgets in landscape. */
-@media (max-height: 500px) and (min-width: 601px) {
+@media (max-height: 500px) and (min-width: 500px) {
   .app-header { gap: 8px; }
   .app-header .top-nav { gap: 2px; }
   .app-header .top-nav button { padding-inline: 6px; }
@@ -52,6 +53,42 @@
   .app.is-arranging .daily-goal-note .daily-pill strong { font-size: 12px; }
   .app.is-arranging .daily-goal-note .daily-goal-total { font-size: 12px; margin-top: 3px; }
   .app.is-arranging .daily-goal-note .daily-goal-meter { margin-top: 3px; }
+}
+@media (max-height: 500px) and (min-width: 500px) and (max-width: 600px) {
+  .app-header { align-items: center; min-height: 54px; padding: 6px 12px; }
+  .app-header .room-brand { font-size: 18px; padding-block: 6px; }
+  .app-header .header-actions { gap: 4px; min-width: 0; }
+  .app-header .top-nav { position: static; flex: 1; width: auto; margin: 0; gap: 0; }
+  .app-header .top-nav button { font-size: 12px; min-height: 34px; padding-inline: 5px; }
+  .app-header .gem-pill { padding: 4px; gap: 4px; }
+  .app-header .gem-pill strong { font-size: 14px; }
+  .app-header .gem-pill > svg { width: 18px; }
+  .app-header :is(.header-notes, .settings-button) { width: 28px; min-width: 28px; height: 32px; padding: 4px; }
+  .app .drawer:not(.workspace-shop) { top: 74px; }
+  .app .workspace-shop { inset: 64px 0 0; }
+  .app.is-arranging .workspace-decorate { top: auto; }
+  .app .arrange-panel .arrange-toolbar { min-height: 32px; margin-bottom: 4px; }
+  .app .arrange-panel .arrange-finish { min-height: 32px; padding-block: 4px; }
+  .app .arrange-panel .library-item { min-height: 64px; padding-block: 2px; }
+  .app .arrange-panel .library-item > :is(.furniture-art, .sprite),
+  .app .arrange-panel .widget-sketch { height: 20px; }
+  .app .arrange-panel .library-item small { font-size: 11px; }
+  .app .arrange-panel .library-browser > .icon-button { height: 66px; }
+  .app.is-arranging .focus-area:not([style]),
+  .app.is-arranging .daily-goal-note:not([style]) { top: 102px; }
+  .app.is-arranging .daily-goal-note { height: 54px; }
+  .app.is-arranging .daily-goal-note .daily-pill { padding: 6px 6px 4px; }
+  .app.is-arranging .focus-area .timer-digits,
+  .app.is-arranging .focus-area .timer-digits.long-clock { font-size: 26px; }
+  .app:not(.is-arranging):not(.focus-view) .focus-area:not([style]) { left: 18px; top: 74px; transform: none; width: 300px; }
+  .app:not(.is-arranging):not(.focus-view) .focus-area { max-height: calc(100% - 88px); }
+  .app:not(.is-arranging):not(.focus-view) .focus-area .timer-card { padding: 10px 24px; }
+  .app:not(.is-arranging):not(.focus-view) .focus-area .timer-heading { margin-bottom: 4px; }
+  .app:not(.is-arranging):not(.focus-view) .focus-area .session-task-summary .session-task-text { font-size: 15px; padding-block: 3px; }
+  .app:not(.is-arranging):not(.focus-view) .focus-area .timer-face { min-height: 74px; padding-top: 4px; }
+  .app:not(.is-arranging):not(.focus-view) .focus-area .timer-digits:not(.long-clock) { font-size: 64px; }
+  .app:not(.is-arranging):not(.focus-view) .focus-area .start-button { min-height: 38px; font-size: 21px; }
+  .app:not(.is-arranging):not(.focus-view) .focus-area .timer-options { margin-top: 6px; }
 }
 @media (max-width: 700px), (max-height: 500px) {
   .app.is-arranging .focus-area :is(.session-result-heading, .clock-caption, .elapsed-total) { display: none; }
