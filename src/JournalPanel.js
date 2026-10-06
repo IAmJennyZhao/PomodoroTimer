@@ -41,9 +41,9 @@ function SessionList({ sessions, showDate = true, compact = false }) {
             {tasks.length > 1 && <span className="journal-task-count">{tasks.filter((task) => task.done).length} of {tasks.length} tasks done</span>}
             {tags.length > 0 && <div className="journal-session-tags" aria-label="Session tags">{tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}
             {!showDate && !compact && <time dateTime={completedAt.toISOString()}>{completedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</time>}
-            {session.rewardForfeited && <span className="journal-session-forfeited">Session Shilligems forfeited</span>}
+            {session.rewardForfeited && <span className="journal-session-forfeited">Session gems lost</span>}
           </td>
-          <td className="journal-session-duration">{session.minutes} min</td>
+          <td className="journal-session-duration" aria-label={`${session.minutes} focus minutes`} title={`${session.minutes} minutes`}>{formatFocusTime(session.minutes)}</td>
         </tr>
       ); })}
       </tbody>
@@ -164,7 +164,7 @@ export default function JournalPanel({ state, act, now = Date.now() }) {
             {[
               ["Focus time", formatFocusTime(analytics.minutes)],
               ["Sessions", analytics.sessionCount],
-              ["Avg. session", `${analytics.averageMinutes}m`],
+              ["Avg. session", formatFocusTime(analytics.averageMinutes)],
               ["Active days", `${analytics.activeDays} / ${analytics.rangeDays}`],
             ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
           </dl>

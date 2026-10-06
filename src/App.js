@@ -46,6 +46,9 @@ import "./arrangement.css";
 import "./timer-refinements.css";
 import "./utility-panels.css";
 import "./feedback.css";
+import "./polish.css";
+
+const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
 
 const BREAK_IDEAS = [
   [
@@ -395,9 +398,10 @@ export default function App() {
             className="gem-pill paper"
             onClick={() => openPanel("shop")}
             aria-label={`${state.gems} ${state.gems === 1 ? "Shilligem" : "Shilligems"}, open egg shop`}
+            title={`${state.gems.toLocaleString()} Shilligems`}
           >
             <Icon name="gem" size={23} />
-            <strong>{state.gems.toLocaleString()}</strong>
+            <strong>{state.gems >= 10000 ? compactCount.format(state.gems) : state.gems.toLocaleString()}</strong>
           </button>
           <nav className="top-nav paper" aria-label="Main navigation">
             {[
@@ -452,14 +456,17 @@ export default function App() {
             <strong>
               Daily goal
             </strong>
-            <span className="session-markers" aria-hidden="true">
-              {Array.from({ length: Math.min(stats.goal, 8) }, (_, index) => (
+            {stats.goal > 5 ? <>
+              <span className="daily-goal-total" aria-hidden="true">{stats.sessions} / {stats.goal}</span>
+              <span className="daily-goal-meter" aria-hidden="true"><i style={{ width: `${stats.progress * 100}%` }} /></span>
+            </> : <span className="session-markers" aria-hidden="true">
+              {Array.from({ length: stats.goal }, (_, index) => (
                 <i
                   key={index}
                   className={index < stats.sessions ? "filled" : ""}
                 />
               ))}
-            </span>
+            </span>}
           </span>
         </button>
       </RoomWidget>

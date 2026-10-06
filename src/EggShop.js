@@ -39,7 +39,7 @@ export default function EggShop({ state, act }) {
       </InfoTip><span>Odds</span>{state.pity >= 4 && <span className="guaranteed-roll">Rare+ next roll</span>}</div>
     </div>
     <section className="atelier-nest" aria-label="Your nest">
-      <div className="nest-heading"><h3>Nest</h3><InfoTip label="Nest rules">One egg studies with you. The oldest is selected first; click an egg to choose or deselect it. {active ? "Changes apply to your next session." : "Choose before starting focus."} Extra minutes do not spill into another egg. Progress is saved when you finish focus.</InfoTip></div>
+      <div className="nest-heading"><h3>Nest</h3><InfoTip label="Nest rules">Choose one egg before focus. Click it again to deselect. Selection changes during a session apply next time. Minutes stay with that egg; they never spill into another.</InfoTip></div>
       {state.eggs.length ? <div className="nest-grid">{state.eggs.map((egg, index) => {
         const required = egg.requiredMinutes || EGG_MINUTES[egg.rarity];
         const progress = Math.min(required, egg.progressMinutes || 0);

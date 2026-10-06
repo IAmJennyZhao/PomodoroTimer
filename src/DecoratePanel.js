@@ -36,7 +36,7 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
           const stock = furniture ? decorationAvailable(state, item.id) : 0;
           const quantity = furniture ? decorationQuantity(state, item.id) : 0;
           const active = category === "backgrounds" ? state.room.background === item.id : category === "accessories" && friend?.accessory === item.id;
-          const stockLabel = furniture ? owned ? stock ? `${stock} available` : `${quantity} owned` : "Not owned" : owned ? "" : "Not owned";
+          const stockLabel = furniture && owned ? stock ? `${stock} available` : `${quantity} owned` : "";
           return <section className={`shop-item catalogue-item ${owned ? "is-owned" : ""} ${active ? "is-active" : ""}`} key={item.id}>
             <div className="catalogue-art">{category === "backgrounds" ? <RoomBackdrop theme={item.id} preview /> : category === "accessories" ? <div className="accessory-preview">{item.id === "none" ? <span aria-hidden="true">—</span> : <Accessory id={item.id} />}</div> : <Sprite kind="object" id={item.id} />}</div>
             <h3>{item.name}</h3>

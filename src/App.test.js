@@ -72,6 +72,25 @@ afterEach(() => {
   global.fetch = originalFetch;
 });
 
+test('large wallets use a compact header count while exposing the exact balance', async () => {
+  await openRoom({ ...createInitialState(NOW), gems: 123456789 });
+  const wallet = screen.getByRole('button', { name: '123456789 Shilligems, open egg shop' });
+  expect(wallet).toHaveTextContent('123.5M');
+  expect(wallet).toHaveAttribute('title', '123,456,789 Shilligems');
+  expect(diskState.gems).toBe(123456789);
+});
+
+test('large daily goals show the true count instead of a completed row of capped dots', async () => {
+  const initial = createInitialState(NOW);
+  initial.settings.dailyGoal = 24;
+  initial.history = Array.from({ length: 8 }, (_, index) => ({ id: `study-${index}`, minutes: 25, completedAt: NOW - index * 1000 }));
+  await openRoom(initial);
+  const goal = screen.getByRole('button', { name: 'Daily progress: 8 of 24 sessions' });
+  expect(within(goal).getByText('8 / 24')).toBeInTheDocument();
+  expect(goal).not.toHaveClass('goal-reached');
+  expect(goal.querySelector('.session-markers')).not.toBeInTheDocument();
+});
+
 test('a completed focus session updates the wallet, daily goal, journal, break idea, and private save', async () => {
   const initial = createInitialState(NOW);
   initial.settings.dailyGoal = 1;

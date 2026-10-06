@@ -1,0 +1,58 @@
+/* Keep the room within short screens; each sheet owns its scrolling. */
+.app { min-height: 0; }
+.app .room-backdrop, .app .shop-backdrop { object-fit: cover; }
+.app .room-backdrop { object-position: 68% center; }
+.app .pet-album .animal-card strong { max-width: 100%; overflow-wrap: anywhere; }
+.app .pet-album .collection-detail h3 { min-width: 0; overflow-wrap: anywhere; }
+.app .pet-album .pet-portrait { align-self: start; }
+.app .daily-goal-total { display: block; margin-top: 6px; font: 14px/1.3 var(--font-ui); }
+.app .daily-goal-meter { display: block; margin-top: 6px; width: 78px; height: 4px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.app .daily-goal-meter > i { display: block; height: 100%; background: var(--sage-strong); }
+.app .session-complete .timer-digits.long-clock { font-size: clamp(40px, 12vw, 60px); }
+.info-content.feedback-note .info-heading { position: sticky; top: -10px; z-index: 1; background: var(--paper); }
+.app .arrange-panel .library-item { min-width: 0; }
+.app .arrange-panel .library-item > span:not(.widget-sketch) { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 700px) {
+  .app.is-arranging .focus-area:not([style]) { left: 18px; transform: none; }
+}
+
+@media (max-width: 600px) {
+  .app .pastel-purchase, .app .basic-plaque .pastel-purchase { min-height: 36px; font-size: 14px; }
+  .app .atelier-nest .egg-hatch { min-height: 32px; font-size: 13px; }
+}
+
+/* A shallow workbench leaves room for moving widgets in landscape. */
+@media (max-height: 500px) and (min-width: 601px) {
+  .app-header { gap: 8px; }
+  .app-header .top-nav { gap: 2px; }
+  .app-header .top-nav button { padding-inline: 6px; }
+  .app .daily-goal-note:not([style]) { top: 80px; }
+  .app .arrange-panel .arrange-toolbar { display: flex; gap: 6px; }
+  .app .arrange-panel .field-label { flex: 1; }
+  .app .arrange-panel .field-label select { width: 100%; }
+  .app .arrange-panel .arrange-remove { margin-left: auto; }
+  .app .arrange-panel .arrange-library { padding-bottom: 5px; }
+  .app .arrange-panel :is(.library-card, .library-item) { flex-basis: 100px; }
+  .app .arrange-panel .library-item { min-height: 74px; font-size: 12px; }
+  .app .arrange-panel .library-item > :is(.furniture-art, .sprite),
+  .app .arrange-panel .widget-sketch { height: 30px; }
+  .app .arrange-panel .library-browser > .icon-button { height: 76px; }
+  .app.is-arranging .focus-area { width: 170px; }
+  .app.is-arranging .focus-area:not([style]) { top: 110px; }
+  .app.is-arranging .focus-area .timer-card { padding: 24px 14px 2px; }
+  .app.is-arranging .focus-area .timer-face { min-height: 0; padding: 0; margin: 0; }
+  .app.is-arranging .focus-area .timer-digits,
+  .app.is-arranging .focus-area .timer-digits.long-clock { font-size: 28px; margin: 0; letter-spacing: -1px; }
+  .app.is-arranging .focus-area .widget-preview-name { display: block; position: absolute; inset: 5px 0 auto; text-align: center; font-size: 14px; }
+  .app.is-arranging .focus-area :is(.timer-heading, .session-tasks, .timer-actions, .timer-options, .break-choices, .break-idea) { display: none; }
+  .app.is-arranging .daily-goal-note { width: 100px; height: 58px; }
+  .app.is-arranging .daily-goal-note:not([style]) { top: 110px; }
+  .app.is-arranging .daily-goal-note .daily-pill { padding: 10px 6px 6px; }
+  .app.is-arranging .daily-goal-note .daily-pill strong { font-size: 12px; }
+  .app.is-arranging .daily-goal-note .daily-goal-total { font-size: 12px; margin-top: 3px; }
+  .app.is-arranging .daily-goal-note .daily-goal-meter { margin-top: 3px; }
+}
+@media (max-width: 700px), (max-height: 500px) {
+  .app.is-arranging .focus-area :is(.session-result-heading, .clock-caption, .elapsed-total) { display: none; }
+}

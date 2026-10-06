@@ -14,6 +14,26 @@ function renderJournal(initial = createInitialState(NOW)) {
   return { ...render(<Harness />), getState: () => latest };
 }
 
+test("long sessions use readable durations while retaining exact minutes and excluding future records", () => {
+  const initial = createInitialState(NOW);
+  initial.history = [
+    { id: "long", task: "Long study", minutes: 1440, completedAt: NOW, rewardForfeited: true, gems: 0 },
+    { id: "normal", task: "Review", minutes: 25, completedAt: NOW - 1000 },
+    { id: "future", task: "Future study", minutes: 99, completedAt: NOW + 1000 },
+  ];
+  renderJournal(initial);
+  const summary = within(screen.getByLabelText("Focus summary"));
+  expect(summary.getByText("24h 25m")).toBeInTheDocument();
+  expect(summary.getByText("12h 13m")).toBeInTheDocument();
+  expect(screen.queryByText("Future study")).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "History" }));
+  const history = within(screen.getByRole("table", { name: "Session history" }));
+  const duration = history.getByRole("cell", { name: "1440 focus minutes" });
+  expect(duration).toHaveTextContent("24h");
+  expect(duration).toHaveAttribute("title", "1440 minutes");
+  expect(history.getByText("Session gems lost")).toBeInTheDocument();
+});
+
 test("overview period controls update totals, average, active days, chart, and recent sessions together", () => {
   const initial = createInitialState(NOW);
   initial.history = [
@@ -72,7 +92,7 @@ test("history includes older records and loads more without losing entries", () 
   const latestRow = ledger.getByRole("row", { name: /Work 0/ });
   expect(within(latestRow).getAllByRole("cell")[1]).toHaveTextContent("Work 0");
   expect(latestRow.querySelector("time")).toHaveAttribute("datetime", new Date(NOW).toISOString());
-  expect(within(latestRow).getAllByRole("cell")[2]).toHaveTextContent("25 min");
+  expect(within(latestRow).getAllByRole("cell")[2]).toHaveTextContent("25m");
   expect(screen.getByText("Work 0")).toBeInTheDocument();
   expect(screen.queryByText("Work 24")).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Load more" }));
@@ -113,7 +133,7 @@ test("journal shows multiple tasks, session tags and tag statistics for the sele
   renderJournal(initial);
   expect(screen.getByText("Read chapter · Practice problems")).toBeInTheDocument();
   expect(screen.getByText("1 of 2 tasks done")).toBeInTheDocument();
-  expect(screen.getByText("Session Shilligems forfeited")).toBeInTheDocument();
+  expect(screen.getByText("Session gems lost")).toBeInTheDocument();
   const tags = within(screen.getByRole("region", { name: "Focus by tag" }));
   expect(tags.getByLabelText("Chemistry: 25 focus minutes, 1 session")).toBeInTheDocument();
   expect(tags.getByLabelText("Study: 25 focus minutes, 1 session")).toBeInTheDocument();
