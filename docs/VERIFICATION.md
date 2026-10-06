@@ -1,5 +1,22 @@
 # Implementation verification
 
+## Phase 6: Final polish
+
+Reevaluated the current app and the earlier drawbacks against the illustrated room, shop, arrangement, album, and journal mockups in `output/mockups/cohesive-atelier-v2/`. The final pass keeps the established paper, pencil frames, olive type, coral actions, and sage selections while correcting uncovered screen sizes and long-data states.
+
+- The earlier empty-nest shop issue is resolved. At 320 x 640, Basic and Mystery purchases receive their own pointer hits; a real Basic purchase changed the isolated balance from 250 to 225 and added one egg. The 600 x 480 boundary was also checked. The stage reserves room for the pedestal plaque, and phone purchase / hatch targets now measure 36px / 32px high. Populated nests retain independent horizontal browsing.
+- Room and shop backdrops use proportional cover sizing rather than stretching. All three 1672 x 941 room paintings and their catalogue previews were inspected. Furniture retains its cropped SVG artwork with `xMidYMid meet`. Long pet names wrap within the album and detail heading; library tiles truncate their label while preserving the full accessible name and hover title.
+- Short screens no longer inherit a 560–600px minimum page height. Sheets scroll internally, with their close controls reachable. At 640 x 360, the main page remains 360px tall. At 568 x 320, a compact one-row header and shallower workbench leave both widget handles visible. Keyboard movement clamps the timer and goal 12px above the tray. Default phone arrangement puts the timer at x18–188 and the goal at x198–298, removing their earlier overlap. Selection has a dashed outline and a 32px X; browsing and deselection were exercised.
+- Large wallet counts are compact visually (`123.5M`) while retaining the exact accessible balance and title (`123,456,789`). The Daily goal note previously filled all eight capped dots at 8 of 24 sessions; larger goals now show the true count and proportional progress. The measured bar was one-third full at 8 of 24. Goals up to five retain their actual dot count. Regression tests cover both the exact wallet and incomplete large goal.
+- History displays readable durations such as `24h`, retaining exact focus minutes and timestamps. A 207px phone ledger now has 207px of content width, including a 200-character task and long tags. Average durations use the same hours/minutes format. Fixture totals across Today / 7 days / 30 days matched their saved records, and tests confirm future records do not enter analytics. The final eight-session fixture showed 26h 55m total and 3h 22m average. Both completed and live `1440:00` clocks fit the phone; the final live clock had matching 226px client/content widths.
+- Redundant unowned catalogue labels are removed; Buy already conveys their state. History loss wording matches the session alert. Nest help is shorter and accurately explains that selection during a session applies next time. Help-sheet headings and X stay visible while scrolling; the phone odds note remained x12–308 after scrolling to its rarity guide. Maximum-size task editing (12 tasks, eight long tags) stays within the phone width; the last task was edited and survived reload. Timer actions remain reachable through internal scrolling, and the normal small-landscape clock / Start / settings controls fit together.
+
+Desktop (1638 x 786), tablet (769 x 800), phone (320 x 640), short landscape (640 x 360), and smaller landscape (568 x 320) were reviewed across room themes, main panels, utilities, shop, and arrangement. The production build was also inspected on the isolated loopback preview, including the final narrow-landscape movement and longest live clock. These checks extend the normal-data and popup coverage documented in earlier phases.
+
+Checks: **227 passing app tests across 12 suites**, **17 passing server tests**, successful final production build with CI warnings treated as errors, and clean diff checks. The existing Browserslist-data notice remains informational. Stable commits cover shop clearance, readable data / compact layouts, and smaller landscape movement.
+
+All QA tabs were closed, the viewport override reset, and the temporary production preview stopped. The complete baseline state was restored through the guarded isolated API and compared exactly: 250 gems, 24 history entries, three pets, idle timer, original notes, preferences, and positions. Personal saves were not used.
+
 ## Phase 5: Alerts and popups
 
 Reevaluated the running app against the pause, completion, and hatch mockups (`12-pause-expired.png`, `13-session-complete.png`, and `14-hatch.png`) in `output/mockups/cohesive-atelier-v2/`. Feedback now shares cream paper, pencil frames, pigment stamps, restrained copy, and painted celebration actions.
@@ -16,7 +33,7 @@ QA used only the isolated temporary save folder on ports 4175/4176 and a tempora
 
 Checks: **223 passing tests across 12 suites**, a successful final production build with CI warnings treated as errors, and clean diff checks. The existing Browserslist-data notice is informational. Stable implementation checkpoints cover pause/completion and hatch/help/save messages; the final checkpoint records verification and load-recovery focus.
 
-Separate follow-up observed during QA: at 320 x 640, an empty shop nest can overlap the Basic purchase pointer hit area. Keyboard purchase works; the overlap disappears after the nest is populated. This shop layout issue remains for a separate pass.
+Separate follow-up observed during QA: at 320 x 640, an empty shop nest could overlap the Basic purchase pointer hit area. This was resolved and verified in Phase 6 above.
 
 ## Phase 4: Utility panels
 
