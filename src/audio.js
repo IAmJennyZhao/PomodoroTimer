@@ -3,6 +3,19 @@ const CHANNELS = ["rain", "fire", "noise"];
 const DEFAULT_VOLUMES = { rain: 0.35, fire: 0, noise: 0 };
 const LEVELS = { rain: 0.13, fire: 0.28, noise: 0.23 };
 const ALARM_INTERVAL_MS = 8000;
+const SFX_COOLDOWN_SECONDS = 0.1;
+// One soft, C-major family. Note offsets + lengths stay below 600ms;
+// peaks are capped at 0.04 even with interaction volume at 100%.
+const SFX_PALETTE = {
+  tap: [[783.99, 0, 0.075, 0.03]],
+  selection: [[659.25, 0, 0.055, 0.025]],
+  paper: "paper",
+  check: [[659.25, 0, 0.1, 0.03], [783.99, 0.065, 0.14, 0.025]],
+  purchase: [[783.99, 0, 0.12, 0.03], [1046.5, 0.075, 0.2, 0.025]],
+  placement: [[261.63, 0, 0.12, 0.04]],
+  hatch: [[523.25, 0, 0.18, 0.025], [659.25, 0.09, 0.2, 0.025],
+    [783.99, 0.18, 0.22, 0.025], [1046.5, 0.27, 0.25, 0.02]],
+};
 
 function safelyDisconnect(node) {
   try {
@@ -28,6 +41,12 @@ export function createAmbientEngine() {
   let context = null;
   let output = null;
   let ambience = null;
+  let interactionOutput = null;
+  let interactionEnabled = true;
+  let interactionVolume = 0.35;
+  let interactionGeneration = 0;
+  let interactionPending = false;
+  let lastInteractionAt = -Infinity;
   let crackleBuffer = null;
   let crackleInterval = null;
   let idleTimeout = null;
@@ -123,6 +142,9 @@ export function createAmbientEngine() {
     makeLoop("fire", brown, 530, 65);
     makeLoop("noise", brown, 950, 25);
     crackleBuffer = noiseBuffer("white", 0.15);
+    interactionOutput = keep(context.createGain());
+    interactionOutput.gain.value = interactionEnabled ? interactionVolume : 0;
+    interactionOutput.connect(output);
     return true;
   }
 
@@ -179,6 +201,7 @@ export function createAmbientEngine() {
           }
           context = null;
           ambience = null;
+          interactionOutput = null;
           output = null;
           return false;
         }
@@ -274,7 +297,7 @@ export function createAmbientEngine() {
     }
   }
 
-  function tone(frequency, offset, length, loudness, kind = "effect") {
+  function tone(frequency, offset, length, loudness, kind = "effect", destination = output) {
     const nodes = [];
     let effect;
     try {
@@ -289,7 +312,7 @@ export function createAmbientEngine() {
       gain.gain.linearRampToValueAtTime(loudness, begins + 0.015);
       gain.gain.exponentialRampToValueAtTime(0.0001, begins + length);
       oscillator.connect(gain);
-      gain.connect(output);
+      gain.connect(destination);
       effect = trackEffect(oscillator, nodes, kind);
       oscillator.start(begins);
       oscillator.stop(begins + length + 0.02);
@@ -322,11 +345,83 @@ export function createAmbientEngine() {
     return played;
   }
 
-  async function tap() {
-    if (!(await ready()) || destroyed || !context) return false;
-    const played = tone(740, 0, 0.075, 0.035);
+  function setInteractionSfx({ enabled, volume } = {}) {
+    if (destroyed) return;
+    if (typeof enabled === "boolean") interactionEnabled = enabled;
+    if (Number.isFinite(volume)) interactionVolume = Math.max(0, Math.min(1, volume));
+    if (!interactionEnabled || interactionVolume === 0) {
+      // Also invalidate an effect awaiting browser unlock: unmuting later must
+      // never replay a click made before/during mute.
+      interactionGeneration += 1;
+      effects.forEach(effect => {
+        if (effect.kind === "interaction") cancelEffect(effect);
+      });
+    }
+    if (context && context.state !== "closed" && interactionOutput)
+      fade(interactionOutput.gain, interactionEnabled ? interactionVolume : 0, 0.008);
     suspendWhenIdle();
-    return played;
+  }
+
+  function paperShuffle() {
+    const nodes = [];
+    let effect;
+    try {
+      const source = context.createBufferSource();
+      nodes.push(source);
+      const filter = context.createBiquadFilter();
+      nodes.push(filter);
+      const gain = context.createGain();
+      nodes.push(gain);
+      const now = context.currentTime;
+      source.buffer = crackleBuffer;
+      filter.type = "bandpass";
+      filter.frequency.value = 1300;
+      filter.Q.value = 0.6;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.04, now + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(interactionOutput);
+      effect = trackEffect(source, nodes, "interaction");
+      source.start(now);
+      source.stop(now + 0.15);
+      return true;
+    } catch (_) {
+      if (effect) cancelEffect(effect);
+      else nodes.forEach(safelyDisconnect);
+      return false;
+    }
+  }
+
+  async function playSfx(name = "tap") {
+    if (destroyed || !interactionEnabled || interactionVolume === 0 || interactionPending ||
+      !Object.prototype.hasOwnProperty.call(SFX_PALETTE, name)) return false;
+    const generation = interactionGeneration;
+    // Drop rapid requests instead of queueing a burst after a slow resume.
+    interactionPending = true;
+    try {
+      const available = await ready();
+      if (!available || destroyed || generation !== interactionGeneration ||
+        !interactionEnabled || interactionVolume === 0 || !context ||
+        context.currentTime - lastInteractionAt < SFX_COOLDOWN_SECONDS) return false;
+      const previousEffects = new Set(effects);
+      const sound = SFX_PALETTE[name];
+      const played = sound === "paper" ? paperShuffle()
+        : sound.every(note => tone(...note, "interaction", interactionOutput));
+      if (played) lastInteractionAt = context.currentTime;
+      else effects.forEach(effect => {
+        if (!previousEffects.has(effect) && effect.kind === "interaction") cancelEffect(effect);
+      });
+      return played;
+    } finally {
+      interactionPending = false;
+      suspendWhenIdle();
+    }
+  }
+
+  function tap() {
+    return playSfx("tap");
   }
 
   function stopAlarm() {
@@ -405,6 +500,7 @@ export function createAmbientEngine() {
     context = null;
     output = null;
     ambience = null;
+    interactionOutput = null;
     crackleBuffer = null;
   }
 
@@ -415,6 +511,8 @@ export function createAmbientEngine() {
     unlock,
     chime,
     tap,
+    playSfx,
+    setInteractionSfx,
     startAlarm,
     stopAlarm,
     destroy,

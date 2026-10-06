@@ -158,6 +158,105 @@ describe('ambient audio lifecycle', () => {
     expect(context.createOscillator).toHaveBeenCalledTimes(4);
   });
 
+  test.each(['tap', 'selection', 'paper', 'check', 'purchase', 'placement', 'hatch'])(
+    '%s SFX is quiet, short, independently routed, and releases its nodes', async name => {
+      await expect(engine.playSfx(name)).resolves.toBe(true);
+      const sfxOutput = context.gains[4];
+      expect(sfxOutput.gain.value).toBe(0.35);
+      const notes = context.sources.slice(3);
+      expect(notes.length).toBeGreaterThan(0);
+      notes.forEach(note => expect(note.stop.mock.calls[0][0]).toBeLessThanOrEqual(0.6));
+      const envelopes = context.gains.slice(5);
+      envelopes.forEach(gain => {
+        expect(gain.connect).toHaveBeenCalledWith(sfxOutput);
+        gain.gain.linearRampToValueAtTime.mock.calls.forEach(([peak]) => {
+          expect(peak).toBeLessThanOrEqual(0.04);
+        });
+      });
+      notes.forEach(note => { note.onended(); expect(note.disconnect).toHaveBeenCalledTimes(1); });
+      jest.advanceTimersByTime(500);
+      expect(context.state).toBe('suspended');
+    });
+
+  test('muted or zero-volume SFX never unlocks audio, while alerts still play', async () => {
+    engine.setInteractionSfx({ enabled: false, volume: 0.6 });
+    await expect(engine.tap()).resolves.toBe(false);
+    expect(globalThis.AudioContext).not.toHaveBeenCalled();
+    await expect(engine.chime()).resolves.toBe(true);
+    expect(context.createOscillator).toHaveBeenCalledTimes(3);
+    engine.setInteractionSfx({ enabled: true, volume: 0 });
+    await expect(engine.playSfx('hatch')).resolves.toBe(false);
+    await expect(engine.startAlarm()).resolves.toBe(true);
+    expect(context.createOscillator).toHaveBeenCalledTimes(6);
+  });
+
+  test('SFX configuration is silent, clamps volume, and leaves ambience alone', async () => {
+    engine.setInteractionSfx({ volume: 10 });
+    expect(globalThis.AudioContext).not.toHaveBeenCalled();
+    await engine.tap();
+    const sfxOutput = context.gains[4];
+    expect(sfxOutput.gain.value).toBe(1);
+    engine.setInteractionSfx({ volume: 0.2 });
+    expect(sfxOutput.gain.setTargetAtTime).toHaveBeenLastCalledWith(0.2, 0, 0.008);
+    engine.setInteractionSfx({ volume: NaN, enabled: 'false' });
+    expect(sfxOutput.gain.setTargetAtTime).toHaveBeenLastCalledWith(0.2, 0, 0.008);
+    engine.setInteractionSfx({ volume: -1 });
+    expect(sfxOutput.gain.setTargetAtTime).toHaveBeenLastCalledWith(0, 0, 0.008);
+    context.gains.slice(0, 4).forEach(gain => expect(gain.gain.setTargetAtTime).not.toHaveBeenCalled());
+  });
+
+  test('muting cancels only SFX, including a pending unlock across mute/unmute', async () => {
+    let finishResume;
+    context.resume.mockImplementationOnce(() => new Promise(resolve => {
+      finishResume = () => { context.state = 'running'; resolve(); };
+    }));
+    const pending = engine.playSfx('hatch');
+    engine.setInteractionSfx({ enabled: false });
+    engine.setInteractionSfx({ enabled: true });
+    finishResume();
+    await expect(pending).resolves.toBe(false);
+    expect(context.createOscillator).not.toHaveBeenCalled();
+
+    await engine.start();
+    await engine.startAlarm();
+    const alarmNotes = context.sources.slice(3);
+    await engine.playSfx('hatch');
+    const hatchNotes = context.sources.slice(6);
+    engine.setInteractionSfx({ enabled: false });
+    hatchNotes.forEach(note => expect(note.disconnect).toHaveBeenCalledTimes(1));
+    alarmNotes.forEach(note => expect(note.disconnect).not.toHaveBeenCalled());
+    expect(engine.playing).toBe(true);
+    expect(context.gains[0].gain.setTargetAtTime).toHaveBeenLastCalledWith(1, 0, 0.07);
+  });
+
+  test('rapid SFX requests are dropped during unlock and within the cooldown', async () => {
+    const first = engine.playSfx('tap');
+    await expect(engine.playSfx('check')).resolves.toBe(false);
+    await expect(first).resolves.toBe(true);
+    await expect(engine.playSfx('tap')).resolves.toBe(false);
+    expect(context.createOscillator).toHaveBeenCalledTimes(1);
+    context.currentTime = 0.11;
+    await expect(engine.playSfx('selection')).resolves.toBe(true);
+    expect(context.createOscillator).toHaveBeenCalledTimes(2);
+  });
+
+  test('unknown, blocked, and partially failed SFX fail quietly without orphaned notes', async () => {
+    await expect(engine.playSfx('toString')).resolves.toBe(false);
+    expect(globalThis.AudioContext).not.toHaveBeenCalled();
+    context.resume.mockRejectedValueOnce(new Error('User gesture required'));
+    await expect(engine.playSfx('paper')).resolves.toBe(false);
+    await engine.unlock();
+    const makeGain = context.createGain.getMockImplementation();
+    context.createGain.mockImplementationOnce(makeGain).mockImplementationOnce(() => {
+      throw new Error('Unavailable audio node');
+    });
+    await expect(engine.playSfx('check')).resolves.toBe(false);
+    context.sources.slice(3).forEach(note => expect(note.disconnect).toHaveBeenCalled());
+    await expect(engine.playSfx('check')).resolves.toBe(true);
+    await engine.destroy();
+    await expect(engine.playSfx('paper')).resolves.toBe(false);
+  });
+
   test('unlock primes browser audio silently and reuses it for a later chime', async () => {
     await expect(engine.unlock()).resolves.toBe(true);
     expect(context.resume).toHaveBeenCalledTimes(1);
