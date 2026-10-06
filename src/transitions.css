@@ -1,0 +1,12 @@
+/* Surface animations use individual translate, preserving the centered panel
+   transform and the notepad's saved left/top coordinates. */
+.app .drawer, .app .toast { animation: none; }
+[data-presence="exiting"] {
+  opacity: 0;
+  translate: 0 4px;
+  pointer-events: none !important;
+  user-select: none;
+}
+.drawer[data-presence="exiting"] { z-index: 120; }
+.toast-region { display: grid; }
+.toast-region > [data-presence] { grid-area: 1 / 1; }

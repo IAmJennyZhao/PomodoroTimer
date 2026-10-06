@@ -1,6 +1,7 @@
 import { Button } from "./Controls";
 import { useContext, useEffect, useLayoutEffect, useId, useRef, useState } from "react";
 import { MotionPreferenceContext } from "./useReducedMotion";
+import { ExitSnapshot, exitProps, SurfaceActivityContext, useSurfaceTransition } from "./Transitions";
 import { createPortal } from "react-dom";
 import { FurnitureArt } from "./RoomBackdrop";
 import { ArtFragment, ATELIER_ART, PastelButtonArt } from "./AtelierArt";
@@ -189,7 +190,9 @@ export function AnimalArt({ animal, className = "" }) {
 
 export function InfoTip({ label = "More info", children }) {
   const reducedMotion = useContext(MotionPreferenceContext);
+  const surfaceActive = useContext(SurfaceActivityContext);
   const [open, setOpen] = useState(false);
+  useLayoutEffect(() => { if (!surfaceActive) setOpen(false); }, [surfaceActive]);
   const id = useId();
   const ref = useRef(null);
   const contentRef = useRef(null);
@@ -244,7 +247,7 @@ export function InfoTip({ label = "More info", children }) {
         aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>
         <Icon name="info" size={17} />
       </Button>
-      {open && createPortal(<div ref={contentRef} className={`info-content feedback-note ${reducedMotion ? "reduce-motion" : ""}`} style={position} role="note" id={id} aria-labelledby={`${id}-title`}>
+      {open && surfaceActive && createPortal(<div ref={contentRef} className={`info-content feedback-note ${reducedMotion ? "reduce-motion" : ""}`} style={position} role="note" id={id} aria-labelledby={`${id}-title`}>
         <div className="info-heading"><h3 id={`${id}-title`}>{label}</h3><Button type="button" className="info-button" aria-label="Close details" onClick={close}><Icon name="close" size={17} /></Button></div>
         <div className="info-body">{children}</div>
       </div>, document.body)}
@@ -259,14 +262,17 @@ export function clampNotepadPosition(position, bounds, viewport) {
   };
 }
 
-export function Drawer({ name, title, onClose, children, position, onMove }) {
+export function Drawer({ name, title, onClose, children, position, onMove, active = true }) {
   const closeRef = useRef(null);
   const dialogRef = useRef(null);
   const pointer = useRef(null);
   const location = useRef(null);
   const [notesPosition, setNotesPosition] = useState(null);
+  const exitId = useId();
+  const restoreFocus = useRef(null);
+  useSurfaceTransition(dialogRef, active);
   const movable = name === "notes";
-  const headingId = movable ? "scratchpad-heading" : "panel-heading";
+  const headingId = `${movable ? "scratchpad-heading" : "panel-heading"}${active ? "" : exitId}`;
   const savedX = position?.x;
   const savedY = position?.y;
   const moveNotes = (left, top) => {
@@ -301,18 +307,25 @@ export function Drawer({ name, title, onClose, children, position, onMove }) {
       observer?.disconnect();
     };
   }, [movable, savedX, savedY]);
-  useEffect(() => {
+  useLayoutEffect(() => {
+    if (!active) { pointer.current = null; restoreFocus.current?.(); return; }
     const previous = document.activeElement;
     const dialog = dialogRef.current;
-    (name === "notes" ? dialog?.querySelector("textarea") : closeRef.current)?.focus();
-    return () => {
-      if (previous?.isConnected &&
-        (document.activeElement === document.body || dialog?.contains(document.activeElement))) previous.focus();
+    restoreFocus.current = () => {
+      if (document.activeElement === document.body || dialog?.contains(document.activeElement)) {
+        const available = previous?.isConnected && !previous.closest('[inert], [hidden], [aria-hidden="true"]');
+        const target = available ? previous : document.querySelector('.workspace:not([inert]) .drawer-heading button') ||
+          document.querySelector('.timer-tools button') || document.querySelector('.top-nav button');
+        target?.focus();
+      }
     };
-  }, [name]);
+    (name === "notes" ? dialog?.querySelector("textarea") : closeRef.current)?.focus();
+  }, [name, active]);
+  useLayoutEffect(() => () => restoreFocus.current?.(), []);
   return (
-    <aside
+    <SurfaceActivityContext.Provider value={active}><aside
       ref={dialogRef}
+      {...exitProps(active)}
       className={`drawer workspace workspace-${name} paper ${movable ? "movable-notes" : ""}`}
       style={movable && notesPosition ? notesPosition : undefined}
       role="dialog"
@@ -364,8 +377,8 @@ export function Drawer({ name, title, onClose, children, position, onMove }) {
           <Icon name="close" />
         </Button>
       </header>
-      <div className="drawer-content">{children}</div>
-    </aside>
+      <div className="drawer-content"><ExitSnapshot active={active}>{children}</ExitSnapshot></div>
+    </aside></SurfaceActivityContext.Provider>
   );
 }
 

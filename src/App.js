@@ -51,6 +51,8 @@ import "./feedback.css";
 import "./polish.css";
 import "./motion.css";
 import "./tactile-controls.css";
+import { Presence } from "./Transitions";
+import "./transitions.css";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
 
@@ -103,8 +105,9 @@ export default function App() {
   const [tip, setTip] = useState(0);
   const [toast, setToast] = useState(null);
   const [toastPaused, setToastPaused] = useState(false);
+  const noticeId = useRef(0);
   const notify = useCallback((message, tone = "info", visible = true) => {
-    setToast(message ? { message, tone, visible } : null);
+    setToast(message ? { id: ++noticeId.current, message, tone, visible } : null);
     if (!message || !visible) setToastPaused(false);
   }, []);
   const [hatch, setHatch] = useState(null);
@@ -506,9 +509,9 @@ export default function App() {
         </Button>
       </footer>
       {widePanel && <div className="workspace-dismiss" onClick={closePanel} />}
-      {panel && (
-        <Drawer key={panel} name={panel} title={arranging ? "Arrange room" : undefined} onClose={closePanel}>
-          {panel === "animals" && (
+      <Presence value={panel}>{(shownPanel, active) => (
+        <Drawer name={shownPanel} active={active} title={arranging ? "Arrange room" : undefined} onClose={closePanel}>
+          {shownPanel === "animals" && (
             <AnimalsPanel
               state={state}
               act={act}
@@ -516,8 +519,8 @@ export default function App() {
               setSelected={setSelectedAnimal}
             />
           )}
-          {panel === "shop" && <ShopPanel state={state} act={act} />}
-          {panel === "decorate" && (
+          {shownPanel === "shop" && <ShopPanel state={state} act={act} />}
+          {shownPanel === "decorate" && (
             <DecoratePanel
               state={state}
               act={act}
@@ -527,10 +530,10 @@ export default function App() {
               setSelection={setSelection}
             />
           )}
-          {panel === "journal" && (
+          {shownPanel === "journal" && (
             <JournalPanel state={state} act={act} now={now} />
           )}
-          {panel === "sound" && (
+          {shownPanel === "sound" && (
             <SoundPanel
               state={state}
               act={act}
@@ -540,18 +543,18 @@ export default function App() {
               report={message => notify(message, "warning")}
             />
           )}
-          {panel === "settings" && (
+          {shownPanel === "settings" && (
             <SettingsPanel state={state} act={act} persistence={persistence} engine={engine} />
           )}
-          {panel === "session" && <SessionControls state={state} act={act} />}
+          {shownPanel === "session" && <SessionControls state={state} act={act} />}
         </Drawer>
-      )}
-      {notesOpen && <Drawer name="notes" onClose={() => setNotesOpen(false)} position={state.room.notepadPosition}
+      )}</Presence>
+      <Presence value={notesOpen ? "notes" : null}>{(name, active) => <Drawer name={name} active={active} onClose={() => setNotesOpen(false)} position={state.room.notepadPosition}
         onMove={position => act({ type: "MOVE_NOTEPAD", ...position })}>
         <QuickScratchpad state={state} act={act} saveStatus={status} />
-      </Drawer>}
+      </Drawer>}</Presence>
       <div className="toast-region" role="status" aria-live="polite">
-        {toast && <ToastNotice notice={toast} onDismiss={() => setToast(null)} onPauseChange={setToastPaused} />}
+        <Presence value={toast}>{(notice, active) => <ToastNotice notice={notice} active={active} onDismiss={() => setToast(null)} onPauseChange={setToastPaused} />}</Presence>
       </div>
       {ready && (status === "error" || status === "conflict") && <SaveNotice persistence={persistence} />}
       {!ready && <RoomLoading persistence={persistence} />}

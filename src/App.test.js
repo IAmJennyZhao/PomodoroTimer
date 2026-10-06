@@ -216,7 +216,53 @@ test('a notification stays available while being read, then expires after leavin
   expect(screen.getByText('Egg added')).toBeInTheDocument();
   fireEvent.pointerLeave(notice);
   await advance(6500);
+  expect(notice).toHaveAttribute('inert');
+  expect(notice).toHaveAttribute('data-presence', 'exiting');
+  await advance(200);
   expect(screen.queryByText('Egg added')).not.toBeInTheDocument();
+});
+
+test('rapid panel switching keeps one active workspace and blocks old actions and portaled help', async () => {
+  await openRoom({ ...createInitialState(NOW), gems: 100 });
+  fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));
+  const buy = screen.getByRole('button', { name: /Buy basic egg/ });
+  fireEvent.click(screen.getByRole('button', { name: 'Egg odds' }));
+  expect(screen.getByRole('note')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Settings', exact: true }));
+  expect(screen.queryByRole('note')).not.toBeInTheDocument();
+  fireEvent.click(buy);
+  await advance(80);
+  fireEvent.click(screen.getByRole('button', { name: 'Pets', exact: true }));
+  expect(screen.getAllByRole('dialog')).toHaveLength(1);
+  expect(screen.getByRole('dialog', { name: 'Pets' })).toBeInTheDocument();
+  expect(document.querySelectorAll('.drawer[data-presence="exiting"]')).toHaveLength(1);
+  expect(document.querySelectorAll('#panel-heading')).toHaveLength(1);
+  await advance(120);
+  expect(screen.getByRole('button', { name: 'Close panel' })).toHaveFocus();
+  await advance(380);
+  expect(document.querySelectorAll('.drawer')).toHaveLength(1);
+  expect(writes()).toHaveLength(0);
+  expect(diskState.gems).toBe(100);
+  expect(diskState.eggs).toHaveLength(0);
+});
+
+test('closing and reopening the notepad preserves the node and draft, without stale exit or late edits', async () => {
+  await openRoom();
+  fireEvent.click(screen.getByRole('button', { name: 'Open notepad' }));
+  const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
+  const input = within(notes).getByRole('textbox');
+  fireEvent.change(input, { target: { value: 'Keep this draft' } });
+  fireEvent.click(within(notes).getByRole('button', { name: 'Close panel' }));
+  expect(notes).toHaveAttribute('inert');
+  fireEvent.change(input, { target: { value: 'Late edit' } });
+  await advance(80);
+  fireEvent.click(screen.getByRole('button', { name: 'Open notepad' }));
+  expect(screen.getByRole('dialog', { name: 'Scratchpad' })).toBe(notes);
+  expect(input).toHaveValue('Keep this draft');
+  expect(input).toHaveFocus();
+  await advance(500);
+  expect(notes).not.toHaveAttribute('inert');
+  expect(latestWrite().state.scratchpad).toBe('Keep this draft');
 });
 
 test('failed local loads show a retry action and never replace a private save with defaults', async () => {
@@ -379,7 +425,7 @@ test('session lengths are editable on the timer and a running session keeps its 
   leaveFocus();
   fireEvent.click(screen.getByRole('button', { name: 'Session settings' }));
   const nextFocusTime = screen.getByRole('spinbutton', { name: /Focus time/ });
-  nextFocusTime.focus();
+  act(() => nextFocusTime.focus());
   fireEvent.change(nextFocusTime, { target: { value: '10' } });
   fireEvent.keyDown(nextFocusTime, { key: 'Enter' });
   expect(screen.getByRole('timer')).toHaveTextContent('29:00');

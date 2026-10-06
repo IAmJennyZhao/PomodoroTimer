@@ -2,10 +2,12 @@ import { Button } from "./Controls";
 import { useRef } from "react";
 import { Icon, InfoTip, trapDialogFocus, useModalFocus } from "./ui";
 import { PastelButtonArt } from "./AtelierArt";
+import { exitProps, useSurfaceTransition } from "./Transitions";
 
-export function ToastNotice({ notice, onDismiss, onPauseChange }) {
+export function ToastNotice({ notice, onDismiss, onPauseChange, active = true }) {
   const ref = useRef(null);
   const previousFocus = useRef(document.activeElement);
+  useSurfaceTransition(ref, active);
   if (!notice.visible) return <span className="visually-hidden">{notice.message}</span>;
   const dismiss = () => {
     const restoreFocus = ref.current?.contains(document.activeElement);
@@ -13,7 +15,7 @@ export function ToastNotice({ notice, onDismiss, onPauseChange }) {
     onPauseChange(false);
     if (restoreFocus && previousFocus.current?.isConnected) previousFocus.current.focus();
   };
-  return <div ref={ref} className={`toast feedback-note paper feedback-${notice.tone}`}
+  return <div ref={ref} {...exitProps(active)} className={`toast feedback-note paper feedback-${notice.tone}`}
     onPointerEnter={() => onPauseChange(true)} onPointerLeave={() => onPauseChange(Boolean(ref.current?.contains(document.activeElement)))}
     onFocus={() => onPauseChange(true)} onBlur={event => {
       if (!event.currentTarget.contains(event.relatedTarget)) onPauseChange(event.currentTarget.matches(":hover"));
