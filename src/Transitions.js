@@ -1,4 +1,4 @@
-import { createContext, Fragment, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Component, createContext, createRef, Fragment, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { MotionPreferenceContext } from "./useReducedMotion";
 
 export const TRANSITION_MS = 200;
@@ -47,7 +47,11 @@ export function useSurfaceTransition(ref, active = true) {
     mounted.current = true;
     animation.current?.cancel();
     animation.current = null;
-    if (reduced || !node.animate) return;
+    if (reduced || !node.animate) {
+      node.style.opacity = active ? "" : "0";
+      return;
+    }
+    node.style.opacity = "";
     const motion = node.animate([from, { opacity: active ? 1 : 0, translate: active ? "0 0" : "0 4px" }],
       { duration: TRANSITION_MS, easing: EASE, fill: "both" });
     animation.current = motion;
@@ -79,4 +83,58 @@ export function ExitSnapshot({ active, children }) {
   const last = useRef(children);
   useLayoutEffect(() => { if (active) last.current = children; }, [active, children]);
   return active ? children : last.current;
+}
+
+// Measure the visible timer before React changes its layout. Animate only the
+// card's visual layer; saved widget coordinates and timer actions stay immediate.
+export class TimerTransition extends Component {
+  card = createRef();
+  motions = [];
+  getSnapshotBeforeUpdate(previous) {
+    if (previous.layoutKey === this.props.layoutKey && previous.contentKey === this.props.contentKey &&
+      previous.reduced === this.props.reduced) return null;
+    const node = this.card.current;
+    return node ? { rect: node.getBoundingClientRect(), focused: node.contains(document.activeElement)
+      ? document.activeElement : null, contentChanged: previous.contentKey !== this.props.contentKey } : null;
+  }
+  cancel() {
+    this.motions.forEach(motion => motion.cancel());
+    this.motions = [];
+    this.card.current?.closest('.focus-area')?.removeAttribute('data-layout-moving');
+  }
+  componentDidUpdate(previous, state, snapshot) {
+    if (!snapshot) return;
+    const node = this.card.current;
+    this.cancel();
+    if (node.closest('[aria-hidden="true"], [inert]')) return;
+    if (snapshot.focused && (!snapshot.focused.isConnected || snapshot.focused.closest('[inert], [aria-hidden="true"]'))) {
+      node.querySelector('.pause-button:enabled, .start-button:enabled, .break-buttons button:enabled, .finish-button:enabled')?.focus();
+    }
+    if (this.props.reduced || !node.animate) return;
+    const next = node.getBoundingClientRect();
+    const old = snapshot.rect;
+    const add = (element, frames) => {
+      const motion = element.animate(frames, { duration: TRANSITION_MS, easing: EASE, fill: 'both' });
+      this.motions.push(motion);
+      motion.finished.then(() => {
+        if (this.motions.includes(motion)) {
+          motion.cancel();
+          this.motions = this.motions.filter(item => item !== motion);
+          if (!this.motions.length) node.closest('.focus-area')?.removeAttribute('data-layout-moving');
+        }
+      }).catch(() => {});
+    };
+    if (old.width > 0 && old.height > 0 && next.width > 0 && next.height > 0 &&
+      ['x', 'y', 'width', 'height'].some(key => Math.abs(old[key] - next[key]) > .5)) {
+      node.closest('.focus-area')?.setAttribute('data-layout-moving', 'true');
+      add(node, [{ transform: `translate(${old.x - next.x}px, ${old.y - next.y}px) scale(${old.width / next.width}, ${old.height / next.height})`, transformOrigin: '0 0' },
+        { transform: 'none', transformOrigin: '0 0' }]);
+    }
+    if (snapshot.contentChanged) {
+      node.querySelectorAll('.timer-face, .timer-session-controls, .timer-actions, .break-choices, .timer-options, .break-idea').forEach(element =>
+        add(element, [{ opacity: .65 }, { opacity: 1 }]));
+    }
+  }
+  componentWillUnmount() { this.cancel(); }
+  render() { return this.props.children(this.card); }
 }

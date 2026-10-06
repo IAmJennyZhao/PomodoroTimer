@@ -8,7 +8,7 @@ import HoldToStop from "./HoldToStop";
 
 export default function TimerCard({ state, act, now, ready, blocked, onToggleTimer,
   openPanel, panel, notesOpen, focusView, setFocusView, alarmSilenced, silenceAlarm,
-  alarmBlocked, retryAlarm, tip, nextTip }) {
+  alarmBlocked, retryAlarm, tip, nextTip, cardRef }) {
   const { timer, settings } = state;
   const counting = isCountingUp(timer);
   const elapsed = elapsedTime(timer, now);
@@ -39,7 +39,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
   const startBreak = (mode) => act({ type: "START_BREAK", mode });
   const active = !complete && timer.status !== "idle";
   return (
-    <section className={`timer-card paper ${counting ? "counting-up" : ""} ${complete ? "session-complete" : ""} ${pauseExpired ? "pause-alert" : ""}`} aria-label="Focus timer">
+    <section ref={cardRef} data-timer-state={`${timer.mode}-${timer.status}${timer.overtime ? '-overtime' : ''}`} className={`timer-card paper ${counting ? "counting-up" : ""} ${complete ? "session-complete" : ""} ${pauseExpired ? "pause-alert" : ""}`} aria-label="Focus timer">
       <ArtFragment rect={[52, 101, 456, 364]} className="timer-paper-art" />
       <div className="timer-heading">
         {editable ? <div className="mode-tabs work-mode-tabs" role="group" aria-label="Work mode">

@@ -5,12 +5,12 @@
 .app.is-arranging .room-scene { isolation: auto; z-index: auto; background: var(--paper-grain), var(--paper); }
 .app.is-arranging .focus-area { overflow: visible; max-height: none; }
 .app .arrange-widget.chosen { z-index: 260; }
-.app.is-arranging .workspace-decorate { border: 6px solid transparent; border-image: var(--book-frame) 24 / 6px / 0 stretch; border-radius: 8px; max-height: none; bottom: 12px; }
-.app.is-arranging .workspace-decorate::before { content: none; }
-.app.is-arranging .workspace-decorate .drawer-heading { position: absolute; inset: 9px 12px auto; pointer-events: none; padding: 0; height: 38px; }
-.app.is-arranging .workspace-decorate .drawer-heading h2 { font-size: 18px; }
-.app.is-arranging .workspace-decorate .drawer-heading > .icon-button { pointer-events: auto; }
-.app.is-arranging .workspace-decorate .drawer-content { padding: 8px 12px 8px; overflow: visible; }
+.app .workspace-decorate.drawer-arranging { border: 6px solid transparent; border-image: var(--book-frame) 24 / 6px / 0 stretch; border-radius: 8px; max-height: none; bottom: 12px; }
+.app .workspace-decorate.drawer-arranging::before { content: none; }
+.app .workspace-decorate.drawer-arranging .drawer-heading { position: absolute; inset: 9px 12px auto; pointer-events: none; padding: 0; height: 38px; }
+.app .workspace-decorate.drawer-arranging .drawer-heading h2 { font-size: 18px; }
+.app .workspace-decorate.drawer-arranging .drawer-heading > .icon-button { pointer-events: auto; }
+.app .workspace-decorate.drawer-arranging .drawer-content { padding: 8px 12px 8px; overflow: visible; }
 .app .arrange-panel .arrange-toolbar { gap: 8px; padding-left: 140px; padding-right: 38px; min-height: 38px; margin-bottom: 8px; }
 .app .arrange-panel .field-label { min-width: 0; }
 .app .arrange-panel .field-label select { width: 205px; margin: 0; padding: 8px 12px; font-size: 14px; }
@@ -41,16 +41,16 @@
 .app .arrange-widget.chosen .widget-move-handle { background-color: var(--sage); }
 .widget-preview-name { display: none; }
 @media (max-width: 900px) {
-  .app.is-arranging .workspace-decorate .drawer-heading h2 { font-size: 16px; }
+  .app .workspace-decorate.drawer-arranging .drawer-heading h2 { font-size: 16px; }
   .app .arrange-panel .arrange-toolbar { padding-left: 118px; gap: 5px; }
   .app .arrange-panel .field-label select { width: 155px; font-size: 13px; }
   .app .arrange-panel .arrange-finish { padding-inline: 12px; }
 }
 @media (max-width: 700px) {
-  .app.is-arranging .workspace-decorate { left: 6px; right: 6px; bottom: 6px; }
-  .app.is-arranging .workspace-decorate .drawer-heading h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-  .app.is-arranging .workspace-decorate .drawer-heading { inset-inline: 6px; top: 10px; }
-  .app.is-arranging .workspace-decorate .drawer-content { padding: 8px 7px 4px; }
+  .app .workspace-decorate.drawer-arranging { left: 6px; right: 6px; bottom: 6px; }
+  .app .workspace-decorate.drawer-arranging .drawer-heading h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .app .workspace-decorate.drawer-arranging .drawer-heading { inset-inline: 6px; top: 10px; }
+  .app .workspace-decorate.drawer-arranging .drawer-content { padding: 8px 7px 4px; }
   .app .arrange-panel .arrange-toolbar { padding-left: 0; padding-right: 33px; display: grid; grid-template-columns: minmax(0, 1fr) 30px 30px auto; gap: 7px 4px; }
   .app .arrange-panel .field-label { grid-column: 1; }
   .app .arrange-panel .field-label select { width: 100%; font-size: 12px; padding: 7px 6px; }

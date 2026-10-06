@@ -241,10 +241,10 @@
 .widget-move-handle { position: absolute; top: -29px; left: 8px; display: flex; gap: 6px; align-items: center; height: 28px; padding: 4px 11px; background: #fff7e8; border: 1px solid #b7bf9d; border-radius: 5px 5px 0 0; color: #51664a; font: 12px Georgia, serif; cursor: grab; touch-action: none; }
 .widget-move-handle:active { cursor: grabbing; }
 .is-arranging .workspace-dismiss, .is-arranging .room-footer { display: none; }
-.is-arranging .workspace-decorate { left: 18px; right: 18px; top: auto; bottom: 14px; width: auto; max-height: 230px; transform: none; z-index: 300; border: 1px solid #ccb992; border-radius: 8px; box-shadow: 0 -4px 20px #654a2b20; }
-.is-arranging .workspace-decorate .drawer-heading { display: flex; padding: 9px 16px 5px; border: 0; }
-.is-arranging .workspace-decorate .drawer-heading h2 { font-size: 18px; }
-.is-arranging .workspace-decorate .drawer-content { padding: 0 16px 10px; overflow: auto; }
+.workspace-decorate.drawer-arranging { left: 18px; right: 18px; top: auto; bottom: 14px; width: auto; max-height: 230px; transform: none; z-index: 300; border: 1px solid #ccb992; border-radius: 8px; box-shadow: 0 -4px 20px #654a2b20; }
+.workspace-decorate.drawer-arranging .drawer-heading { display: flex; padding: 9px 16px 5px; border: 0; }
+.workspace-decorate.drawer-arranging .drawer-heading h2 { font-size: 18px; }
+.workspace-decorate.drawer-arranging .drawer-content { padding: 0 16px 10px; overflow: auto; }
 .arrange-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
 .arrange-toolbar .field-label { display: flex; align-items: center; gap: 9px; margin: 0; font: 11px "Trebuchet MS", sans-serif; }
 .arrange-toolbar select { width: 185px; padding: 5px 8px; }
@@ -263,8 +263,8 @@
 .library-item:disabled > .furniture-art, .library-item:disabled > .sprite { opacity: .55; }
 .library-shop { background: #e7ebd7; }
 @media (max-width: 700px) {
-  .is-arranging .workspace-decorate { left: 8px; right: 8px; bottom: 8px; max-height: 235px; }
-  .is-arranging .workspace-decorate .drawer-content { padding: 0 10px 6px; }
+  .workspace-decorate.drawer-arranging { left: 8px; right: 8px; bottom: 8px; max-height: 235px; }
+  .workspace-decorate.drawer-arranging .drawer-content { padding: 0 10px 6px; }
   .arrange-toolbar { flex-wrap: wrap; gap: 5px 8px; }
   .arrange-toolbar .field-label { font-size: 0; }
   .arrange-toolbar select { width: 155px; font-size: 12px; }
@@ -359,7 +359,7 @@
   .arrange-toolbar { gap: 5px; }
   .arrange-toolbar select { width: 110px; }
 }
-.is-arranging .workspace-decorate .drawer-heading > .icon-button { width: 28px; min-width: 28px; height: 28px; padding: 4px; }
+.workspace-decorate.drawer-arranging .drawer-heading > .icon-button { width: 28px; min-width: 28px; height: 28px; padding: 4px; }
 @media (max-width: 700px) {
-  .is-arranging .workspace-decorate { max-height: 245px; }
+  .workspace-decorate.drawer-arranging { max-height: 245px; }
 }

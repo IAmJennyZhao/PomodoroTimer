@@ -4,7 +4,7 @@ import { Icon } from "./ui";
 
 // Saved positions use the top-left corner, relative to the room. Clamp the
 // rendered location to the current screen without overwriting the saved layout.
-const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, className, position, arranging, selected, onSelect, onMove, onDeselect, hidden, children }, controlRef) {
+const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, className, position, arranging, selected, onSelect, onMove, onDeselect, hidden, concealed, children }, controlRef) {
   const ref = useRef(null);
   const pointer = useRef(null);
   const [draft, setDraft] = useState(null);
@@ -33,7 +33,7 @@ const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, c
     if (arranging && dock) observer?.observe(dock);
     window.addEventListener("resize", place);
     return () => { observer?.disconnect(); window.removeEventListener("resize", place); };
-  }, [position, hidden, arranging, clampLocation]);
+  }, [position, hidden, concealed, arranging, clampLocation]);
   function move(left, top) {
     const room = ref.current.parentElement.getBoundingClientRect();
     const bounds = ref.current.getBoundingClientRect();
@@ -53,6 +53,7 @@ const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, c
   }
   useImperativeHandle(controlRef, () => ({ nudge }));
   return <Tag ref={ref} className={`${className} room-widget ${arranging ? "arrange-widget" : ""} ${selected ? "chosen" : ""}`} hidden={hidden}
+    data-concealed={concealed ? "true" : undefined} aria-hidden={concealed ? true : undefined} inert={concealed ? "" : undefined}
     style={rendered ? { left: rendered.left, top: rendered.top, right: "auto", transform: "none" } : undefined}>
     {arranging && id === "timer" && <span className="widget-preview-name" aria-hidden="true">Timer</span>}
     <div className="widget-content" inert={arranging ? "" : undefined}>{children}</div>

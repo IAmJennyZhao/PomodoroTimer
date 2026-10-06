@@ -265,6 +265,33 @@ test('closing and reopening the notepad preserves the node and draft, without st
   expect(latestWrite().state.scratchpad).toBe('Keep this draft');
 });
 
+test('timer changes preserve logical state and restore focus when the activated control disappears', async () => {
+  await openRoom();
+  const start = screen.getByRole('button', { name: 'Start' });
+  act(() => start.focus());
+  fireEvent.click(start);
+  const pause = screen.getByRole('button', { name: /^Pause/ });
+  expect(pause).toHaveFocus();
+  fireEvent.click(pause);
+  expect(screen.getByRole('button', { name: 'Resume' })).toBe(pause);
+  expect(pause).toHaveFocus();
+  fireEvent.click(pause);
+  expect(screen.getByRole('button', { name: /^Pause/ })).toBe(pause);
+  await wakeAt(NOW + 25 * MINUTE);
+  const short = screen.getByRole('button', { name: 'Short break, 5 minutes' });
+  expect(short).toHaveFocus();
+  fireEvent.click(short);
+  expect(screen.getByRole('timer')).toHaveAccessibleName('05:00 remaining');
+  expect(screen.getByRole('button', { name: 'Pause' })).toHaveFocus();
+  const skip = screen.getByRole('button', { name: 'Skip break' });
+  act(() => skip.focus());
+  fireEvent.click(skip);
+  expect(screen.getByRole('button', { name: 'Start' })).toHaveFocus();
+  await advance(500);
+  expect(latestWrite().state.timer).toMatchObject({ status: 'idle', mode: 'focus' });
+  expect(latestWrite().state.history).toHaveLength(1);
+});
+
 test('failed local loads show a retry action and never replace a private save with defaults', async () => {
   global.fetch.mockRejectedValueOnce(new Error('Service unavailable'));
   render(<App />);

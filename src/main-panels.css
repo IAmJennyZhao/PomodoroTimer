@@ -6,7 +6,7 @@
   --book-edge: #b9956a;
 }
 .app :is(.workspace-animals, .workspace-journal).paper,
-.app:not(.is-arranging) .workspace-decorate.paper {
+.app .workspace-decorate:not(.drawer-arranging).paper {
   width: min(1160px, calc(100% - 80px));
   border: 11px solid transparent;
   border-image: var(--book-frame) 24 / 11px / 0 stretch;
@@ -14,20 +14,20 @@
   box-shadow: 0 10px 30px #694e2d26, inset 0 0 0 3px #dfcbb52e;
 }
 .app :is(.workspace-animals, .workspace-journal) > .drawer-heading,
-.app:not(.is-arranging) .workspace-decorate > .drawer-heading { padding: 20px 34px 12px; border: 0; }
+.app .workspace-decorate:not(.drawer-arranging) > .drawer-heading { padding: 20px 34px 12px; border: 0; }
 .app :is(.workspace-animals, .workspace-journal) .drawer-heading h2,
-.app:not(.is-arranging) .workspace-decorate .drawer-heading h2 { font-size: 32px; }
+.app .workspace-decorate:not(.drawer-arranging) .drawer-heading h2 { font-size: 32px; }
 .app :is(.workspace-animals, .workspace-journal) > .drawer-content,
-.app:not(.is-arranging) .workspace-decorate > .drawer-content { padding: 10px 34px 26px; }
+.app .workspace-decorate:not(.drawer-arranging) > .drawer-content { padding: 10px 34px 26px; }
 .app .drawer:is(.workspace-animals, .workspace-journal)::before,
-.app:not(.is-arranging) .workspace-decorate::before { content: none; }
+.app .workspace-decorate:not(.drawer-arranging)::before { content: none; }
 .paper-corners { position: absolute; inset: 3px; z-index: 2; pointer-events: none; }
 .paper-corners i { position: absolute; width: 42px; height: 42px; background: #f9e7ce; background-image: linear-gradient(90deg, #d78f7a80 50%, transparent 50%), linear-gradient(#d78f7a80 50%, transparent 50%); background-size: 10px 10px; clip-path: polygon(0 0, 100% 0, 0 100%); }
 .paper-corners i:nth-child(1) { top: 0; left: 0; }
 .paper-corners i:nth-child(2) { top: 0; right: 0; transform: rotate(90deg); }
 .paper-corners i:nth-child(3) { bottom: 0; right: 0; transform: rotate(180deg); }
 .paper-corners i:nth-child(4) { bottom: 0; left: 0; transform: rotate(270deg); }
-.is-arranging .workspace-decorate .paper-corners { display: none; }
+.workspace-decorate.drawer-arranging .paper-corners { display: none; }
 
 /* Pets: two album pages, small collection portraits and one larger detail portrait. */
 .app .workspace-animals::after { content: ""; position: absolute; pointer-events: none; top: 10px; bottom: 10px; left: calc(57.143% - 11px); width: 32px; transform: translateX(-50%); background: var(--book-rings) center top / 32px 80px repeat-y, linear-gradient(90deg, transparent, #c7b28e29 35%, #bda77f57 49%, #fffaf0 55%, transparent); }
@@ -152,7 +152,7 @@
 
 @media (max-width: 850px) {
   .app :is(.workspace-animals, .workspace-journal).paper,
-  .app:not(.is-arranging) .workspace-decorate.paper { width: calc(100% - 32px); }
+  .app .workspace-decorate:not(.drawer-arranging).paper { width: calc(100% - 32px); }
   .app .workspace-animals::after { content: none; }
   .app .pet-album .collection-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .pet-album > .panel-toolbar { width: 100%; }
@@ -177,13 +177,13 @@
 }
 @media (max-width: 600px) {
   .app :is(.workspace-animals, .workspace-journal).paper,
-  .app:not(.is-arranging) .workspace-decorate.paper { width: auto; left: 8px; right: 8px; bottom: 10px; border-width: 8px; border-image-width: 8px; }
+  .app .workspace-decorate:not(.drawer-arranging).paper { width: auto; left: 8px; right: 8px; bottom: 10px; border-width: 8px; border-image-width: 8px; }
   .app :is(.workspace-animals, .workspace-journal) > .drawer-heading,
-  .app:not(.is-arranging) .workspace-decorate > .drawer-heading { padding: 13px 18px 9px; }
+  .app .workspace-decorate:not(.drawer-arranging) > .drawer-heading { padding: 13px 18px 9px; }
   .app :is(.workspace-animals, .workspace-journal) .drawer-heading h2,
-  .app:not(.is-arranging) .workspace-decorate .drawer-heading h2 { font-size: 27px; }
+  .app .workspace-decorate:not(.drawer-arranging) .drawer-heading h2 { font-size: 27px; }
   .app :is(.workspace-animals, .workspace-journal) > .drawer-content,
-  .app:not(.is-arranging) .workspace-decorate > .drawer-content { padding: 8px 18px 20px; }
+  .app .workspace-decorate:not(.drawer-arranging) > .drawer-content { padding: 8px 18px 20px; }
   .paper-corners i { width: 28px; height: 28px; background-size: 8px 8px; }
   .pet-album > .panel-toolbar { margin-bottom: 12px; }
   .app .pet-album .collection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

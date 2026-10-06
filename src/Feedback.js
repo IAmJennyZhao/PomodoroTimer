@@ -1,5 +1,5 @@
 import { Button } from "./Controls";
-import { useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { Icon, InfoTip, trapDialogFocus, useModalFocus } from "./ui";
 import { PastelButtonArt } from "./AtelierArt";
 import { exitProps, useSurfaceTransition } from "./Transitions";
@@ -8,6 +8,14 @@ export function ToastNotice({ notice, onDismiss, onPauseChange, active = true })
   const ref = useRef(null);
   const previousFocus = useRef(document.activeElement);
   useSurfaceTransition(ref, active);
+  useLayoutEffect(() => {
+    if (!active && ref.current?.contains(document.activeElement)) {
+      const previous = previousFocus.current;
+      const target = previous?.isConnected && !previous.closest('[inert], [aria-hidden="true"]') ? previous
+        : document.querySelector('.workspace:not([inert]) .drawer-heading button') || document.querySelector('.top-nav button');
+      target?.focus();
+    }
+  }, [active]);
   if (!notice.visible) return <span className="visually-hidden">{notice.message}</span>;
   const dismiss = () => {
     const restoreFocus = ref.current?.contains(document.activeElement);

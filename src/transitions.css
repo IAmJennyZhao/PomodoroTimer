@@ -2,11 +2,37 @@
    transform and the notepad's saved left/top coordinates. */
 .app .drawer, .app .toast { animation: none; }
 [data-presence="exiting"] {
-  opacity: 0;
-  translate: 0 4px;
   pointer-events: none !important;
   user-select: none;
 }
 .drawer[data-presence="exiting"] { z-index: 120; }
 .toast-region { display: grid; }
 .toast-region > [data-presence] { grid-area: 1 / 1; }
+
+/* Keep the room chrome mounted so reversal can continue from its current fade.
+   Accessibility/interaction is disabled immediately, independently of opacity. */
+.app :is(.app-header, .room-footer, .daily-goal-note, .focus-area) {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--motion-transition-duration) var(--motion-ease), visibility 0s;
+}
+.app :is(.app-header, .room-footer, .daily-goal-note, .focus-area)[data-concealed="true"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--motion-transition-duration) var(--motion-ease), visibility 0s var(--motion-transition-duration);
+}
+.app .focus-area[data-layout-moving="true"] { overflow: visible; }
+
+/* Visual fill runs continuously; the independent five-second timeout remains
+   the only authority to stop. Reduced motion still shows measured progress. */
+.app .stop-button::before {
+  width: 100%;
+  transform-origin: left center;
+  transform: scaleX(var(--hold-fraction, 0));
+}
+.app .stop-button[data-hold="holding"]::before { animation: hold-fill 5000ms linear both; }
+.app .stop-button[data-hold="cancelled"]::before { animation: hold-release var(--motion-release-duration) var(--motion-ease-release) both; }
+.app .stop-button small { width: 47px; text-align: center; font-variant-numeric: tabular-nums; }
+@keyframes hold-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes hold-release { from { transform: scaleX(var(--hold-cancel-fraction)); } to { transform: scaleX(0); } }

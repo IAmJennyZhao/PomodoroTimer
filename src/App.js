@@ -51,7 +51,7 @@ import "./feedback.css";
 import "./polish.css";
 import "./motion.css";
 import "./tactile-controls.css";
-import { Presence } from "./Transitions";
+import { Presence, TimerTransition } from "./Transitions";
 import "./transitions.css";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
@@ -414,7 +414,7 @@ export default function App() {
         </RoomObjects>
       </div>
       <div className="room-vignette" />
-      <header className="app-header" hidden={focusView}>
+      <header className="app-header" data-concealed={focusView ? "true" : undefined} aria-hidden={focusView ? true : undefined} inert={focusView ? "" : undefined}>
         <Button className="room-brand" onClick={closePanel}>Little Room</Button>
         <div className="header-actions">
           <Button
@@ -452,10 +452,12 @@ export default function App() {
           </Button>
         </div>
       </header>
-      <RoomWidget as="main" id="timer" name="timer" className="focus-area" position={focusView ? null : state.room.widgets?.timer}
+      <TimerTransition reduced={reducedMotion} layoutKey={`${focusView}/${widePanel}/${panel}/${arranging}`}
+        contentKey={`${state.timer.id}/${state.timer.mode}/${state.timer.status}/${state.timer.overtime}/${state.timer.rewardForfeited}/${focusView}`}>
+        {cardRef => <RoomWidget as="main" id="timer" name="timer" className="focus-area" position={focusView ? null : state.room.widgets?.timer}
         arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "timer"}
-        onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "timer", ...position })} hidden={widePanel}>
-        <TimerCard state={state} act={act} now={now} ready={ready} blocked={status === "conflict"}
+        onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "timer", ...position })} concealed={widePanel}>
+        <TimerCard cardRef={cardRef} state={state} act={act} now={now} ready={ready} blocked={status === "conflict"}
           onToggleTimer={timerAction} panel={panel} openPanel={openPanel} notesOpen={notesOpen}
           focusView={focusView} setFocusView={setFocusView}
           alarmSilenced={silencedAlarm === state.timer.id}
@@ -465,10 +467,10 @@ export default function App() {
             setAlarmBlocked(!(await engine.current?.startAlarm()));
           }}
           tip={BREAK_IDEAS[tip]} nextTip={() => setTip((previous) => (previous + 1 + Math.floor(Math.random() * (BREAK_IDEAS.length - 1))) % BREAK_IDEAS.length)} />
-      </RoomWidget>
+      </RoomWidget>}</TimerTransition>
       <RoomWidget id="goal" name="daily goal" className="daily-goal-note" position={state.room.widgets?.goal}
         arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "goal"}
-        onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "goal", ...position })} hidden={focusView || widePanel}>
+        onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "goal", ...position })} concealed={focusView || widePanel}>
         <Button
           className={`daily-pill paper ${stats.progress === 1 ? "goal-reached" : ""}`}
           onClick={() => openPanel("journal")}
@@ -493,7 +495,7 @@ export default function App() {
           </span>
         </Button>
       </RoomWidget>
-      <footer className="room-footer" hidden={focusView}>
+      <footer className="room-footer" data-concealed={focusView || widePanel ? "true" : undefined} aria-hidden={focusView || widePanel ? true : undefined} inert={focusView || widePanel ? "" : undefined}>
         <Button
           className={`sound-pill paper ${playing ? "playing" : ""}`}
           onClick={() => openPanel("sound")}

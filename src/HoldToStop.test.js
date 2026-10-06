@@ -92,3 +92,36 @@ test("disabled state and unmount prevent pending holds from firing", () => {
   advance(5000);
   expect(onStop).not.toHaveBeenCalled();
 });
+
+test("cancellation gives brief feedback, and a fresh hold resets progress and its five-second deadline", () => {
+  const { button, onStop } = setup();
+  fireEvent.keyDown(button, { key: "Enter" });
+  expect(button).toHaveAttribute("data-hold", "holding");
+  advance(2000);
+  fireEvent.keyUp(button, { key: "Enter" });
+  expect(button).toHaveAttribute("data-hold", "cancelled");
+  expect(button.style.getPropertyValue("--hold-cancel-fraction")).toBe("0.4");
+  expect(screen.getByRole("status")).toHaveTextContent("Stop cancelled");
+  advance(100);
+  fireEvent.keyDown(button, { key: "Enter" });
+  expect(button).toHaveAttribute("data-hold", "holding");
+  expect(button.style.getPropertyValue("--hold-fraction")).toBe("0");
+  advance(4999);
+  expect(button).toHaveAttribute("data-hold", "holding");
+  expect(onStop).not.toHaveBeenCalled();
+  advance(1);
+  expect(onStop).toHaveBeenCalledTimes(1);
+});
+
+test("Escape cancels a keyboard hold and the feedback clears without a late stop", () => {
+  const { button, onStop } = setup();
+  fireEvent.keyDown(button, { key: " " });
+  advance(2400);
+  fireEvent.keyDown(button, { key: "Escape" });
+  expect(button).toHaveAttribute("data-hold", "cancelled");
+  advance(400);
+  expect(button).toHaveAttribute("data-hold", "idle");
+  expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  advance(5000);
+  expect(onStop).not.toHaveBeenCalled();
+});

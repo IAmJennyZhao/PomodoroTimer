@@ -270,6 +270,9 @@ export function Drawer({ name, title, onClose, children, position, onMove, activ
   const [notesPosition, setNotesPosition] = useState(null);
   const exitId = useId();
   const restoreFocus = useRef(null);
+  const previousTitle = useRef(title);
+  useLayoutEffect(() => { if (active) previousTitle.current = title; }, [active, title]);
+  const shownTitle = active ? title : previousTitle.current;
   useSurfaceTransition(dialogRef, active);
   const movable = name === "notes";
   const headingId = `${movable ? "scratchpad-heading" : "panel-heading"}${active ? "" : exitId}`;
@@ -326,7 +329,7 @@ export function Drawer({ name, title, onClose, children, position, onMove, activ
     <SurfaceActivityContext.Provider value={active}><aside
       ref={dialogRef}
       {...exitProps(active)}
-      className={`drawer workspace workspace-${name} paper ${movable ? "movable-notes" : ""}`}
+      className={`drawer workspace workspace-${name} paper ${movable ? "movable-notes" : ""} ${shownTitle === "Arrange room" ? "drawer-arranging" : ""}`}
       style={movable && notesPosition ? notesPosition : undefined}
       role="dialog"
       id={movable ? "scratchpad" : undefined}
@@ -366,7 +369,7 @@ export function Drawer({ name, title, onClose, children, position, onMove, activ
           }}>
           <Icon name="move" size={19} /><span><span className="notepad-heading" id={headingId}>{PANEL_NAMES[name]}</span><small className="visually-hidden" id="notepad-move-help">Drag to move · arrow keys to nudge</small></span>
         </button> : <div>
-          <h2 id={headingId}>{title || PANEL_NAMES[name]}</h2>
+          <h2 id={headingId}>{shownTitle || PANEL_NAMES[name]}</h2>
         </div>}
         <Button
           ref={closeRef}
