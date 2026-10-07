@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { HatchModal, InfoTip } from './ui';
+import { MotionPreferenceContext } from './useReducedMotion';
 
 test('info buttons disclose details on demand and identify their own content', () => {
   render(<>
@@ -77,6 +78,45 @@ test('a consumed hatch opener returns focus to the remaining workspace control',
   fireEvent.click(opener);
   fireEvent.click(screen.getByRole('button', { name: 'Done' }));
   expect(screen.getByRole('button', { name: 'Close panel' })).toHaveFocus();
+});
+
+test('hatch anticipation reveals and settles while dismissal is always available; early unmount cancels deadlines', () => {
+  jest.useFakeTimers();
+  const animal = { name: 'Clover', species: 'rabbit', rarity: 'basic' };
+  const close = jest.fn();
+  const view = render(<HatchModal animal={animal} onClose={close} />);
+  const dialog = screen.getByRole('dialog');
+  expect(dialog).toHaveAttribute('data-hatch-phase', 'anticipate');
+  expect(screen.getByRole('button', { name: 'Done' })).toBeEnabled();
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Done' }), { key: 'Escape' });
+  expect(close).toHaveBeenCalledTimes(1);
+  act(() => jest.advanceTimersByTime(180));
+  expect(dialog).toHaveAttribute('data-hatch-phase', 'reveal');
+  act(() => jest.advanceTimersByTime(480));
+  expect(dialog).toHaveAttribute('data-hatch-phase', 'settled');
+  expect(dialog.querySelector('.hatch-anticipation')).not.toBeInTheDocument();
+  view.unmount();
+  const interrupted = render(<HatchModal animal={animal} onClose={close} />);
+  expect(screen.getByRole('dialog')).toHaveAttribute('data-hatch-phase', 'anticipate');
+  interrupted.unmount();
+  expect(jest.getTimerCount()).toBe(0);
+  jest.useRealTimers();
+});
+
+test('reduced motion reveals directly and changing the preference never restarts a hatch', () => {
+  jest.useFakeTimers();
+  const content = reduced => <MotionPreferenceContext.Provider value={reduced}>
+    <HatchModal animal={{ name: 'Clover', species: 'rabbit', rarity: 'basic' }} onClose={jest.fn()} />
+  </MotionPreferenceContext.Provider>;
+  const view = render(content(false));
+  view.rerender(content(true));
+  expect(screen.getByRole('dialog')).toHaveAttribute('data-hatch-phase', 'settled');
+  expect(document.querySelector('.hatch-anticipation')).not.toBeInTheDocument();
+  view.rerender(content(false));
+  act(() => jest.advanceTimersByTime(1000));
+  expect(screen.getByRole('dialog')).toHaveAttribute('data-hatch-phase', 'settled');
+  view.unmount();
+  jest.useRealTimers();
 });
 
 test.each([

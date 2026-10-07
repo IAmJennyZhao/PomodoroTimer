@@ -1,5 +1,5 @@
 import { Button, ControlFeedbackContext } from "./Controls";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import "./App.css";
 import "./layout.css";
 import "./timer-flow.css";
@@ -126,6 +126,7 @@ export default function App() {
   }, [ready, state.settings.interactionSfxEnabled, state.settings.interactionSfxVolume]);
   const sceneRef = useRef(null);
   const lastEvent = useRef(null);
+  const lastHatch = useRef(null);
   const previousFurniture = useRef(state.room.decorations.length);
   useEffect(() => {
     if (arranging && state.room.decorations.length > previousFurniture.current) {
@@ -224,11 +225,21 @@ export default function App() {
         : state.timer.status === "paused" && state.timer.rewardForfeited ? `${state.timer.pauseCount > MAX_PAUSES ? "Pause limit reached" : "Pause ended"} · Little Room`
         : state.timer.status === "complete" ? "Time for a break · Little Room" : "Little Room · Focus";
   }, [displayTime, counting, state.timer.status, state.timer.mode, state.timer.overtime, state.timer.workMode, state.timer.rewardForfeited, state.timer.pauseCount]);
+  useLayoutEffect(() => {
+    const event = state.event;
+    if (event?.type !== "animal-hatched" || event.id === lastHatch.current) return;
+    lastHatch.current = event.id;
+    // Open and focus before another native input can arrive. A passive effect
+    // could otherwise reopen the celebration after an immediate Escape.
+    setHatch(event);
+  }, [state.event]);
   useEffect(() => {
     const event = state.event;
     if (!event || event.id === lastEvent.current) return;
     lastEvent.current = event.id;
-    if (event.type === "animal-hatched") setHatch(event);
+    if (event.type === "animal-hatched") {
+      playControlFeedback(event.capped ? "purchase" : event.duplicate ? "check" : "hatch");
+    }
     else if (event.type === "focus-complete" || event.type === "focus-finished") {
       const stats = todayStats(state);
       const goalComplete = stats.sessions === stats.goal && event.minutes > 0 && event.firstCredit;
@@ -578,7 +589,7 @@ export default function App() {
       </div>
       {ready && (status === "error" || status === "conflict") && <SaveNotice persistence={persistence} />}
       {!ready && <RoomLoading persistence={persistence} />}
-      {hatch && <HatchModal animal={hatch.animal} duplicate={hatch.duplicate} capped={hatch.capped} onClose={() => setHatch(null)} />}
+      {hatch && <HatchModal key={hatch.id} animal={hatch.animal} duplicate={hatch.duplicate} capped={hatch.capped} onClose={() => setHatch(null)} />}
     </div>
     </OutcomeFeedbackContext.Provider>
     </MotionPreferenceContext.Provider>

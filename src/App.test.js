@@ -309,6 +309,40 @@ test('focus earnings buy an egg and the next study session makes it hatchable', 
   expect(latestWrite().state.animals.every(animal => animal.placed)).toBe(true);
 });
 
+test.each([
+  ['basic', 0, 'Cat joined!', 'hatch', 'hatch-new'],
+  ['everyday', 0, 'Miso leveled up!', 'check', 'hatch-upgrade'],
+  ['everyday', 6, 'Miso is maxed!', 'purchase', 'hatch-capped'],
+])('hatching %s eggs confirms one %s outcome and early dismissal never replays it', async (rarity, upgrades, title, sound, variant) => {
+  const initial = createInitialState(NOW);
+  initial.animals[0].upgrades = upgrades;
+  const minutes = rarity === 'basic' ? 25 : 50;
+  initial.eggs = [{ id: 'ready', rarity, requiredMinutes: minutes, progressMinutes: minutes, createdAt: NOW }];
+  const view = await openRoom(initial);
+  fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));
+  engine.tap.mockClear();
+  engine.playSfx.mockClear();
+  fireEvent.click(screen.getByRole('button', { name: `Hatch ${rarity} egg 1` }));
+  const dialog = screen.getByRole('dialog', { name: title });
+  expect(dialog).toHaveClass(variant);
+  expect(dialog).toHaveAttribute('data-hatch-phase', 'anticipate');
+  expect(engine.tap).not.toHaveBeenCalled();
+  expect(engine.playSfx.mock.calls).toEqual([[sound]]);
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Done' }), { key: 'Escape' });
+  expect(screen.queryByRole('dialog', { name: title })).not.toBeInTheDocument();
+  await advance(1000);
+  expect(screen.queryByRole('dialog', { name: title })).not.toBeInTheDocument();
+  expect(engine.playSfx.mock.calls).toEqual([[sound]]);
+  expect(diskState.eggs).toEqual([]);
+  expect(diskState.animals).toHaveLength(rarity === 'basic' ? 2 : 1);
+  view.unmount();
+  engine.playSfx.mockClear();
+  render(<App />);
+  await settle();
+  expect(document.querySelector('.hatch-modal')).not.toBeInTheDocument();
+  expect(engine.playSfx).not.toHaveBeenCalledWith(sound);
+});
+
 test('a notification stays available while being read, then expires after leaving it', async () => {
   await openRoom({ ...createInitialState(NOW), gems: 50 });
   fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));

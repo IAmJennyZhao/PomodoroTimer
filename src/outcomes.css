@@ -1,4 +1,6 @@
 /* Outcome accents stay local and never move a control or positioning layer. */
+.app input.session-task-check[type="checkbox"] { background-image: none; }
+.app .task-check-drawing { stroke: var(--ink); }
 .nest-egg, .catalogue-item { position: relative; }
 .outcome-accent { position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: inherit; }
 .purchase-accent { border: 1px solid #8d9d8399; background: #c7d7ad18; animation: purchase-confirm var(--motion-reward-duration) var(--motion-ease-release) both; }
@@ -8,7 +10,10 @@
   30% { opacity: 1; scale: 1; }
   100% { opacity: 0; scale: 1; }
 }
-@media (forced-colors: active) { .purchase-accent { border-color: Highlight; } }
+@media (forced-colors: active) {
+  .purchase-accent { border-color: Highlight; }
+  .app input.session-task-check[type="checkbox"] { background: none; appearance: auto; }
+}
 .receipt-reveal { animation: receipt-reveal var(--motion-reward-duration) var(--motion-ease-release) both; }
 .reward-earned { animation: reward-earned var(--motion-reward-duration) var(--motion-ease-release) both; }
 .goal-accent { inset: 16px 12px 10px; border: 1px solid #8d9d8370; border-radius: 8px; animation: purchase-confirm var(--motion-reward-duration) var(--motion-ease-release) both; }
@@ -18,3 +23,22 @@
 @keyframes receipt-reveal { from { opacity: .35; translate: 0 3px; } to { opacity: 1; translate: 0 0; } }
 @keyframes reward-earned { 0%,100% { translate: 0 0; } 40% { translate: 0 var(--motion-lift-y); } }
 @keyframes goal-mark { 0% { scale: .9; } 45% { scale: 1.15; } 100% { scale: 1; } }
+
+/* A 180ms egg anticipation, then a 480ms reveal/settle. Game state and
+   dismissal never wait for this sequence. Each result uses a smaller gesture. */
+.app .hatch-modal.paper { animation: receipt-reveal var(--motion-release-duration) var(--motion-ease-release) both; }
+.hatch-result-art { height: 100%; position: relative; }
+.hatch-anticipation { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.app .hatch-reveal-egg { width: 110px; height: auto; animation: hatch-anticipate 180ms var(--motion-ease) both; }
+.hatch-modal[data-hatch-phase="anticipate"] :is(.hatch-result-art, .hatch-result-copy) { opacity: 0; }
+.hatch-modal[data-hatch-phase="reveal"] .hatch-anticipation { animation: hatch-shell-out var(--motion-release-duration) var(--motion-ease-release) both; }
+.hatch-modal[data-hatch-phase="reveal"] .hatch-result-art { animation: hatch-friend-in var(--motion-reward-duration) var(--motion-ease-release) both; }
+.hatch-modal[data-hatch-phase="reveal"] .hatch-result-copy { animation: receipt-reveal var(--motion-reward-duration) var(--motion-ease-release) both; }
+.hatch-upgrade { --hatch-scale: .98; --hatch-lift: 2px; }
+.hatch-new { --hatch-scale: .94; --hatch-lift: 4px; }
+.hatch-capped { --hatch-scale: 1; --hatch-lift: 0px; }
+.hatch-modal[data-hatch-phase="reveal"] .hatch-confetti i { animation: hatch-confetti-in var(--motion-reward-duration) var(--motion-ease-release) both; }
+@keyframes hatch-anticipate { 0% { rotate: -2deg; } 50% { rotate: 2deg; } 100% { rotate: 0deg; } }
+@keyframes hatch-shell-out { from { opacity: 1; scale: 1; } to { opacity: 0; scale: 1.03; } }
+@keyframes hatch-friend-in { from { opacity: 0; scale: var(--hatch-scale); translate: 0 var(--hatch-lift); } to { opacity: 1; scale: 1; translate: 0 0; } }
+@keyframes hatch-confetti-in { from { opacity: 0; translate: 0 2px; } to { opacity: .6; translate: 0 0; } }

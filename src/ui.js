@@ -450,12 +450,23 @@ export function trapDialogFocus(event, dialog) {
 export function HatchModal({ animal, duplicate = false, capped = false, onClose }) {
   const buttonRef = useRef(null);
   const dialogRef = useRef(null);
+  const reduced = useContext(MotionPreferenceContext);
+  const [phase, setPhase] = useState(reduced ? "settled" : "anticipate");
+  const sequenceEnded = useRef(reduced);
+  useEffect(() => {
+    if (reduced) { sequenceEnded.current = true; setPhase("settled"); return undefined; }
+    if (sequenceEnded.current) return undefined;
+    const reveal = setTimeout(() => setPhase("reveal"), 180);
+    const settle = setTimeout(() => { sequenceEnded.current = true; setPhase("settled"); }, 660);
+    return () => { clearTimeout(reveal); clearTimeout(settle); };
+  }, [reduced]);
   useModalFocus(dialogRef, buttonRef);
   return (
     <div className="modal-backdrop celebration-backdrop">
       <section
         ref={dialogRef}
-        className={`hatch-modal paper ${animal.rarity}`}
+        className={`hatch-modal paper ${animal.rarity} hatch-${capped ? "capped" : duplicate ? "upgrade" : "new"}`}
+        data-hatch-phase={reduced ? "settled" : phase}
         role="dialog"
         aria-modal="true"
         aria-labelledby="hatch-title"
@@ -468,14 +479,19 @@ export function HatchModal({ animal, duplicate = false, capped = false, onClose 
         <div className="paper-corners" aria-hidden="true"><i /><i /><i /><i /></div>
         <Button type="button" className="icon-button hatch-close" aria-label="Close celebration" onClick={onClose}><Icon name="close" /></Button>
         <div className="hatch-portrait" role="img" aria-label={`${animal.name}, ${RARITY_NAMES[animal.rarity]} ${animal.species}`}>
-          <div className="hatch-confetti" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <i key={index} />)}</div>
-          <AnimalArt animal={animal} />
+          {phase !== "settled" && !reduced && <div className="hatch-anticipation" aria-hidden="true"><Sprite kind="object" id={animal.rarity} className="hatch-reveal-egg" /></div>}
+          <div className="hatch-result-art">
+            <div className="hatch-confetti" aria-hidden="true">{Array.from({ length: capped ? 0 : duplicate ? 4 : 8 }, (_, index) => <i key={index} />)}</div>
+            <AnimalArt animal={animal} />
+          </div>
         </div>
+        <div className="hatch-result-copy">
         <h2 id="hatch-title">{capped ? `${animal.name} is maxed!` : duplicate ? `${animal.name} leveled up!` : `${animal.name} joined!`}</h2>
         <RarityStars rarity={animal.rarity} label={false} />
         {duplicate && <p id="hatch-details" className="hatch-details">{capped ? "+5 Shilligems" : animal.upgrades === 6
           ? "All 7 animations · +10% focus gems"
           : `Animation ${(animal.upgrades || 0) + 1} / 7 · Upgrade ${animal.upgrades} / 6`}</p>}
+        </div>
         <Button ref={buttonRef} type="button" className="primary-button celebration-done" onClick={onClose}>
           <PastelButtonArt />Done
         </Button>

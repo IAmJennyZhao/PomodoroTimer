@@ -58,7 +58,7 @@ export default function EggShop({ state, act }) {
           </Button>
           <progress className="nest-progress" aria-label={`${title(egg.rarity)} egg ${index + 1} hatch progress`} value={progress} max={required} />
           <span className="egg-progress">{progress}/{required}</span>
-          <Button className="text-button egg-hatch" disabled={!ready} aria-label={`Hatch ${egg.rarity} egg ${index + 1}`} onClick={() => act({ type: "HATCH_EGG", id: egg.id })}>{ready ? "Hatch" : <span aria-hidden="true">{"★".repeat(RARITY_STARS[egg.rarity])}</span>}</Button>
+          <Button sound={null} className="text-button egg-hatch" disabled={!ready} aria-label={`Hatch ${egg.rarity} egg ${index + 1}`} onClick={() => act({ type: "HATCH_EGG", id: egg.id })}>{ready ? "Hatch" : <span aria-hidden="true">{"★".repeat(RARITY_STARS[egg.rarity])}</span>}</Button>
         </div>;
       })}</div> : <p className="nest-empty">Choose a little beginning.</p>}
       {active && state.eggs.length > 0 && <span className="nest-next-session">Next session</span>}
