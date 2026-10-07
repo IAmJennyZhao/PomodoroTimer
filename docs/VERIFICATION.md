@@ -1,5 +1,22 @@
 # Implementation verification
 
+## Animation pass 5: Room manipulation and pet responses
+
+This pass addresses ambiguous pickup/drop feedback, abrupt cancellation, silent room-style/accessory application and direct pet selection. It adds no continuous pet motions.
+
+- Furniture, pets and room widgets share `usePlacementGesture`: a ref retains the latest pointer draft between native events, and only a matching primary-pointer release commits it. Batched move/release events cannot save an older render. Escape, pointer cancellation, lost capture/focus, hidden tabs, resize and disabled/unmounted surfaces discard the draft. Escape cancels the gesture before the existing selection/panel behavior; the next action remains available.
+- Only inner artwork lifts 3px/scales to 1.015 and settles over 200ms. Parent coordinates, selection outlines, hitboxes and camera geometry retain their placement logic. Accepted position changes own one placement sound; no movement, clamped nudges, canceled drafts and restored saves remain silent. Cancellation returns to the saved location, shows a brief Returned label and announces the result. Repicking clears that feedback before the next gesture.
+- Accepted room-style and accessory changes receive a source accent and selection tick. The backdrop fades the loaded image over 200ms, with pending image listeners canceled when feedback becomes stale. Accessories reveal on matching pet artwork. These effects share the visit-only outcome/claim mechanism, yielding to newer feedback and never entering saves. Hatch reveals retain their existing sound rather than receiving an additional placement tone.
+- A completed room-pet click opens Pets and gives the room/portrait artwork one small 480ms tilt. Pets-card selection uses the same response, limited per pet to once every 2.5 seconds and suppressed in focus view or Arrange. Holding/canceling a room-pet pointer leaves its panel closed. Both app and system reduced motion suppress animation while preserving the accepted interaction.
+
+Checks: **305 passing app tests across 17 suites**, **17 passing server tests**, successful production build with CI warnings treated as errors, and clean diff checks. Tests cover cancellation followed by fresh placement, stale releases, pointer identity, batched release precision, boundary no-ops, restoration silence, accepted style/accessory feedback, completed pet clicks and response cooldown/reduced motion. The existing Browserslist-data notice remains informational.
+
+Native production-build checks used isolated headless Chrome and temporary browser/save profiles on port 4183. A native mouse pickup measured unchanged hitbox dimensions with the expected 3px/1.015 artwork lift. Movement left the save untouched until release; the saved coordinates matched the mouse delta divided by the room dimensions and edit-camera scale. Release produced the 200ms settle and exactly one placement tone. Escape, window blur, explicit capture loss, resize and leaving Arrange restored the original saved coordinates with no placement tone; Escape also showed the return animation. Widget cancellation and subsequent keyboard placement passed. Resident Arrow/Shift nudges saved the exact expected positions.
+
+Room-style application showed the loaded backdrop's 200ms opacity sequence and only the selection tone; accessory application showed the matching pet reveal and selection tone. Direct pet selection showed the 480ms tilt, immediate repeat selection produced no new animation, and a later selection responded after cooldown. At 320 x 640, native touch moved a pet to the exact expected coordinates; native touch cancellation retained its original position with interaction sound muted. There was no horizontal page overflow. App and emulated system reduced motion retained placement with no travel/sequences. Desktop pickup/placement/return/pet and phone cancellation screenshots were reviewed; there were no page exceptions. Personal saves were not used.
+
+Stable implementation checkpoints: pickup/placement/cancellation (`cb8d44e`) and style/accessory/pet responses (`2147b2e`). Subjective headphone/speaker balancing and broader ambient polish remain in their separate passes.
+
 ## Animation pass 4: Tasks and rewards
 
 This pass differentiates accepted task completion, purchases, session rewards, daily goals and hatch results. Room dragging and ambient pet interaction remain for later passes.

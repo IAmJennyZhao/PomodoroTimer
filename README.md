@@ -87,7 +87,7 @@ The animation passes use shared rules for everyday interaction:
 - Hold-to-stop has a continuous fill with an independent five-second deadline. Early release, Escape, lost focus/capture or interrupted timer state cancel the hold. A brief Cancelled label and draining fill confirm release; a new hold starts from zero. Reduced motion shows measured progress without the animation and keeps the same five-second requirement.
 - `MotionPreferenceContext` carries the effective reduced-motion preference to portals and future JavaScript sequences. Motion tokens become zero-duration/zero-travel when reduced motion is active; don't wait for an animation event to perform a game action.
 - The existing engine exposes `setInteractionSfx({ enabled, volume })` and `playSfx(name)` for `tap`, `selection`, `paper`, `check`, `purchase`, `placement`, and `hatch`; `tap()` remains a convenience alias. Sounds share a soft C-major palette and short envelopes, with filtered noise for paper. No sound assets or new dependencies are needed.
-- SFX config is silent. Playback unlocks browser audio on demand, fails quietly, and drops requests during a pending unlock, within 100ms of another effect, or while a prior interaction sound group is still playing. No burst is queued. A `false` result can mean muted or throttled as well as unavailable audio; `playSfx(name, { onUnavailable })` reports actual audio failures separately so the preview does not display an error for a dropped tap. Muting cancels active and pending SFX without affecting ambience or alerts. Task and reward effects use accepted state/events; placement and room feedback remain for the next pass.
+- SFX config is silent. Playback unlocks browser audio on demand, fails quietly, and drops requests during a pending unlock, within 100ms of another effect, or while a prior interaction sound group is still playing. No burst is queued. A `false` result can mean muted or throttled as well as unavailable audio; `playSfx(name, { onUnavailable })` reports actual audio failures separately so the preview does not display an error for a dropped tap. Muting cancels active and pending SFX without affecting ambience or alerts. Task, reward and room effects use accepted state/events.
 
 ## Task and reward feedback
 
@@ -98,6 +98,16 @@ Phase 4 adds local feedback for accepted outcomes:
 - Session receipts gently reveal earned rewards. The daily goal marks only the first credit for that session, including overtime. Timed completion keeps its existing alert; manual finishing uses the softer interaction check. Timer sound and interaction sound preferences remain independent.
 - Hatching uses 180ms of egg anticipation followed by a 480ms reveal/settle. New pets use the full hatch sound and eight small confetti marks; upgrades use a check and four marks; capped copies use a purchase acknowledgment and no confetti. Done, X and Escape work throughout. Consuming the egg opens/focuses the modal before another native input can arrive, and dismissal cancels its visual deadlines. Reduced motion reveals directly.
 - Feedback never performs, delays, or persists a game action. Session event metadata distinguishes first journal credit from added overtime rewards. A reload retains the accepted game state without replaying transient effects.
+
+## Room interaction feedback
+
+Phase 5 makes direct room manipulation clearer:
+
+- Picking up furniture, pets or a widget gently lifts its artwork. Mouse and touch keep the existing placement geometry; arrow keys and Shift nudges remain precise. A completed position change settles over 200ms with one soft placement sound. Selecting without moving and nudging against a boundary are silent.
+- Escape, pointer cancellation, lost capture/focus, resize or leaving Arrange discard the draft. The item returns to its saved position with a brief **Returned** label and an accessible cancellation announcement. A later release cannot commit the canceled move. Escape first cancels an active move, preserving the selection for the next action.
+- Applying a room style fades in the loaded painting and briefly accents its catalogue item. Accessories gently reveal on the pet and accent their source. Each accepted change owns its selection tick; restoring a save or applying an unchanged item does not replay feedback.
+- Selecting a pet directly or from Pets gives its artwork one small 480ms tilt, limited to once per pet every 2.5 seconds. A room pet opens its panel on the completed click. Focus view and Arrange suppress these responses; existing idle motions keep their cadence.
+- Feedback stays outside saved state and animates inner artwork, preserving hitboxes and coordinates. Reduced motion removes travel and sequences while retaining placement, selection and cancellation behavior. Interaction sound settings still control the effects independently of timer alerts.
 
 ## Checks
 
