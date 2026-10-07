@@ -1,5 +1,24 @@
 # Implementation verification
 
+## Animation pass 4: Tasks and rewards
+
+This pass differentiates accepted task completion, purchases, session rewards, daily goals and hatch results. Room dragging and ambient pet interaction remain for later passes.
+
+- Task completion observes the accepted `done` state, owns its check sound, and draws a 200ms tick/strike-through. Undo updates immediately. Native checkboxes, text input identity, draft editing and keyboard focus remain intact. Mounting a restored completed row or reopening its editor is silent. Forced colors retain the native checkbox.
+- Egg and catalogue purchases own their sound after successful game events; their controls suppress the generic tap. Source/nest/card accents use the existing 480ms reward timing and retire within 600ms. The decorative layer can restart for a different accepted event without replacing controls. Per-target claims prevent replay when panels/categories remount before expiry. Visit-only feedback never enters a save.
+- Receipts reveal earned rewards without animating clock ticks or delaying break controls. Completion events identify their session and whether it received first journal credit, so finishing overtime never repeats the same daily-goal acknowledgment. Timed completion retains its alert/alarm and receives no competing reward chime; manual finishes use a soft check when gems were earned. Starting a break from overtime also yields its generic tap to that settled reward. Zero/forfeited rewards receive no positive reward sound/lift.
+- Hatch anticipation lasts 180ms, with a 480ms reveal/settle. New pets, upgrades and capped copies receive respectively hatch/check/purchase sounds and 8/4/0 small confetti marks, with progressively smaller motion. Done/X/Escape remain enabled throughout. The confirmed modal opens in a layout effect before a subsequent native input; an immediate Escape cannot be followed by a delayed popup. Unmount cancels both visual deadlines. Reducing motion reveals immediately, and subsequently changing that preference never restarts the sequence.
+
+Automated evidence: the full suite passed **290 app tests across 15 suites** and **17 server tests**. Additional remount-replay and overtime-break sound regressions make the total **292 app tests**; the final affected App/TimerCard suites pass all 42 tests. App/UI/transition checks were also rerun after the immediate-Escape fix (49 passing). The production build passes with CI warnings treated as errors. Server checks use isolated temporary directories.
+
+Native production-build checks used headless Chrome with temporary browser/save profiles on isolated port 4183. Actual oscillator scheduling confirmed the check's two notes, purchase's two notes and hatch's four notes, with no preceding generic tap from those controls. Intermediate task styles showed a partially drawn tick and strike, purchase opacity interpolated, and the receipt revealed +1 with the daily-goal mark. Repeated keyboard toggles and rapid purchases left the correct state and at most one purchase target accent. Insufficient funds produced neither an accent nor sound. Purchase/session reloads produced no transient feedback.
+
+All three hatch outcomes went through anticipation, reveal and settle, with no remaining running animations. Settled and immediately interrupted hatches closed on native Escape, restored focus to the remaining panel control, and stayed closed after their old deadlines and reload. Desktop (1280 x 800) and phone (320 x 640) screenshots were reviewed for tasks, purchase, session rewards and hatching. The phone hatch is 288px wide, fits inside the viewport, and keeps both dismissal controls reachable. Native touch completion works with interaction sounds muted; app reduced motion with zero SFX volume and emulated OS reduced motion reveal hatches directly without animations. There were no page exceptions. Personal saves were not used.
+
+Subjective headphone/speaker balancing remains part of phase 6; this pass verified synthesis scheduling and preserved the existing palette/levels.
+
+A focused native check also verified starting a break from overtime: the additional earned reward scheduled exactly the soft check's two notes, with no generic button tap, while the break started immediately.
+
 ## Animation pass 3: Panels and timer transitions
 
 This pass addresses abrupt panel/notepad removal, isolated entrance effects, sudden focus-view and timer-state changes, and stepped hold progress. Panel/toast presence is coordinated with logical state, and timer motion acts on a visual layer without delaying timer actions or changing saved widget positions.

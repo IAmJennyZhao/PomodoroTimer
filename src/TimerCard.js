@@ -96,8 +96,8 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
           {repeating && settings.soundEnabled && alarmSilenced && <span className="small muted">Muted</span>}
         </div>
         <div className="break-buttons">
-          <Button className={recommendedLong ? "secondary-button" : "primary-button"} aria-label={`Short break, ${settings.breakMinutes} minutes`} onClick={() => startBreak("break")} disabled={blocked}><PastelButtonArt />Short break <span>{settings.breakMinutes}m</span></Button>
-          <Button className={recommendedLong ? "primary-button" : "secondary-button"} aria-label={`Long break, ${settings.longBreakMinutes} minutes`} onClick={() => startBreak("longBreak")} disabled={blocked}><PastelButtonArt />Long break <span>{settings.longBreakMinutes}m</span></Button>
+          <Button sound={timer.overtime && !complete ? null : undefined} className={recommendedLong ? "secondary-button" : "primary-button"} aria-label={`Short break, ${settings.breakMinutes} minutes`} onClick={() => startBreak("break")} disabled={blocked}><PastelButtonArt />Short break <span>{settings.breakMinutes}m</span></Button>
+          <Button sound={timer.overtime && !complete ? null : undefined} className={recommendedLong ? "primary-button" : "secondary-button"} aria-label={`Long break, ${settings.longBreakMinutes} minutes`} onClick={() => startBreak("longBreak")} disabled={blocked}><PastelButtonArt />Long break <span>{settings.longBreakMinutes}m</span></Button>
         </div>
         {complete && <Button className="text-button new-session" onClick={() => act({ type: "SET_MODE", mode: "focus" })}>New session</Button>}
       </div>}

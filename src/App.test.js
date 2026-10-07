@@ -154,6 +154,18 @@ test('furniture purchases acknowledge the matching card and never replace its co
   expect(card.querySelector('.purchase-accent')).not.toBeInTheDocument();
 });
 
+test('closing and reopening a shop within the accent lifetime never repeats a purchase acknowledgment', async () => {
+  await openRoom({ ...createInitialState(NOW), gems: 50 });
+  fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: /Buy basic egg/ }));
+  expect(document.querySelector('.purchase-accent')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Close panel' }));
+  await advance(250);
+  fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));
+  expect(document.querySelector('.purchase-accent')).not.toBeInTheDocument();
+  expect(engine.playSfx.mock.calls.filter(([name]) => name === 'purchase')).toHaveLength(1);
+});
+
 test('large daily goals show the true count instead of a completed row of capped dots', async () => {
   const initial = createInitialState(NOW);
   initial.settings.dailyGoal = 24;
@@ -263,6 +275,25 @@ test('settling overtime never celebrates an already credited daily goal twice', 
   expect(document.querySelector('.goal-accent')).not.toBeInTheDocument();
   expect(engine.playSfx).toHaveBeenCalledWith('check');
   expect(engine.chime).toHaveBeenCalledTimes(1);
+});
+
+test('starting a break from overtime gives the settled reward ownership of the sound', async () => {
+  const initial = createInitialState(NOW);
+  initial.settings.focusMinutes = 1;
+  initial.settings.endBehavior = 'overtime';
+  initial.timer.endBehavior = 'overtime';
+  initial.timer.durationMs = MINUTE;
+  initial.timer.remainingMs = MINUTE;
+  await openRoom(initial);
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  await wakeAt(NOW + MINUTE);
+  await wakeAt(NOW + 2 * MINUTE);
+  engine.tap.mockClear();
+  engine.playSfx.mockClear();
+  fireEvent.click(screen.getByRole('button', { name: 'Short break, 5 minutes' }));
+  expect(engine.tap).not.toHaveBeenCalled();
+  expect(engine.playSfx.mock.calls).toEqual([['check']]);
+  expect(screen.getByRole('timer')).toHaveTextContent('05:00');
 });
 
 test('focus earnings buy an egg and the next study session makes it hatchable', async () => {
