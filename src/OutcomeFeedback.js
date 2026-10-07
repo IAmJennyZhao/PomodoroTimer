@@ -9,6 +9,12 @@ export function useOutcomeFeedback() {
   const deadlines = useRef({});
   const claims = useRef(new Map());
   const latest = useRef({});
+  const order = useRef(0);
+  const clearOutcome = useCallback(channel => {
+    clearTimeout(deadlines.current[channel]);
+    claims.current.delete(latest.current[channel]);
+    setOutcomes(previous => previous[channel] ? { ...previous, [channel]: null } : previous);
+  }, []);
   const claimOutcome = useCallback((id, target) => {
     if (!claims.current.has(id)) claims.current.set(id, new Set());
     const targets = claims.current.get(id);
@@ -20,7 +26,8 @@ export function useOutcomeFeedback() {
     clearTimeout(deadlines.current[channel]);
     claims.current.delete(latest.current[channel]);
     latest.current[channel] = outcome.id;
-    setOutcomes(previous => ({ ...previous, [channel]: outcome }));
+    const nextOutcome = { ...outcome, order: ++order.current };
+    setOutcomes(previous => ({ ...previous, [channel]: nextOutcome }));
     deadlines.current[channel] = setTimeout(() => {
       claims.current.delete(outcome.id);
       setOutcomes(previous => previous[channel]?.id === outcome.id
@@ -31,7 +38,7 @@ export function useOutcomeFeedback() {
     const timers = deadlines.current;
     return () => Object.values(timers).forEach(clearTimeout);
   }, []);
-  const value = useMemo(() => ({ ...outcomes, claimOutcome, showOutcome }), [outcomes, claimOutcome, showOutcome]);
+  const value = useMemo(() => ({ ...outcomes, claimOutcome, showOutcome, clearOutcome }), [outcomes, claimOutcome, showOutcome, clearOutcome]);
   return [value, showOutcome];
 }
 

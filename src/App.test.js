@@ -956,6 +956,49 @@ test('a click without movement only selects, and clamped keyboard moves produce 
   } finally { window.PointerEvent = original; }
 });
 
+test('style and accessory application acknowledge the accepted item and stay silent on restoration', async () => {
+  const saved = createInitialState(NOW);
+  saved.owned.backgrounds.push('moonroom');
+  saved.owned.accessories.push('crown');
+  const view = await openRoom(saved);
+  fireEvent.click(screen.getByRole('button', { name: 'Decorate' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Room style', exact: true }));
+  engine.tap.mockClear(); engine.playSfx.mockClear();
+  fireEvent.click(screen.getByRole('button', { name: 'Use Moonlit den' }));
+  expect(document.querySelector('.apply-accent').closest('.catalogue-item')).toHaveTextContent('Moonlit den');
+  expect(engine.tap).not.toHaveBeenCalled();
+  expect(engine.playSfx.mock.calls).toEqual([['selection']]);
+  fireEvent.click(screen.getByRole('button', { name: 'Accessories', exact: true }));
+  engine.tap.mockClear(); engine.playSfx.mockClear();
+  fireEvent.click(screen.getByRole('button', { name: 'Use Tiny crown' }));
+  expect(document.querySelector('.apply-accent').closest('.catalogue-item')).toHaveTextContent('Tiny crown');
+  expect(engine.tap).not.toHaveBeenCalled();
+  expect(engine.playSfx.mock.calls).toEqual([['selection']]);
+  await advance(700);
+  expect(document.querySelector('.apply-accent')).not.toBeInTheDocument();
+  expect(diskState.room.background).toBe('moonroom');
+  expect(diskState.animals[0].accessory).toBe('crown');
+  view.unmount(); engine.playSfx.mockClear();
+  render(<App />); await settle();
+  expect(engine.playSfx).not.toHaveBeenCalled();
+  expect(document.querySelector('.apply-accent')).not.toBeInTheDocument();
+});
+
+test('holding or cancelling a pet pointer does not open its panel; a completed click does', async () => {
+  const original = window.PointerEvent;
+  window.PointerEvent = MouseEvent;
+  try {
+    await openRoom();
+    const pet = screen.getByRole('button', { name: 'Miso, Everyday cat' });
+    fireEvent.pointerDown(pet, { button: 0 });
+    expect(screen.queryByRole('dialog', { name: 'Pets' })).not.toBeInTheDocument();
+    fireEvent.pointerCancel(pet);
+    expect(screen.queryByRole('dialog', { name: 'Pets' })).not.toBeInTheDocument();
+    fireEvent.click(pet, { detail: 1 });
+    expect(screen.getByRole('dialog', { name: 'Pets' })).toBeInTheDocument();
+  } finally { window.PointerEvent = original; }
+});
+
 test('an expired pause raises one concise alert, chimes, and resumes the remaining focus time', async () => {
   await openRoom();
   fireEvent.click(screen.getByRole('button', { name: 'Start' }));

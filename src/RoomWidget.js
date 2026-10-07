@@ -9,7 +9,7 @@ import { OutcomeFeedbackContext } from "./OutcomeFeedback";
 // rendered location to the current screen without overwriting the saved layout.
 const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, className, position, arranging, selected, onSelect, onMove, onDeselect, hidden, concealed, children }, controlRef) {
   const ref = useRef(null);
-  const { showOutcome } = useContext(OutcomeFeedbackContext);
+  const { showOutcome, clearOutcome } = useContext(OutcomeFeedbackContext);
   const cancelId = useRef(0);
   const [location, setLocation] = useState(null);
   const clampLocation = useCallback((left, top, room, bounds) => {
@@ -78,7 +78,10 @@ const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, c
         onPointerDown={event => {
           const bounds = ref.current.getBoundingClientRect();
           const room = ref.current.parentElement.getBoundingClientRect();
-          if (gesture.start(event, { left: bounds.left - room.left, top: bounds.top - room.top })) onSelect({ type: "widget", id });
+          if (gesture.start(event, { left: bounds.left - room.left, top: bounds.top - room.top })) {
+            clearOutcome?.("room");
+            onSelect({ type: "widget", id });
+          }
         }}
         {...gesture.handlers}
         onKeyDown={event => {

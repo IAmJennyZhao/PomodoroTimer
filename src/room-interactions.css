@@ -3,5 +3,6 @@
 .room-cancel-mark { position: absolute; left: 50%; bottom: 0; translate: -50% 0; padding: 3px 7px; border: 1px solid var(--coral); border-radius: 6px; color: var(--ink); background: var(--paper); font-size: 11px; white-space: nowrap; pointer-events: none; }
 .app .resident-hitbox { touch-action: inherit; }
 .app .room-resident .room-visual > .furniture-art { width: 100%; }
+.apply-accent { border: 1px solid var(--sage-strong); background: #b8cfa520; animation: purchase-confirm var(--motion-reward-duration) var(--motion-ease-release) both; }
 .reduce-motion .room-visual[data-lifted="true"] { translate: 0 0; scale: 1; }
 @media (prefers-reduced-motion: reduce) { .room-visual[data-lifted="true"] { translate: 0 0; scale: 1; } }

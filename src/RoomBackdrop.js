@@ -1,8 +1,17 @@
 import { ArtFragment, ATELIER_ART } from "./AtelierArt";
+import { useContext, useRef } from "react";
+import { OutcomeFeedbackContext } from "./OutcomeFeedback";
+import { MotionPreferenceContext } from "./useReducedMotion";
+import { useRoomAnimation } from "./RoomInteraction";
 
 export default function RoomBackdrop({ theme = "sunroom", preview = false }) {
   const room = ["sunroom", "moonroom", "greenhouse"].includes(theme) ? theme : "sunroom";
-  return <img className={`room-backdrop ${preview ? "room-preview" : ""}`} src={`${ATELIER_ART}/room-${room}.png`} alt="" aria-hidden="true" draggable="false" />;
+  const ref = useRef(null);
+  const feedback = useContext(OutcomeFeedbackContext);
+  const reduced = useContext(MotionPreferenceContext);
+  const outcome = !preview && feedback.apply?.target === `backgrounds:${room}` ? feedback.apply : null;
+  useRoomAnimation(ref, outcome, reduced, false, room, "backdrop");
+  return <img ref={ref} className={`room-backdrop ${preview ? "room-preview" : ""}`} src={`${ATELIER_ART}/room-${room}.png`} alt="" aria-hidden="true" draggable="false" />;
 }
 
 const furniture = {

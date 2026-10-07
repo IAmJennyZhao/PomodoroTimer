@@ -1,14 +1,16 @@
 import { Button, ChoiceInput } from "./Controls";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { ACCESSORIES, ANIMALS, RARITIES, RARITY_STARS, EGG_MINUTES, animationCount, gemBonus } from "./game";
 import { AnimalArt, Icon, InfoTip, RarityStars, Sprite } from "./ui";
 import "./collection.css";
+import { PetResponseContext, RoomVisual } from "./RoomInteraction";
 export { RarityStars } from "./ui";
 
 const titleCase = (value) => value.charAt(0).toUpperCase() + value.slice(1);
 const speciesName = (animal) => ANIMALS.find((species) => species.id === animal.species)?.name || "Animal";
 
 export function AnimalsPanel({ state, act, selected, setSelected }) {
+  const respondToPet = useContext(PetResponseContext);
   const [mystery, setMystery] = useState(null);
   const petDetails = useRef(null);
   useEffect(() => {
@@ -34,7 +36,7 @@ export function AnimalsPanel({ state, act, selected, setSelected }) {
             className={`animal-card ${friend.id === animal?.id && !mystery ? "selected" : ""}`}
             aria-pressed={friend.id === animal?.id && !mystery}
             aria-label={`Select ${friend.name}, ${friend.rarity} ${speciesName(friend)}, animal ${index + 1}`}
-            onClick={() => { setSelected(friend.id); setMystery(null); }}>
+            onClick={() => { respondToPet(friend.id); setSelected(friend.id); setMystery(null); }}>
             <AnimalArt animal={friend} />
             <strong>{friend.name}</strong>
             <RarityStars rarity={friend.rarity} label={false} />
@@ -60,7 +62,7 @@ export function AnimalsPanel({ state, act, selected, setSelected }) {
         <p>Found in <strong>{titleCase(mystery.rarity)} egg</strong> <InfoTip label="Egg details">{EGG_MINUTES[mystery.rarity]} focus minutes to hatch. Each egg has a 1 in {ANIMALS.length} chance of this pet.</InfoTip></p>
         <Button className="icon-button mystery-close" aria-label="Back to my pet" title="Back" onClick={() => setMystery(null)}><Icon name="close" size={18} /></Button>
       </section> : animal && <section ref={petDetails} className="detail-card collection-detail" aria-label={`${animal.name} details`}>
-        <div className="pet-portrait"><AnimalArt animal={animal} /></div>
+        <div className="pet-portrait"><RoomVisual target={`animal:${animal.id}`} surface="portrait"><AnimalArt animal={animal} /></RoomVisual></div>
         <h3>{animal.name} <span className="small muted">· {speciesName(animal)}</span></h3>
         <RarityStars rarity={animal.rarity} />
         <div className="upgrade-track" aria-label={`${animal.upgrades || 0} of 6 upgrades`}>

@@ -41,6 +41,7 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
           const stockLabel = furniture && owned ? stock ? `${stock} available` : `${quantity} owned` : "";
           return <section className={`shop-item catalogue-item ${owned ? "is-owned" : ""} ${active ? "is-active" : ""}`} key={item.id}>
             <OutcomeAccent channel="purchase" target={`${category}:${item.id}`} className="purchase-accent" />
+            <OutcomeAccent channel="apply" target={`${category}:${item.id}`} className="apply-accent" />
             <div className="catalogue-art">{category === "backgrounds" ? <RoomBackdrop theme={item.id} preview /> : category === "accessories" ? <div className="accessory-preview">{item.id === "none" ? <span aria-hidden="true">—</span> : <Accessory id={item.id} />}</div> : <Sprite kind="object" id={item.id} />}</div>
             <h3>{item.name}</h3>
             <div className="catalogue-status">{stockLabel && <span className={owned ? "stock-badge" : "muted"} aria-label={furniture && owned ? `${quantity} owned, ${stock} available` : undefined}>{stockLabel}</span>}</div>

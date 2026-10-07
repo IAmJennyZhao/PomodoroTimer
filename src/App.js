@@ -56,7 +56,7 @@ import "./transitions.css";
 import { OutcomeAccent, OutcomeFeedbackContext, useOutcomeFeedback } from "./OutcomeFeedback";
 import "./outcomes.css";
 import usePlacementGesture from "./usePlacementGesture";
-import { RoomVisual, useRoomChanges } from "./RoomInteraction";
+import { PetResponseContext, RoomVisual, usePetResponses, useRoomChanges } from "./RoomInteraction";
 import "./room-interactions.css";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
@@ -127,6 +127,7 @@ export default function App() {
       result?.catch(() => {});
     } catch (_) { /* A silent interaction remains usable. */ }
   }, [ready, state.settings.interactionSfxEnabled, state.settings.interactionSfxVolume]);
+  const respondToPet = usePetResponses(showOutcome, ready && !focusView && !arranging);
   const sceneRef = useRef(null);
   const lastEvent = useRef(null);
   const lastHatch = useRef(null);
@@ -338,14 +339,11 @@ export default function App() {
   const drag = gesture.draft;
   const startDrag = (event, type, item) => {
     if (event.button !== 0 || event.isPrimary === false) return;
-    if (!arranging) {
-      if (type === "animal") {
-        setSelectedAnimal(item.id);
-        setPanel("animals");
-      }
-      return;
+    if (!arranging) return;
+    if (gesture.start(event, { type, id: item.id, x: item.x, y: item.y })) {
+      outcomes.clearOutcome("room");
+      setSelection({ type, id: item.id });
     }
-    if (gesture.start(event, { type, id: item.id, x: item.x, y: item.y })) setSelection({ type, id: item.id });
   };
   const renderResident = (item, type) => {
     const position = drag?.type === type && drag.id === item.id ? drag : item;
@@ -389,12 +387,14 @@ export default function App() {
           });
         }}
         onClick={(event) => {
-          if (event.detail === 0) {
-            if (arranging) setSelection({ type, id: item.id });
-            else if (type === "animal") {
-              setSelectedAnimal(item.id);
-              setPanel("animals");
-            }
+          if (!ready || event.currentTarget.closest("[inert]")) return;
+          if (arranging) {
+            if (event.detail === 0) setSelection({ type, id: item.id });
+          } else if (type === "animal") {
+            respondToPet(item.id);
+            playControlFeedback("selection");
+            setSelectedAnimal(item.id);
+            setPanel("animals");
           }
         }}
       >
@@ -415,6 +415,7 @@ export default function App() {
     <ControlFeedbackContext.Provider value={playControlFeedback}>
     <MotionPreferenceContext.Provider value={reducedMotion}>
     <OutcomeFeedbackContext.Provider value={outcomes}>
+    <PetResponseContext.Provider value={respondToPet}>
     <div
       className={`app ${state.room.background} ${reducedMotion ? "reduce-motion" : ""} ${panel ? "panel-open" : ""} ${widePanel ? "wide-panel-open" : ""} ${sidePanel ? "side-panel-open" : ""} ${focusView ? "focus-view" : ""} ${arranging ? "is-arranging" : ""}`}
     >
@@ -587,6 +588,7 @@ export default function App() {
       {hatch && <HatchModal key={hatch.id} animal={hatch.animal} duplicate={hatch.duplicate} capped={hatch.capped} onClose={() => setHatch(null)} />}
       <span className="visually-hidden" aria-live="polite">{outcomes.room?.kind === "cancelled" ? "Move cancelled. Returned to the original position." : ""}</span>
     </div>
+    </PetResponseContext.Provider>
     </OutcomeFeedbackContext.Provider>
     </MotionPreferenceContext.Provider>
     </ControlFeedbackContext.Provider>
