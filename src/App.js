@@ -116,9 +116,15 @@ export default function App() {
     if (!message || !visible) setToastPaused(false);
   }, []);
   const [hatch, setHatch] = useState(null);
+  const visibleHatch = useRef(null);
   const [outcomes, showOutcome] = useOutcomeFeedback();
   const [playing, setPlaying] = useState(false);
   const engine = useRef(null);
+  const closeHatch = useCallback(() => {
+    visibleHatch.current = null;
+    engine.current?.cancelSfx();
+    setHatch(null);
+  }, []);
   const playControlFeedback = useCallback(name => {
     if (!ready || !state.settings.interactionSfxEnabled || state.settings.interactionSfxVolume === 0) return;
     // Feedback never delays the action or turns unavailable audio into a UI error.
@@ -168,6 +174,9 @@ export default function App() {
       volume: state.settings.interactionSfxVolume,
     });
   }, [state.settings.interactionSfxEnabled, state.settings.interactionSfxVolume]);
+  useEffect(() => {
+    if (!state.settings.soundEnabled) engine.current?.stopAlerts();
+  }, [state.settings.soundEnabled]);
   useEffect(() => {
     if (!ready) return undefined;
     const tick = () => {
@@ -233,6 +242,7 @@ export default function App() {
     const event = state.event;
     if (event?.type !== "animal-hatched" || event.id === lastHatch.current) return;
     lastHatch.current = event.id;
+    visibleHatch.current = event.id;
     // Open and focus before another native input can arrive. A passive effect
     // could otherwise reopen the celebration after an immediate Escape.
     setHatch(event);
@@ -242,7 +252,7 @@ export default function App() {
     if (!event || event.id === lastEvent.current) return;
     lastEvent.current = event.id;
     if (event.type === "animal-hatched") {
-      playControlFeedback(event.capped ? "purchase" : event.duplicate ? "check" : "hatch");
+      if (visibleHatch.current === event.id) playControlFeedback(event.capped ? "purchase" : event.duplicate ? "check" : "hatch");
     }
     else if (event.type === "focus-complete" || event.type === "focus-finished") {
       const stats = todayStats(state);
@@ -284,7 +294,7 @@ export default function App() {
   useEffect(() => {
     const onKey = (event) => {
       if (event.key === "Escape") {
-        if (hatch) setHatch(null);
+        if (hatch) closeHatch();
         else if (arranging && selection) setSelection(null);
         else {
           setPanel(null);
@@ -294,7 +304,7 @@ export default function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [hatch, arranging, selection]);
+  }, [hatch, closeHatch, arranging, selection]);
   const openPanel = (id) => {
     if (id === "notes") { setNotesOpen(previous => !previous); return; }
     setPanel((previous) => (previous === id ? null : id));
@@ -585,7 +595,7 @@ export default function App() {
       </div>
       {ready && (status === "error" || status === "conflict") && <SaveNotice persistence={persistence} />}
       {!ready && <RoomLoading persistence={persistence} />}
-      {hatch && <HatchModal key={hatch.id} animal={hatch.animal} duplicate={hatch.duplicate} capped={hatch.capped} onClose={() => setHatch(null)} />}
+      {hatch && <HatchModal key={hatch.id} animal={hatch.animal} duplicate={hatch.duplicate} capped={hatch.capped} onClose={closeHatch} />}
       <span className="visually-hidden" aria-live="polite">{outcomes.room?.kind === "cancelled" ? "Move cancelled. Returned to the original position." : ""}</span>
     </div>
     </PetResponseContext.Provider>

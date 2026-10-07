@@ -220,10 +220,8 @@ describe('ambient audio lifecycle', () => {
     await engine.start();
     await engine.startAlarm();
     const alarmNotes = context.sources.slice(3);
-    await engine.playSfx('hatch');
-    const hatchNotes = context.sources.slice(6);
+    await expect(engine.playSfx('hatch')).resolves.toBe(false);
     engine.setInteractionSfx({ enabled: false });
-    hatchNotes.forEach(note => expect(note.disconnect).toHaveBeenCalledTimes(1));
     alarmNotes.forEach(note => expect(note.disconnect).not.toHaveBeenCalled());
     expect(engine.playing).toBe(true);
     expect(context.gains[0].gain.setTargetAtTime).toHaveBeenLastCalledWith(1, 0, 0.07);
@@ -240,16 +238,99 @@ describe('ambient audio lifecycle', () => {
     expect(context.createOscillator).toHaveBeenCalledTimes(2);
   });
 
-  test('longer SFX cannot stack after the click cooldown, while alerts remain independent', async () => {
+  test('timer alerts retire a long SFX and reserve the mix until their final note ends', async () => {
     await expect(engine.playSfx('hatch')).resolves.toBe(true);
+    const hatch = context.sources.slice(3);
     context.currentTime = 0.11;
     await expect(engine.playSfx('tap')).resolves.toBe(false);
     expect(context.createOscillator).toHaveBeenCalledTimes(4);
     await expect(engine.chime()).resolves.toBe(true);
     expect(context.createOscillator).toHaveBeenCalledTimes(7);
+    hatch.forEach(note => expect(note.disconnect).toHaveBeenCalledTimes(1));
     context.currentTime = 0.55;
+    await expect(engine.playSfx('selection')).resolves.toBe(false);
+    await expect(engine.chime()).resolves.toBe(false);
+    context.currentTime = 1.76;
     await expect(engine.playSfx('selection')).resolves.toBe(true);
     expect(context.createOscillator).toHaveBeenCalledTimes(8);
+  });
+
+  test('a pending timer alert supersedes pending SFX and drops duplicate or competing requests', async () => {
+    let finishResume;
+    context.resume.mockImplementation(() => new Promise(resolve => {
+      finishResume = () => { context.state = 'running'; resolve(); };
+    }));
+    const pendingSfx = engine.playSfx('purchase');
+    // Both requests can await the same browser resume; resolve both together.
+    const firstResume = finishResume;
+    const pendingAlert = engine.chime();
+    const secondResume = finishResume;
+    await expect(engine.chime()).resolves.toBe(false);
+    await expect(engine.playSfx('check')).resolves.toBe(false);
+    firstResume(); secondResume();
+    await expect(pendingSfx).resolves.toBe(false);
+    await expect(pendingAlert).resolves.toBe(true);
+    expect(context.createOscillator).toHaveBeenCalledTimes(3);
+  });
+
+  test('repeating reminders keep interaction sounds quiet until explicitly stopped', async () => {
+    await engine.startAlarm();
+    context.currentTime = 4;
+    await expect(engine.playSfx('purchase')).resolves.toBe(false);
+    await expect(engine.chime()).resolves.toBe(false);
+    engine.stopAlarm();
+    await expect(engine.playSfx('purchase')).resolves.toBe(true);
+    expect(context.createOscillator).toHaveBeenCalledTimes(5);
+    jest.advanceTimersByTime(8000);
+    expect(context.createOscillator).toHaveBeenCalledTimes(5);
+  });
+
+  test('timer mute cancels one-shot alerts and a pending chime without muting ambience or later SFX', async () => {
+    await engine.start();
+    await engine.chime();
+    const notes = context.sources.slice(3);
+    engine.stopAlerts();
+    notes.forEach(note => expect(note.disconnect).toHaveBeenCalledTimes(1));
+    expect(engine.playing).toBe(true);
+    await expect(engine.tap()).resolves.toBe(true);
+    context.currentTime = 2;
+    context.state = 'suspended';
+    let finishResume;
+    context.resume.mockImplementationOnce(() => new Promise(resolve => {
+      finishResume = () => { context.state = 'running'; resolve(); };
+    }));
+    const pending = engine.chime();
+    engine.stopAlerts();
+    finishResume();
+    await expect(pending).resolves.toBe(false);
+    expect(context.createOscillator).toHaveBeenCalledTimes(4);
+  });
+
+  test('dismissed effects release their notes and invalidate an effect awaiting unlock', async () => {
+    await engine.playSfx('hatch');
+    const notes = context.sources.slice(3);
+    engine.cancelSfx();
+    notes.forEach(note => expect(note.disconnect).toHaveBeenCalledTimes(1));
+    context.currentTime = 1;
+    context.state = 'suspended';
+    let finishResume;
+    context.resume.mockImplementationOnce(() => new Promise(resolve => {
+      finishResume = () => { context.state = 'running'; resolve(); };
+    }));
+    const pending = engine.playSfx('hatch');
+    engine.cancelSfx();
+    finishResume();
+    await expect(pending).resolves.toBe(false);
+    expect(context.createOscillator).toHaveBeenCalledTimes(4);
+  });
+
+  test('a partially failed one-shot alert releases its earlier notes and permits retry', async () => {
+    await engine.unlock();
+    const makeGain = context.createGain.getMockImplementation();
+    context.createGain.mockImplementationOnce(makeGain).mockImplementationOnce(() => { throw new Error('Unavailable node'); });
+    await expect(engine.chime()).resolves.toBe(false);
+    context.sources.slice(3).forEach(note => expect(note.disconnect).toHaveBeenCalled());
+    await expect(engine.chime()).resolves.toBe(true);
   });
 
   test('muting a long effect releases its overlap reservation for subsequent gestures', async () => {
@@ -333,7 +414,7 @@ describe('ambient audio lifecycle', () => {
     expect(globalThis.AudioContext).toHaveBeenCalledTimes(1);
   });
 
-  test('stopping an alarm silences current and scheduled notes while preserving ambience and one-shot effects', async () => {
+  test('starting an alarm retires taps and stopping it silences its notes while preserving ambience', async () => {
     await engine.start();
     await engine.tap();
     const tap = context.sources[3];
@@ -347,8 +428,8 @@ describe('ambient audio lifecycle', () => {
       expect(note.disconnect).toHaveBeenCalledTimes(1);
       expect(note.onended).toBeNull();
     });
-    expect(tap.disconnect).not.toHaveBeenCalled();
-    expect(tap.stop).toHaveBeenCalledTimes(1);
+    expect(tap.disconnect).toHaveBeenCalledTimes(1);
+    expect(tap.stop).toHaveBeenCalledTimes(2);
     expect(engine.playing).toBe(true);
     jest.advanceTimersByTime(24000);
     await Promise.resolve();

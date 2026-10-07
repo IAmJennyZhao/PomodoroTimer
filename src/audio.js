@@ -48,6 +48,9 @@ export function createAmbientEngine() {
   let interactionPending = false;
   let lastInteractionAt = -Infinity;
   let interactionEndsAt = -Infinity;
+  let alertEndsAt = -Infinity;
+  let chimePending = false;
+  let alertGeneration = 0;
   let crackleBuffer = null;
   let crackleInterval = null;
   let idleTimeout = null;
@@ -326,12 +329,27 @@ export function createAmbientEngine() {
   }
 
   function playChime(kind = "effect") {
-    return (
-      tone(523.25, 0, 0.9, 0.1, kind) &&
+    const previousEffects = new Set(effects);
+    const played = tone(523.25, 0, 0.9, 0.1, kind) &&
       tone(659.25, 0.16, 1, 0.075, kind) &&
-      tone(783.99, 0.32, 1.3, 0.065, kind)
-    );
+      tone(783.99, 0.32, 1.3, 0.065, kind);
+    if (played) alertEndsAt = context.currentTime + 1.64;
+    else effects.forEach(effect => {
+      if (!previousEffects.has(effect) && effect.kind === kind) cancelEffect(effect);
+    });
+    return played;
   }
+
+  function cancelSfx() {
+    // Invalidate pending unlocks as well as active notes. Nothing is queued
+    // to replay after an alert, a dismissed hatch or a mute/unmute cycle.
+    interactionGeneration += 1;
+    interactionEndsAt = -Infinity;
+    effects.forEach(effect => { if (effect.kind === "interaction") cancelEffect(effect); });
+    suspendWhenIdle();
+  }
+
+  const alertBusy = () => wantedAlarm || chimePending || (context && context.currentTime < alertEndsAt);
 
   async function unlock() {
     const available = await ready();
@@ -340,10 +358,17 @@ export function createAmbientEngine() {
   }
 
   async function chime() {
-    if (!(await ready()) || destroyed || !context) return false;
-    const played = playChime();
-    suspendWhenIdle();
-    return played;
+    if (destroyed || alertBusy()) return false;
+    const generation = alertGeneration;
+    chimePending = true;
+    cancelSfx();
+    try {
+      if (!(await ready()) || destroyed || !context || generation !== alertGeneration || wantedAlarm) return false;
+      return playChime("alert");
+    } finally {
+      chimePending = false;
+      suspendWhenIdle();
+    }
   }
 
   function setInteractionSfx({ enabled, volume } = {}) {
@@ -353,11 +378,7 @@ export function createAmbientEngine() {
     if (!interactionEnabled || interactionVolume === 0) {
       // Also invalidate an effect awaiting browser unlock: unmuting later must
       // never replay a click made before/during mute.
-      interactionGeneration += 1;
-      interactionEndsAt = -Infinity;
-      effects.forEach(effect => {
-        if (effect.kind === "interaction") cancelEffect(effect);
-      });
+      cancelSfx();
     }
     if (context && context.state !== "closed" && interactionOutput)
       fade(interactionOutput.gain, interactionEnabled ? interactionVolume : 0, 0.008);
@@ -397,7 +418,7 @@ export function createAmbientEngine() {
   }
 
   async function playSfx(name = "tap", { onUnavailable } = {}) {
-    if (destroyed || !interactionEnabled || interactionVolume === 0 || interactionPending ||
+    if (destroyed || !interactionEnabled || interactionVolume === 0 || interactionPending || alertBusy() ||
       !Object.prototype.hasOwnProperty.call(SFX_PALETTE, name)) return false;
     const generation = interactionGeneration;
     // Drop rapid requests instead of queueing a burst after a slow resume.
@@ -405,7 +426,7 @@ export function createAmbientEngine() {
     try {
       const available = await ready();
       if (destroyed || generation !== interactionGeneration ||
-        !interactionEnabled || interactionVolume === 0) return false;
+        !interactionEnabled || interactionVolume === 0 || alertBusy()) return false;
       // A throttled/muted request is expected, not an unavailable audio device.
       if (!available || !context) { onUnavailable?.(); return false; }
       if (context.currentTime - lastInteractionAt < SFX_COOLDOWN_SECONDS ||
@@ -417,7 +438,7 @@ export function createAmbientEngine() {
       if (played) {
         lastInteractionAt = context.currentTime;
         // One interaction sound group at a time, including multi-note effects.
-        // Alerts/ambience keep their independent routing and are never cut off.
+        // Timer alerts take priority; ambience keeps its independent routing.
         interactionEndsAt = context.currentTime + (sound === "paper" ? 0.15
           : Math.max(...sound.map(([, offset, length]) => offset + length + 0.02)));
       }
@@ -439,6 +460,7 @@ export function createAmbientEngine() {
   }
 
   function stopAlarm() {
+    const wasRinging = wantedAlarm;
     wantedAlarm = false;
     alarmGeneration += 1;
     alarmStartPromise = null;
@@ -447,10 +469,20 @@ export function createAmbientEngine() {
     effects.forEach((effect) => {
       if (effect.kind === "alarm") cancelEffect(effect);
     });
+    if (wasRinging) alertEndsAt = -Infinity;
+    suspendWhenIdle();
+  }
+
+  function stopAlerts() {
+    stopAlarm();
+    alertGeneration += 1;
+    alertEndsAt = -Infinity;
+    effects.forEach(effect => { if (effect.kind === "alert") cancelEffect(effect); });
     suspendWhenIdle();
   }
 
   async function ringAlarm(generation) {
+    cancelSfx();
     const available = await ready();
     if (!wantedAlarm || destroyed || generation !== alarmGeneration) {
       suspendWhenIdle();
@@ -466,6 +498,7 @@ export function createAmbientEngine() {
   function startAlarm() {
     if (destroyed) return Promise.resolve(false);
     if (wantedAlarm) return alarmStartPromise || Promise.resolve(true);
+    stopAlerts();
     wantedAlarm = true;
     const generation = ++alarmGeneration;
     alarmStartPromise = ringAlarm(generation).then((played) => {
@@ -526,9 +559,11 @@ export function createAmbientEngine() {
     chime,
     tap,
     playSfx,
+    cancelSfx,
     setInteractionSfx,
     startAlarm,
     stopAlarm,
+    stopAlerts,
     destroy,
     get playing() {
       return wantedPlaying && context?.state === "running";

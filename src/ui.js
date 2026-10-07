@@ -477,7 +477,7 @@ export function HatchModal({ animal, duplicate = false, capped = false, onClose 
         }}
       >
         <div className="paper-corners" aria-hidden="true"><i /><i /><i /><i /></div>
-        <Button type="button" className="icon-button hatch-close" aria-label="Close celebration" onClick={onClose}><Icon name="close" /></Button>
+        <Button sound={null} type="button" className="icon-button hatch-close" aria-label="Close celebration" onClick={onClose}><Icon name="close" /></Button>
         <div className="hatch-portrait" role="img" aria-label={`${animal.name}, ${RARITY_NAMES[animal.rarity]} ${animal.species}`}>
           {phase !== "settled" && !reduced && <div className="hatch-anticipation" aria-hidden="true"><Sprite kind="object" id={animal.rarity} className="hatch-reveal-egg" /></div>}
           <div className="hatch-result-art">
@@ -492,7 +492,7 @@ export function HatchModal({ animal, duplicate = false, capped = false, onClose 
           ? "All 7 animations · +10% focus gems"
           : `Animation ${(animal.upgrades || 0) + 1} / 7 · Upgrade ${animal.upgrades} / 6`}</p>}
         </div>
-        <Button ref={buttonRef} type="button" className="primary-button celebration-done" onClick={onClose}>
+        <Button sound={null} ref={buttonRef} type="button" className="primary-button celebration-done" onClick={onClose}>
           <PastelButtonArt />Done
         </Button>
       </section>

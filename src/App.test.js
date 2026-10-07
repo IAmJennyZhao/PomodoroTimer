@@ -72,6 +72,7 @@ beforeEach(() => {
     tap: jest.fn().mockResolvedValue(true), chime: jest.fn().mockResolvedValue(true),
     unlock: jest.fn().mockResolvedValue(true), startAlarm: jest.fn().mockReturnValue(true), stopAlarm: jest.fn(),
     setVolume: jest.fn(), setInteractionSfx: jest.fn(), playSfx: jest.fn().mockResolvedValue(true),
+    cancelSfx: jest.fn(), stopAlerts: jest.fn(),
     destroy: jest.fn().mockResolvedValue(),
   };
   createAmbientEngine.mockReset().mockReturnValue(engine);
@@ -361,9 +362,11 @@ test.each([
   expect(engine.playSfx.mock.calls).toEqual([[sound]]);
   fireEvent.keyDown(screen.getByRole('button', { name: 'Done' }), { key: 'Escape' });
   expect(screen.queryByRole('dialog', { name: title })).not.toBeInTheDocument();
+  expect(engine.cancelSfx).toHaveBeenCalledTimes(1);
   await advance(1000);
   expect(screen.queryByRole('dialog', { name: title })).not.toBeInTheDocument();
   expect(engine.playSfx.mock.calls).toEqual([[sound]]);
+  expect(engine.tap).not.toHaveBeenCalled();
   expect(diskState.eggs).toEqual([]);
   expect(diskState.animals).toHaveLength(rarity === 'basic' ? 2 : 1);
   view.unmount();
