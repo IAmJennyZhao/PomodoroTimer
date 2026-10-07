@@ -23,7 +23,8 @@
   .app.focus-view .focus-area { width: calc(100% - 28px); max-height: calc(100% - 28px); }
   .app.focus-view .timer-card { padding: 20px 20px 28px; }
   .app.focus-view .timer-face { min-height: 180px; padding: 18px 0; }
-  .app.focus-view .timer-digits { font-size: clamp(92px, 17vw, 124px); letter-spacing: -3px; }
-  .app.focus-view .timer-digits.long-clock { font-size: clamp(54px, 11vw, 76px); letter-spacing: -2px; }
+  .app.focus-view .timer-face { container-type: inline-size; width: 100%; }
+  .app.focus-view .timer-digits { font-size: min(clamp(92px, 17vw, 124px), calc(190cqi / var(--clock-characters, 5))); letter-spacing: -3px; }
+  .app.focus-view .timer-digits.long-clock { font-size: min(clamp(54px, 11vw, 76px), calc(190cqi / var(--clock-characters, 8))); letter-spacing: -2px; }
   .app.focus-view .timer-tools .icon-button { width: 27px; min-width: 27px; height: 30px; }
 }

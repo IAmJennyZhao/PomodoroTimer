@@ -34,6 +34,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
   const pauseExpired = limitedPauses && paused && forfeited;
   const pauseTitle = timer.pauseCount > MAX_PAUSES ? "Pause limit reached" : "Pause ended";
   const showPauseClock = limitedPauses && paused && !forfeited;
+  const clockDisplay = showPauseClock ? formatTime(pauseRemainingTime(timer, now)) : display;
   const receipt = complete ? state.history.find(entry => entry.id === timer.id) : null;
   const completedMinutes = receipt?.minutes ?? Math.floor(elapsed / 60000);
   const completedGems = forfeited ? 0 : receipt?.gems ?? receipt?.minutes ?? 0;
@@ -74,8 +75,8 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
             <InfoTip label="Pause limit details">Only this session’s Shilligems are lost. Resume and finish to record your study time.</InfoTip>
           </div>
           : <>{complete && <div className="session-result-heading"><span className="feedback-emblem success"><Icon name="check" size={18} /></span><span>Session complete</span></div>}
-          <div className={`timer-digits ${display.length > 6 ? "long-clock" : ""}`} role="timer" aria-label={showPauseClock ? `${formatTime(pauseRemainingTime(timer, now))} pause remaining` : `${display} ${counting ? timer.overtime ? "overtime" : "elapsed" : "remaining"}`}>
-            {showPauseClock ? formatTime(pauseRemainingTime(timer, now)) : display}</div>
+          <div style={{ "--clock-characters": clockDisplay.length }} className={`timer-digits ${clockDisplay.length > 6 ? "long-clock" : ""}`} role="timer" aria-label={showPauseClock ? `${clockDisplay} pause remaining` : `${display} ${counting ? timer.overtime ? "overtime" : "elapsed" : "remaining"}`}>
+            {clockDisplay}</div>
           {showPauseClock && <span className="clock-caption">Pause</span>}
           {timer.overtime && !showPauseClock && <span className="clock-caption">Overtime</span>}
           {timer.overtime && !showPauseClock && <span className="elapsed-total">{formatElapsedTime(elapsed)} total</span>}</>}

@@ -427,7 +427,7 @@ export default function App() {
     <OutcomeFeedbackContext.Provider value={outcomes}>
     <PetResponseContext.Provider value={respondToPet}>
     <div
-      className={`app ${state.room.background} ${reducedMotion ? "reduce-motion" : ""} ${panel ? "panel-open" : ""} ${widePanel ? "wide-panel-open" : ""} ${sidePanel ? "side-panel-open" : ""} ${focusView ? "focus-view" : ""} ${arranging ? "is-arranging" : ""}`}
+      className={`app ${state.room.background} ${reducedMotion ? "reduce-motion" : ""} ${panel ? "panel-open" : ""} ${widePanel ? "wide-panel-open" : ""} ${sidePanel ? "side-panel-open" : ""} ${focusView ? "focus-view" : ""} ${arranging ? "is-arranging" : ""} ${ready && ["error", "conflict"].includes(status) ? "has-save-notice" : ""}`}
     >
       <div
         className="room-scene"

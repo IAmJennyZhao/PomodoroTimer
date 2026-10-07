@@ -55,8 +55,20 @@ export function ToastNotice({ notice, onDismiss, onPauseChange, active = true })
 }
 
 export function SaveNotice({ persistence }) {
+  const ref = useRef(null);
+  useLayoutEffect(() => {
+    const node = ref.current;
+    const app = node?.closest('.app');
+    if (!app) return undefined;
+    const measure = () => app.style.setProperty('--save-notice-height', `${node.getBoundingClientRect().height}px`);
+    measure();
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    observer?.observe(node);
+    window.addEventListener("resize", measure);
+    return () => { observer?.disconnect(); window.removeEventListener("resize", measure); app.style.removeProperty('--save-notice-height'); };
+  }, []);
   const conflict = persistence.status === "conflict";
-  return <section className="save-warning feedback-note paper" role="alert" aria-labelledby="save-notice-title">
+  return <section ref={ref} className="save-warning feedback-note paper" role="alert" aria-labelledby="save-notice-title">
     <span className="feedback-emblem warning"><Icon name="note" size={20} /></span>
     <div className="save-notice-copy">
       <h2 id="save-notice-title">{conflict ? "Save changed elsewhere" : "Changes not saved"}</h2>

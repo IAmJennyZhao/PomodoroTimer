@@ -87,6 +87,8 @@
 .app .celebration-done.primary-button:active:enabled { box-shadow: none; filter: brightness(.88); }
 @media (max-width: 600px) {
   .app .toast-region { bottom: 56px; }
+  .app .save-warning.feedback-note { left: 12px; }
+  .app.focus-view.has-save-notice .focus-area { top: calc(32px + var(--save-notice-height, 140px)); transform: translateX(-50%); max-height: calc(100% - var(--save-notice-height, 140px) - 48px); }
   .app .pause-expired strong { font-size: 29px; }
   .app .session-result-heading { font-size: 18px; }
   .app .session-complete .timer-digits { font-size: 64px; }
