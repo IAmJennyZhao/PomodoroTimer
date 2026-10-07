@@ -1,15 +1,19 @@
 import { Button } from "./Controls";
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { canTakeBreak, elapsedTime, formatElapsedTime, formatTime, gemBonus, isCountingUp, MAX_PAUSES, pauseRemainingTime, remainingTime } from "./game";
 import { Icon, InfoTip } from "./ui";
 import SessionTasks from "./SessionTasks";
 import { ArtFragment, PastelButtonArt } from "./AtelierArt";
 import HoldToStop from "./HoldToStop";
+import { OutcomeFeedbackContext } from "./OutcomeFeedback";
 
 export default function TimerCard({ state, act, now, ready, blocked, onToggleTimer,
   openPanel, panel, notesOpen, focusView, setFocusView, alarmSilenced, silenceAlarm,
   alarmBlocked, retryAlarm, tip, nextTip, cardRef }) {
   const { timer, settings } = state;
+  const sessionOutcome = useContext(OutcomeFeedbackContext).session;
+  const revealReceipt = sessionOutcome?.target === timer.id;
+  const earnedNow = revealReceipt && sessionOutcome.gems > 0;
   const counting = isCountingUp(timer);
   const elapsed = elapsedTime(timer, now);
   const remaining = remainingTime(timer, now);
@@ -81,7 +85,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
           <PastelButtonArt />
           <span>Start</span>
         </Button>}
-        {counting && timer.status !== "idle" ? <Button className="icon-button finish-button" aria-label="Finish session" title="Finish session" onClick={() => act({ type: "FINISH_FOCUS" })}><Icon name="check" size={20} /></Button>
+        {counting && timer.status !== "idle" ? <Button sound={null} className="icon-button finish-button" aria-label="Finish session" title="Finish session" onClick={() => act({ type: "FINISH_FOCUS" })}><Icon name="check" size={20} /></Button>
           : breakTime ? <Button className="icon-button" aria-label="Skip break" title="Skip break" onClick={() => act({ type: "SET_MODE", mode: "focus" })}><Icon name="skip" size={19} /></Button> : null}
       </div>}
       {breakReady && <div className="break-choices">
@@ -98,8 +102,8 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
         {complete && <Button className="text-button new-session" onClick={() => act({ type: "SET_MODE", mode: "focus" })}>New session</Button>}
       </div>}
       {!focusView && !pauseExpired && <div className="timer-options">
-        {complete ? <div className={`session-receipt ${forfeited ? "forfeited" : ""}`} aria-label="Session result">
-          <span aria-label={`${completedGems} Shilligems earned`}><Icon name="gem" size={18} />+{completedGems}</span>
+        {complete ? <div className={`session-receipt ${forfeited ? "forfeited" : ""} ${revealReceipt ? "receipt-reveal" : ""}`} aria-label="Session result">
+          <span key={earnedNow ? sessionOutcome.id : timer.id} className={earnedNow ? "reward-earned" : undefined} aria-label={`${completedGems} Shilligems earned`}><Icon name="gem" size={18} />+{completedGems}</span>
           <span>{completedMinutes ? `${completedMinutes} min` : "Under 1 min"}</span>
           {forfeited && <InfoTip label="Session reward details">Session gems were lost after the pause limit. Your {completedMinutes} focus minutes were recorded.</InfoTip>}
         </div> : !breakTime ? <span className={`session-reward ${forfeited ? "forfeited" : ""}`} aria-label={forfeited ? "0 Shilligems this session" : undefined}><Icon name="gem" size={15} />{forfeited ? "0" : counting ? `1 / min${bonus ? ` +${Math.round(bonus * 100)}%` : ""}` : `+${projectedGems}`}

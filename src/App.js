@@ -53,7 +53,7 @@ import "./motion.css";
 import "./tactile-controls.css";
 import { Presence, TimerTransition } from "./Transitions";
 import "./transitions.css";
-import { OutcomeFeedbackContext, useOutcomeFeedback } from "./OutcomeFeedback";
+import { OutcomeAccent, OutcomeFeedbackContext, useOutcomeFeedback } from "./OutcomeFeedback";
 import "./outcomes.css";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
@@ -231,11 +231,17 @@ export default function App() {
     if (event.type === "animal-hatched") setHatch(event);
     else if (event.type === "focus-complete" || event.type === "focus-finished") {
       const stats = todayStats(state);
-      const goalComplete = stats.sessions === stats.goal && event.minutes > 0;
+      const goalComplete = stats.sessions === stats.goal && event.minutes > 0 && event.firstCredit;
+      showOutcome("session", { id: event.id, target: event.sessionId, gems: event.gems });
+      if (goalComplete) showOutcome("goal", { id: event.id, target: "daily" });
+      // Timed completion keeps its existing alert; manual finishing and muted
+      // timer alerts may use the softer outcome check, never both.
+      const manualFinish = event.type === "focus-finished" || state.timer.workMode === "countup";
+      if (event.gems > 0 && (manualFinish || !state.settings.soundEnabled)) playControlFeedback("check");
       notify(goalComplete ? "Daily goal complete!" : event.message, "success", goalComplete);
       setTip(Math.floor(Math.random() * BREAK_IDEAS.length));
       if (state.timer.overtime && state.timer.status !== "complete") notify("Target reached · counting up");
-      if (event.type === "focus-complete" && state.settings.soundEnabled && !(state.timer.status === "complete" && state.timer.workMode === "pomodoro" && state.timer.endBehavior === "remind")) engine.current?.chime();
+      if (event.type === "focus-complete" && !manualFinish && state.settings.soundEnabled && !(state.timer.status === "complete" && state.timer.workMode === "pomodoro" && state.timer.endBehavior === "remind")) engine.current?.chime();
     } else if (event.type === "reward-forfeited") {
       notify(null);
       setFocusView(false);
@@ -487,6 +493,7 @@ export default function App() {
           aria-label={`Daily progress: ${stats.sessions} of ${stats.goal} sessions`}
         >
           <ArtFragment rect={[600, 538, 335, 382]} className="daily-note-art" />
+          <OutcomeAccent channel="goal" target="daily" className="goal-accent" />
           <span>
             <strong>
               Daily goal
@@ -499,6 +506,7 @@ export default function App() {
                 <i
                   key={index}
                   className={index < stats.sessions ? "filled" : ""}
+                  data-goal-mark={outcomes.goal && index === stats.sessions - 1 ? "true" : undefined}
                 />
               ))}
             </span>}

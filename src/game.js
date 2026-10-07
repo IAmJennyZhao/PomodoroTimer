@@ -407,7 +407,8 @@ function completeFocus(state, now) {
         : `Focus complete · +${credited.addedGems} Shilligem${credited.addedGems === 1 ? "" : "s"}`
       : "Session ended · under 1 min",
     now,
-    { gems: credited.addedGems, minutes: credited.minutes },
+    { gems: credited.addedGems, minutes: credited.minutes, sessionId: state.timer.id,
+      firstCredit: !state.history.some(entry => entry.id === state.timer.id) },
   );
 }
 
@@ -450,7 +451,8 @@ function settleTimer(state, now, allowAutoStart = true) {
     timer.rewardForfeited ? "Focus complete · Shilligems forfeited after pause limit"
       : `Focus complete · +${credited.addedGems} Shilligem${credited.addedGems === 1 ? "" : "s"}`,
     now,
-    { gems: credited.addedGems, minutes: credited.minutes },
+    { gems: credited.addedGems, minutes: credited.minutes, sessionId: state.timer.id,
+      firstCredit: !state.history.some(entry => entry.id === state.timer.id) },
   );
   // A delayed tick/reload may cross the cap, but never creates another work session.
   return overtime && elapsedTime(next, now) >= MAX_TRACKED_MS

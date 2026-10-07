@@ -9,3 +9,12 @@
   100% { opacity: 0; scale: 1; }
 }
 @media (forced-colors: active) { .purchase-accent { border-color: Highlight; } }
+.receipt-reveal { animation: receipt-reveal var(--motion-reward-duration) var(--motion-ease-release) both; }
+.reward-earned { animation: reward-earned var(--motion-reward-duration) var(--motion-ease-release) both; }
+.goal-accent { inset: 16px 12px 10px; border: 1px solid #8d9d8370; border-radius: 8px; animation: purchase-confirm var(--motion-reward-duration) var(--motion-ease-release) both; }
+.session-markers i[data-goal-mark="true"] { animation: goal-mark var(--motion-reward-duration) var(--motion-ease-release) both; }
+.session-markers i { transition: background-color var(--motion-transition-duration) var(--motion-ease); }
+.daily-goal-meter i { transition: width var(--motion-transition-duration) var(--motion-ease); }
+@keyframes receipt-reveal { from { opacity: .35; translate: 0 3px; } to { opacity: 1; translate: 0 0; } }
+@keyframes reward-earned { 0%,100% { translate: 0 0; } 40% { translate: 0 var(--motion-lift-y); } }
+@keyframes goal-mark { 0% { scale: .9; } 45% { scale: 1.15; } 100% { scale: 1; } }

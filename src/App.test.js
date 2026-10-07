@@ -185,6 +185,10 @@ test('a completed focus session updates the wallet, daily goal, journal, break i
   expect(screen.getByLabelText('25 Shilligems earned')).toBeInTheDocument();
   expect(engine.startAlarm).toHaveBeenCalledTimes(1);
   expect(engine.chime).not.toHaveBeenCalled();
+  expect(engine.playSfx).not.toHaveBeenCalledWith('check');
+  expect(document.querySelector('.receipt-reveal')).toBeInTheDocument();
+  expect(document.querySelector('.reward-earned')).toBeInTheDocument();
+  expect(document.querySelector('.goal-accent')).toBeInTheDocument();
   await advance(7000);
   expect(screen.queryByRole('button', { name: 'Dismiss notification' })).not.toBeInTheDocument();
   expect(screen.getByLabelText('Session result')).toHaveTextContent('25 min');
@@ -211,6 +215,53 @@ test('a completed focus session updates the wallet, daily goal, journal, break i
   expect(engine.stopAlarm.mock.calls.length).toBeGreaterThan(stoppedBeforeBreak);
   await wakeAt(NOW + 12 * 60 * MINUTE);
   expect(screen.getByRole('button', { name: '25 Shilligems, open egg shop' })).toBeInTheDocument();
+  expect(engine.chime).toHaveBeenCalledTimes(1);
+});
+
+test('manual completion owns a soft check and restored rewards do not replay', async () => {
+  const initial = createInitialState(NOW);
+  initial.settings.workMode = 'countup';
+  initial.timer.workMode = 'countup';
+  const view = await openRoom(initial);
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  await wakeAt(NOW + MINUTE);
+  engine.tap.mockClear();
+  engine.playSfx.mockClear();
+  fireEvent.click(screen.getByRole('button', { name: 'Finish session' }));
+  expect(engine.tap).not.toHaveBeenCalled();
+  expect(engine.playSfx.mock.calls).toEqual([['check']]);
+  expect(engine.chime).not.toHaveBeenCalled();
+  expect(document.querySelector('.reward-earned')).toBeInTheDocument();
+  await advance(650);
+  expect(document.querySelector('.reward-earned')).not.toBeInTheDocument();
+  view.unmount();
+  engine.playSfx.mockClear();
+  render(<App />);
+  await settle();
+  expect(screen.getByLabelText('1 Shilligems earned')).toBeInTheDocument();
+  expect(document.querySelector('.receipt-reveal')).not.toBeInTheDocument();
+  expect(engine.playSfx).not.toHaveBeenCalledWith('check');
+});
+
+test('settling overtime never celebrates an already credited daily goal twice', async () => {
+  const initial = createInitialState(NOW);
+  initial.settings.focusMinutes = 1;
+  initial.settings.dailyGoal = 1;
+  initial.settings.endBehavior = 'overtime';
+  initial.timer.endBehavior = 'overtime';
+  initial.timer.durationMs = MINUTE;
+  initial.timer.remainingMs = MINUTE;
+  await openRoom(initial);
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  await wakeAt(NOW + MINUTE);
+  expect(document.querySelector('.goal-accent')).toBeInTheDocument();
+  expect(engine.chime).toHaveBeenCalledTimes(1);
+  expect(engine.playSfx).not.toHaveBeenCalledWith('check');
+  await advance(650);
+  await wakeAt(NOW + 2 * MINUTE);
+  fireEvent.click(screen.getByRole('button', { name: 'Finish session' }));
+  expect(document.querySelector('.goal-accent')).not.toBeInTheDocument();
+  expect(engine.playSfx).toHaveBeenCalledWith('check');
   expect(engine.chime).toHaveBeenCalledTimes(1);
 });
 
