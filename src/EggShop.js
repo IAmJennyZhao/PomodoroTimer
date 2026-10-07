@@ -2,6 +2,7 @@ import { Button } from "./Controls";
 import { ANIMALS, RARITIES, RARITY_STARS, EGG_MINUTES, spendableGems } from "./game";
 import { Icon, InfoTip, Sprite } from "./ui";
 import { ArtFragment, ATELIER_ART, PastelButtonArt } from "./AtelierArt";
+import { OutcomeAccent } from "./OutcomeFeedback";
 
 const title = (value) => value.charAt(0).toUpperCase() + value.slice(1);
 
@@ -18,16 +19,18 @@ export default function EggShop({ state, act }) {
         <Sprite kind="object" id="basic" className="basic-display-egg" />
         <ArtFragment rect={[1090, 126, 388, 349]} className="basic-pedestal" />
         <div className="basic-plaque"><h3>Basic</h3><span className="shop-stars" aria-label="1 star">★</span>
-          <Button className="pastel-purchase" aria-label="Buy basic egg for 25 Shilligems" disabled={available < 25} onClick={() => act({ type: "BUY_EGG", kind: "basic" })}>
+          <Button sound={null} className="pastel-purchase" aria-label="Buy basic egg for 25 Shilligems" disabled={available < 25} onClick={() => act({ type: "BUY_EGG", kind: "basic" })}>
             <PastelButtonArt /><span><Icon name="gem" size={18} />25</span>
+            <OutcomeAccent channel="purchase" target="egg:basic" className="purchase-accent" />
           </Button>
         </div>
       </section>
       <section className="mystery-machine" aria-label="Mystery egg machine">
         <img className="machine-art" src={`${ATELIER_ART}/gumball-machine.png`} alt="" />
         <div className="machine-plaque"><h3>Mystery</h3><span className="shop-stars" aria-label="2 to 4 stars">★★ ~ ★★★★</span>
-          <Button className="pastel-purchase" aria-label="Roll mystery egg for 60 Shilligems" disabled={available < 60} onClick={() => act({ type: "BUY_EGG", kind: "mystery" })}>
+          <Button sound={null} className="pastel-purchase" aria-label="Roll mystery egg for 60 Shilligems" disabled={available < 60} onClick={() => act({ type: "BUY_EGG", kind: "mystery" })}>
             <PastelButtonArt /><span><Icon name="gem" size={18} />Roll 60</span>
+            <OutcomeAccent channel="purchase" target="egg:mystery" className="purchase-accent" />
           </Button>
         </div>
       </section>
@@ -47,6 +50,7 @@ export default function EggShop({ state, act }) {
         const ready = progress >= required;
         const selected = egg.id === state.selectedEggId;
         return <div className={`nest-egg ${selected ? "selected" : ""}`} key={egg.id}>
+          <OutcomeAccent channel="purchase" target={egg.id} className="purchase-accent egg-arrival" />
           <Button className="nest-select" aria-pressed={selected} aria-label={`${selected ? "Deselect" : "Select"} ${egg.rarity} egg ${index + 1}`} title={`${title(egg.rarity)} · ${RARITY_STARS[egg.rarity]} stars${index === 0 ? " · oldest" : ""}`} onClick={() => act({ type: "SELECT_EGG", id: selected ? null : egg.id })}>
             <Sprite kind="object" id={egg.rarity} />
             <ArtFragment rect={[84, 690, 369, 219]} className="egg-cup" />

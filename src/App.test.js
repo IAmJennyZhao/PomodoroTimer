@@ -102,6 +102,58 @@ test('large wallets use a compact header count while exposing the exact balance'
   expect(diskState.gems).toBe(123456789);
 });
 
+test('confirmed egg purchases own their sound and replace transient accents without replay on reload', async () => {
+  const view = await openRoom({ ...createInitialState(NOW), gems: 50 });
+  fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));
+  engine.tap.mockClear();
+  engine.playSfx.mockClear();
+  const buy = screen.getByRole('button', { name: /Buy basic egg/ });
+  fireEvent.click(buy);
+  expect(engine.tap).not.toHaveBeenCalled();
+  expect(engine.playSfx.mock.calls).toEqual([['purchase']]);
+  expect(document.querySelectorAll('.nest-egg .purchase-accent')).toHaveLength(1);
+  const first = document.querySelector('.nest-egg .purchase-accent');
+  await advance(200);
+  fireEvent.click(buy);
+  expect(engine.playSfx.mock.calls).toEqual([['purchase'], ['purchase']]);
+  expect(first).not.toBeInTheDocument();
+  expect(document.querySelectorAll('.nest-egg .purchase-accent')).toHaveLength(1);
+  expect(buy).toBeDisabled();
+  fireEvent.click(buy);
+  expect(engine.playSfx).toHaveBeenCalledTimes(2);
+  await advance(450);
+  expect(document.querySelector('.purchase-accent')).toBeInTheDocument();
+  await advance(200);
+  expect(document.querySelector('.purchase-accent')).not.toBeInTheDocument();
+  expect(diskState.eggs).toHaveLength(2);
+  expect(diskState.event).toBeNull();
+  view.unmount();
+  engine.playSfx.mockClear();
+  render(<App />);
+  await settle();
+  fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));
+  expect(engine.playSfx).not.toHaveBeenCalledWith('purchase');
+  expect(document.querySelector('.purchase-accent')).not.toBeInTheDocument();
+});
+
+test('furniture purchases acknowledge the matching card and never replace its controls', async () => {
+  await openRoom({ ...createInitialState(NOW), gems: 50 });
+  fireEvent.click(screen.getByRole('button', { name: 'Decorate' }));
+  const buy = screen.getByRole('button', { name: 'Unlock Cozy cushion for 25 Shilligems' });
+  const card = buy.closest('.catalogue-item');
+  engine.tap.mockClear();
+  engine.playSfx.mockClear();
+  fireEvent.click(buy);
+  expect(engine.tap).not.toHaveBeenCalled();
+  expect(engine.playSfx).toHaveBeenLastCalledWith('purchase');
+  expect(card.querySelector('.purchase-accent')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Add Cozy cushion' })).toBe(buy);
+  fireEvent.click(screen.getByRole('button', { name: 'Buy another Cozy cushion for 25 Shilligems' }));
+  expect(engine.playSfx).toHaveBeenCalledTimes(2);
+  await advance(700);
+  expect(card.querySelector('.purchase-accent')).not.toBeInTheDocument();
+});
+
 test('large daily goals show the true count instead of a completed row of capped dots', async () => {
   const initial = createInitialState(NOW);
   initial.settings.dailyGoal = 24;

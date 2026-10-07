@@ -53,6 +53,8 @@ import "./motion.css";
 import "./tactile-controls.css";
 import { Presence, TimerTransition } from "./Transitions";
 import "./transitions.css";
+import { OutcomeFeedbackContext, useOutcomeFeedback } from "./OutcomeFeedback";
+import "./outcomes.css";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
 
@@ -111,6 +113,7 @@ export default function App() {
     if (!message || !visible) setToastPaused(false);
   }, []);
   const [hatch, setHatch] = useState(null);
+  const [outcomes, showOutcome] = useOutcomeFeedback();
   const [playing, setPlaying] = useState(false);
   const engine = useRef(null);
   const playControlFeedback = useCallback(name => {
@@ -240,12 +243,18 @@ export default function App() {
       if (state.settings.soundEnabled) engine.current?.chime();
     } else if (event.type === "egg-bought") {
       notify("Egg added");
+      showOutcome("purchase", { id: event.id, target: event.egg.id, targets: [`egg:${event.egg.rarity === "basic" ? "basic" : "mystery"}`] });
+      playControlFeedback("purchase");
+    } else if (event.type === "item-bought") {
+      notify(event.message);
+      showOutcome("purchase", { id: event.id, target: `${event.category}:${event.item.id}` });
+      playControlFeedback("purchase");
     } else {
       notify(event.message, event.type === "notice" ? "warning" : "info");
       if (event.type === "break-complete" && state.settings.soundEnabled)
         engine.current?.chime();
     }
-  }, [state, notify]);
+  }, [state, notify, showOutcome, playControlFeedback]);
   useEffect(() => {
     if (!toast || toastPaused) return undefined;
     const id = setTimeout(() => setToast(null), 6500);
@@ -393,6 +402,7 @@ export default function App() {
   return (
     <ControlFeedbackContext.Provider value={playControlFeedback}>
     <MotionPreferenceContext.Provider value={reducedMotion}>
+    <OutcomeFeedbackContext.Provider value={outcomes}>
     <div
       className={`app ${state.room.background} ${reducedMotion ? "reduce-motion" : ""} ${panel ? "panel-open" : ""} ${widePanel ? "wide-panel-open" : ""} ${sidePanel ? "side-panel-open" : ""} ${focusView ? "focus-view" : ""} ${arranging ? "is-arranging" : ""}`}
     >
@@ -562,6 +572,7 @@ export default function App() {
       {!ready && <RoomLoading persistence={persistence} />}
       {hatch && <HatchModal animal={hatch.animal} duplicate={hatch.duplicate} capped={hatch.capped} onClose={() => setHatch(null)} />}
     </div>
+    </OutcomeFeedbackContext.Provider>
     </MotionPreferenceContext.Provider>
     </ControlFeedbackContext.Provider>
   );

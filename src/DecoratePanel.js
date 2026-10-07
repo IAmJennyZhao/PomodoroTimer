@@ -4,6 +4,7 @@ import { ACCESSORIES, ATELIER_PLACEMENTS, BACKGROUNDS, DECORATIONS, decorationAv
 import { Accessory, Icon, Sprite } from "./ui";
 import RoomBackdrop from "./RoomBackdrop";
 import ArrangePanel from "./ArrangePanel";
+import { OutcomeAccent } from "./OutcomeFeedback";
 
 export default function DecoratePanel({ state, act, arranging, setArranging, selection, setSelection }) {
   const available = spendableGems(state);
@@ -39,15 +40,16 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
           const active = category === "backgrounds" ? state.room.background === item.id : category === "accessories" && friend?.accessory === item.id;
           const stockLabel = furniture && owned ? stock ? `${stock} available` : `${quantity} owned` : "";
           return <section className={`shop-item catalogue-item ${owned ? "is-owned" : ""} ${active ? "is-active" : ""}`} key={item.id}>
+            <OutcomeAccent channel="purchase" target={`${category}:${item.id}`} className="purchase-accent" />
             <div className="catalogue-art">{category === "backgrounds" ? <RoomBackdrop theme={item.id} preview /> : category === "accessories" ? <div className="accessory-preview">{item.id === "none" ? <span aria-hidden="true">—</span> : <Accessory id={item.id} />}</div> : <Sprite kind="object" id={item.id} />}</div>
             <h3>{item.name}</h3>
             <div className="catalogue-status">{stockLabel && <span className={owned ? "stock-badge" : "muted"} aria-label={furniture && owned ? `${quantity} owned, ${stock} available` : undefined}>{stockLabel}</span>}</div>
             <div className="catalogue-actions">
-              <Button type="button" className={owned ? "small-button" : "primary-button"} disabled={active || (furniture && owned ? stock === 0 : !owned && available < item.price)} aria-label={owned ? `${active ? "Using" : furniture ? stock ? "Add" : "Placed" : "Use"} ${item.name}` : `Unlock ${item.name} for ${item.price} Shilligems`} onClick={() => owned ? applyItem(item) : act({ type: "BUY_ITEM", category, id: item.id })}>
+              <Button type="button" sound={owned ? undefined : null} className={owned ? "small-button" : "primary-button"} disabled={active || (furniture && owned ? stock === 0 : !owned && available < item.price)} aria-label={owned ? `${active ? "Using" : furniture ? stock ? "Add" : "Placed" : "Use"} ${item.name}` : `Unlock ${item.name} for ${item.price} Shilligems`} onClick={() => owned ? applyItem(item) : act({ type: "BUY_ITEM", category, id: item.id })}>
                 {active ? <><Icon name="check" size={16} /> {category === "backgrounds" ? "Active" : "Wearing"}</> : owned ? furniture ? stock ? <><Icon name="plus" size={16} /> Add</> : "Placed" : "Use" : "Buy"}
               </Button>
               {!owned && <span className="catalogue-price"><Icon name="gem" size={18} /> {item.price}</span>}
-              {furniture && owned && <Button className="text-button furniture-buy" disabled={available < item.price || quantity >= 999} aria-label={`Buy another ${item.name} for ${item.price} Shilligems`} onClick={() => act({ type: "BUY_ITEM", category, id: item.id })}>Buy more <Icon name="gem" size={14} /> {item.price}</Button>}
+              {furniture && owned && <Button sound={null} className="text-button furniture-buy" disabled={available < item.price || quantity >= 999} aria-label={`Buy another ${item.name} for ${item.price} Shilligems`} onClick={() => act({ type: "BUY_ITEM", category, id: item.id })}>Buy more <Icon name="gem" size={14} /> {item.price}</Button>}
             </div>
           </section>;
         })}

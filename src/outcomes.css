@@ -1,0 +1,11 @@
+/* Outcome accents stay local and never move a control or positioning layer. */
+.nest-egg, .catalogue-item { position: relative; }
+.outcome-accent { position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: inherit; }
+.purchase-accent { border: 1px solid #8d9d8399; background: #c7d7ad18; animation: purchase-confirm var(--motion-reward-duration) var(--motion-ease-release) both; }
+.egg-arrival { border-radius: 18px; }
+@keyframes purchase-confirm {
+  0% { opacity: 0; scale: .98; }
+  30% { opacity: 1; scale: 1; }
+  100% { opacity: 0; scale: 1; }
+}
+@media (forced-colors: active) { .purchase-accent { border-color: Highlight; } }
