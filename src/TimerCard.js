@@ -91,7 +91,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
       {breakReady && <div className="break-choices">
         <div className="break-choice-heading">
           <span>{timer.overtime && !complete ? "Ready for a break?" : "Take a break"}</span>
-          {repeating && settings.soundEnabled && !alarmSilenced && <Button className="icon-button" aria-label={alarmBlocked ? "Enable alarm sound" : "Mute alarm"}
+          {repeating && settings.soundEnabled && !alarmSilenced && <Button sound={null} className="icon-button" aria-label={alarmBlocked ? "Enable alarm sound" : "Mute alarm"}
             title={alarmBlocked ? "Enable alarm sound" : "Mute alarm"} onClick={alarmBlocked ? retryAlarm : silenceAlarm}><Icon name={alarmBlocked ? "sound" : "mute"} size={17} /></Button>}
           {repeating && settings.soundEnabled && alarmSilenced && <span className="small muted">Muted</span>}
         </div>

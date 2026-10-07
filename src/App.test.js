@@ -393,6 +393,45 @@ test('a notification stays available while being read, then expires after leavin
   expect(screen.queryByText('Egg added')).not.toBeInTheDocument();
 });
 
+test('entering focus clears a lingering informational notice and overtime uses only an accessible announcement', async () => {
+  const initial = createInitialState(NOW);
+  initial.gems = 50;
+  initial.settings.endBehavior = initial.timer.endBehavior = 'overtime';
+  initial.timer.durationMs = initial.timer.remainingMs = MINUTE;
+  await openRoom(initial);
+  fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: /Buy basic egg/ }));
+  expect(screen.getByRole('button', { name: 'Dismiss notification' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Focus', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  expect(screen.queryByRole('button', { name: 'Dismiss notification' })).not.toBeInTheDocument();
+  await advance(250);
+  expect(document.querySelector('.toast')).not.toBeInTheDocument();
+  await wakeAt(NOW + MINUTE);
+  expect(screen.getByRole('status')).toHaveTextContent('Target reached');
+  expect(document.querySelector('.toast')).not.toBeInTheDocument();
+  expect(screen.getByRole('timer')).toHaveTextContent('+00:00');
+});
+
+test('replacing a paused notice resets its deadline, and old hover events cannot keep the new one alive', async () => {
+  await openRoom({ ...createInitialState(NOW), gems: 50 });
+  fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));
+  const buy = screen.getByRole('button', { name: /Buy basic egg/ });
+  fireEvent.click(buy);
+  const first = screen.getByText('Egg added').closest('.toast');
+  fireEvent.pointerEnter(first);
+  await advance(2500);
+  fireEvent.click(buy);
+  expect(first).toHaveAttribute('inert');
+  fireEvent.pointerEnter(first);
+  fireEvent.pointerLeave(first);
+  await advance(3500);
+  expect(screen.queryByRole('button', { name: 'Dismiss notification' })).not.toBeInTheDocument();
+  await advance(200);
+  expect(document.querySelector('.toast')).not.toBeInTheDocument();
+  expect(diskState.eggs).toHaveLength(2);
+});
+
 test('rapid panel switching keeps one active workspace and blocks old actions and portaled help', async () => {
   await openRoom({ ...createInitialState(NOW), gems: 100 });
   fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));

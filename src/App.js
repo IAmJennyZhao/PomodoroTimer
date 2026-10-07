@@ -28,7 +28,7 @@ import {
   HatchModal,
 } from "./ui";
 import TimerCard, { QuickScratchpad } from "./TimerCard";
-import { RoomLoading, SaveNotice, ToastNotice } from "./Feedback";
+import { RoomLoading, SaveNotice, ToastNotice, useNoticeTimeout } from "./Feedback";
 import RoomBackdrop from "./RoomBackdrop";
 import RoomWidget from "./RoomWidget";
 import RoomObjects from "./RoomObjects";
@@ -100,6 +100,7 @@ export default function App() {
   const [panel, setPanel] = useState(null);
   const [notesOpen, setNotesOpen] = useState(false);
   const [focusView, setFocusView] = useState(false);
+  const quietFocus = focusView && state.timer.mode === "focus" && state.timer.status === "running";
   const focusedSession = useRef(null);
   const [silencedAlarm, setSilencedAlarm] = useState(null);
   const [alarmBlocked, setAlarmBlocked] = useState(false);
@@ -109,12 +110,12 @@ export default function App() {
   const cancellationId = useRef(0);
   const [tip, setTip] = useState(0);
   const [toast, setToast] = useState(null);
-  const [toastPaused, setToastPaused] = useState(false);
+  const [toastPaused, setToastPaused] = useState(null);
   const noticeId = useRef(0);
   const notify = useCallback((message, tone = "info", visible = true) => {
-    setToast(message ? { id: ++noticeId.current, message, tone, visible } : null);
-    if (!message || !visible) setToastPaused(false);
-  }, []);
+    setToast(message ? { id: ++noticeId.current, message, tone, visible: visible && (!quietFocus || tone === "warning") } : null);
+    setToastPaused(null);
+  }, [quietFocus]);
   const [hatch, setHatch] = useState(null);
   const visibleHatch = useRef(null);
   const [outcomes, showOutcome] = useOutcomeFeedback();
@@ -287,10 +288,9 @@ export default function App() {
     }
   }, [state, notify, showOutcome, playControlFeedback]);
   useEffect(() => {
-    if (!toast || toastPaused) return undefined;
-    const id = setTimeout(() => setToast(null), 6500);
-    return () => clearTimeout(id);
-  }, [toast, toastPaused]);
+    if (quietFocus) setToast(previous => previous?.tone === "warning" ? previous : null);
+  }, [quietFocus]);
+  useNoticeTimeout(toast, toastPaused === toast?.id, setToast);
   useEffect(() => {
     const onKey = (event) => {
       if (event.key === "Escape") {
@@ -591,7 +591,8 @@ export default function App() {
         <QuickScratchpad state={state} act={act} saveStatus={status} />
       </Drawer>}</Presence>
       <div className="toast-region" role="status" aria-live="polite">
-        <Presence value={toast}>{(notice, active) => <ToastNotice notice={notice} active={active} onDismiss={() => setToast(null)} onPauseChange={setToastPaused} />}</Presence>
+        <Presence value={toast}>{(notice, active) => <ToastNotice notice={notice} active={active} onDismiss={() => setToast(null)}
+          onPauseChange={paused => setToastPaused(previous => paused ? notice.id : previous === notice.id ? null : previous)} />}</Presence>
       </div>
       {ready && (status === "error" || status === "conflict") && <SaveNotice persistence={persistence} />}
       {!ready && <RoomLoading persistence={persistence} />}

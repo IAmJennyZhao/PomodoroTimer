@@ -1,8 +1,29 @@
 import { Button } from "./Controls";
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { Icon, InfoTip, trapDialogFocus, useModalFocus } from "./ui";
 import { PastelButtonArt } from "./AtelierArt";
 import { exitProps, useSurfaceTransition } from "./Transitions";
+
+export function useNoticeTimeout(notice, paused, setNotice) {
+  const clock = useRef(null);
+  useEffect(() => {
+    if (!notice) return undefined;
+    if (clock.current?.id !== notice.id) clock.current = { id: notice.id,
+      remaining: notice.tone === "warning" ? 6500 : notice.tone === "success" ? 4500 : 3500 };
+    if (paused) return undefined;
+    const current = clock.current;
+    const started = Date.now();
+    // Reading pauses retain the remaining budget, with a short grace on resume.
+    const timeout = setTimeout(() => setNotice(previous => previous?.id === current.id ? null : previous), Math.max(1000, current.remaining));
+    return () => { clearTimeout(timeout); current.remaining = Math.max(0, current.remaining - (Date.now() - started)); };
+  }, [notice, paused, setNotice]);
+}
+
+function restoreNoticeFocus(previous) {
+  const candidates = [previous, ...document.querySelectorAll('.hatch-modal button, .workspace[data-presence="present"] .drawer-heading button, .timer-card .pause-button, .timer-card .start-button, .timer-card .break-buttons button, .timer-card .finish-button, .top-nav button')];
+  const target = candidates.find(node => node?.isConnected && node !== document.body && !node.disabled && !node.closest('[inert], [hidden], [aria-hidden="true"]'));
+  target?.focus();
+}
 
 export function ToastNotice({ notice, onDismiss, onPauseChange, active = true }) {
   const ref = useRef(null);
@@ -10,10 +31,7 @@ export function ToastNotice({ notice, onDismiss, onPauseChange, active = true })
   useSurfaceTransition(ref, active);
   useLayoutEffect(() => {
     if (!active && ref.current?.contains(document.activeElement)) {
-      const previous = previousFocus.current;
-      const target = previous?.isConnected && !previous.closest('[inert], [aria-hidden="true"]') ? previous
-        : document.querySelector('.workspace:not([inert]) .drawer-heading button') || document.querySelector('.top-nav button');
-      target?.focus();
+      restoreNoticeFocus(previousFocus.current);
     }
   }, [active]);
   if (!notice.visible) return <span className="visually-hidden">{notice.message}</span>;
@@ -21,16 +39,18 @@ export function ToastNotice({ notice, onDismiss, onPauseChange, active = true })
     const restoreFocus = ref.current?.contains(document.activeElement);
     onDismiss();
     onPauseChange(false);
-    if (restoreFocus && previousFocus.current?.isConnected) previousFocus.current.focus();
+    if (restoreFocus) restoreNoticeFocus(previousFocus.current);
   };
   return <div ref={ref} {...exitProps(active)} className={`toast feedback-note paper feedback-${notice.tone}`}
-    onPointerEnter={() => onPauseChange(true)} onPointerLeave={() => onPauseChange(Boolean(ref.current?.contains(document.activeElement)))}
-    onFocus={() => onPauseChange(true)} onBlur={event => {
-      if (!event.currentTarget.contains(event.relatedTarget)) onPauseChange(event.currentTarget.matches(":hover"));
+    onPointerEnter={() => { if (active) onPauseChange(true); }} onPointerLeave={() => { if (active) onPauseChange(Boolean(ref.current?.contains(document.activeElement))); }}
+    onFocus={() => { if (active) onPauseChange(true); }} onBlur={event => {
+      if (active && !event.currentTarget.contains(event.relatedTarget)) onPauseChange(event.currentTarget.matches(":hover"));
+    }} onKeyDown={event => {
+      if (active && event.key === "Escape") { event.preventDefault(); event.stopPropagation(); dismiss(); }
     }}>
     <span className="feedback-emblem"><Icon name={notice.tone === "success" ? "check" : notice.tone === "warning" ? "info" : "leaf"} size={18} /></span>
     <span>{notice.message}</span>
-    <Button type="button" className="icon-button" onClick={dismiss} aria-label="Dismiss notification"><Icon name="close" size={17} /></Button>
+    <Button sound={null} type="button" className="icon-button" onClick={dismiss} aria-label="Dismiss notification"><Icon name="close" size={17} /></Button>
   </div>;
 }
 

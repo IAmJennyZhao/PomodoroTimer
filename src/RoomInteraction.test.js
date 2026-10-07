@@ -38,3 +38,11 @@ test("focus/arrangement suppression and reduced motion prevent pet gestures", ()
   fireEvent.click(screen.getByRole("button"));
   expect(HTMLElement.prototype.animate).not.toHaveBeenCalled();
 });
+
+test("enabling motion after a muted visual response never replays that response", () => {
+  const view = render(<Pet reduced />);
+  fireEvent.click(screen.getByRole("button"));
+  expect(HTMLElement.prototype.animate).not.toHaveBeenCalled();
+  view.rerender(<Pet />);
+  expect(HTMLElement.prototype.animate).not.toHaveBeenCalled();
+});

@@ -57,7 +57,12 @@ export function useRoomAnimation(ref, outcome, reduced, lifted, target, surface)
   const { claimOutcome } = useContext(OutcomeFeedbackContext);
   useLayoutEffect(() => {
     const element = ref.current;
-    if (!outcome || reduced || lifted || !element?.animate) return undefined;
+    if (!outcome) return undefined;
+    if (reduced) {
+      claimOutcome?.(outcome.id, `${surface}:${target}`);
+      return undefined; // Turning motion back on must not replay an old result.
+    }
+    if (lifted || !element?.animate) return undefined;
     let animation;
     let disposed = false;
     const start = () => {
