@@ -4,7 +4,24 @@
 .session-task-row:focus-within { border-color: #9e829e; box-shadow: 0 0 0 2px #ac93b51c; }
 .session-task-row .session-task-text { flex: 1; width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; padding: 0; color: #634e63; font-size: 12px; line-height: 1.5; }
 .session-task-text::placeholder { color: #927f85; }
-.session-task-row.done .session-task-text { text-decoration: line-through; color: #958a91; }
+.session-task-text-wrap { position: relative; display: block; flex: 1; min-width: 0; }
+.session-task-text { transition: color var(--motion-transition-duration) var(--motion-ease); }
+.session-task-row.done .session-task-text { color: #958a91; }
+.task-strike { position: absolute; top: 0; left: 0; max-width: 100%; overflow: hidden; white-space: pre; pointer-events: none; color: transparent; font: inherit; font-size: 12px; line-height: 1.5; }
+.task-strike::after { content: ""; position: absolute; inset: 50% 0 auto; height: 1px; background: #958a91; transform: scaleX(0); transform-origin: left; transition: transform var(--motion-transition-duration) var(--motion-ease); }
+.done .task-strike::after { transform: scaleX(1); }
+.session-task-text-wrap:focus-within .task-strike { visibility: hidden; }
+.task-check-wrap { position: relative; display: inline-flex; flex: 0 0 14px; }
+.session-task-check { appearance: none; border: 1px solid #8d9d83; border-radius: 3px; background: #fffaf5; }
+.session-task-check:checked { background: #8d9d83; }
+.task-check-drawing { position: absolute; inset: 0; width: 14px; height: 14px; pointer-events: none; fill: none; stroke: #fffaf5; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.task-check-drawing path { stroke-dasharray: 14; stroke-dashoffset: 14; transition: stroke-dashoffset var(--motion-transition-duration) var(--motion-ease); }
+.done .task-check-drawing path { stroke-dashoffset: 0; }
+@media (forced-colors: active) {
+  .session-task-check { appearance: auto; }
+  .task-check-drawing { display: none; }
+  .task-strike::after { background: CanvasText; }
+}
 .session-task-check { accent-color: #8d9d83; width: 14px; height: 14px; flex: 0 0 auto; margin: 0; }
 .session-remove-button, .session-tag button { display: flex; align-items: center; justify-content: center; padding: 3px; border: 0; background: transparent; color: #937b88; border-radius: 5px; }
 .session-remove-button:hover, .session-tag button:hover { background: #e1c8cb70; }

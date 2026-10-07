@@ -2,16 +2,17 @@ import { useState } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import SessionTasks from "./SessionTasks";
 import { createInitialState, gameReducer } from "./game";
+import { ControlFeedbackContext } from "./Controls";
 
 const NOW = new Date(2026, 9, 2, 12).getTime();
 
-function renderTasks(initial = createInitialState(NOW), compact = false) {
+function renderTasks(initial = createInitialState(NOW), compact = false, feedback = () => {}) {
   let latest;
   function Harness() {
     const [state, setState] = useState(initial);
     latest = state;
-    return <SessionTasks timer={state.timer} history={state.history} compact={compact}
-      act={(action) => setState((previous) => gameReducer(previous, { ...action, now: NOW }))} />;
+    return <ControlFeedbackContext.Provider value={feedback}><SessionTasks timer={state.timer} history={state.history} compact={compact}
+      act={(action) => setState((previous) => gameReducer(previous, { ...action, now: NOW }))} /></ControlFeedbackContext.Provider>;
   }
   return { ...render(<Harness />), getState: () => latest };
 }
@@ -36,6 +37,35 @@ test("multiple tasks can be edited, completed, and removed during a running sess
   fireEvent.click(screen.getByRole("button", { name: "Remove task 1" }));
   expect(screen.getByRole("textbox", { name: "Session task", exact: true })).toHaveValue("Practice chemistry");
   expect(getState().timer.tasks).toHaveLength(1);
+});
+
+test("completion owns its sound, preserves row identity and typing focus, and undo is immediate", () => {
+  const initial = gameReducer(createInitialState(NOW), { type: "SET_TASK", task: "Read chapter", now: NOW });
+  const feedback = jest.fn();
+  const { getState } = renderTasks(initial, false, feedback);
+  const input = screen.getByRole("textbox", { name: "Session task" });
+  const check = screen.getByRole("checkbox");
+  input.focus();
+  fireEvent.click(check);
+  expect(getState().timer.tasks[0].done).toBe(true);
+  expect(feedback.mock.calls).toEqual([["check"]]);
+  expect(input).toHaveFocus();
+  expect(screen.getByRole("textbox", { name: "Session task" })).toBe(input);
+  fireEvent.click(check);
+  expect(check).not.toBeChecked();
+  expect(check.closest(".session-task-row")).not.toHaveClass("done");
+  expect(feedback.mock.calls).toEqual([["check"], ["selection"]]);
+});
+
+test("restored completed tasks and reopening the editor never replay completion", () => {
+  const initial = gameReducer(createInitialState(NOW), { type: "SET_TASKS", tasks: [{ id: "saved", text: "Read", done: true }], now: NOW });
+  const feedback = jest.fn();
+  renderTasks(initial, true, feedback);
+  fireEvent.click(screen.getByRole("button", { name: "Edit tasks and tags" }));
+  expect(screen.getByRole("checkbox")).toBeChecked();
+  fireEvent.click(screen.getByRole("button", { name: "Done tasks and tags" }));
+  fireEvent.click(screen.getByRole("button", { name: "Edit tasks and tags" }));
+  expect(feedback.mock.calls).toEqual([["tap"], ["tap"], ["tap"]]);
 });
 
 test("leaving a cleared task removes the empty row", () => {

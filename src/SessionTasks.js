@@ -1,5 +1,5 @@
-import { Button, ChoiceInput } from "./Controls";
-import { useId, useState } from "react";
+import { Button, ChoiceInput, ControlFeedbackContext } from "./Controls";
+import { useContext, useEffect, useId, useRef, useState } from "react";
 import { Icon } from "./ui";
 import "./SessionTasks.css";
 
@@ -9,7 +9,7 @@ const tasksFor = (timer) => timer.tasks?.length ? timer.tasks : timer.task ? [{ 
 
 function TaskTextInput({ task, index, onChange }) {
   const [emptyDraft, setEmptyDraft] = useState(null);
-  return <input className="session-task-text" aria-label={index === 0 ? "Session task" : `Session task ${index + 1}`} maxLength={200}
+  return <span className="session-task-text-wrap"><input className="session-task-text" aria-label={index === 0 ? "Session task" : `Session task ${index + 1}`} maxLength={200}
     placeholder="What are you working on?" value={emptyDraft ?? task.text}
     onChange={(event) => {
       const text = event.target.value;
@@ -20,7 +20,28 @@ function TaskTextInput({ task, index, onChange }) {
     onBlur={() => {
       if (emptyDraft !== null) onChange(emptyDraft);
       setEmptyDraft(null);
-    }} />;
+    }} /><span className="task-strike" aria-hidden="true">{emptyDraft ?? task.text}</span></span>;
+}
+
+function TaskRow({ task, index, update, remove }) {
+  const feedback = useContext(ControlFeedbackContext);
+  const previousDone = useRef(task.done);
+  useEffect(() => {
+    // Observe the accepted state, rather than celebrating a checkbox request.
+    // Restored tasks and reopening the editor never replay their completion.
+    if (previousDone.current !== task.done) feedback(task.done ? "check" : "selection");
+    previousDone.current = task.done;
+  }, [task.done, feedback]);
+  return <div className={`session-task-row ${task.done ? "done" : ""}`}>
+    {task.text ? <span className="task-check-wrap"><ChoiceInput className="session-task-check" type="checkbox" checked={task.done} sound={null}
+      aria-label={`Mark ${task.text} ${task.done ? "incomplete" : "complete"}`}
+      onChange={(event) => update({ done: event.target.checked })} />
+      <svg className="task-check-drawing" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8 6.5 11 12.5 5" /></svg>
+    </span> : <Icon name="pencil" size={15} />}
+    <TaskTextInput task={task} index={index} onChange={(text) => update({ text })} />
+    {task.text && <Button type="button" className="session-remove-button" aria-label={`Remove task ${index + 1}`}
+      onClick={remove}><Icon name="close" size={13} /></Button>}
+  </div>;
 }
 
 export default function SessionTasks({ timer, history = [], act, compact = false, minimal = false }) {
@@ -67,15 +88,9 @@ export default function SessionTasks({ timer, history = [], act, compact = false
     </div>}
     {((!compact && !minimal) || expanded) && <div id={editorId} className="session-task-editor">
       <div className="session-task-list" role="group" aria-label="Session tasks">
-        {(tasks.length ? tasks : [{ id: "primary", text: "", done: false }]).map((task, index) => <div key={task.id} className={`session-task-row ${task.done ? "done" : ""}`}>
-          {task.text ? <ChoiceInput className="session-task-check" type="checkbox" checked={task.done}
-            aria-label={`Mark ${task.text} ${task.done ? "incomplete" : "complete"}`}
-            onChange={(event) => updateTask(task.id, { done: event.target.checked })} /> : <Icon name="pencil" size={15} />}
-          <TaskTextInput task={task} index={index}
-            onChange={(text) => tasks.length ? updateTask(task.id, { text }) : setTasks([{ ...task, text }])} />
-          {task.text && <Button type="button" className="session-remove-button" aria-label={`Remove task ${index + 1}`}
-            onClick={() => setTasks(tasks.filter((item) => item.id !== task.id))}><Icon name="close" size={13} /></Button>}
-        </div>)}
+        {(tasks.length ? tasks : [{ id: "primary", text: "", done: false }]).map((task, index) => <TaskRow key={task.id} task={task} index={index}
+          update={(changes) => tasks.length ? updateTask(task.id, changes) : setTasks([{ ...task, ...changes }])}
+          remove={() => setTasks(tasks.filter((item) => item.id !== task.id))} />)}
       </div>
       {addingTask && <div className="session-add-field">
         <input autoFocus aria-label="New task" maxLength={200} placeholder="Another task" value={taskDraft}

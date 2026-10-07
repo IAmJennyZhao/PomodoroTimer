@@ -109,7 +109,7 @@ export const Button = forwardRef(function Button({ children, className = "", dis
   </button>;
 });
 
-export const ChoiceInput = forwardRef(function ChoiceInput({ disabled, readOnly, onChange, className = "", ...props }, ref) {
+export const ChoiceInput = forwardRef(function ChoiceInput({ disabled, readOnly, onChange, sound = "selection", className = "", ...props }, ref) {
   const feedback = useContext(ControlFeedbackContext);
   const press = usePressFeedback(Boolean(disabled || readOnly), props, [" "]);
   return <input {...props} {...press.handlers} ref={ref} disabled={disabled} readOnly={readOnly}
@@ -117,6 +117,6 @@ export const ChoiceInput = forwardRef(function ChoiceInput({ disabled, readOnly,
     onChange={event => {
       if (press.unavailable(event)) return;
       onChange?.(event);
-      if (!event.defaultPrevented) feedback("selection");
+      if (!event.defaultPrevented && sound) feedback(sound);
     }} />;
 });
