@@ -55,6 +55,9 @@ import { Presence, TimerTransition } from "./Transitions";
 import "./transitions.css";
 import { OutcomeAccent, OutcomeFeedbackContext, useOutcomeFeedback } from "./OutcomeFeedback";
 import "./outcomes.css";
+import usePlacementGesture from "./usePlacementGesture";
+import { RoomVisual, useRoomChanges } from "./RoomInteraction";
+import "./room-interactions.css";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
 
@@ -103,7 +106,7 @@ export default function App() {
   const [selectedAnimal, setSelectedAnimal] = useState("starter-cat");
   const [selection, setSelection] = useState(null);
   const [arranging, setArranging] = useState(false);
-  const [drag, setDrag] = useState(null);
+  const cancellationId = useRef(0);
   const [tip, setTip] = useState(0);
   const [toast, setToast] = useState(null);
   const [toastPaused, setToastPaused] = useState(false);
@@ -311,6 +314,28 @@ export default function App() {
     act({ type: state.timer.status === "running" ? "PAUSE" : "START" });
   };
   const stats = todayStats(state, now);
+  useRoomChanges(state, ready, showOutcome, playControlFeedback);
+  const gesture = usePlacementGesture({
+    enabled: arranging && ready && status !== "conflict",
+    project: (origin, event) => {
+      const bounds = sceneRef.current.getBoundingClientRect();
+      const scale = Number(sceneRef.current.style.getPropertyValue("--room-edit-scale")) || 1;
+      return { type: origin.type, id: origin.id,
+        x: Math.max(5, Math.min(95, origin.x + (event.clientX - origin.pointerX) / bounds.width / scale * 100)),
+        y: Math.max(20, Math.min(85, origin.y + (event.clientY - origin.pointerY) / bounds.height / scale * 100)),
+      };
+    },
+    commit: (next, origin) => {
+      if (next.x !== origin.x || next.y !== origin.y) act({ type: origin.type === "animal" ? "MOVE_ANIMAL" : "MOVE_DECORATION", id: origin.id, x: next.x, y: next.y });
+    },
+    onCancel: (origin, reason) => {
+      const bounds = sceneRef.current?.getBoundingClientRect();
+      showOutcome("room", { id: `return:${++cancellationId.current}`, target: `${origin.type}:${origin.id}`, kind: "cancelled",
+        dx: reason === "cancel" ? (origin.next.x - origin.x) * (bounds?.width || 0) / 100 : 0,
+        dy: reason === "cancel" ? (origin.next.y - origin.y) * (bounds?.height || 0) / 100 : 0 });
+    },
+  });
+  const drag = gesture.draft;
   const startDrag = (event, type, item) => {
     if (event.button !== 0 || event.isPrimary === false) return;
     if (!arranging) {
@@ -320,38 +345,7 @@ export default function App() {
       }
       return;
     }
-    event.preventDefault();
-    event.currentTarget.focus();
-    event.currentTarget.setPointerCapture?.(event.pointerId);
-    setSelection({ type, id: item.id });
-    setDrag({ type, id: item.id, x: item.x, y: item.y, originX: item.x, originY: item.y, pointerX: event.clientX, pointerY: event.clientY });
-  };
-  const moveDrag = (event) => {
-    if (!drag || !sceneRef.current) return;
-    const bounds = sceneRef.current.getBoundingClientRect();
-    const scale = Number(sceneRef.current.style.getPropertyValue("--room-edit-scale")) || 1;
-    setDrag((previous) => ({
-      ...previous,
-      x: Math.max(
-        5,
-        Math.min(95, previous.originX + ((event.clientX - previous.pointerX) / bounds.width / scale) * 100),
-      ),
-      y: Math.max(
-        20,
-        Math.min(85, previous.originY + ((event.clientY - previous.pointerY) / bounds.height / scale) * 100),
-      ),
-    }));
-  };
-  const endDrag = () => {
-    if (drag) {
-      act({
-        type: drag.type === "animal" ? "MOVE_ANIMAL" : "MOVE_DECORATION",
-        id: drag.id,
-        x: drag.x,
-        y: drag.y,
-      });
-      setDrag(null);
-    }
+    if (gesture.start(event, { type, id: item.id, x: item.x, y: item.y })) setSelection({ type, id: item.id });
   };
   const renderResident = (item, type) => {
     const position = drag?.type === type && drag.id === item.id ? drag : item;
@@ -380,12 +374,11 @@ export default function App() {
             : `${name}, ${type === "animal" ? `${RARITY_NAMES[item.rarity]} ${item.species}` : "room decoration"}`
         }
         onPointerDown={(event) => startDrag(event, type, item)}
-        onPointerMove={moveDrag}
-        onPointerUp={endDrag}
-        onPointerCancel={() => setDrag(null)}
+        {...gesture.handlers}
         onKeyDown={(event) => {
           if (!arranging || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
           event.preventDefault();
+          gesture.cancel();
           const step = event.shiftKey ? 5 : 1;
           setSelection({ type, id: item.id });
           act({
@@ -405,11 +398,13 @@ export default function App() {
           }
         }}
       >
+        <RoomVisual target={`${type}:${item.id}`} lifted={drag?.type === type && drag.id === item.id}>
         {type === "animal" ? (
           <AnimalArt animal={item} className="idle-animal" />
         ) : (
           <Sprite kind="object" id={item.item} />
         )}
+        </RoomVisual>
         <span className="resident-label">{name}</span>
       </button>
       {chosen && <Button className="selection-close" aria-label={`Deselect ${name}`} onClick={event => { event.currentTarget.parentElement.querySelector(".resident-hitbox").focus(); setSelection(null); }}><Icon name="close" size={16} /></Button>}
@@ -590,6 +585,7 @@ export default function App() {
       {ready && (status === "error" || status === "conflict") && <SaveNotice persistence={persistence} />}
       {!ready && <RoomLoading persistence={persistence} />}
       {hatch && <HatchModal key={hatch.id} animal={hatch.animal} duplicate={hatch.duplicate} capped={hatch.capped} onClose={() => setHatch(null)} />}
+      <span className="visually-hidden" aria-live="polite">{outcomes.room?.kind === "cancelled" ? "Move cancelled. Returned to the original position." : ""}</span>
     </div>
     </OutcomeFeedbackContext.Provider>
     </MotionPreferenceContext.Provider>

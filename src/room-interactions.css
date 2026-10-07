@@ -1,0 +1,7 @@
+.room-visual { position: relative; transform-origin: 50% 90%; translate: 0 0; scale: 1; transition: translate var(--motion-release-duration) var(--motion-ease-release), scale var(--motion-release-duration) var(--motion-ease-release); }
+.room-visual[data-lifted="true"] { translate: 0 -3px; scale: 1.015; transition-duration: var(--motion-press-duration); }
+.room-cancel-mark { position: absolute; left: 50%; bottom: 0; translate: -50% 0; padding: 3px 7px; border: 1px solid var(--coral); border-radius: 6px; color: var(--ink); background: var(--paper); font-size: 11px; white-space: nowrap; pointer-events: none; }
+.app .resident-hitbox { touch-action: inherit; }
+.app .room-resident .room-visual > .furniture-art { width: 100%; }
+.reduce-motion .room-visual[data-lifted="true"] { translate: 0 0; scale: 1; }
+@media (prefers-reduced-motion: reduce) { .room-visual[data-lifted="true"] { translate: 0 0; scale: 1; } }

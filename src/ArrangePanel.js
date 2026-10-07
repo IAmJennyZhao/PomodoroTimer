@@ -63,15 +63,15 @@ export default function ArrangePanel({ state, act, setArranging, selection, setS
           const selected = selection?.type === "decoration" && copies.some(copy => copy.id === selection.id);
           const add = () => act({ type: "PLACE_DECORATION", item: item.id, ...(ATELIER_PLACEMENTS[item.id] || { x: 50, y: 65 }) });
           return <div className="library-card" key={item.id}>
-            <Button type="button" className={`library-item ${selected ? "selected" : ""}`} aria-pressed={selected} title={item.name}
+            <Button type="button" sound={copies.length ? undefined : null} className={`library-item ${selected ? "selected" : ""}`} aria-pressed={selected} title={item.name}
               aria-label={copies.length ? `Select ${item.name}, ${copies.length} in room` : `Add ${item.name}, ${stock} available`}
               onClick={() => copies.length ? setSelection({ type: "decoration", id: copies[(copies.findIndex(copy => copy.id === selection?.id) + 1) % copies.length].id }) : add()}>
               <Sprite kind="object" id={item.id} /><span>{item.name}</span><small>{stock ? `${stock} available` : copies.length > 1 ? `${copies.length} in room` : "Placed"}</small>
             </Button>
-            {copies.length > 0 && stock > 0 && <Button type="button" className="library-add icon-button" aria-label={`Add ${item.name}, ${stock} available`} onClick={add}><Icon name="plus" size={17} /></Button>}
+            {copies.length > 0 && stock > 0 && <Button sound={null} type="button" className="library-add icon-button" aria-label={`Add ${item.name}, ${stock} available`} onClick={add}><Icon name="plus" size={17} /></Button>}
           </div>;
         })}
-        {state.animals.map(animal => <Button type="button" className={`library-item ${selection?.type === "animal" && selection.id === animal.id ? "selected" : ""}`} key={animal.id}
+        {state.animals.map(animal => <Button type="button" sound={animal.placed ? undefined : null} className={`library-item ${selection?.type === "animal" && selection.id === animal.id ? "selected" : ""}`} key={animal.id}
           aria-pressed={selection?.type === "animal" && selection.id === animal.id} title={animal.name} aria-label={`${animal.placed ? "Select" : "Add"} ${animal.name}`}
           onClick={() => { if (!animal.placed) act({ type: "PLACE_ANIMAL", id: animal.id, placed: true }); setSelection({ type: "animal", id: animal.id }); }}>
           <Sprite id={animal.species} rarity={animal.rarity} /><span>{animal.name}</span><small>{animal.placed ? "In room" : "Add"}</small>

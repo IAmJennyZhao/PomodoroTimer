@@ -888,7 +888,72 @@ test('furniture dragging preserves its grab offset through the temporary arrange
   const position = latestWrite().state.room.decorations[0];
   expect(position.x).toBeCloseTo(50 + 60 / (1200 * scale) * 100);
   expect(position.y).toBeCloseTo(50 + 40 / (800 * scale) * 100);
+  expect(engine.playSfx).toHaveBeenCalledWith('placement');
+  expect(sofa.querySelector('.room-visual')).not.toHaveAttribute('data-lifted');
   window.PointerEvent = originalPointerEvent;
+});
+
+test.each(['pointercancel', 'lostpointercapture', 'blur', 'Escape', 'leave'])('a %s interruption rolls a furniture draft back without a drop or stale release', async interruption => {
+  const saved = createInitialState(NOW);
+  saved.room.decorations = [{ id: 'test-sofa', item: 'couch', x: 50, y: 50 }];
+  jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function () {
+    if (this.classList.contains('workspace-decorate')) return { left: 0, top: 600, width: 1200, height: 200 };
+    if (this.classList.contains('app-header')) return { left: 0, top: 0, width: 1200, height: 62, bottom: 62 };
+    return { left: 0, top: 0, width: 1200, height: 800 };
+  });
+  const original = window.PointerEvent;
+  window.PointerEvent = MouseEvent;
+  try {
+    await openRoom(saved);
+    fireEvent.click(screen.getByRole('button', { name: 'Decorate' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));
+    const sofa = screen.getByRole('button', { name: 'Position Soft sofa' });
+    engine.playSfx.mockClear();
+    fireEvent.pointerDown(sofa, { button: 0, clientX: 500, clientY: 400 });
+    expect(sofa.querySelector('.room-visual')).toHaveAttribute('data-lifted', 'true');
+    fireEvent.pointerMove(sofa, { clientX: 560, clientY: 440 });
+    expect(Number(sofa.parentElement.style.getPropertyValue('--room-x'))).toBeGreaterThan(50);
+    if (interruption === 'pointercancel') fireEvent.pointerCancel(sofa);
+    else if (interruption === 'lostpointercapture') fireEvent.lostPointerCapture(sofa);
+    else if (interruption === 'blur') fireEvent(window, new Event('blur'));
+    else if (interruption === 'Escape') fireEvent.keyDown(window, { key: 'Escape' });
+    else fireEvent.click(screen.getByRole('button', { name: 'Done', exact: true }));
+    expect(sofa.querySelector('.room-visual')).not.toHaveAttribute('data-lifted');
+    expect(Number(sofa.parentElement.style.getPropertyValue('--room-x'))).toBe(50);
+    expect(sofa.querySelector('.room-cancel-mark')).toHaveTextContent('Returned');
+    fireEvent.pointerUp(sofa);
+    await advance(700);
+    expect(diskState.room.decorations[0]).toMatchObject({ x: 50, y: 50 });
+    expect(engine.playSfx).not.toHaveBeenCalledWith('placement');
+    expect(sofa.querySelector('.room-cancel-mark')).not.toBeInTheDocument();
+    if (interruption !== 'leave') {
+      fireEvent.keyDown(sofa, { key: 'ArrowRight' });
+      await advance(400);
+      expect(diskState.room.decorations[0].x).toBe(51);
+      expect(engine.playSfx).toHaveBeenCalledWith('placement');
+    }
+  } finally { window.PointerEvent = original; }
+});
+
+test('a click without movement only selects, and clamped keyboard moves produce no drop', async () => {
+  const saved = createInitialState(NOW);
+  saved.room.decorations = [{ id: 'edge-sofa', item: 'couch', x: 95, y: 85 }];
+  const original = window.PointerEvent;
+  window.PointerEvent = MouseEvent;
+  try {
+    await openRoom(saved);
+    fireEvent.click(screen.getByRole('button', { name: 'Decorate' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));
+    const sofa = screen.getByRole('button', { name: 'Position Soft sofa' });
+    engine.playSfx.mockClear();
+    fireEvent.pointerDown(sofa, { button: 0, clientX: 100, clientY: 100 });
+    fireEvent.pointerUp(sofa);
+    fireEvent.keyDown(sofa, { key: 'ArrowRight' });
+    fireEvent.keyDown(sofa, { key: 'ArrowDown', shiftKey: true });
+    expect(engine.playSfx).not.toHaveBeenCalledWith('placement');
+    expect(sofa).toHaveAttribute('aria-pressed', 'true');
+    expect(sofa).toHaveFocus();
+  } finally { window.PointerEvent = original; }
 });
 
 test('an expired pause raises one concise alert, chimes, and resumes the remaining focus time', async () => {

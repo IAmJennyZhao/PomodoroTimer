@@ -68,7 +68,7 @@ export function AnimalsPanel({ state, act, selected, setSelected }) {
         </div>
         <p className="small">{animationCount(animal)} / 7 animations <InfoTip label="Pet upgrades">{animal.upgrades === 6 ? "Maxed! This friend gives +10% focus Shilligems." : "Hatch this same pet again to unlock a new animation. Six upgrades earn a +10% Shilligem bonus."}</InfoTip></p>
         <label className="toggle-line"><span>Show in room</span>
-          <ChoiceInput type="checkbox" checked={animal.placed} onChange={(event) => act({ type: "PLACE_ANIMAL", id: animal.id, placed: event.target.checked })} />
+          <ChoiceInput sound={animal.placed ? undefined : null} type="checkbox" checked={animal.placed} onChange={(event) => act({ type: "PLACE_ANIMAL", id: animal.id, placed: event.target.checked })} />
         </label>
         <label className="field-label">Accessory
           <select value={animal.accessory} onChange={(event) => act({ type: "SET_ACCESSORY", animalId: animal.id, id: event.target.value })}>

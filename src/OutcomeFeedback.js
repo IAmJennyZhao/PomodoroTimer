@@ -31,7 +31,7 @@ export function useOutcomeFeedback() {
     const timers = deadlines.current;
     return () => Object.values(timers).forEach(clearTimeout);
   }, []);
-  const value = useMemo(() => ({ ...outcomes, claimOutcome }), [outcomes, claimOutcome]);
+  const value = useMemo(() => ({ ...outcomes, claimOutcome, showOutcome }), [outcomes, claimOutcome, showOutcome]);
   return [value, showOutcome];
 }
 

@@ -1,13 +1,16 @@
 import { Button } from "./Controls";
-import { forwardRef, useCallback, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
+import { forwardRef, useCallback, useContext, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
 import { Icon } from "./ui";
+import usePlacementGesture from "./usePlacementGesture";
+import { RoomVisual } from "./RoomInteraction";
+import { OutcomeFeedbackContext } from "./OutcomeFeedback";
 
 // Saved positions use the top-left corner, relative to the room. Clamp the
 // rendered location to the current screen without overwriting the saved layout.
 const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, className, position, arranging, selected, onSelect, onMove, onDeselect, hidden, concealed, children }, controlRef) {
   const ref = useRef(null);
-  const pointer = useRef(null);
-  const [draft, setDraft] = useState(null);
+  const { showOutcome } = useContext(OutcomeFeedbackContext);
+  const cancelId = useRef(0);
   const [location, setLocation] = useState(null);
   const clampLocation = useCallback((left, top, room, bounds) => {
     const dock = arranging ? ref.current.parentElement.querySelector(".workspace-decorate")?.getBoundingClientRect() : null;
@@ -38,9 +41,21 @@ const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, c
     const room = ref.current.parentElement.getBoundingClientRect();
     const bounds = ref.current.getBoundingClientRect();
     const next = clampLocation(left, top, room, bounds);
-    setDraft(next);
     return { x: next.left / room.width * 100, y: next.top / room.height * 100 };
   }
+  const gesture = usePlacementGesture({
+    enabled: arranging && !hidden && !concealed,
+    project: (origin, event) => {
+      const room = ref.current.parentElement.getBoundingClientRect();
+      const next = clampLocation(origin.left + event.clientX - origin.pointerX, origin.top + event.clientY - origin.pointerY, room, ref.current.getBoundingClientRect());
+      return { ...next, x: next.left / room.width * 100, y: next.top / room.height * 100 };
+    },
+    commit: (next, origin) => { if (next.left !== origin.left || next.top !== origin.top) onMove({ x: next.x, y: next.y }); },
+    onCancel: (origin, reason) => showOutcome?.("room", { id: `widget-return:${id}:${++cancelId.current}`, target: `widget:${id}`, kind: "cancelled",
+      dx: reason === "cancel" ? origin.next.left - origin.left : 0,
+      dy: reason === "cancel" ? origin.next.top - origin.top : 0 }),
+  });
+  const draft = gesture.draft;
   const rendered = draft || location;
   function nudge(direction, large = false) {
     const room = ref.current.parentElement.getBoundingClientRect();
@@ -49,41 +64,27 @@ const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, c
     onSelect({ type: "widget", id });
     onMove(move(bounds.left - room.left + (direction === "left" ? -step : direction === "right" ? step : 0),
       bounds.top - room.top + (direction === "up" ? -step : direction === "down" ? step : 0)));
-    setDraft(null);
   }
   useImperativeHandle(controlRef, () => ({ nudge }));
   return <Tag ref={ref} className={`${className} room-widget ${arranging ? "arrange-widget" : ""} ${selected ? "chosen" : ""}`} hidden={hidden}
     data-concealed={concealed ? "true" : undefined} aria-hidden={concealed ? true : undefined} inert={concealed ? "" : undefined}
     style={rendered ? { left: rendered.left, top: rendered.top, right: "auto", transform: "none" } : undefined}>
     {arranging && id === "timer" && <span className="widget-preview-name" aria-hidden="true">Timer</span>}
-    <div className="widget-content" inert={arranging ? "" : undefined}>{children}</div>
+    <RoomVisual target={`widget:${id}`} lifted={Boolean(draft)} className="widget-content" inert={arranging ? "" : undefined}>{children}</RoomVisual>
     {arranging && <>
       <span className="visually-hidden" id={`${id}-move-help`}>Drag to move. Arrow keys nudge; Shift moves farther.</span>
       <button type="button" className="widget-move-handle" aria-label={`Move ${name}`} aria-describedby={`${id}-move-help`} aria-pressed={selected}
         onClick={() => onSelect({ type: "widget", id })}
         onPointerDown={event => {
-          if (event.button !== 0) return;
-          event.preventDefault();
-          event.currentTarget.focus();
-          event.currentTarget.setPointerCapture?.(event.pointerId);
           const bounds = ref.current.getBoundingClientRect();
           const room = ref.current.parentElement.getBoundingClientRect();
-          pointer.current = { id: event.pointerId, x: event.clientX, y: event.clientY, left: bounds.left - room.left, top: bounds.top - room.top, next: null };
-          onSelect({ type: "widget", id });
+          if (gesture.start(event, { left: bounds.left - room.left, top: bounds.top - room.top })) onSelect({ type: "widget", id });
         }}
-        onPointerMove={event => {
-          const start = pointer.current;
-          if (start?.id === event.pointerId) start.next = move(start.left + event.clientX - start.x, start.top + event.clientY - start.y);
-        }}
-        onPointerUp={() => {
-          if (pointer.current?.next) onMove(pointer.current.next);
-          pointer.current = null;
-          setDraft(null);
-        }}
-        onPointerCancel={() => { pointer.current = null; setDraft(null); }}
+        {...gesture.handlers}
         onKeyDown={event => {
           if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
           event.preventDefault();
+          if (draft) { gesture.cancel(); return; }
           nudge(event.key.replace("Arrow", "").toLowerCase(), event.shiftKey);
         }}><Icon name="move" size={20} /></button>
       {selected && <Button className="selection-close" aria-label={`Deselect ${name}`} onClick={() => { ref.current.querySelector(".widget-move-handle").focus(); onDeselect(); }}><Icon name="close" size={16} /></Button>}
