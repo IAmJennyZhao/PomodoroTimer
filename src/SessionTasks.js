@@ -33,11 +33,11 @@ function TaskRow({ task, index, update, remove }) {
     previousDone.current = task.done;
   }, [task.done, feedback]);
   return <div className={`session-task-row ${task.done ? "done" : ""}`}>
-    {task.text ? <span className="task-check-wrap"><ChoiceInput className="session-task-check" type="checkbox" checked={task.done} sound={null}
+    {task.text ? <label className="task-check-wrap"><ChoiceInput className="session-task-check" type="checkbox" checked={task.done} sound={null}
       aria-label={`Mark ${task.text} ${task.done ? "incomplete" : "complete"}`}
       onChange={(event) => update({ done: event.target.checked })} />
       <svg className="task-check-drawing" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8 6.5 11 12.5 5" /></svg>
-    </span> : <Icon name="pencil" size={15} />}
+    </label> : <Icon name="pencil" size={15} />}
     <TaskTextInput task={task} index={index} onChange={(text) => update({ text })} />
     {task.text && <Button type="button" className="session-remove-button" aria-label={`Remove task ${index + 1}`}
       onClick={remove}><Icon name="close" size={13} /></Button>}

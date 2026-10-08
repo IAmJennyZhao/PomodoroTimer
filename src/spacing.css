@@ -34,6 +34,8 @@
 .app .session-task-summary .session-edit-button { opacity: 1; }
 .app .session-task-editor { font-family: var(--font-ui); }
 .app .session-task-row { gap: var(--space-2); padding: var(--space-2); }
+.app .task-check-wrap { flex: 0 0 var(--control-size); width: var(--control-size); height: var(--control-size); align-items: center; justify-content: center; cursor: pointer; }
+.app .task-check-drawing { inset: 50% auto auto 50%; transform: translate(-50%, -50%); }
 .app .session-task-row .session-task-text, .app .session-add-field input { font-size: var(--text-body); }
 .app .session-task-row .task-strike { font-size: var(--text-body); }
 .app .session-editor-tools { flex-wrap: wrap; gap: var(--space-2); }
@@ -42,6 +44,20 @@
 .app .session-tag { min-width: 0; font-size: var(--text-small); }
 .app .session-tag button { min-width: 32px; min-height: 32px; flex-shrink: 0; }
 .app .session-tag-list { gap: var(--space-2); }
+.app .decoration-catalog .arrange-start { min-height: var(--control-size); font-size: var(--text-small); }
+.app .decoration-catalog .furniture-buy { min-height: var(--control-size); font-size: var(--text-small); }
+.app .segmented button, .app .journal-panel .journal-tabs button { min-height: var(--control-size); font-size: var(--text-small); }
+.app .journal-panel .journal-tabs { min-width: 0; flex-wrap: wrap; }
+.app .journal-panel .journal-tabs button { flex: 1 1 auto; min-width: 0; }
+.app .journal-panel .journal-overview-toolbar { min-width: 0; flex-wrap: wrap; }
+.app .journal-panel .journal-overview-toolbar .journal-choices { min-width: 0; flex-wrap: wrap; }
+.app .journal-panel .journal-overview-toolbar .journal-choices button { flex: 1 1 auto; min-width: 0; min-height: var(--control-size); font-size: var(--text-small); }
+.app .arrange-panel :is(.arrange-remove, .arrange-finish) { min-height: var(--control-size); font-size: var(--text-small); }
+.app .arrange-panel .arrange-deselect { flex-basis: var(--control-size); width: var(--control-size); height: var(--control-size); }
+.app .arrange-panel .library-browser > .icon-button { flex-basis: var(--control-size); min-width: var(--control-size); }
+.app .arrange-panel .library-add { width: var(--control-size); height: var(--control-size); min-width: var(--control-size); }
+.app .workspace-decorate.drawer-arranging .drawer-heading { height: var(--control-size); }
+.app .workspace-decorate.drawer-arranging .drawer-heading > .icon-button { width: var(--control-size); height: var(--control-size); min-width: var(--control-size); }
 .app .session-task-list { max-height: 200px; }
 .info-button { width: var(--control-size); height: var(--control-size); padding: var(--space-2); }
 
@@ -50,13 +66,35 @@
   .app .drawer:not(.workspace-shop):not(.drawer-arranging):not(.movable-notes) { top: calc(var(--header-height) + var(--space-3)); max-height: calc(100dvh - var(--header-height) - 32px); }
   .app .workspace-shop { top: var(--header-height); }
   .app .workspace-journal > :is(.drawer-heading, .drawer-content) { padding-left: calc(var(--panel-gutter) + var(--space-2)); }
+  .app:not(.is-arranging):not(.focus-view) .focus-area:not([style]) { top: max(calc(var(--header-height) + var(--space-4)), 24%); }
 }
 @media (max-width: 600px) {
   :root { --panel-gutter: var(--space-3); }
   .app :is(.panel-toolbar, .catalog-toolbar) { margin-bottom: var(--space-4); }
   .app .drawer-heading h2 { font-size: var(--text-heading); }
   .app .focus-area:not([style]) { max-width: calc(100% - 24px); }
+  .app:not(.is-arranging):not(.focus-view) .focus-area:not([style]) { top: max(191px, calc(var(--header-height) + var(--space-4))); }
   .app .session-duration-grid { gap: var(--space-4) var(--space-2); }
   .app .duration-stepper input { font-size: 1.25rem; }
   .app .session-tag-list.compact-tags { overflow-wrap: anywhere; }
+}
+@media (max-width: 700px) {
+  .app .arrange-panel .arrange-toolbar { display: grid; grid-template-columns: var(--control-size) var(--control-size) minmax(0, 1fr) auto; padding: 0; gap: var(--space-2) var(--space-1); }
+  .app .arrange-panel .arrange-toolbar .field-label { grid-column: 1 / -1; grid-row: 1; margin-right: 48px; }
+  .app .arrange-panel .arrange-deselect { grid-column: 1; grid-row: 2; }
+  .app .arrange-panel .arrange-toolbar > .info-disclosure { grid-column: 2; grid-row: 2; }
+  .app .arrange-panel .arrange-remove { grid-column: 3; grid-row: 2; justify-self: end; padding: var(--space-2); }
+  .app .arrange-panel .arrange-finish { grid-column: 4; grid-row: 2; }
+}
+@media (max-height: 500px) and (max-width: 850px) {
+  .app:not(.is-arranging):not(.focus-view) .focus-area:not([style]) { top: calc(var(--header-height) + var(--space-4)); }
+  .app:not(.is-arranging):not(.focus-view) .focus-area { max-height: calc(100% - var(--header-height) - 32px); }
+  .app .workspace-decorate.drawer-arranging { max-height: calc(100dvh - var(--header-height) - 24px); }
+  .app .workspace-decorate.drawer-arranging .drawer-content { overflow-y: auto; }
+}
+@container room-layout (max-width: 14rem) {
+  .app .decoration-catalog .shop-items { grid-template-columns: minmax(0, 1fr); }
+  .app .pet-album .mystery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app .decoration-catalog .catalog-toolbar .segmented { flex-wrap: wrap; }
+  .app .decoration-catalog .catalog-toolbar .segmented button { flex: 1 1 auto; }
 }

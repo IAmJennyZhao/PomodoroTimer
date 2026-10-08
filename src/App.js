@@ -95,6 +95,19 @@ const BREAK_IDEAS = [
 ];
 
 export default function App() {
+  const headerRef = useRef(null);
+  useLayoutEffect(() => {
+    const header = headerRef.current;
+    const measure = () => {
+      const height = header?.getBoundingClientRect().height;
+      if (height) header.closest(".app")?.style.setProperty("--header-height", `${height}px`);
+    };
+    measure();
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    if (header) observer?.observe(header);
+    window.addEventListener("resize", measure);
+    return () => { observer?.disconnect(); window.removeEventListener("resize", measure); };
+  }, []);
   const persistence = useLocalSave();
   const { state, dispatch, ready, status } = persistence;
   const reducedMotion = useReducedMotion(state.settings.reducedMotion);
@@ -449,7 +462,7 @@ export default function App() {
         </RoomObjects>
       </div>
       <div className="room-vignette" />
-      <header className="app-header" data-concealed={focusView ? "true" : undefined} aria-hidden={focusView ? true : undefined} inert={focusView ? "" : undefined}>
+      <header ref={headerRef} className="app-header" data-concealed={focusView ? "true" : undefined} aria-hidden={focusView ? true : undefined} inert={focusView ? "" : undefined}>
         <Button className="room-brand" onClick={closePanel}>Little Room</Button>
         <div className="header-actions">
           <Button

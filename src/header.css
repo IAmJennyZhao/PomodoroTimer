@@ -1,5 +1,6 @@
 /* Header composition has one owner: controls keep the same hit areas at every size. */
-:root { --header-height: 64px; }
+:root { --header-height: 64px; --header-min-height: 64px; }
+.app { container: room-layout / inline-size; }
 .app-header {
   position: relative;
   z-index: 150;
@@ -8,7 +9,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-6);
-  min-height: var(--header-height);
+  min-height: var(--header-min-height);
   padding: var(--space-2) var(--space-6);
   background-color: var(--paper);
   background-image: var(--paper-grain);
@@ -37,7 +38,7 @@
   .app-header .top-nav button { padding-inline: var(--space-2); }
 }
 @media (max-width: 850px) {
-  :root { --header-height: 112px; }
+  :root { --header-height: 112px; --header-min-height: 112px; }
   .app-header { position: relative; align-items: flex-start; padding: var(--space-2) var(--space-3) 56px; gap: var(--space-2); }
   .app-header .top-nav.paper { position: absolute; left: var(--space-3); right: var(--space-3); top: 60px; width: auto; margin: 0; justify-content: space-between; }
   .app-header .top-nav button { flex: 1; padding-inline: var(--space-1); }
@@ -48,4 +49,11 @@
   .header-actions { gap: var(--space-1); }
   .app-header .gem-pill { min-width: 64px; padding-inline: var(--space-2); }
   .app-header .top-nav.paper { left: var(--space-2); right: var(--space-2); }
+}
+/* Text enlargement can need three rows even when the pixel viewport is unchanged. */
+@container room-layout (max-width: 14rem) {
+  .app-header { flex-wrap: wrap; padding-bottom: var(--space-2); min-height: 0; }
+  .room-brand { flex-basis: 100%; }
+  .header-actions { flex-wrap: wrap; flex-basis: 100%; }
+  .app-header .top-nav.paper { position: static; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); order: 1; flex-basis: 100%; }
 }

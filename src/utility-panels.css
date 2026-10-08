@@ -15,7 +15,7 @@
 .app .workspace-settings .save-info { display: block; padding: 0; }
 .app .local-save-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .app .local-save-row h3 { font-size: 16px; margin: 0 auto 0 0; }
-.app .local-save-status { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 18px 16px 17px 15px; background: var(--paper-shade); color: var(--muted); font-size: 12px; }
+.app .local-save-status { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 18px 16px 17px 15px; background: var(--paper-shade); color: var(--muted); font-size: var(--text-small); }
 .app .local-save-status.save-saved { background: var(--sage); color: var(--ink); }
 .app .local-save-status:is(.save-error, .save-conflict) { color: var(--danger); background: #f3dfca; }
 .app .workspace-settings .save-info :is(p, button) { margin-top: 10px; }
@@ -23,7 +23,7 @@
 
 /* Duration fields are a two-by-two form with pencil capsules and clear units. */
 .app .session-presets { display: flex; gap: 7px; margin: 0 0 18px; padding-bottom: 17px; border-bottom: 1px solid var(--line); }
-.app .session-presets .preset-button { min-height: 38px; padding: 7px 5px; border-radius: 22px 24px 21px 23px; }
+.app .session-presets .preset-button { min-height: var(--control-size); padding: var(--space-2) var(--space-1); border-radius: 22px 24px 21px 23px; }
 .app .session-presets .preset-button strong { font-size: 14px; }
 .app .session-presets .preset-button.selected { background-color: var(--coral); color: #fffaf0; border-color: var(--coral-hover); box-shadow: inset 0 0 0 2px #fff9e77a; }
 .app .session-presets .preset-button.selected:hover { background-color: var(--coral-hover); }
@@ -40,7 +40,7 @@
 .app .duration-stepper button:active:enabled { background: #cbd8b6; }
 .app .duration-stepper button:disabled { color: var(--line); cursor: default; }
 .app .duration-stepper:focus-within { border-color: var(--focus-ring); }
-.app .number-field > .duration-unit { text-align: center; font-size: 12px; color: var(--muted); }
+.app .number-field > .duration-unit { text-align: center; font-size: var(--text-small); color: var(--muted); }
 .app .session-break-heading { margin: 0 0 18px; }
 .app .session-completion-settings { border: 0; margin: 20px 0 0; padding: 0; min-width: 0; }
 .app .session-completion-settings legend { display: flex; align-items: center; justify-content: space-between; width: 100%; border-top: 1px solid var(--line); padding: 16px 0 8px; font-size: 16px; color: var(--ink); }
@@ -58,7 +58,7 @@
 .app .movable-notes .notepad-drag-handle > svg { position: absolute; left: 0; }
 .app .movable-notes .notepad-drag-handle > span { width: 100%; padding-left: 40px; text-align: center; }
 .app .movable-notes .notepad-heading { font-size: 22px; }
-.app .movable-notes .drawer-heading > .icon-button { width: 32px; min-width: 32px; height: 32px; padding: 5px; }
+.app .movable-notes .drawer-heading > .icon-button { width: var(--control-size); min-width: var(--control-size); height: var(--control-size); padding: var(--space-2); }
 .app .movable-notes > .drawer-content { padding: 0 14px 12px; }
 .app .movable-notes .quick-notes textarea { display: block; width: 100%; height: 280px; min-height: 168px; max-height: min(48dvh, calc(100dvh - 140px)); margin: 5px 0 8px; padding: 3px 10px; border: 0; border-radius: 0; background: repeating-linear-gradient(transparent 0 27px, #bca78470 27px 28px); color: var(--ink); font: italic 16px/28px Georgia, serif; resize: vertical; }
 .app .movable-notes .quick-notes textarea:focus { outline: none; box-shadow: inset 2px 0 #81966a; }
@@ -83,7 +83,7 @@
 .app .sound-channel-art.icon-noise { color: #5886a2; }
 .app .sound-mixer .range-field { position: relative; display: block; margin: 0; }
 .app .sound-mixer .range-field > span { font-size: 16px; color: var(--ink); }
-.app .sound-mixer .range-field output { position: absolute; right: 0; bottom: 8px; width: 38px; text-align: right; font-size: 13px; line-height: 16px; }
+.app .sound-mixer .range-field output { position: absolute; right: 0; bottom: 8px; width: 38px; text-align: right; font-size: var(--text-small); line-height: 16px; }
 .app .sound-mixer .range-field input[type="range"] { width: calc(100% - 44px); height: 32px; margin: 4px 0 0; }
 .app .sound-mixer .range-field input[type="range"]::-webkit-slider-runnable-track { border-color: #b7b29b; background: linear-gradient(to right, var(--coral) var(--range-progress), var(--progress-track) var(--range-progress)); height: 8px; }
 .app .sound-mixer .range-field input[type="range"]::-webkit-slider-thumb { margin-top: -6px; border-color: #b39174; box-shadow: 1px 2px 3px #574a2726, inset 0 0 0 2px #fffdf54d; }
@@ -104,7 +104,7 @@
 
 @media (max-width: 950px) {
   .app .session-duration-grid { gap: 18px 10px; }
-  .app .number-field > label { gap: 5px; font-size: 13px; }
+  .app .number-field > label { gap: 5px; font-size: var(--text-small); }
   .app .number-field > .duration-stepper { grid-template-columns: 28px minmax(0, 1fr) 28px; }
 }
 @media (max-width: 600px) {
