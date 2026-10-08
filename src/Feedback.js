@@ -55,32 +55,35 @@ export function ToastNotice({ notice, onDismiss, onPauseChange, active = true })
   </div>;
 }
 
-export function SaveNotice({ persistence }) {
+export function SaveNotice({ persistence, onHeightChange }) {
   const ref = useRef(null);
   useLayoutEffect(() => {
     const node = ref.current;
     const app = node?.closest('.app');
     if (!app) return undefined;
-    const measure = () => app.style.setProperty('--save-notice-height', `${node.getBoundingClientRect().height}px`);
+    const measure = () => {
+      const height = node.getBoundingClientRect().height;
+      app.style.setProperty('--save-notice-height', `${height}px`);
+      onHeightChange?.(height);
+    };
     measure();
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
     observer?.observe(node);
     window.addEventListener("resize", measure);
-    return () => { observer?.disconnect(); window.removeEventListener("resize", measure); app.style.removeProperty('--save-notice-height'); };
-  }, []);
+    return () => { observer?.disconnect(); window.removeEventListener("resize", measure); app.style.removeProperty('--save-notice-height'); onHeightChange?.(0); };
+  }, [onHeightChange]);
   const conflict = persistence.status === "conflict";
   const retained = persistence.status !== "error" && !conflict;
   return <section ref={ref} className="save-warning feedback-note paper" role={retained ? "status" : "alert"} aria-labelledby="save-notice-title">
     <span className="feedback-emblem warning"><Icon name="note" size={20} /></span>
     <div className="save-notice-copy">
       <h2 id="save-notice-title">{retained ? "Unsaved draft kept" : conflict ? "Save changed elsewhere" : "Changes not saved"}</h2>
-      <p>{retained ? "Your earlier edits are still available in this window." : conflict ? "Loading the saved room keeps a separate copy of your local edits here." : "Your edits are still here."}</p>
-      {!conflict && persistence.failure && <p>{persistence.failure.message} {persistence.failure.action}</p>}
+      <p className="visually-hidden">{retained ? "Your earlier edits are still available in this window." : conflict ? "Loading the saved room keeps a separate copy of your local edits here." : "Your edits are still here."}</p>
       <div className="save-notice-actions">
         <DraftActions persistence={persistence} />
-        {!retained && <Button type="button" className="small-button" onClick={conflict ? persistence.reload : persistence.retrySave}>{conflict ? "Reload saved room" : "Retry save"}</Button>}
+        {!retained && <Button type="button" className="small-button" aria-label={conflict ? "Reload saved room" : undefined} onClick={conflict ? persistence.reload : persistence.retrySave}>{conflict ? "Load saved room" : "Retry save"}</Button>}
         {retained ? <Button className="small-button" onClick={persistence.dismissDraftNotice}>Dismiss</Button>
-          : <InfoTip label="Save details">{persistence.error || "Your latest changes have not been saved."}{persistence.failure?.detail && <p>{persistence.failure.detail}</p>}</InfoTip>}
+          : !conflict && <InfoTip label="Save details">{persistence.error || "Your latest changes have not been saved."}{persistence.failure?.detail && <p>{persistence.failure.detail}</p>}</InfoTip>}
       </div>
     </div>
   </section>;

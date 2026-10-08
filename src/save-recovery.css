@@ -19,3 +19,26 @@
 .app .draft-choice select { min-width: 0; width: 100%; min-height: 44px; }
 .app .draft-feedback { min-height: 21px; }
 .app .loading-card code { overflow-wrap: anywhere; }
+
+/* Recovery occupies a measured top row instead of covering the clock or exits. */
+.app.has-save-notice .app-header { margin-top: var(--save-notice-height, 100px); }
+.app.has-save-notice .save-warning.feedback-note {
+  top: 0; left: 0; right: 0; width: 100%; padding: 6px 12px;
+  align-items: center; gap: 8px; border-radius: 0;
+}
+.app .save-warning .save-notice-copy { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 16px; }
+.app .save-warning h2 { flex: 1 1 220px; margin: 0; font-size: 16px; }
+.app .save-notice-actions { gap: 6px; }
+.app .save-warning .small-button { padding: 6px 10px; }
+.app.has-save-notice:not(.notes-sheet):not(.is-arranging) .focus-area {
+  top: calc(var(--header-height) + 12px); max-height: calc(100dvh - var(--header-height) - 32px); overflow: auto;
+}
+.app.has-save-notice.focus-view:not(.notes-sheet) .focus-area {
+  top: calc(var(--save-notice-height) + 12px); max-height: calc(100dvh - var(--save-notice-height) - 32px);
+  transform: translateX(-50%);
+}
+@media (max-width: 600px) {
+  .app.has-save-notice .save-warning.feedback-note { padding: 6px; }
+  .app .save-warning .feedback-emblem { display: none; }
+  .app .save-warning h2 { flex-basis: 100%; }
+}

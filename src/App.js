@@ -105,11 +105,13 @@ const BREAK_IDEAS = [
 export default function App() {
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(64);
+  const [saveNoticeHeight, setSaveNoticeHeight] = useState(0);
   useLayoutEffect(() => {
     const header = headerRef.current;
     const measure = () => {
-      const height = header?.getBoundingClientRect().height;
-      if (height) {
+      const measured = header?.getBoundingClientRect().height;
+      const height = measured + saveNoticeHeight;
+      if (measured) {
         header.closest(".app")?.style.setProperty("--header-height", `${height}px`);
         setHeaderHeight(previous => previous === height ? previous : height);
       }
@@ -121,7 +123,7 @@ export default function App() {
     if (header) observer?.observe(header);
     window.addEventListener("resize", measure);
     return () => { cancelAnimationFrame(frame); observer?.disconnect(); window.removeEventListener("resize", measure); };
-  }, []);
+  }, [saveNoticeHeight]);
   const persistence = useLocalSave();
   const { state, dispatch, ready, status } = persistence;
   const reducedMotion = useReducedMotion(state.settings.reducedMotion);
@@ -138,7 +140,7 @@ export default function App() {
   const [accessoryShopPetId, setAccessoryShopPetId] = useState(null);
   const [selection, setSelection] = useState(null);
   const [arranging, setArranging] = useState(false);
-  const notesLayout = useScratchpadLayout({ open: notesOpen, focusView, panel, arranging, headerHeight });
+  const notesLayout = useScratchpadLayout({ open: notesOpen, focusView, panel, arranging, headerHeight, saveNoticeHeight });
   const compactNotesArrange = arranging && notesLayout.compact;
   const compactArrangeDone = useRef(null);
   useLayoutEffect(() => {
@@ -507,7 +509,7 @@ export default function App() {
     <OutcomeFeedbackContext.Provider value={outcomes}>
     <PetResponseContext.Provider value={respondToPet}>
     <div
-      className={`app ${state.room.background} ${reducedMotion ? "reduce-motion" : ""} ${panel ? "panel-open" : ""} ${widePanel ? "wide-panel-open" : ""} ${sidePanel ? "side-panel-open" : ""} ${focusView ? "focus-view" : ""} ${arranging ? "is-arranging" : ""} ${ready && ["error", "conflict"].includes(status) ? "has-save-notice" : ""} ${notesOpen ? `notes-open notes-${notesLayout.layout}` : ""} ${notesLayout.compact ? "notes-compact" : ""}`}
+      className={`app ${state.room.background} ${reducedMotion ? "reduce-motion" : ""} ${panel ? "panel-open" : ""} ${widePanel ? "wide-panel-open" : ""} ${sidePanel ? "side-panel-open" : ""} ${focusView ? "focus-view" : ""} ${arranging ? "is-arranging" : ""} ${ready && (["error", "conflict"].includes(status) || persistence.draftNotice) ? "has-save-notice" : ""} ${notesOpen ? `notes-open notes-${notesLayout.layout}` : ""} ${notesLayout.compact ? "notes-compact" : ""}`}
       style={notesLayout.style}
     >
       <div
@@ -699,7 +701,7 @@ export default function App() {
         <Presence value={toast}>{(notice, active) => <ToastNotice notice={notice} active={active} onDismiss={() => setToast(null)}
           onPauseChange={paused => setToastPaused(previous => paused ? notice.id : previous === notice.id ? null : previous)} />}</Presence>
       </div>
-      {ready && (status === "error" || status === "conflict" || persistence.draftNotice) && <SaveNotice persistence={persistence} />}
+      {ready && (status === "error" || status === "conflict" || persistence.draftNotice) && <SaveNotice persistence={persistence} onHeightChange={setSaveNoticeHeight} />}
       {!ready && <RoomLoading persistence={persistence} />}
       {hatch && <HatchModal key={hatch.id} animal={hatch.animal} duplicate={hatch.duplicate} capped={hatch.capped} onClose={closeHatch} />}
       <span className="visually-hidden" aria-live="polite">{outcomes.room?.kind === "cancelled" ? "Move cancelled. Returned to the original position." : ""}</span>

@@ -50,7 +50,8 @@ function DraftReview({ persistence, initialId, onClose }) {
       }}>
       <header><h2 id={headingId}>Unsaved edits</h2><Button ref={close} className="icon-button" aria-label="Close unsaved edits" onClick={onClose}><Icon name="close" size={20} /></Button></header>
       <div className="draft-review-body">
-        <p>This copy contains your local notes, tasks and room state. It stays in this window; download it to keep a file. You can copy edits back into your saved room.</p>
+        {persistence.failure && <p>{persistence.failure.message} {persistence.failure.action}</p>}
+        <p>Loading the saved room replaces this window’s working state. This separate copy contains your local notes, tasks and room state. It stays in this window; download it before closing to keep a file. You can copy edits back into your saved room.</p>
         {drafts.length > 1 && <label className="draft-choice">Draft
           <select value={draft.id} onChange={event => { setSelectedId(Number(event.target.value)); setFeedback(""); }}>
             {drafts.map((item, index) => <option key={item.id} value={item.id}>Draft {index + 1} · {new Date(item.capturedAt).toLocaleString()}</option>)}
@@ -79,7 +80,7 @@ export default function DraftActions({ persistence }) {
   return <><Button className="small-button" onClick={() => {
     const draft = persistence.keepDraft?.("manual") || persistence.drafts.at(-1);
     setDraftId(draft?.id); setOpen(true);
-  }}>Review unsaved edits</Button>
+  }} aria-label="Review unsaved edits">Review edits</Button>
     {open && <DraftReview persistence={persistence} initialId={draftId} onClose={() => setOpen(false)} />}
   </>;
 }
