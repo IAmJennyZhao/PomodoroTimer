@@ -129,7 +129,6 @@ export default function App() {
   const [shopStartAtNest, setShopStartAtNest] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [focusView, setFocusView] = useState(false);
-  const notesLayout = useScratchpadLayout({ open: notesOpen, focusView, panel, headerHeight });
   const quietFocus = focusView && state.timer.mode === "focus" && state.timer.status === "running";
   const focusedSession = useRef(null);
   const [silencedAlarm, setSilencedAlarm] = useState(null);
@@ -138,6 +137,7 @@ export default function App() {
   const [accessoryShopPetId, setAccessoryShopPetId] = useState(null);
   const [selection, setSelection] = useState(null);
   const [arranging, setArranging] = useState(false);
+  const notesLayout = useScratchpadLayout({ open: notesOpen, focusView, panel, arranging, headerHeight });
   const [roomCamera, setRoomCamera] = useState(null);
   const [pendingFurniture, setPendingFurniture] = useState(null);
   useEffect(() => {
@@ -509,7 +509,7 @@ export default function App() {
         }
       >
         <RoomObjects ref={sceneRef} arranging={arranging} onCameraChange={setRoomCamera}
-          layoutKey={JSON.stringify([state.room.decorations, state.animals.filter(animal => animal.placed).map(({ id, x, y }) => [id, x, y]), pendingFurniture?.item])}>
+          layoutKey={JSON.stringify([state.room.decorations, state.animals.filter(animal => animal.placed).map(({ id, x, y }) => [id, x, y]), pendingFurniture?.item, notesOpen ? notesLayout.style : null])}>
         <RoomBackdrop theme={state.room.background} />
         {state.room.decorations.map((item) =>
           renderResident(item, "decoration"),

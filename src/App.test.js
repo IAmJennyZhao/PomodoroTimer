@@ -965,6 +965,40 @@ test('docking and phone resize preserve Scratchpad draft, accepted anchors, and 
   expect(diskState.scratchpad).toBe('Keep this across layouts');
 });
 
+test.each([[320, 640], [390, 844]])('phone Scratchpad and Arrange preserve the session, draft, and accepted room at %sx%s', async (width, height) => {
+  resizeViewport(width, height);
+  const saved = createInitialState(NOW);
+  await openRoom(saved);
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  leaveFocus();
+  fireEvent.click(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' }));
+  const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
+  const input = within(notes).getByRole('textbox', { name: 'Scratchpad text' });
+  fireEvent.change(input, { target: { value: 'Keep this while arranging' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Decorate', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));
+  const app = document.querySelector('.app');
+  expect(app).toHaveClass('notes-sheet', 'is-arranging');
+  expect(app).not.toHaveClass('notes-compact');
+  expect(screen.queryByRole('banner', { name: 'Room controls' })).not.toBeInTheDocument();
+  expect(parseFloat(app.style.getPropertyValue('--notes-sheet-height'))).toBeLessThanOrEqual(260);
+  const current = within(notes).getByRole('region', { name: 'Current session' });
+  fireEvent.click(within(current).getByRole('button', { name: 'Pause (2/2)' }));
+  expect(screen.getByRole('dialog', { name: 'Arrange room' })).toBeInTheDocument();
+  fireEvent.click(within(current).getByRole('button', { name: 'Resume' }));
+  fireEvent.click(within(screen.getByRole('dialog', { name: 'Arrange room' })).getByRole('button', { name: 'Done', exact: true }));
+  expect(app).not.toHaveClass('is-arranging');
+  expect(screen.getByRole('banner', { name: 'Room controls' })).toBeVisible();
+  expect(screen.getByRole('dialog', { name: 'Scratchpad' })).toBe(notes);
+  expect(input).toHaveValue('Keep this while arranging');
+  await advance(350);
+  expect(diskState.scratchpad).toBe('Keep this while arranging');
+  expect(diskState.room.notepadPosition).toEqual(saved.room.notepadPosition);
+  expect(diskState.room.widgets).toEqual(saved.room.widgets);
+  expect(diskState.room.decorations).toEqual(saved.room.decorations);
+  expect(diskState.timer.status).toBe('running');
+});
+
 test('Scratchpad follows keyboard viewport resize and scroll without erasing the focused draft or its workspace', async () => {
   resizeViewport(390, 844);
   const viewport = new EventTarget();

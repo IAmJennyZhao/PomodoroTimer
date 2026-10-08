@@ -135,7 +135,8 @@
   max-height: calc(var(--notes-visible-height) - var(--notes-header-height) - var(--notes-sheet-height) - 32px);
   overflow: auto;
 }
-.app.notes-compact .app-header { display: none; }
+.app.notes-compact .app-header,
+.app.notes-sheet.is-arranging .app-header { display: none; }
 .app.notes-compact .workspace-notes .scratchpad-shared-hint { display: none; }
 .app.notes-compact .workspace-notes .quick-notes textarea { min-height: 32px; }
 .app.notes-compact .scratchpad-session .session-strip-time { flex-wrap: nowrap; }
@@ -148,3 +149,11 @@
   height: calc(var(--notes-visible-height) - var(--notes-header-height) - var(--notes-sheet-height) - 24px);
   max-height: none;
 }
+/* RoomObjects fits the canvas above this workbench. Keep it near the sheet,
+   rather than immediately below the header, so the camera has usable space. */
+.app.notes-sheet:not(.notes-compact) .workspace-decorate.drawer-arranging {
+  left: 6px; right: 6px; width: auto; transform: none;
+  top: calc(var(--notes-visible-top) + var(--notes-visible-height) - var(--notes-sheet-height) - 160px);
+  height: 144px;
+}
+.app.notes-sheet .workspace-decorate.drawer-arranging .drawer-content { overflow-y: auto; }
