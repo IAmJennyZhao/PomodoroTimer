@@ -145,6 +145,51 @@ test('failed initial loads never save a blank state and retry can recover', asyn
   expect(result.current.ready).toBe(true);
 });
 
+test.each([
+  ['connection', () => Promise.reject(new TypeError('Failed to fetch'))],
+  ['unreadable', () => Promise.resolve(response({ code: 'SAVE_UNREADABLE', error: 'Files preserved.', storagePath: 'C:\\private\\saves' }, 500))],
+  ['storage', () => Promise.resolve(response({ code: 'SAVE_STORAGE_UNAVAILABLE' }, 500))],
+  ['service', () => Promise.resolve(response({ error: 'Service failed.' }, 500))],
+  ['response', () => Promise.resolve(response({ state: {}, revision: 4 }))],
+  ['response', () => Promise.resolve(response({ state: null, revision: 4 }))],
+  ['response', () => Promise.resolve(response(envelope(undefined, { revision: '4' })))],
+  ['response', () => Promise.resolve({ ok: true, status: 200, json: async () => { throw new SyntaxError('HTML'); } })],
+])('classifies %s load failure without writing fresh defaults', async (kind, fail) => {
+  global.fetch.mockImplementationOnce(fail);
+  const { result } = renderHook(useLocalSave);
+  await settle();
+  expect(result.current).toMatchObject({ ready: false, status: 'error', failure: { kind, operation: 'load' } });
+  expect(result.current.error).toContain(result.current.failure.action);
+  if (kind === 'unreadable') {
+    expect(result.current.storagePath).toBe('C:\\private\\saves');
+    expect(result.current.failure.action).toContain('Existing files were preserved');
+    expect(result.current.error).not.toContain('Start the local app');
+  }
+  await advance(10000);
+  expect(writes()).toHaveLength(0);
+  global.fetch.mockResolvedValueOnce(response(envelope({ ...createInitialState(NOW), gems: 15 })));
+  await act(async () => result.current.reload());
+  expect(result.current).toMatchObject({ ready: true, failure: null, state: { gems: 15 } });
+  await advance();
+  expect(writes()).toHaveLength(0);
+});
+
+test('an invalid write acknowledgement retains edits instead of claiming Saved', async () => {
+  const { result } = renderHook(useLocalSave);
+  await settle();
+  global.fetch.mockResolvedValueOnce(response({ revision: 4 }));
+  act(() => result.current.dispatch({ type: 'SET_SCRATCHPAD', text: 'Unconfirmed draft' }));
+  await advance();
+  expect(result.current).toMatchObject({ status: 'error', failure: { kind: 'response', operation: 'save' } });
+  expect(result.current.state.scratchpad).toBe('Unconfirmed draft');
+  await advance(10000);
+  expect(writes()).toHaveLength(1);
+  global.fetch.mockResolvedValueOnce(response({ revision: 5 }));
+  await act(async () => result.current.retrySave());
+  expect(written(1)).toMatchObject({ revision: 4, state: { scratchpad: 'Unconfirmed draft' } });
+  expect(result.current.status).toBe('saved');
+});
+
 test('failed reload keeps existing state and does not silently replace it with defaults', async () => {
   const { result } = renderHook(useLocalSave);
   await settle();

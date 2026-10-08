@@ -73,6 +73,7 @@ export function SaveNotice({ persistence }) {
     <div className="save-notice-copy">
       <h2 id="save-notice-title">{conflict ? "Save changed elsewhere" : "Changes not saved"}</h2>
       <p>{conflict ? "Reload replaces this window’s edits." : "Your edits are still here."}</p>
+      {!conflict && persistence.failure && <p>{persistence.failure.message} {persistence.failure.action}</p>}
       <div className="save-notice-actions">
         <Button type="button" className="small-button" onClick={conflict ? persistence.reload : persistence.retrySave}>{conflict ? "Reload saved room" : "Retry save"}</Button>
         <InfoTip label="Save details">{persistence.error || "Your latest changes have not been saved."}</InfoTip>
@@ -93,9 +94,10 @@ export function RoomLoading({ persistence }) {
       <span className={`feedback-emblem ${failed ? "warning" : ""}`}><Icon name={failed ? "note" : "leaf"} size={30} /></span>
       <h1 id="room-loading-title">{failed ? "Couldn’t load your room" : "Opening your room…"}</h1>
       {failed && <>
-        <p>Check that the local app is running.</p>
+        <p>{persistence.failure?.message || "Your room couldn’t be loaded."}</p>
+        <p>{persistence.failure?.action || "Try again. Your existing save has not been replaced."}</p>
         <Button ref={retry} type="button" className="primary-button celebration-done" onClick={persistence.reload}><PastelButtonArt />Try again</Button>
-        <details className="connection-details"><summary>Connection help</summary><p>{persistence.error}</p></details>
+        <details className="connection-details"><summary>Load details</summary><p>{persistence.failure?.detail || persistence.error}</p>{persistence.storagePath && <p><code>{persistence.storagePath}</code></p>}</details>
       </>}
     </section>
   </div>;

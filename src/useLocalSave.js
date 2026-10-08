@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createInitialState, gameReducer, normalizeState } from "./game";
+import { requestSave, saveProblem } from "./saveProblems";
 
 const SAVE_DELAY = 350;
 
@@ -10,7 +11,7 @@ function snapshot(state) {
 }
 
 function validRevision(value) {
-  return typeof value === "string" || (Number.isInteger(value) && value >= 0);
+  return Number.isSafeInteger(value) && value >= 0;
 }
 
 export default function useLocalSave() {
@@ -21,6 +22,7 @@ export default function useLocalSave() {
     error: "",
     storagePath: "",
     recovered: false,
+    failure: null,
   });
   const current = useRef(state);
   const mounted = useRef(false);
@@ -50,36 +52,22 @@ export default function useLocalSave() {
     const job = { snapshot: pending.current, generation: generation.current };
     pending.current = null;
     writing.current = job;
-    setSave((previous) => ({ ...previous, status: "saving", error: "" }));
+    setSave((previous) => ({ ...previous, status: "saving", error: "", failure: null }));
     const body = JSON.stringify({
       state: job.snapshot.value,
       revision: revision.current,
     });
     job.promise = (async () => {
       try {
-        const response = await fetch("/api/save", {
+        const result = await requestSave({
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body,
           // Browsers cap keepalive bodies. Large histories still use a normal request.
           ...(keepalive && body.length < 16000 ? { keepalive: true } : {}),
-        });
-        if (response.status === 409) {
-          const conflict = new Error(
-            "This save changed in another window. Reload the saved version before continuing.",
-          );
-          conflict.conflict = true;
-          throw conflict;
-        }
-        if (!response.ok)
-          throw new Error(
-            "The local save service could not save your changes.",
-          );
-        const result = await response.json();
-        if (!validRevision(result.revision))
-          throw new Error(
-            "The local save service returned an invalid response.",
-          );
+        }, "save");
+        if (!validRevision(result?.revision) || result.revision !== revision.current + 1)
+          throw saveProblem("response", "save");
         if (!mounted.current || generation.current !== job.generation) return;
         revision.current = result.revision;
         savedJson.current = job.snapshot.json;
@@ -88,6 +76,7 @@ export default function useLocalSave() {
           ...previous,
           status: pending.current ? "saving" : "saved",
           error: "",
+          failure: null,
         }));
       } catch (error) {
         if (!mounted.current || generation.current !== job.generation) return;
@@ -97,9 +86,8 @@ export default function useLocalSave() {
         setSave((previous) => ({
           ...previous,
           status: blocked.current,
-          error: error.conflict
-            ? error.message
-            : "Your changes are still here. Saving failed; check that the local service is running, then retry.",
+          error: error.message,
+          failure: error.failure || saveProblem("service", "save").failure,
         }));
       } finally {
         if (writing.current === job) writing.current = null;
@@ -146,25 +134,26 @@ export default function useLocalSave() {
         ready: false,
         status: "loading",
         error: "",
+        failure: null,
       }));
     try {
       // A reload must observe any write already sent by this window.
       await writing.current?.promise;
       if (!mounted.current || generation.current !== ownGeneration) return;
-      const response = await fetch("/api/save", {
+      const result = await requestSave({
         signal: controller.signal,
         cache: "no-store",
-      });
-      if (!response.ok) throw new Error("Load failed.");
-      const result = await response.json();
+      }, "load");
       if (
         !result ||
         !validRevision(result.revision) ||
+        typeof result !== "object" ||
         !("state" in result) ||
         (result.state !== null &&
-          (typeof result.state !== "object" || Array.isArray(result.state)))
+          (typeof result.state !== "object" || Array.isArray(result.state) || result.state.schemaVersion !== 1)) ||
+        (result.state === null ? result.revision !== 0 : result.revision === 0)
       ) {
-        throw new Error("Invalid save response.");
+        throw saveProblem("response", "load");
       }
       if (
         !mounted.current ||
@@ -192,6 +181,7 @@ export default function useLocalSave() {
         storagePath:
           typeof result.storagePath === "string" ? result.storagePath : "",
         recovered: Boolean(result.recovered),
+        failure: null,
       });
       schedule();
     } catch (error) {
@@ -206,8 +196,9 @@ export default function useLocalSave() {
         ...previous,
         ready: false,
         status: "error",
-        error:
-          "Your local save could not be loaded. Check that the local service is running, then retry.",
+        error: error.message,
+        failure: error.failure || saveProblem("service", "load").failure,
+        storagePath: error.failure?.storagePath || previous.storagePath,
       }));
     }
   }, [schedule]);

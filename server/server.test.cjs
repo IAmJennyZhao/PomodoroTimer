@@ -94,6 +94,22 @@ test('unrecoverable files are preserved and never replaced with an empty save', 
   assert.equal(await fs.readFile(backup, 'utf8'), 'damaged backup');
 });
 
+test('HTTP unreadable-save errors explain preserved files separately from a connection failure', async t => {
+  const { port, store } = await running(t);
+  const main = path.join(store.storagePath, 'state.json');
+  const backup = path.join(store.storagePath, 'state.backup.json');
+  await fs.writeFile(main, 'damaged main');
+  await fs.writeFile(backup, 'damaged backup');
+  for (const result of [await request(port), await put(port, state(200), 0)]) {
+    assert.equal(result.status, 500);
+    assert.equal(result.data.code, 'SAVE_UNREADABLE');
+    assert.equal(result.data.storagePath, store.storagePath);
+    assert.match(result.data.error, /Existing files were preserved/);
+  }
+  assert.equal(await fs.readFile(main, 'utf8'), 'damaged main');
+  assert.equal(await fs.readFile(backup, 'utf8'), 'damaged backup');
+});
+
 test('repository folders and symlink aliases into the repo cannot hold personal saves', async t => {
   const repo = path.resolve(__dirname, '..');
   await assert.rejects(createStore({ dataDir: path.join(repo, 'saves') }), /outside the repository/);
@@ -109,6 +125,7 @@ test('HTTP save contract and concurrent revision conflict protect against overwr
   assert.equal((await request(port)).data.state, null);
   const results = await Promise.all([put(port, state(25), 0), put(port, state(50), 0)]);
   assert.deepEqual(results.map(result => result.status).sort(), [200, 409]);
+  assert.equal(results.find(result => result.status === 409).data.code, 'SAVE_CONFLICT');
   const saved = await request(port);
   assert.equal(saved.status, 200);
   assert.equal(saved.data.revision, 1);

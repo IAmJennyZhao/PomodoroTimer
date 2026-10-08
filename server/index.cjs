@@ -125,7 +125,12 @@ async function createAppServer({ dataDir, buildDir = path.resolve(__dirname, '..
     } catch (error) {
       const status = error.status || 500;
       if (status === 500) console.error('Local save service:', error.message);
-      return json(response, status, { error: status === 500 && !(error instanceof SaveError) ? 'The local service could not complete this request.' : error.message });
+      const storageFailure = ['EACCES', 'EPERM', 'ENOSPC', 'EROFS', 'EIO', 'ENOENT'].includes(error.code);
+      return json(response, status, {
+        error: status === 500 && !(error instanceof SaveError) ? 'The local service could not complete this request.' : error.message,
+        code: error instanceof SaveError ? error.code : storageFailure ? 'SAVE_STORAGE_UNAVAILABLE' : 'SAVE_SERVICE_ERROR',
+        ...(['SAVE_UNREADABLE', 'SAVE_STORAGE_UNAVAILABLE', 'SAVE_DIRECTORY_CHANGED'].includes(error.code) || storageFailure ? { storagePath: store.storagePath } : {}),
+      });
     }
   });
   server.requestTimeout = 15_000;

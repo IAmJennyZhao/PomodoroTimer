@@ -9,9 +9,10 @@ const MAX_SAVE_BYTES = 1024 * 1024;
 const REPO_DIR = path.resolve(__dirname, '..');
 
 class SaveError extends Error {
-  constructor(message, status = 500) {
+  constructor(message, status = 500, code = status === 409 ? 'SAVE_CONFLICT' : status === 413 ? 'SAVE_TOO_LARGE' : status < 500 ? 'REQUEST_REJECTED' : 'SAVE_SERVICE_ERROR') {
     super(message);
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -82,7 +83,7 @@ async function createStore({ dataDir = process.env.POMODORO_DATA_DIR || defaultD
   }
 
   async function checkDirectory() {
-    if ((await fs.realpath(storagePath)) !== storagePath) throw new SaveError('Save directory changed. Restart after restoring it.');
+    if ((await fs.realpath(storagePath)) !== storagePath) throw new SaveError('Save directory changed. Restart after restoring it.', 500, 'SAVE_DIRECTORY_CHANGED');
   }
 
   async function readRecord(file) {
@@ -123,7 +124,10 @@ async function createStore({ dataDir = process.env.POMODORO_DATA_DIR || defaultD
       return { ...backup.record, recovered: true };
     }
     if (main.missing && backup.missing) return { state: null, revision: 0, recovered: false };
-    throw new SaveError('Both the save and its backup could not be read. Existing files were preserved.');
+    if ([main, backup].some(result => ['EACCES', 'EPERM', 'ENOSPC', 'EROFS', 'EIO'].includes(result.error?.code))) {
+      throw new SaveError('The save folder could not be accessed. Check permissions and disk space.', 500, 'SAVE_STORAGE_UNAVAILABLE');
+    }
+    throw new SaveError('Both the save and its backup could not be read. Existing files were preserved.', 500, 'SAVE_UNREADABLE');
   }
 
   return {
