@@ -390,6 +390,10 @@ function settlePause(state, now) {
 function completeFocus(state, now) {
   const elapsed = elapsedTime(state.timer, now);
   const credited = creditFocus(state, elapsed, now);
+  const totalGems = credited.state.history.find(entry => entry.id === state.timer.id)?.gems || 0;
+  const baseGems = state.timer.rewardForfeited ? 0 : state.timer.overtime
+    ? Math.min(totalGems, Math.floor(state.timer.durationMs / MINUTE * (100 + Math.round((state.timer.gemBonus || 0) * 100)) / 100)) : totalGems;
+  const overtimeGems = Math.max(0, totalGems - baseGems);
   return withEvent(
     {
       ...credited.state,
@@ -405,10 +409,10 @@ function completeFocus(state, now) {
     state.timer.overtime ? "focus-finished" : "focus-complete",
     credited.minutes
       ? state.timer.rewardForfeited ? "Focus complete · Shilligems forfeited after pause limit"
-        : `Focus complete · +${credited.addedGems} Shilligem${credited.addedGems === 1 ? "" : "s"}`
+        : `Focus complete · +${totalGems} Shilligem${totalGems === 1 ? "" : "s"} total${state.timer.overtime ? ` (${baseGems} target + ${overtimeGems} overtime)` : ""}`
       : "Session ended · under 1 min",
     now,
-    { gems: credited.addedGems, minutes: credited.minutes, sessionId: state.timer.id,
+    { gems: credited.addedGems, totalGems, baseGems, overtimeGems, minutes: credited.minutes, sessionId: state.timer.id,
       firstCredit: !state.history.some(entry => entry.id === state.timer.id) },
   );
 }

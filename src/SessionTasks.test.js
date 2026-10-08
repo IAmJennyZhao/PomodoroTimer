@@ -104,3 +104,28 @@ test("focus view keeps task and tag editing one click away", () => {
   fireEvent.click(screen.getByRole("button", { name: "Done tasks and tags" }));
   expect(screen.getByText("Review notes")).toBeInTheDocument();
 });
+
+test('collapsed task counts expose completion and explicit reset preserves text, tags, and recorded history',()=>{
+  let initial=createInitialState(NOW);
+  initial.timer.tasks=[{id:'a',text:'Read',done:true},{id:'b',text:'Practice',done:false}];
+  initial.timer.task='Read';
+  initial.timer.tags=['Study'];
+  initial.history=[{id:'previous',task:'Read',tasks:[{id:'a',text:'Read',done:true}],tags:['Study'],minutes:1,gems:1,completedAt:NOW-60000}];
+  const {getState}=renderTasks(initial,true);
+  expect(screen.getByText('1 of 2 done')).toBeVisible();
+  expect(screen.getByText(/Checklist checks are kept/)).toBeVisible();
+  fireEvent.click(screen.getByRole('button',{name:'Reset checks'}));
+  expect(getState().timer.tasks).toEqual([{id:'a',text:'Read',done:false},{id:'b',text:'Practice',done:false}]);
+  expect(getState().timer.tags).toEqual(['Study']);
+  expect(getState().history[0].tasks[0].done).toBe(true);
+  expect(screen.getByText('0 of 2 done')).toBeVisible();
+  expect(screen.queryByRole('button',{name:'Reset checks'})).not.toBeInTheDocument();
+});
+
+test('the editable collapsed summary shows additional tasks and first-task completion',()=>{
+  const timer={...createInitialState(NOW).timer,tasks:[{id:'a',text:'Read',done:true},{id:'b',text:'Practice',done:false},{id:'c',text:'Review',done:false}]};
+  const {container}=render(<SessionTasks timer={timer} minimal act={jest.fn()} />);
+  expect(screen.getByText('1 of 3 done · 2 more tasks')).toBeVisible();
+  expect(container.querySelector('.session-tasks')).toHaveClass('first-task-done');
+  expect(screen.getByRole('textbox',{name:'Session task'})).toHaveValue('Read');
+});

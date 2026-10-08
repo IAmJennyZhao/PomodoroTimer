@@ -78,7 +78,8 @@ export default function SessionTasks({ timer, history = [], act, compact = false
       callback();
     }
   };
-  return <div className={`session-tasks ${compact ? "compact" : ""} ${minimal ? "minimal" : ""}`}>
+  const doneCount = tasks.filter(task => task.done).length;
+  return <div className={`session-tasks ${compact ? "compact" : ""} ${minimal ? "minimal" : ""} ${tasks[0]?.done ? "first-task-done" : ""}`}>
     {(compact || minimal) && <div className="session-task-summary">
       {minimal && !compact && !expanded ? <TaskTextInput task={tasks[0] || { id: "primary", text: "", done: false }} index={0}
         onChange={(text) => tasks.length ? updateTask(tasks[0].id, { text }) : setTasks([{ id: "primary", text, done: false }])} />
@@ -86,6 +87,10 @@ export default function SessionTasks({ timer, history = [], act, compact = false
       <Button type="button" className="session-edit-button" aria-label={`${expanded ? "Done" : "Edit"} tasks and tags`} aria-expanded={expanded} aria-controls={expanded ? editorId : undefined}
         onClick={() => setExpanded(!expanded)}><Icon name={expanded ? "check" : "pencil"} size={14} /><span className="edit-label">{expanded ? "Done" : "Edit"}</span></Button>
     </div>}
+    {(compact || minimal) && !expanded && tasks.length > 0 && <div className="session-task-overview">
+      <span>{doneCount} of {tasks.length} done{minimal && !compact && tasks.length > 1 ? ` · ${tasks.length - 1} more ${tasks.length === 2 ? "task" : "tasks"}` : ""}</span>
+    </div>}
+    {timer.status === "idle" && doneCount > 0 && <div className="task-reuse-note"><span>Checklist checks are kept for this session.</span><Button type="button" className="text-button" onClick={() => setTasks(tasks.map(task => ({ ...task, done: false })))}>Reset checks</Button></div>}
     {((!compact && !minimal) || expanded) && <div id={editorId} className="session-task-editor">
       <div className="session-task-list" role="group" aria-label="Session tasks">
         {(tasks.length ? tasks : [{ id: "primary", text: "", done: false }]).map((task, index) => <TaskRow key={task.id} task={task} index={index}

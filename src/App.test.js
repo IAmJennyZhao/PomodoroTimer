@@ -1,7 +1,7 @@
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import App from './App';
-import { createInitialState as createFreshState } from './game';
+import { createInitialState as createFreshState, gameReducer } from './game';
 import { createAmbientEngine } from './audio';
 
 jest.mock('./audio', () => ({ createAmbientEngine: jest.fn() }));
@@ -20,6 +20,66 @@ const leaveFocus = () => {
   const leave = screen.queryByRole('button', { name: 'Leave focus view' });
   if (leave) fireEvent.click(leave);
 };
+
+test('browsing keeps the live clock and pause/resume available without closing the workspace',async()=>{
+  await openRoom();
+  fireEvent.click(screen.getByRole('button',{name:'Start'}));
+  leaveFocus();
+  for(const route of ['Egg shop','Pets','Journal']) {
+    fireEvent.click(screen.getByRole('button',{name:route,exact:true}));
+    const current=screen.getByRole('region',{name:'Current session'});
+    expect(within(current).getByRole('timer')).toHaveTextContent('25:00');
+    expect(within(current).getByRole('button',{name:'Back to Focus'})).toBeEnabled();
+  }
+  const current=screen.getByRole('region',{name:'Current session'});
+  fireEvent.click(within(current).getByRole('button',{name:'Pause (2/2)'}));
+  expect(screen.getByRole('dialog',{name:'Journal'})).toBeInTheDocument();
+  expect(within(current).getByRole('timer')).toHaveTextContent('25:00');
+  expect(within(current).getByText(/Resume within 01:00/)).toBeVisible();
+  await wakeAt(NOW+30_000);
+  fireEvent.click(within(current).getByRole('button',{name:'Resume'}));
+  expect(screen.getByRole('dialog',{name:'Journal'})).toBeInTheDocument();
+  await wakeAt(NOW+MINUTE);
+  expect(within(current).getByRole('timer')).toHaveTextContent('24:30');
+  fireEvent.click(within(current).getByRole('button',{name:'Back to Focus'}));
+  expect(screen.queryByRole('dialog',{name:'Journal'})).not.toBeInTheDocument();
+  expect(screen.getByRole('timer')).toHaveTextContent('24:30');
+});
+
+test('completion while browsing retains a route to the result and break choices after the toast expires',async()=>{
+  const saved=gameReducer(createInitialState(NOW),{type:'SET_SETTINGS',settings:{focusMinutes:1},now:NOW});
+  await openRoom(saved);
+  fireEvent.click(screen.getByRole('button',{name:'Start'}));leaveFocus();
+  fireEvent.click(screen.getByRole('button',{name:'Pets'}));
+  await wakeAt(NOW+MINUTE);
+  await advance(6000);
+  const current=screen.getByRole('region',{name:'Current session'});
+  expect(current).toHaveTextContent('Session complete');
+  fireEvent.click(within(current).getByRole('button',{name:'View result and breaks'}));
+  expect(screen.getByLabelText('1 Shilligems earned')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button',{name:'Short break, 5 minutes'}));
+  expect(screen.getByText(/When this break ends, choose Start/)).toBeVisible();
+});
+
+test('starting a break from overtime visibly acknowledges target plus extra reward',async()=>{
+  const saved=gameReducer(createInitialState(NOW),{type:'SET_SETTINGS',settings:{focusMinutes:1,endBehavior:'overtime'},now:NOW});
+  await openRoom(saved);
+  fireEvent.click(screen.getByRole('button',{name:'Start'}));
+  await wakeAt(NOW+MINUTE+20_000);
+  fireEvent.click(screen.getByRole('button',{name:'Short break, 5 minutes'}));
+  expect(document.querySelector('.toast')).toHaveTextContent('Focus complete · +1 Shilligem total (1 target + 0 overtime)');
+  await advance(350);
+  expect(diskState.gems).toBe(1);
+  expect(diskState.history).toHaveLength(1);
+});
+
+test('general settings has a timing shortcut into the same session preferences',async()=>{
+  await openRoom();fireEvent.click(screen.getByRole('button',{name:'Settings',exact:true}));
+  const settings=screen.getByRole('dialog',{name:'Settings'});
+  fireEvent.click(within(settings).getByRole('button',{name:'Session settings'}));
+  expect(screen.getByRole('dialog',{name:'Session settings'})).toBeInTheDocument();
+  expect(screen.getByRole('spinbutton',{name:'Focus time min'})).toHaveValue(25);
+});
 
 let engine;
 let diskState;
@@ -564,7 +624,7 @@ test('pause survives a tab wake, resume keeps the remaining duration, and held S
   fireEvent.click(screen.getByRole('button', { name: 'Resume' }));
   await wakeAt(NOW + 121 * MINUTE);
   expect(screen.getByRole('timer')).toHaveTextContent('22:00');
-  fireEvent.keyDown(screen.getByRole('button', { name: 'Stop session' }), { key: ' ' });
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Abandon session' }), { key: ' ' });
   await advance(5000);
   expect(screen.getByRole('timer')).toHaveTextContent('25:00');
   expect(screen.getByRole('button', { name: 'Start' })).toBeEnabled();
@@ -579,10 +639,10 @@ test('finishing focus during a Stop hold cancels that hold and preserves the com
   await openRoom();
   fireEvent.click(screen.getByRole('button', { name: 'Start' }));
   await wakeAt(NOW + 25 * MINUTE - 3000);
-  fireEvent.keyDown(screen.getByRole('button', { name: 'Stop session' }), { key: ' ' });
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Abandon session' }), { key: ' ' });
   await advance(3000);
   expect(screen.getByRole('button', { name: 'New session' })).toBeInTheDocument();
-  expect(screen.queryByRole('button', { name: 'Stop session' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Abandon session' })).not.toBeInTheDocument();
   await advance(3000);
   expect(latestWrite().state).toMatchObject({ gems: 25, history: [{ minutes: 25 }], timer: { status: 'complete' } });
 });
@@ -689,14 +749,15 @@ test('session lengths are editable on the timer and a running session keeps its 
   act(() => nextFocusTime.focus());
   fireEvent.change(nextFocusTime, { target: { value: '10' } });
   fireEvent.keyDown(nextFocusTime, { key: 'Enter' });
-  expect(screen.getByRole('timer')).toHaveTextContent('29:00');
+  expect(within(timer).getByRole('timer')).toHaveTextContent('29:00');
+  expect(within(screen.getByRole('region', { name: 'Current session' })).getByRole('timer')).toHaveTextContent('29:00');
   await advance(350);
   expect(latestWrite().state).toMatchObject({
     settings: { focusMinutes: 10 },
     timer: { status: 'running', durationMs: 30 * MINUTE },
   });
   fireEvent.click(screen.getByRole('button', { name: 'Close panel' }));
-  fireEvent.keyDown(screen.getByRole('button', { name: 'Stop session' }), { key: ' ' });
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Abandon session' }), { key: ' ' });
   await advance(5000);
   expect(screen.getByRole('timer')).toHaveTextContent('10:00');
 

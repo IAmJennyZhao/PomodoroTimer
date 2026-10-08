@@ -260,7 +260,8 @@ export function SessionControls({ state, act }) {
           <span className="small muted">Applies next session</span>
           <InfoTip label="Changing an active timer">
             Your current session keeps its original times and end behavior.
-            Hold Stop to end this timer and apply changes to a new session.
+            Finish a count-up or overtime session to save your work, or hold Abandon
+            for five seconds to discard unfinished work. New times apply next session.
           </InfoTip>
         </div>
       )}
@@ -268,9 +269,10 @@ export function SessionControls({ state, act }) {
   );
 }
 
-export function SettingsPanel({ state, act, persistence, engine }) {
+export function SettingsPanel({ state, act, persistence, engine, onSessionSettings }) {
   return (
     <>
+      {onSessionSettings && <Button type="button" className="secondary-button timing-shortcut" onClick={onSessionSettings}><Icon name="sliders" size={18} />Session settings</Button>}
       <div className="settings-toggles">
         {[
           { key: "autoStartFocus", name: "Auto-start focus" },
@@ -284,6 +286,7 @@ export function SettingsPanel({ state, act, persistence, engine }) {
           </label>
         ))}
       </div>
+      <p className="auto-focus-note">{state.settings.autoStartFocus ? "When a break ends, the next focus session starts automatically with your current checklist and selected egg." : "When a break ends, you choose when to start the next focus session."}</p>
       <InteractionSoundControls state={state} act={act} engine={engine} />
       <section className="save-info" aria-label="Local save">
         <div className="local-save-row">

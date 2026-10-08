@@ -55,7 +55,7 @@ export default function HoldToStop({ onStop, disabled }) {
     hold.current = { source, id, started, interval, timeout };
   }
   return <>
-    <Button type="button" sound={null} data-hold={phase} className={`stop-button ${phase === "holding" ? "holding" : ""}`} aria-label="Stop session" aria-describedby={helpId}
+    <Button type="button" sound={null} data-hold={phase} className={`stop-button ${phase === "holding" ? "holding" : ""}`} aria-label="Abandon session" aria-describedby={helpId}
       disabled={disabled} style={{ "--hold-fraction": progress, "--hold-cancel-fraction": releasedProgress }}
       onPointerDown={event => {
         if (event.button !== 0 || event.isPrimary === false || disabled) return;
@@ -80,9 +80,9 @@ export default function HoldToStop({ onStop, disabled }) {
       onKeyUp={event => {
         if (hold.current?.source === "keyboard" && hold.current.id === event.key) { event.preventDefault(); cancel(); }
       }}>
-      <span>Stop</span><small aria-hidden="true">{phase === "cancelled" ? "Cancelled" : phase === "holding" ? `Hold ${Math.ceil((1 - progress) * 5)}s` : "Hold 5s"}</small>
+      <span>Abandon</span><small aria-hidden="true">{phase === "cancelled" ? "Cancelled" : phase === "holding" ? `Hold ${Math.ceil((1 - progress) * 5)}s` : "Hold 5s"}</small>
     </Button>
-    <span className="visually-hidden" id={helpId}>Hold for five seconds to abandon this timer. Release to cancel.</span>
-    {phase === "cancelled" && <span className="visually-hidden" role="status">Stop cancelled</span>}
+    <span className="visually-hidden" id={helpId}>Hold for five seconds to abandon this session without saving unfinished focus time or rewards. Release to cancel.</span>
+    {phase === "cancelled" && <span className="visually-hidden" role="status">Abandon cancelled</span>}
   </>;
 }

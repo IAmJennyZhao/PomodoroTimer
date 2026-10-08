@@ -12,6 +12,38 @@ const act = (state, type, extra = {}) => gameReducer(state, { type, now: NOW, ..
 const richState = (gems = 1000) => ({ ...createInitialState(NOW), gems });
 const readyEggs = (state) => ({ ...state, eggs: state.eggs.map(egg => ({ ...egg, progressMinutes: egg.requiredMinutes })) });
 
+test.each([20_000,150_000])('overtime completion reports total and extra gems without recrediting across reload: %i',extra=>{
+  let state=act(createInitialState(NOW),'SET_SETTINGS',{settings:{focusMinutes:1,endBehavior:'overtime'}});
+  state=act(state,'START');
+  state=act(state,'TICK',{now:NOW+MINUTE});
+  expect(state.gems).toBe(1);
+  state=normalizeState(JSON.parse(JSON.stringify(state)),NOW+MINUTE+extra);
+  state=act(state,'START_BREAK',{mode:'break',now:NOW+MINUTE+extra});
+  const total=1+Math.floor(extra/MINUTE);
+  expect(state.event).toMatchObject({gems:total-1,totalGems:total,baseGems:1,overtimeGems:total-1});
+  expect(state.event.message).toContain(`+${total} Shilligem${total===1?'':'s'} total (1 target + ${total-1} overtime)`);
+  expect(state.gems).toBe(total);
+  expect(state.history).toHaveLength(1);
+  expect(state.history[0].gems).toBe(total);
+  state=normalizeState(JSON.parse(JSON.stringify(state)),NOW+MINUTE+extra+1000);
+  expect(act(state,'FINISH_FOCUS',{now:NOW+MINUTE+extra+1000}).gems).toBe(total);
+});
+
+test('forfeited overtime retains focus and egg credit while reporting zero total reward',()=>{
+  let state=act(createInitialState(NOW),'SET_SETTINGS',{settings:{focusMinutes:1,endBehavior:'overtime'}});
+  state.eggs=[{id:'egg',rarity:'basic',requiredMinutes:25,progressMinutes:0,createdAt:NOW}];
+  state.selectedEggId='egg';
+  state=act(state,'START');
+  state=act(state,'PAUSE',{now:NOW+MINUTE+1000});
+  state=act(state,'TICK',{now:NOW+2*MINUTE+1001});
+  state=act(state,'START',{now:NOW+2*MINUTE+1001});
+  state=act(state,'FINISH_FOCUS',{now:NOW+3*MINUTE+1001});
+  expect(state.gems).toBe(0);
+  expect(state.event).toMatchObject({gems:0,totalGems:0,baseGems:0,overtimeGems:0});
+  expect(state.history[0]).toMatchObject({minutes:2,gems:0,rewardForfeited:true});
+  expect(state.eggs[0].progressMinutes).toBe(2);
+});
+
 describe('interaction sound preferences', () => {
   test('older saves get quiet defaults and preserve previously muted taps', () => {
     const saved = createInitialState(NOW);

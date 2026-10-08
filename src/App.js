@@ -29,6 +29,7 @@ import {
   HatchModal,
 } from "./ui";
 import TimerCard, { QuickScratchpad } from "./TimerCard";
+import SessionStrip from "./SessionStrip";
 import { EggShopTools } from "./EggShop";
 import { RoomLoading, SaveNotice, ToastNotice, useNoticeTimeout } from "./Feedback";
 import RoomBackdrop from "./RoomBackdrop";
@@ -63,6 +64,7 @@ import "./room-interactions.css";
 import "./spacing.css";
 import "./header.css";
 import "./arrangement.css";
+import "./session-flow.css";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
 
@@ -225,6 +227,7 @@ export default function App() {
   const displayTime = counting ? Math.max(0, elapsed - (state.timer.overtime ? state.timer.durationMs : 0)) : remaining;
   const sidePanel = ["settings", "session", "sound"].includes(panel);
   const widePanel = Boolean(panel) && !sidePanel && !arranging;
+  const showSessionStrip = ready && !focusView && Boolean(panel) && state.timer.status !== "idle";
   useEffect(() => {
     if (!ready) return;
     if (state.timer.mode === "focus" && state.timer.status === "running") {
@@ -291,7 +294,7 @@ export default function App() {
       // timer alerts may use the softer outcome check, never both.
       const manualFinish = event.type === "focus-finished" || state.timer.workMode === "countup";
       if (event.gems > 0 && (manualFinish || !state.settings.soundEnabled)) playControlFeedback("check");
-      notify(goalComplete ? "Daily goal complete!" : event.message, "success", goalComplete);
+      notify(goalComplete ? `Daily goal complete! ${event.message}` : event.message, "success");
       setTip(Math.floor(Math.random() * BREAK_IDEAS.length));
       if (state.timer.overtime && state.timer.status !== "complete") notify("Target reached · counting up");
       if (event.type === "focus-complete" && !manualFinish && state.settings.soundEnabled && !(state.timer.status === "complete" && state.timer.workMode === "pomodoro" && state.timer.endBehavior === "remind")) engine.current?.chime();
@@ -504,7 +507,7 @@ export default function App() {
         </RoomObjects>
       </div>
       <div className="room-vignette" />
-      <header ref={headerRef} className="app-header" data-concealed={focusView ? "true" : undefined} aria-hidden={focusView ? true : undefined} inert={focusView ? "" : undefined}>
+      <header ref={headerRef} className={`app-header ${showSessionStrip ? "has-session-strip" : ""}`} data-concealed={focusView ? "true" : undefined} aria-hidden={focusView ? true : undefined} inert={focusView ? "" : undefined}>
         <Button className="room-brand" onClick={closePanel}>Little Room</Button>
         <div className="header-actions">
           <Button
@@ -541,6 +544,11 @@ export default function App() {
             <Icon name="settings" size={22} />
           </Button>
         </div>
+        {showSessionStrip && <SessionStrip timer={state.timer} now={now} disabled={!ready || status === "conflict"}
+          onToggle={() => {
+            if (state.timer.status !== "running") { engine.current?.unlock(); setNow(Date.now()); }
+            act({ type: state.timer.status === "running" ? "PAUSE" : "START" });
+          }} onFocus={() => { closePanel(); setFocusView(state.timer.mode === "focus" && state.timer.status !== "complete"); }} />}
       </header>
       <TimerTransition reduced={reducedMotion} layoutKey={`${focusView}/${widePanel}/${panel}/${arranging}`}
         contentKey={`${state.timer.id}/${state.timer.mode}/${state.timer.status}/${state.timer.overtime}/${state.timer.rewardForfeited}/${focusView}`}>
@@ -647,7 +655,7 @@ export default function App() {
             />
           )}
           {shownPanel === "settings" && (
-            <SettingsPanel state={state} act={act} persistence={persistence} engine={engine} />
+            <SettingsPanel state={state} act={act} persistence={persistence} engine={engine} onSessionSettings={() => setPanel("session")} />
           )}
           {shownPanel === "session" && <SessionControls state={state} act={act} />}
         </Drawer>

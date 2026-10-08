@@ -8,7 +8,7 @@ const advance = ms => act(() => jest.advanceTimersByTime(ms));
 const setup = () => {
   const onStop = jest.fn();
   const view = render(<HoldToStop onStop={onStop} />);
-  return { ...view, onStop, button: screen.getByRole("button", { name: "Stop session" }) };
+  return { ...view, onStop, button: screen.getByRole("button", { name: "Abandon session" }) };
 };
 
 test("a click or early release cannot stop; a fresh continuous hold stops once at five seconds", () => {
@@ -101,7 +101,7 @@ test("cancellation gives brief feedback, and a fresh hold resets progress and it
   fireEvent.keyUp(button, { key: "Enter" });
   expect(button).toHaveAttribute("data-hold", "cancelled");
   expect(button.style.getPropertyValue("--hold-cancel-fraction")).toBe("0.4");
-  expect(screen.getByRole("status")).toHaveTextContent("Stop cancelled");
+  expect(screen.getByRole("status")).toHaveTextContent("Abandon cancelled");
   advance(100);
   fireEvent.keyDown(button, { key: "Enter" });
   expect(button).toHaveAttribute("data-hold", "holding");

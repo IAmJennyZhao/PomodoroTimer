@@ -345,7 +345,7 @@ test('editing durations preserves an active timer and explains when changes appl
   expect(screen.getByText('Applies next session')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Changing an active timer' }));
   expect(screen.getByText(/Your current session keeps its original times and end behavior/)).toBeInTheDocument();
-  expect(screen.getByText(/Hold Stop to end this timer/)).toBeInTheDocument();
+  expect(screen.getByText(/hold Abandon for five seconds/)).toBeInTheDocument();
 });
 
 test('duration buttons step typed values once and respect timer and cadence limits', () => {
