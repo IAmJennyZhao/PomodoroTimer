@@ -14,7 +14,7 @@
 .app.focus-view .timer-digits { font-size: clamp(120px, 22vw, 176px); line-height: 1.12; letter-spacing: -5px; }
 .app.focus-view .timer-digits.long-clock { font-size: clamp(72px, 15vw, 118px); }
 .app.focus-view .pause-expired { min-height: 160px; }
-.app.focus-view .timer-tools .icon-button { width: 32px; min-width: 32px; height: 32px; }
+.app.focus-view .timer-tools .icon-button { width: var(--control-size); min-width: var(--control-size); height: var(--control-size); }
 @media (max-width: 700px) {
   .app .timer-session-controls { gap: 5px; }
   .app .pause-button, .app .stop-button { font-size: 12px; padding: 6px 7px; }
@@ -26,5 +26,4 @@
   .app.focus-view .timer-face { container-type: inline-size; width: 100%; }
   .app.focus-view .timer-digits { font-size: min(clamp(92px, 17vw, 124px), calc(190cqi / var(--clock-characters, 5))); letter-spacing: -3px; }
   .app.focus-view .timer-digits.long-clock { font-size: min(clamp(54px, 11vw, 76px), calc(190cqi / var(--clock-characters, 8))); letter-spacing: -2px; }
-  .app.focus-view .timer-tools .icon-button { width: 27px; min-width: 27px; height: 30px; }
 }

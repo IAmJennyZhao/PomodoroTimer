@@ -35,7 +35,7 @@
 .pet-album > .panel-toolbar > span { font-size: 14px; }
 .app .pet-album .collection-layout { grid-template-columns: minmax(0, 1.2fr) minmax(280px, .9fr); gap: 64px; }
 .app .pet-album .collection-grid { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; }
-.app .pet-album .animal-card { padding: 12px 12px 10px; display: flex; flex-direction: column; align-items: center; gap: 5px; border-radius: 7px 10px 8px 6px; }
+.app .pet-album .animal-card { padding: var(--space-3); display: flex; flex-direction: column; align-items: center; gap: var(--space-2); border-radius: 7px 10px 8px 6px; }
 .app .pet-album .animal-card > .animal-art { width: 108px; max-width: 100%; }
 .app .pet-album .animal-card strong { font-size: 17px; }
 .app .pet-album .animal-card .rarity-stars { margin: 0; }
@@ -69,8 +69,8 @@
 .app .decoration-catalog .catalog-toolbar .segmented { margin: 0; }
 .app .decoration-catalog .catalog-toolbar .segmented button { padding: 10px 20px; }
 .app .decoration-catalog .arrange-start { padding: 10px 20px; }
-.app .decoration-catalog .shop-items { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-.app .decoration-catalog .catalogue-item { display: flex; flex-direction: column; text-align: center; padding: 12px 14px 16px; gap: 0; border: 6px solid transparent; border-image: var(--book-frame) 24 / 6px / 0 stretch; border-radius: 10px; background-color: #fffaf0; box-shadow: none; }
+.app .decoration-catalog .shop-items { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
+.app .decoration-catalog .catalogue-item { display: flex; flex-direction: column; text-align: center; padding: var(--space-4); gap: 0; border: 6px solid transparent; border-image: var(--book-frame) 24 / 6px / 0 stretch; border-radius: 10px; background-color: #fffaf0; box-shadow: none; }
 .app .decoration-catalog .catalogue-item.is-active { background-color: #f0f2df; }
 .app .decoration-catalog .catalogue-art { display: grid; place-items: center; width: 100%; height: 140px; margin-bottom: 10px; }
 .app .decoration-catalog .catalogue-art > .furniture-art { width: 100%; height: 100%; }
@@ -81,7 +81,7 @@
 .app .decoration-catalog .catalogue-item h3 { font-size: 20px; line-height: 1.3; margin: 0 0 7px; overflow-wrap: anywhere; }
 .app .decoration-catalog .catalogue-status { min-height: 25px; margin-bottom: 8px; font-size: var(--text-small); color: var(--muted); }
 .app .decoration-catalog .stock-badge { display: inline-block; padding: 3px 9px; background: var(--sage); color: var(--ink); border-radius: 10px 8px 9px 7px; font-size: var(--text-small); }
-.app .decoration-catalog .catalogue-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 12px; margin-top: auto; }
+.app .decoration-catalog .catalogue-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: var(--space-2) var(--space-3); margin-top: auto; }
 .app .decoration-catalog .catalogue-actions :is(.small-button, .primary-button) { margin: 0; min-height: var(--control-size); padding: var(--space-2) var(--space-4); }
 .app .decoration-catalog .catalogue-price { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-variant-numeric: tabular-nums; }
 .app .decoration-catalog :is(.catalogue-price, .furniture-buy) .icon-gem { color: var(--gem-blue); fill: #bed8e6; }
@@ -102,7 +102,7 @@
 .app .journal-panel .journal-metrics > div::after { content: ""; position: absolute; pointer-events: none; right: 7px; bottom: 5px; width: 34px; height: 46px; background: var(--leaf-sprig) center / contain no-repeat; opacity: .55; }
 .app .journal-panel .journal-metrics dt { color: var(--muted); font-size: 14px; margin-bottom: 8px; }
 .app .journal-panel .journal-metrics dd { font-size: 30px; font-weight: 400; letter-spacing: -.02em; position: relative; z-index: 1; }
-.app .journal-panel .journal-card { border: 5px solid transparent; border-image: var(--book-frame) 24 / 5px / 0 stretch; border-radius: 5px; padding: 18px 20px; background: #fff9eb; box-shadow: none; }
+.app .journal-panel .journal-card { border: 5px solid transparent; border-image: var(--book-frame) 24 / 5px / 0 stretch; border-radius: 5px; padding: var(--space-4) var(--space-6); background: #fff9eb; box-shadow: none; }
 .app .journal-panel .journal-section-title :is(h3, label) { font-size: 20px; font-weight: 400; }
 .app .journal-panel .journal-visuals { grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr); gap: 16px; }
 .app .journal-panel .journal-chart-scale { left: 20px; top: 66px; height: 106px; color: var(--muted); font-size: var(--text-small); }
@@ -227,7 +227,7 @@
   .app .journal-panel .journal-metrics dt { font-size: var(--text-small); }
   .app .journal-panel .journal-metrics dd { font-size: 23px; }
   .app .journal-panel .journal-metrics > div::after { width: 25px; height: 35px; opacity: .35; }
-  .app .journal-panel :is(.journal-card, .journal-history) { padding: 14px 10px; }
+  .app .journal-panel :is(.journal-card, .journal-history) { padding: var(--space-3); }
   .app .journal-panel .journal-section-title :is(h3, label) { font-size: 18px; }
   .app .journal-panel .journal-chart-scale { left: 10px; top: 58px; font-size: 10px; }
   .app .journal-panel .journal-chart { margin-left: 30px; }
