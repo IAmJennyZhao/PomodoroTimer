@@ -1,11 +1,13 @@
 import {
-  ANIMALS, PRESETS, createInitialState, gameReducer, normalizeState,
+  ANIMALS, PRESETS, createInitialState as createFreshState, gameReducer, normalizeState,
   remainingTime, elapsedTime, isCountingUp, canTakeBreak, MAX_TRACKED_MS, formatTime, formatElapsedTime, todayStats,
   EGG_MINUTES, RARITY_STARS, MAX_UPGRADES, animationCount, gemBonus, pauseRemainingTime, spendableGems,
 } from './game';
 
 const MINUTE = 60_000;
 const NOW = new Date(2026, 9, 1, 12).getTime();
+// Reward/accounting tests start with an existing empty wallet so totals stay explicit.
+const createInitialState = (now) => ({ ...createFreshState(now), gems: 0 });
 const act = (state, type, extra = {}) => gameReducer(state, { type, now: NOW, ...extra });
 const richState = (gems = 1000) => ({ ...createInitialState(NOW), gems });
 const readyEggs = (state) => ({ ...state, eggs: state.eggs.map(egg => ({ ...egg, progressMinutes: egg.requiredMinutes })) });
@@ -41,12 +43,29 @@ describe('interaction sound preferences', () => {
 });
 
 describe('focus sessions and rewards', () => {
-  test('a fresh save has a free companion, a full classic timer, and no rewards', () => {
-    const state = createInitialState(NOW);
-    expect(state.gems).toBe(0);
+  test('a fresh save has 200 gift gems, a free companion, and no earned rewards', () => {
+    const state = createFreshState(NOW);
+    expect(state.gems).toBe(200);
+    expect(todayStats(state, NOW)).toMatchObject({ gems: 0, minutes: 0 });
     expect(state.animals).toEqual([expect.objectContaining({ species: 'cat', name: 'Miso', placed: true, x: 80, y: 68 })]);
     expect(state.timer).toEqual(expect.objectContaining({ status: 'idle', durationMs: 25 * MINUTE, remainingMs: 25 * MINUTE }));
     expect(state.history).toEqual([]);
+  });
+
+  test('the first-room gift is spent once and never granted again on reload', () => {
+    let state = act(createFreshState(NOW), 'BUY_EGG', { kind: 'basic' });
+    expect(state.gems).toBe(175);
+    state = act(state, 'BUY_EGG', { kind: 'mystery', roll: 0.5 });
+    expect(state.gems).toBe(115);
+    for (let reload = 0; reload < 3; reload += 1) {
+      state = normalizeState(JSON.parse(JSON.stringify(state)), NOW);
+      expect(state.gems).toBe(115);
+      expect(todayStats(state, NOW)).toMatchObject({ gems: 0, minutes: 0 });
+    }
+  });
+
+  test.each([0, 15, 200])('loading an existing %i-gem wallet preserves its balance', (gems) => {
+    expect(normalizeState({ ...createFreshState(NOW), gems }, NOW).gems).toBe(gems);
   });
 
   test('uses elapsed wall time, so throttled tabs do not slow the countdown', () => {
@@ -551,7 +570,7 @@ describe('eggs, inventory, and room ownership', () => {
 
 describe('saved-state recovery', () => {
   test.each([null, [], 'invalid', {}, { schemaVersion: 999 }])('an invalid document %p opens a safe starter state', saved => {
-    expect(normalizeState(saved, NOW)).toEqual(createInitialState(NOW));
+    expect(normalizeState(saved, NOW)).toEqual(createFreshState(NOW));
   });
 
   test('normalizes malformed data, duplicate IDs, invalid catalog entries, and unowned equipment', () => {

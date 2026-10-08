@@ -56,7 +56,7 @@ test('saves a first-run state rather than leaving the free companion only in mem
   await settle();
   expect(result.current.status).toBe('saving');
   await advance();
-  expect(written()).toMatchObject({ revision: 0, state: { gems: 0, animals: [{ id: 'starter-cat' }] } });
+  expect(written()).toMatchObject({ revision: 0, state: { gems: 200, animals: [{ id: 'starter-cat' }], history: [] } });
   expect(result.current.status).toBe('saved');
 });
 
@@ -152,7 +152,7 @@ test('failed reload keeps existing state and does not silently replace it with d
 });
 
 test('expired restored Pomodoros award once and persist a completed session awaiting a break', async () => {
-  const running = gameReducer(createInitialState(NOW - 30 * 60000), { type: 'START', now: NOW - 30 * 60000 });
+  const running = gameReducer({ ...createInitialState(NOW - 30 * 60000), gems: 0 }, { type: 'START', now: NOW - 30 * 60000 });
   global.fetch.mockResolvedValueOnce(response(envelope(running, { recovered: true })))
     .mockResolvedValueOnce(response({ revision: 5 }));
   const { result } = renderHook(useLocalSave);
@@ -177,7 +177,7 @@ test.each([
   { name: 'overtime', workMode: 'pomodoro', endBehavior: 'overtime', minutes: 28 },
 ])('paused $name state survives queued saves and reload with its original timer settings', async ({ workMode, endBehavior, minutes }) => {
   const startedAt = NOW - 35 * 60000;
-  let saved = gameReducer(createInitialState(startedAt), { type: 'SET_SETTINGS', settings: { workMode, endBehavior }, now: startedAt });
+  let saved = gameReducer({ ...createInitialState(startedAt), gems: 0 }, { type: 'SET_SETTINGS', settings: { workMode, endBehavior }, now: startedAt });
   saved = gameReducer(saved, { type: 'START', now: startedAt });
   saved = { ...gameReducer(saved, { type: 'PAUSE', now: startedAt + minutes * 60000 }), event: null };
   // An expired Pomodoro pause forfeits its reward; the settled save remains stable.

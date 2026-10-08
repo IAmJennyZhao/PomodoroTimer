@@ -1,13 +1,15 @@
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import App from './App';
-import { createInitialState } from './game';
+import { createInitialState as createFreshState } from './game';
 import { createAmbientEngine } from './audio';
 
 jest.mock('./audio', () => ({ createAmbientEngine: jest.fn() }));
 
 const MINUTE = 60_000;
 const NOW = new Date('2026-10-01T15:00:00Z').getTime();
+// Existing-room fixtures isolate focus earnings from the first-room gift.
+const createInitialState = (now) => ({ ...createFreshState(now), gems: 0 });
 const originalFetch = global.fetch;
 const response = (body, status = 200) => ({ ok: status >= 200 && status < 300, status, json: async () => body });
 const settle = async () => { await act(async () => { await Promise.resolve(); }); };

@@ -55,7 +55,7 @@ test('a fully studied egg hatches into a room resident', () => {
 });
 
 test('shop explains why ongoing overtime rewards are not yet spendable', () => {
-  let initial = gameReducer(createInitialState(NOW), { type: 'SET_SETTINGS', settings: { endBehavior: 'overtime' }, now: NOW });
+  let initial = gameReducer({ ...createInitialState(NOW), gems: 0 }, { type: 'SET_SETTINGS', settings: { endBehavior: 'overtime' }, now: NOW });
   initial = gameReducer(initial, { type: 'START', now: NOW });
   initial = gameReducer(initial, { type: 'TICK', now: NOW + 25 * 60000 });
   renderPanel(ShopPanel, initial);

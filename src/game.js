@@ -244,7 +244,8 @@ export function createInitialState(now = Date.now()) {
   return {
     schemaVersion: 1,
     progressionVersion: 2,
-    gems: 0,
+    // A first-room gift is spendable immediately, never a focus-history reward.
+    gems: 200,
     animals: [
       {
         id: "starter-cat",
