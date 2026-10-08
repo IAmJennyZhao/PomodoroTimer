@@ -4,6 +4,7 @@ import { canTakeBreak, elapsedTime, formatElapsedTime, formatTime, gemBonus, isC
 import { Icon, InfoTip } from "./ui";
 import SessionTasks from "./SessionTasks";
 import EggSelection from "./EggSelection";
+import ScratchpadStatus from "./ScratchpadStatus";
 import { ArtFragment, PastelButtonArt } from "./AtelierArt";
 import HoldToStop from "./HoldToStop";
 import { OutcomeFeedbackContext } from "./OutcomeFeedback";
@@ -62,7 +63,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
           {breakTime && <span className="timer-phase">{timer.mode === "longBreak" ? "Long break" : "Short break"}</span>}
         </div>}
         <div className="timer-tools">
-          <Button className="icon-button" aria-label="Open scratchpad" title="Scratchpad"
+          <Button className="icon-button" aria-label="Open Scratchpad" title="Scratchpad"
             aria-expanded={Boolean(notesOpen)} aria-pressed={Boolean(notesOpen)} aria-controls="scratchpad" onClick={() => openPanel("notes")}><Icon name="note" size={18} /></Button>
           {(focusView || (!breakTime && timer.status === "running")) && <Button className="icon-button" aria-label={focusView ? "Leave focus view" : "Enter focus view"}
             title={focusView ? "Leave focus view" : "Enter focus view"} onClick={() => setFocusView(!focusView)}><Icon name={focusView ? "collapse" : "expand"} size={17} /></Button>}
@@ -131,7 +132,8 @@ export function QuickScratchpad({ state, act, saveStatus }) {
   const notes = useRef(null);
   useEffect(() => { notes.current?.focus(); }, []);
   return <div className="quick-notes">
-    <textarea ref={notes} id="quick-notes" aria-label="Notes" placeholder="Save a thought for later…" maxLength={10000} value={state.scratchpad} onChange={(event) => act({ type: "SET_SCRATCHPAD", text: event.target.value })} />
-    <span className="notes-save-state" data-save-status={saveStatus} role="status">{saveStatus === "saved" ? "Saved" : saveStatus === "saving" ? "Saving…" : saveStatus === "error" || saveStatus === "conflict" ? "Not saved" : ""}</span>
+    <p className="scratchpad-shared-hint" id="quick-notes-help">The same saved note is available in Journal → Scratchpad.</p>
+    <textarea ref={notes} id="quick-notes" aria-label="Scratchpad text" aria-describedby="quick-notes-help" placeholder="Save a thought for later…" maxLength={10000} value={state.scratchpad} onChange={(event) => act({ type: "SET_SCRATCHPAD", text: event.target.value })} />
+    <ScratchpadStatus status={saveStatus} />
   </div>;
 }

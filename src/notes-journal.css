@@ -1,0 +1,55 @@
+/* Adapt to the space the notebook actually has, including beside Scratchpad. */
+.app .workspace-journal > .drawer-content {
+  container-type: inline-size;
+  container-name: journal-content;
+}
+.app .journal-panel :is(.journal-history, .journal-recent) {
+  container-type: inline-size;
+  container-name: journal-sessions;
+}
+.app :is(.scratchpad-shared-hint, .journal-explanation) {
+  font: var(--text-small)/1.5 var(--font-ui);
+  color: var(--muted);
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+.app .journal-explanation { margin: 12px 0; }
+.app .journal-note-footer { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; margin-top: 8px; }
+.app .notes-save-state { font: var(--text-small)/1.5 var(--font-ui); }
+.app .journal-panel :is(.journal-tag-heading > span, .journal-session-tags > span) { overflow-wrap: anywhere; min-width: 0; }
+.app .journal-panel .journal-notes textarea { width: 100%; min-height: 180px; height: clamp(180px, 42dvh, 370px); }
+
+@container journal-content (max-width: 850px) {
+  .app .journal-panel .journal-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app .journal-panel :is(.journal-visuals, .journal-bottom) { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Keep the table's accessible relationships, but give each small-screen session
+   a full-width task summary instead of a narrow third column. */
+@container journal-sessions (max-width: 580px) {
+  .app .journal-panel .journal-ledger { display: block; }
+  .app .journal-panel .journal-ledger thead {
+    position: absolute; width: 1px; height: 1px; padding: 0;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+  .app .journal-panel .journal-ledger tbody { display: grid; gap: 12px; }
+  .app .journal-panel .journal-ledger tbody tr {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 12px; padding: 12px 0; border-bottom: 1px solid var(--line);
+  }
+  .app .journal-panel .journal-ledger tbody tr:last-child { border-bottom: 0; }
+  .app .journal-panel .journal-ledger tbody td {
+    width: auto; padding: 0; border: 0; min-width: 0; text-align: left;
+  }
+  .app .journal-panel .journal-ledger .journal-session-date { grid-column: 1; grid-row: 1; }
+  .app .journal-panel .journal-ledger .journal-session-date time { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .app .journal-panel .journal-ledger .journal-session-date time > span { margin: 0; }
+  .app .journal-panel .journal-ledger .journal-session-task { grid-column: 1 / -1; grid-row: 2; }
+  .app .journal-panel .journal-ledger .journal-session-task strong { line-height: 1.5; }
+  .app .journal-panel .journal-ledger .journal-session-duration {
+    grid-column: 2; grid-row: 1; width: auto; text-align: right;
+    font-size: 16px; color: var(--ink);
+  }
+  .app .journal-panel .journal-ledger:not(.with-date) .journal-session-duration::before { content: "Focus "; font-size: var(--text-small); color: var(--muted); }
+  .app .journal-panel :is(.journal-task-count, .journal-session-forfeited) { display: block; margin-top: 6px; }
+}

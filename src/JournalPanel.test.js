@@ -117,10 +117,39 @@ test("scratchpad saves edits while details stay behind its info control", () => 
   const { getState } = renderJournal();
   fireEvent.click(screen.getByRole("button", { name: "Scratchpad" }));
   expect(screen.queryByText(/Saved on this computer/)).not.toBeInTheDocument();
-  fireEvent.change(screen.getByRole("textbox", { name: "Notes" }), { target: { value: "Remember this after focus." } });
+  fireEvent.change(screen.getByRole("textbox", { name: "Scratchpad text" }), { target: { value: "Remember this after focus." } });
   expect(getState().scratchpad).toBe("Remember this after focus.");
   fireEvent.click(screen.getByRole("button", { name: "About scratchpad" }));
   expect(screen.getByText(/Saved on this computer/)).toBeVisible();
+});
+
+test("Scratchpad reports the shared draft's save state and retains its text through failures", () => {
+  const initial = createInitialState(NOW);
+  initial.scratchpad = "Keep my study note";
+  const props = { state: initial, act: jest.fn(), now: NOW };
+  const { rerender } = render(<JournalPanel {...props} saveStatus="saving" />);
+  fireEvent.click(screen.getByRole("button", { name: "Scratchpad" }));
+  expect(screen.getByText(/same saved note/)).toBeVisible();
+  expect(screen.getByRole("status")).toHaveTextContent("Saving…");
+  rerender(<JournalPanel {...props} saveStatus="error" />);
+  expect(screen.getByRole("status")).toHaveTextContent("Not saved");
+  expect(screen.getByRole("textbox", { name: "Scratchpad text" })).toHaveValue(initial.scratchpad);
+  rerender(<JournalPanel {...props} saveStatus="saved" />);
+  expect(screen.getByRole("status")).toHaveTextContent("Saved");
+});
+
+test("historical analytics retain today's goal context and explain overlapping tag totals", () => {
+  const initial = createInitialState(NOW);
+  initial.history = [{ id: "today", minutes: 25, tags: ["Study", "Math"], completedAt: NOW }];
+  initial.settings.dailyGoal = 1;
+  renderJournal(initial);
+  fireEvent.click(screen.getByRole("button", { name: "30 days" }));
+  expect(screen.getByRole("heading", { name: "Today's goal" })).toBeVisible();
+  expect(screen.getByText("Goal reached today")).toBeVisible();
+  expect(screen.getByText(/Their totals can overlap/)).toBeVisible();
+  expect(within(screen.getByLabelText("Focus summary")).getAllByText("25m")).toHaveLength(2);
+  fireEvent.click(screen.getByRole("button", { name: "History" }));
+  expect(screen.getByRole("cell", { name: "25 focus minutes" })).toHaveTextContent("25m");
 });
 
 test("journal shows multiple tasks, session tags and tag statistics for the selected period", () => {

@@ -580,7 +580,7 @@ test('rapid panel switching keeps one active workspace and blocks old actions an
 
 test('closing and reopening the notepad preserves the node and draft, without stale exit or late edits', async () => {
   await openRoom();
-  fireEvent.click(screen.getByRole('button', { name: 'Open notepad' }));
+  fireEvent.click(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' }));
   const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
   const input = within(notes).getByRole('textbox');
   fireEvent.change(input, { target: { value: 'Keep this draft' } });
@@ -588,7 +588,7 @@ test('closing and reopening the notepad preserves the node and draft, without st
   expect(notes).toHaveAttribute('inert');
   fireEvent.change(input, { target: { value: 'Late edit' } });
   await advance(80);
-  fireEvent.click(screen.getByRole('button', { name: 'Open notepad' }));
+  fireEvent.click(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' }));
   expect(screen.getByRole('dialog', { name: 'Scratchpad' })).toBe(notes);
   expect(input).toHaveValue('Keep this draft');
   expect(input).toHaveFocus();
@@ -688,7 +688,7 @@ test('finishing focus during a Stop hold cancels that hold and preserves the com
 test('header navigation opens named panels, restores the opener after Escape, and tears down timers and audio', async () => {
   const { unmount } = await openRoom();
   const navigation = screen.getByRole('navigation', { name: 'Main navigation' });
-  expect(screen.getByRole('banner')).toContainElement(navigation);
+  expect(screen.getByRole('banner', { name: 'Room controls' })).toContainElement(navigation);
   expect(screen.queryByRole('button', { name: 'Little Room home' })).not.toBeInTheDocument();
   expect(within(navigation).getByRole('button', { name: 'Focus' })).toHaveAttribute('aria-current', 'page');
   for (const [label, title] of [
@@ -841,10 +841,10 @@ test('focus view hides distractions while scratchpad remains reachable and saves
   expect(screen.queryByRole('button', { name: /Daily progress/ })).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: /^Pause(?: \(\d\/2\))?$/ })).toBeEnabled();
 
-  fireEvent.click(screen.getByRole('button', { name: 'Open scratchpad' }));
+  fireEvent.click(within(screen.getByRole('region', { name: 'Focus timer' })).getByRole('button', { name: 'Open Scratchpad' }));
   const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
-  expect(within(notes).getByRole('textbox', { name: 'Notes' })).toHaveFocus();
-  fireEvent.change(within(notes).getByRole('textbox', { name: 'Notes' }), { target: { value: 'Remember to water the plant' } });
+  expect(within(notes).getByRole('textbox', { name: 'Scratchpad text' })).toHaveFocus();
+  fireEvent.change(within(notes).getByRole('textbox', { name: 'Scratchpad text' }), { target: { value: 'Remember to water the plant' } });
   await advance(350);
   expect(latestWrite().state).toMatchObject({ scratchpad: 'Remember to water the plant', timer: { status: 'running' } });
   fireEvent.click(within(notes).getByRole('button', { name: 'Close panel' }));
@@ -866,9 +866,9 @@ test('focus view hides distractions while scratchpad remains reachable and saves
 
 test('scratchpad remains mounted and positioned across panels and closes only through its controls', async () => {
   await openRoom();
-  fireEvent.click(screen.getByRole('button', { name: 'Open notepad' }));
+  fireEvent.click(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' }));
   const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
-  const textbox = within(notes).getByRole('textbox', { name: 'Notes' });
+  const textbox = within(notes).getByRole('textbox', { name: 'Scratchpad text' });
   fireEvent.change(textbox, { target: { value: 'Keep this thought while changing settings' } });
   fireEvent.keyDown(within(notes).getByRole('button', { name: 'Move notepad' }), { key: 'ArrowLeft', shiftKey: true });
   const location = notes.getAttribute('style');
@@ -878,24 +878,24 @@ test('scratchpad remains mounted and positioned across panels and closes only th
     expect(screen.getByRole('dialog', { name: 'Scratchpad' })).toBe(notes);
     expect(textbox).toHaveValue('Keep this thought while changing settings');
     expect(notes).toHaveAttribute('style', location);
-    expect(screen.getByRole('button', { name: 'Open notepad' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' })).toHaveAttribute('aria-pressed', 'true');
   }
   fireEvent.keyDown(window, { key: 'Escape' });
   expect(notes).toBeVisible();
   fireEvent.click(screen.getByRole('button', { name: 'Start' }));
   expect(notes).toBeVisible();
-  expect(screen.getByRole('button', { name: 'Open scratchpad' })).toHaveAttribute('aria-pressed', 'true');
+  expect(within(screen.getByRole('region', { name: 'Focus timer' })).getByRole('button', { name: 'Open Scratchpad' })).toHaveAttribute('aria-pressed', 'true');
   await advance(350);
   expect(latestWrite().state.scratchpad).toBe('Keep this thought while changing settings');
   fireEvent.click(within(notes).getByRole('button', { name: 'Close panel' }));
   expect(screen.queryByRole('dialog', { name: 'Scratchpad' })).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'Open scratchpad' }));
+  fireEvent.click(within(screen.getByRole('region', { name: 'Focus timer' })).getByRole('button', { name: 'Open Scratchpad' }));
   leaveFocus();
   fireEvent.click(screen.getByRole('button', { name: 'Settings', exact: true }));
-  fireEvent.click(screen.getByRole('button', { name: 'Open notepad' }));
+  fireEvent.click(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' }));
   expect(screen.queryByRole('dialog', { name: 'Scratchpad' })).not.toBeInTheDocument();
   expect(screen.getByRole('dialog', { name: 'Settings' })).toBeVisible();
-  expect(screen.getByRole('button', { name: 'Open notepad' })).toHaveAttribute('aria-pressed', 'false');
+  expect(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' })).toHaveAttribute('aria-pressed', 'false');
 });
 
 test('a completed Pomodoro repeats its alarm until muted and waits for an explicit break choice', async () => {

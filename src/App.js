@@ -65,6 +65,7 @@ import "./spacing.css";
 import "./header.css";
 import "./arrangement.css";
 import "./session-flow.css";
+import "./notes-journal.css";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
 
@@ -509,7 +510,7 @@ export default function App() {
         </RoomObjects>
       </div>
       <div className="room-vignette" />
-      <header ref={headerRef} className={`app-header ${showSessionStrip ? "has-session-strip" : ""}`} data-concealed={focusView ? "true" : undefined} aria-hidden={focusView ? true : undefined} inert={focusView ? "" : undefined}>
+      <header aria-label="Room controls" ref={headerRef} className={`app-header ${showSessionStrip ? "has-session-strip" : ""}`} data-concealed={focusView ? "true" : undefined} aria-hidden={focusView ? true : undefined} inert={focusView ? "" : undefined}>
         <Button className="room-brand" onClick={closePanel}>Little Room</Button>
         <div className="header-actions">
           <Button
@@ -537,7 +538,7 @@ export default function App() {
               </Button>
             ))}
           </nav>
-          <Button className="icon-button header-notes" aria-label="Open notepad" title="Notepad" aria-pressed={notesOpen} aria-expanded={notesOpen} aria-controls="scratchpad" onClick={() => openPanel("notes")}><Icon name="note" size={22} /></Button>
+          <Button className="icon-button header-notes" aria-label="Open Scratchpad" title="Scratchpad" aria-pressed={notesOpen} aria-expanded={notesOpen} aria-controls="scratchpad" onClick={() => openPanel("notes")}><Icon name="note" size={22} /></Button>
           <Button
             className="icon-button paper settings-button"
             aria-label="Settings"
@@ -644,7 +645,7 @@ export default function App() {
             />
           )}
           {shownPanel === "journal" && (
-            <JournalPanel state={state} act={act} now={now} />
+            <JournalPanel state={state} act={act} now={now} saveStatus={status} />
           )}
           {shownPanel === "sound" && (
             <SoundPanel

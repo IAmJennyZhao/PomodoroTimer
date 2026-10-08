@@ -4,6 +4,7 @@ import { completedSessions, focusAnalytics, formatFocusTime, PERIODS, sessionTag
 import { todayStats } from "./game";
 import { Icon, InfoTip } from "./ui";
 import "./JournalPanel.css";
+import ScratchpadStatus from "./ScratchpadStatus";
 
 function Choices({ label, items, value, onChange, className = "" }) {
   return (
@@ -26,25 +27,25 @@ function Choices({ label, items, value, onChange, className = "" }) {
 function SessionList({ sessions, showDate = true, compact = false }) {
   if (!sessions.length) return <p className="journal-empty">No completed sessions yet.</p>;
   return (
-    <table className={`journal-ledger ${showDate ? "with-date" : ""}`} aria-label={compact ? "Recent sessions" : "Session history"}>
-      <thead><tr>{showDate && <th scope="col">Date</th>}<th scope="col">Task</th><th scope="col">Time</th></tr></thead>
-      <tbody>
+    <table role="table" className={`journal-ledger ${showDate ? "with-date" : ""}`} aria-label={compact ? "Recent sessions" : "Session history"}>
+      <thead role="rowgroup"><tr role="row">{showDate && <th role="columnheader" scope="col">Date</th>}<th role="columnheader" scope="col">Task</th><th role="columnheader" scope="col">Time</th></tr></thead>
+      <tbody role="rowgroup">
       {sessions.map((session) => {
         const tasks = Array.isArray(session.tasks) ? session.tasks.filter((task) => task?.text) : [];
         const taskText = tasks.length ? tasks.map((task) => task.text).join(" · ") : session.task || "Focus session";
         const tags = sessionTags(session).filter((tag) => !compact || tag.toLowerCase() !== taskText.toLowerCase());
         const completedAt = new Date(session.completedAt);
         return (
-        <tr key={session.id}>
-          {showDate && <td className="journal-session-date"><time dateTime={completedAt.toISOString()}>{completedAt.toLocaleDateString([], { month: "short", day: "numeric", ...(!compact ? { year: "numeric" } : {}) })}{!compact && <span>{completedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>}</time></td>}
-          <td className="journal-session-task">
+        <tr role="row" key={session.id}>
+          {showDate && <td role="cell" className="journal-session-date"><time dateTime={completedAt.toISOString()}>{completedAt.toLocaleDateString([], { month: "short", day: "numeric", ...(!compact ? { year: "numeric" } : {}) })}<span>{completedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span></time></td>}
+          <td role="cell" className="journal-session-task">
             <strong>{taskText}</strong>
-            {tasks.length > 1 && <span className="journal-task-count">{tasks.filter((task) => task.done).length} of {tasks.length} tasks done</span>}
+            {tasks.length > 0 && <span className="journal-task-count">{tasks.filter((task) => task.done).length} of {tasks.length} {tasks.length === 1 ? "task" : "tasks"} done</span>}
             {tags.length > 0 && <div className="journal-session-tags" aria-label="Session tags">{tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}
-            {!showDate && !compact && <time dateTime={completedAt.toISOString()}>{completedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</time>}
+            {!showDate && <time dateTime={completedAt.toISOString()}>{completedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</time>}
             {session.rewardForfeited && <span className="journal-session-forfeited">Session gems lost</span>}
           </td>
-          <td className="journal-session-duration" aria-label={`${session.minutes} focus minutes`} title={`${session.minutes} minutes`}>{formatFocusTime(session.minutes)}</td>
+          <td role="cell" className="journal-session-duration" aria-label={`${session.minutes} focus minutes`} title={`${session.minutes} minutes`}>{formatFocusTime(session.minutes)}</td>
         </tr>
       ); })}
       </tbody>
@@ -57,6 +58,7 @@ function TagStats({ analytics }) {
     <div className="journal-section-title"><h3>Focus by tag</h3>
       <InfoTip label="About tag statistics">Each tag receives the full duration of its session. Sessions with several tags appear in each tag's total, so tag totals can overlap. Untagged sessions include earlier sessions without tags.</InfoTip>
     </div>
+    <p className="journal-explanation">A session with several tags counts toward each tag. Their totals can overlap.</p>
     {!analytics.tags.length ? <p className="journal-empty">No focus time yet.</p>
       : <ul className="journal-tag-breakdown">{analytics.tags.map((item) => <li key={item.tag ?? "__untagged"}
         aria-label={`${item.tag || "Untagged"}: ${item.minutes} focus minutes, ${item.sessions} ${item.sessions === 1 ? "session" : "sessions"}`}>
@@ -113,11 +115,11 @@ function GoalCard({ state, act, now }) {
   return (
     <section className={`journal-card journal-goal ${stats.progress >= 1 ? "complete" : ""}`}>
       <div className="journal-section-title">
-        <h3>Daily goal</h3>
+        <h3>Today's goal</h3>
         <InfoTip label="About daily goal">Your target for completed focus sessions each day. Change it anytime.</InfoTip>
       </div>
       <strong className="journal-goal-count">{stats.sessions} <span>/ {stats.goal}</span></strong>
-      <span className="journal-goal-caption">{stats.progress >= 1 ? "Goal reached" : "sessions today"}</span>
+      <span className="journal-goal-caption">{stats.progress >= 1 ? "Goal reached today" : "sessions today"}</span>
       <div className="journal-goal-dots" aria-hidden="true">{Array.from({ length: stats.goal }, (_, index) => <span key={index} className={index < stats.sessions ? "filled" : ""} />)}</div>
       <progress aria-label="Daily focus goal" value={stats.progress} max={1} />
       <div className="journal-goal-controls">
@@ -129,7 +131,7 @@ function GoalCard({ state, act, now }) {
   );
 }
 
-export default function JournalPanel({ state, act, now = Date.now() }) {
+export default function JournalPanel({ state, act, saveStatus, now = Date.now() }) {
   const [tab, setTab] = useState("overview");
   const [period, setPeriod] = useState("today");
   const [visibleSessions, setVisibleSessions] = useState(20);
@@ -147,11 +149,12 @@ export default function JournalPanel({ state, act, now = Date.now() }) {
       {tab === "scratchpad" ? (
         <section className="journal-notes">
           <div className="journal-section-title">
-            <label htmlFor="distraction-notes">Notes</label>
+            <label htmlFor="distraction-notes">Scratchpad text</label>
             <InfoTip label="About scratchpad">A place for distractions, reminders, and ideas. Saved on this computer.</InfoTip>
           </div>
-          <textarea id="distraction-notes" rows={12} maxLength={10000} placeholder="Save a thought for later…" value={state.scratchpad} onChange={(event) => act({ type: "SET_SCRATCHPAD", text: event.target.value })} />
-          <span className="journal-note-count">{state.scratchpad.length.toLocaleString()} / 10,000</span>
+          <p className="scratchpad-shared-hint" id="journal-notes-help">This is the same saved note as the floating Scratchpad.</p>
+          <textarea id="distraction-notes" aria-describedby="journal-notes-help" rows={12} maxLength={10000} placeholder="Save a thought for later…" value={state.scratchpad} onChange={(event) => act({ type: "SET_SCRATCHPAD", text: event.target.value })} />
+          <div className="journal-note-footer"><ScratchpadStatus status={saveStatus} /><span className="journal-note-count">{state.scratchpad.length.toLocaleString()} / 10,000</span></div>
         </section>
       ) : tab === "history" ? (
         <section className="journal-history">
