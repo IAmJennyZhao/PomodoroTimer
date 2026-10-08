@@ -389,7 +389,7 @@ test('compact save status retains conflict recovery and its explicit reload acti
   renderPanel(SettingsPanel, createInitialState(NOW), { persistence });
   expect(within(screen.getByRole('region', { name: 'Local save' })).getByRole('status')).toHaveTextContent('Changed in another window');
   expect(screen.getByText('Recovered from backup.')).toBeInTheDocument();
-  expect(screen.getByText(/Reloading replaces this window/)).toBeInTheDocument();
+  expect(screen.getByText(/keeps a separate draft/)).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Reload saved version' }));
   expect(persistence.reload).toHaveBeenCalledTimes(1);
 });

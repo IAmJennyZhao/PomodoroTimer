@@ -1,6 +1,6 @@
 import React, { StrictMode } from 'react';
 import { act, renderHook } from '@testing-library/react';
-import { createInitialState, gameReducer } from './game';
+import { createInitialState, gameReducer, normalizeState } from './game';
 import useLocalSave from './useLocalSave';
 
 const NOW = new Date('2026-10-01T15:00:00Z').getTime();
@@ -120,7 +120,7 @@ test('a conflict freezes dispatch and retry until a successful reload', async ()
   expect(result.current.state.timer.task).toBe('local draft');
   expect(writes()).toHaveLength(1);
   const remote = { ...createInitialState(NOW), scratchpad: 'other window' };
-  global.fetch.mockResolvedValueOnce(response(envelope(remote, { revision: 8 })));
+  global.fetch.mockResolvedValueOnce(response(envelope(normalizeState(remote, NOW), { revision: 8 })));
   await act(async () => result.current.reload());
   expect(result.current.state.scratchpad).toBe('other window');
   expect(result.current.status).toBe('saved');
@@ -143,6 +143,65 @@ test('failed initial loads never save a blank state and retry can recover', asyn
   await act(async () => result.current.retrySave());
   expect(result.current.state.gems).toBe(80);
   expect(result.current.ready).toBe(true);
+});
+
+test('conflict retains the latest in-flight edits through failed reload and authoritative recovery without merging progress', async () => {
+  const inFlight = deferred();
+  const { result } = renderHook(useLocalSave);
+  await settle();
+  global.fetch.mockReturnValueOnce(inFlight.promise);
+  act(() => result.current.dispatch({ type: 'SET_SCRATCHPAD', text: 'Sent earlier' }));
+  await advance();
+  act(() => {
+    result.current.dispatch({ type: 'SET_SCRATCHPAD', text: 'Latest local note' });
+    result.current.dispatch({ type: 'SET_TASK', task: 'Latest local task' });
+  });
+  const local = { ...result.current.state, event: null };
+  await act(async () => inFlight.resolve(response({}, 409)));
+  expect(result.current.drafts).toHaveLength(1);
+  expect(result.current.drafts[0]).toMatchObject({ baseRevision: 4, reason: 'conflict', state: local, downloaded: false });
+  global.fetch.mockRejectedValueOnce(new Error('offline'));
+  await act(async () => result.current.reload());
+  expect(result.current.ready).toBe(false);
+  expect(result.current.drafts[0].state).toEqual(local);
+  expect(result.current.drafts).toHaveLength(1);
+  const remote = { ...createInitialState(NOW), gems: 15, scratchpad: 'Other window note',
+    eggs: [{ id: 'remote-egg', rarity: 'basic', minutes: 3 }],
+    history: [{ id: 'remote-session', completedAt: NOW, minutes: 1, task: 'Remote work', gems: 1 }] };
+  global.fetch.mockResolvedValueOnce(response(envelope(normalizeState(remote, NOW), { revision: 8 })));
+  await act(async () => result.current.reload());
+  expect(result.current.state).toMatchObject({ gems: 15, scratchpad: 'Other window note', timer: { task: '' } });
+  expect(result.current.state.eggs.map(egg => egg.id)).toEqual(['remote-egg']);
+  expect(result.current.state.history.map(session => session.id)).toEqual(['remote-session']);
+  expect(result.current.drafts[0].state).toEqual(local);
+  expect(writes()).toHaveLength(1);
+  act(() => result.current.dismissDraftNotice());
+  expect(result.current.draftNotice).toBe(false);
+  const unexported = new Event('beforeunload', { cancelable: true });
+  window.dispatchEvent(unexported);
+  expect(unexported.defaultPrevented).toBe(true);
+  act(() => result.current.markDraftDownloaded(result.current.drafts[0].id));
+  const exported = new Event('beforeunload', { cancelable: true });
+  window.dispatchEvent(exported);
+  expect(exported.defaultPrevented).toBe(false);
+});
+
+test('separate conflicts retain earlier drafts and exporting one does not release another draft', async () => {
+  const { result } = renderHook(useLocalSave);
+  await settle();
+  for (let cycle = 0; cycle < 2; cycle++) {
+    global.fetch.mockResolvedValueOnce(response({}, 409));
+    act(() => result.current.dispatch({ type: 'SET_SCRATCHPAD', text: `Local draft ${cycle}` }));
+    await advance();
+    global.fetch.mockResolvedValueOnce(response(envelope(createInitialState(NOW), { revision: 8 + cycle })));
+    await act(async () => result.current.reload());
+  }
+  expect(result.current.drafts.map(draft => draft.state.scratchpad)).toEqual(['Local draft 0', 'Local draft 1']);
+  act(() => result.current.markDraftDownloaded(result.current.drafts[1].id));
+  const leaving = new Event('beforeunload', { cancelable: true });
+  window.dispatchEvent(leaving);
+  expect(leaving.defaultPrevented).toBe(true);
+  expect(writes()).toHaveLength(2);
 });
 
 test.each([

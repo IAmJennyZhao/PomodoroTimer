@@ -3,6 +3,7 @@ import React, { useEffect, useId, useRef, useState } from "react";
 import { PRESETS } from "./game";
 import { Icon, RangeField, InfoTip } from "./ui";
 import { PastelButtonArt } from "./AtelierArt";
+import DraftActions from "./RecoveryDrafts";
 export { AnimalsPanel, ShopPanel } from "./CollectionPanels";
 export { default as DecoratePanel } from "./DecoratePanel";
 export { default as JournalPanel } from "./JournalPanel";
@@ -303,12 +304,13 @@ export function SettingsPanel({ state, act, persistence, engine, onSessionSettin
         </div>
         {persistence.recovered && <p className="small">Recovered from backup.</p>}
         {persistence.error && <p role="alert" className="small">{persistence.error}</p>}
+        <DraftActions persistence={persistence} />
         {persistence.status === "error" && (
           <Button type="button" className="small-button" onClick={persistence.retrySave}>Retry saving</Button>
         )}
         {persistence.status === "conflict" && (
           <>
-            <p className="small">Reloading replaces this window’s changes with the saved version.</p>
+            <p className="small">Loading the saved version keeps a separate draft of this window’s edits. Download it before closing this window.</p>
             <Button type="button" className="small-button" onClick={persistence.reload}>Reload saved version</Button>
           </>
         )}

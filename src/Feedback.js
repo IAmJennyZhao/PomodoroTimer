@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useRef } from "react";
 import { Icon, InfoTip, trapDialogFocus, useModalFocus } from "./ui";
 import { PastelButtonArt } from "./AtelierArt";
 import { exitProps, useSurfaceTransition } from "./Transitions";
+import DraftActions from "./RecoveryDrafts";
 
 export function useNoticeTimeout(notice, paused, setNotice) {
   const clock = useRef(null);
@@ -68,15 +69,18 @@ export function SaveNotice({ persistence }) {
     return () => { observer?.disconnect(); window.removeEventListener("resize", measure); app.style.removeProperty('--save-notice-height'); };
   }, []);
   const conflict = persistence.status === "conflict";
-  return <section ref={ref} className="save-warning feedback-note paper" role="alert" aria-labelledby="save-notice-title">
+  const retained = persistence.status !== "error" && !conflict;
+  return <section ref={ref} className="save-warning feedback-note paper" role={retained ? "status" : "alert"} aria-labelledby="save-notice-title">
     <span className="feedback-emblem warning"><Icon name="note" size={20} /></span>
     <div className="save-notice-copy">
-      <h2 id="save-notice-title">{conflict ? "Save changed elsewhere" : "Changes not saved"}</h2>
-      <p>{conflict ? "Reload replaces this window’s edits." : "Your edits are still here."}</p>
+      <h2 id="save-notice-title">{retained ? "Unsaved draft kept" : conflict ? "Save changed elsewhere" : "Changes not saved"}</h2>
+      <p>{retained ? "Your earlier edits are still available in this window." : conflict ? "Loading the saved room keeps a separate copy of your local edits here." : "Your edits are still here."}</p>
       {!conflict && persistence.failure && <p>{persistence.failure.message} {persistence.failure.action}</p>}
       <div className="save-notice-actions">
-        <Button type="button" className="small-button" onClick={conflict ? persistence.reload : persistence.retrySave}>{conflict ? "Reload saved room" : "Retry save"}</Button>
-        <InfoTip label="Save details">{persistence.error || "Your latest changes have not been saved."}</InfoTip>
+        <DraftActions persistence={persistence} />
+        {!retained && <Button type="button" className="small-button" onClick={conflict ? persistence.reload : persistence.retrySave}>{conflict ? "Reload saved room" : "Retry save"}</Button>}
+        {retained ? <Button className="small-button" onClick={persistence.dismissDraftNotice}>Dismiss</Button>
+          : <InfoTip label="Save details">{persistence.error || "Your latest changes have not been saved."}{persistence.failure?.detail && <p>{persistence.failure.detail}</p>}</InfoTip>}
       </div>
     </div>
   </section>;
@@ -97,6 +101,7 @@ export function RoomLoading({ persistence }) {
         <p>{persistence.failure?.message || "Your room couldn’t be loaded."}</p>
         <p>{persistence.failure?.action || "Try again. Your existing save has not been replaced."}</p>
         <Button ref={retry} type="button" className="primary-button celebration-done" onClick={persistence.reload}><PastelButtonArt />Try again</Button>
+        <DraftActions persistence={persistence} />
         <details className="connection-details"><summary>Load details</summary><p>{persistence.failure?.detail || persistence.error}</p>{persistence.storagePath && <p><code>{persistence.storagePath}</code></p>}</details>
       </>}
     </section>

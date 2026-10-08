@@ -35,6 +35,28 @@ export default function useLocalSave() {
   const writing = useRef(null);
   const debounce = useRef(null);
   const loading = useRef(null);
+  const retainedDrafts = useRef([]);
+  const draftId = useRef(0);
+  const [drafts, setDrafts] = useState([]);
+  const [draftNoticeDismissed, setDraftNoticeDismissed] = useState(false);
+  const keepDraft = useCallback((reason = "reload") => {
+    if (revision.current === null || (!pending.current && !writing.current && blocked.current !== "conflict")) {
+      return retainedDrafts.current.at(-1);
+    }
+    const { json } = snapshot(current.current);
+    const previous = retainedDrafts.current.at(-1);
+    if (previous && JSON.stringify(previous.state) === json) return previous;
+    const draft = { id: ++draftId.current, capturedAt: new Date().toISOString(), baseRevision: revision.current,
+      reason, state: JSON.parse(json), downloaded: false };
+    retainedDrafts.current = [...retainedDrafts.current, draft];
+    setDrafts(retainedDrafts.current);
+    setDraftNoticeDismissed(false);
+    return draft;
+  }, []);
+  const markDraftDownloaded = useCallback(id => {
+    retainedDrafts.current = retainedDrafts.current.map(draft => draft.id === id ? { ...draft, downloaded: true } : draft);
+    setDrafts(retainedDrafts.current);
+  }, []);
 
   const flush = useCallback(function flushPending({ keepalive = false } = {}) {
     clearTimeout(debounce.current);
@@ -83,6 +105,7 @@ export default function useLocalSave() {
         // Never replace edits made while the failed request was in flight.
         if (!pending.current) pending.current = job.snapshot;
         blocked.current = error.conflict ? "conflict" : "error";
+        if (error.conflict) keepDraft("conflict");
         setSave((previous) => ({
           ...previous,
           status: blocked.current,
@@ -103,7 +126,7 @@ export default function useLocalSave() {
       }
     })();
     return job.promise;
-  }, []);
+  }, [keepDraft]);
 
   const schedule = useCallback(() => {
     clearTimeout(debounce.current);
@@ -118,6 +141,7 @@ export default function useLocalSave() {
   }, [flush]);
 
   const reload = useCallback(async () => {
+    keepDraft("reload");
     const ownGeneration = ++generation.current;
     ready.current = false;
     blocked.current = true;
@@ -201,7 +225,7 @@ export default function useLocalSave() {
         storagePath: error.failure?.storagePath || previous.storagePath,
       }));
     }
-  }, [schedule]);
+  }, [schedule, keepDraft]);
 
   const dispatch = useCallback(
     (action) => {
@@ -239,7 +263,7 @@ export default function useLocalSave() {
     mounted.current = true;
     reload();
     const beforeUnload = (event) => {
-      if (!pending.current && !writing.current) return;
+      if (!pending.current && !writing.current && !retainedDrafts.current.some(draft => !draft.downloaded)) return;
       event.preventDefault();
       event.returnValue = "";
       flush({ keepalive: true });
@@ -259,5 +283,6 @@ export default function useLocalSave() {
     };
   }, [flush, reload]);
 
-  return { state, dispatch, ...save, reload, retrySave };
+  return { state, dispatch, ...save, reload, retrySave, drafts, keepDraft, markDraftDownloaded,
+    draftNotice: drafts.length > 0 && !draftNoticeDismissed, dismissDraftNotice: () => setDraftNoticeDismissed(true) };
 }

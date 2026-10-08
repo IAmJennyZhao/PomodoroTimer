@@ -1,0 +1,21 @@
+.app .save-notice-actions { flex-wrap: wrap; }
+.app .save-warning .small-button { min-height: 44px; }
+.app .draft-backdrop { z-index: 850; padding: 12px; }
+.app .draft-review {
+  width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 24px);
+  display: flex; flex-direction: column; overflow: hidden; padding: 16px;
+  background: var(--paper); border: 1px solid var(--line); box-shadow: 0 12px 48px #55402a30;
+}
+.app .draft-review > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: 0 0 auto; }
+.app .draft-review h2 { margin: 0; font-size: 24px; }
+.app .draft-review > header button { min-width: 44px; height: 44px; }
+.app .draft-review-body { overflow: auto; min-height: 0; padding: 0 2px; }
+.app .draft-review-body :is(p,li,label) { font: 14px/1.5 var(--font-ui); overflow-wrap: anywhere; }
+.app .draft-review textarea { display: block; width: 100%; min-height: 140px; height: min(25dvh, 220px); resize: vertical; margin: 8px 0 16px; padding: 10px; font: 16px/1.5 var(--font-ui); }
+.app .draft-review h3 { font-size: 16px; }
+.app .draft-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.app .draft-review-body button { min-height: 44px; }
+.app .draft-choice { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+.app .draft-choice select { min-width: 0; width: 100%; min-height: 44px; }
+.app .draft-feedback { min-height: 21px; }
+.app .loading-card code { overflow-wrap: anywhere; }

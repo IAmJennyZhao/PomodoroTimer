@@ -739,7 +739,7 @@ test('a conflicting save blocks timer changes until the saved room is explicitly
   fireEvent.change(screen.getByRole('textbox', { name: 'Session task' }), { target: { value: 'Local unsaved task' } });
   await advance(350);
   expect(screen.getByRole('alert')).toHaveTextContent('Save changed elsewhere');
-  expect(screen.getByRole('alert')).toHaveTextContent('Reload replaces this window’s edits.');
+  expect(screen.getByRole('alert')).toHaveTextContent('Loading the saved room keeps a separate copy');
   expect(screen.getByRole('button', { name: 'Start' })).toBeDisabled();
   fireEvent.click(screen.getByRole('button', { name: 'Count up', exact: true }));
   expect(screen.getByRole('timer')).toHaveTextContent('25:00');
@@ -753,6 +753,13 @@ test('a conflicting save blocks timer changes until the saved room is explicitly
   expect(screen.getByRole('textbox', { name: 'Session task' })).toHaveValue('');
   expect(screen.getByRole('button', { name: 'Start' })).toBeEnabled();
   expect(screen.getByRole('button', { name: '10 Shilligems, open egg shop' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Review unsaved edits' }));
+  const draft = screen.getByRole('dialog', { name: 'Unsaved edits' });
+  expect(draft).toHaveTextContent('Local unsaved task');
+  expect(within(draft).getByRole('textbox', { name: 'Draft Scratchpad text' })).toHaveAttribute('readonly');
+  fireEvent.click(within(draft).getByRole('button', { name: 'Close unsaved edits' }));
+  expect(screen.getByRole('textbox', { name: 'Session task' })).toHaveValue('');
+  expect(writes()).toHaveLength(1);
 });
 
 test('a failed save keeps local edits and the compact warning offers a working retry', async () => {

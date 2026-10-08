@@ -66,6 +66,7 @@ import "./header.css";
 import "./arrangement.css";
 import "./session-flow.css";
 import "./notes-journal.css";
+import "./save-recovery.css";
 import useScratchpadLayout from "./useScratchpadLayout";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
@@ -698,7 +699,7 @@ export default function App() {
         <Presence value={toast}>{(notice, active) => <ToastNotice notice={notice} active={active} onDismiss={() => setToast(null)}
           onPauseChange={paused => setToastPaused(previous => paused ? notice.id : previous === notice.id ? null : previous)} />}</Presence>
       </div>
-      {ready && (status === "error" || status === "conflict") && <SaveNotice persistence={persistence} />}
+      {ready && (status === "error" || status === "conflict" || persistence.draftNotice) && <SaveNotice persistence={persistence} />}
       {!ready && <RoomLoading persistence={persistence} />}
       {hatch && <HatchModal key={hatch.id} animal={hatch.animal} duplicate={hatch.duplicate} capped={hatch.capped} onClose={closeHatch} />}
       <span className="visually-hidden" aria-live="polite">{outcomes.room?.kind === "cancelled" ? "Move cancelled. Returned to the original position." : ""}</span>
