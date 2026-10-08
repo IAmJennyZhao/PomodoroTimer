@@ -72,6 +72,7 @@ const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, c
   const draft = gesture.draft;
   const rendered = draft || location;
   function nudge(direction, large = false) {
+    if (hidden || concealed) return;
     const room = ref.current.parentElement.getBoundingClientRect();
     const bounds = ref.current.getBoundingClientRect();
     const step = large ? 40 : 10;

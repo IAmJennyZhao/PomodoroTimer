@@ -138,6 +138,13 @@ export default function App() {
   const [selection, setSelection] = useState(null);
   const [arranging, setArranging] = useState(false);
   const notesLayout = useScratchpadLayout({ open: notesOpen, focusView, panel, arranging, headerHeight });
+  const compactNotesArrange = arranging && notesLayout.compact;
+  const compactArrangeDone = useRef(null);
+  useLayoutEffect(() => {
+    if (compactNotesArrange && (document.activeElement === document.body || document.activeElement?.closest('.room-scene, .arrange-editor, .arrange-widget'))) {
+      compactArrangeDone.current?.focus();
+    }
+  }, [compactNotesArrange]);
   const [roomCamera, setRoomCamera] = useState(null);
   const [pendingFurniture, setPendingFurniture] = useState(null);
   useEffect(() => {
@@ -388,7 +395,7 @@ export default function App() {
   };
   useRoomChanges(state, ready, showOutcome, playControlFeedback);
   const gesture = usePlacementGesture({
-    enabled: arranging && ready && status !== "conflict",
+    enabled: arranging && !compactNotesArrange && ready && status !== "conflict",
     project: (origin, event) => {
       const bounds = sceneRef.current.getBoundingClientRect();
       return { type: origin.type, id: origin.id,
@@ -425,6 +432,7 @@ export default function App() {
         ? item.name
         : DECORATIONS.find((entry) => entry.id === item.item)?.name;
     const moveKey = (event) => {
+      if (compactNotesArrange) return;
       if (arranging && item.id === pendingFurniture?.id && event.key === "Enter") { event.preventDefault(); confirmFurniturePlacement(); return; }
       if (!arranging || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
       event.preventDefault();
@@ -503,7 +511,8 @@ export default function App() {
     >
       <div
         className="room-scene"
-        inert={(panel && !arranging) || focusView ? "" : undefined}
+        inert={(panel && !arranging) || focusView || compactNotesArrange ? "" : undefined}
+        aria-hidden={compactNotesArrange ? true : undefined}
         aria-label={
           BACKGROUNDS.find((item) => item.id === state.room.background)?.name
         }
@@ -565,7 +574,7 @@ export default function App() {
         contentKey={`${state.timer.id}/${state.timer.mode}/${state.timer.status}/${state.timer.overtime}/${state.timer.rewardForfeited}/${focusView}`}>
         {cardRef => <RoomWidget as="main" id="timer" name="timer" className="focus-area" position={focusView ? null : state.room.widgets?.timer}
         arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "timer"}
-        onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "timer", ...position })} concealed={widePanel}>
+        onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "timer", ...position })} concealed={widePanel || compactNotesArrange}>
         <TimerCard cardRef={cardRef} state={state} act={act} now={now} ready={ready} blocked={status === "conflict"} arranging={arranging}
           onToggleTimer={timerAction} panel={panel} openPanel={openPanel} notesOpen={notesOpen}
           openNest={() => { setShopStartAtNest(true); setPanel("shop"); setArranging(false); setFocusView(false); }}
@@ -580,7 +589,7 @@ export default function App() {
       </RoomWidget>}</TimerTransition>
       <RoomWidget id="goal" name="daily goal" className="daily-goal-note" position={state.room.widgets?.goal}
         arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "goal"}
-        onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "goal", ...position })} concealed={focusView || widePanel}>
+        onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "goal", ...position })} concealed={focusView || widePanel || compactNotesArrange}>
         <Button
           className={`daily-pill paper ${stats.progress === 1 ? "goal-reached" : ""}`}
           onClick={() => openPanel("journal")}
@@ -636,6 +645,12 @@ export default function App() {
           )}
           {shownPanel === "shop" && <ShopPanel state={state} act={act} onFocus={closePanel} startAtNest={shopStartAtNest} toolsInHeading />}
           {shownPanel === "decorate" && (
+            <>
+            {compactNotesArrange && <div className="arrange-notes-pause">
+              <p role="status">Minimize Scratchpad to keep arranging.</p>
+              <Button ref={compactArrangeDone} className="small-button" onClick={closePanel}>Done</Button>
+            </div>}
+            <div className="arrange-editor" hidden={compactNotesArrange} inert={compactNotesArrange ? "" : undefined}>
             <DecoratePanel
               accessoryPetId={accessoryShopPetId}
               onBackToPet={accessoryShopPetId ? id => { setSelectedAnimal(id); setAccessoryShopPetId(null); setPanel("animals"); } : undefined}
@@ -651,6 +666,8 @@ export default function App() {
               onCancelPlacement={cancelFurniturePlacement}
               onFinishArrange={closePanel}
             />
+            </div>
+            </>
           )}
           {shownPanel === "journal" && (
             <JournalPanel state={state} act={act} now={now} saveStatus={status} />

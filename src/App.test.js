@@ -999,6 +999,94 @@ test.each([[320, 640], [390, 844]])('phone Scratchpad and Arrange preserve the s
   expect(diskState.timer.status).toBe('running');
 });
 
+test.each(['landscape', 'keyboard'])('compact notes suspend Arrange safely and restore its pending copy after %s contraction', async contraction => {
+  resizeViewport(390, 844);
+  const viewport = new EventTarget();
+  Object.assign(viewport, { height: 844, offsetTop: 0 });
+  Object.defineProperty(window, 'visualViewport', { configurable: true, value: viewport });
+  const saved = createInitialState(NOW);
+  saved.gems = 200;
+  await openRoom(saved);
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  leaveFocus();
+  fireEvent.click(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' }));
+  const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
+  const input = within(notes).getByRole('textbox', { name: 'Scratchpad text' });
+  fireEvent.change(input, { target: { value: 'Keep draft and unplaced furniture' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Decorate', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Unlock Leafy friend for 20 Shilligems' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Place in room: Leafy friend' }));
+  const preview = screen.getByRole('button', { name: 'Position Leafy friend' });
+  fireEvent.keyDown(preview, { key: 'ArrowRight' });
+  const timerHandle = screen.getByRole('button', { name: 'Move timer' });
+  const pendingHandle = screen.getByRole('button', { name: 'Move Leafy friend' });
+  const selected = screen.getByRole('combobox', { name: 'Selected item' });
+  const previousPointerEvent = window.PointerEvent;
+  window.PointerEvent = MouseEvent;
+  try {
+    fireEvent.pointerDown(pendingHandle, { button: 0, clientX: 100, clientY: 100 });
+    fireEvent.pointerMove(pendingHandle, { clientX: 140, clientY: 120 });
+    // visualViewport contraction need not dispatch a window resize: disabling
+    // covered editing must cancel the draft before any stale pointer release.
+    act(() => {
+      viewport.height = contraction === 'keyboard' ? 300 : 320;
+      viewport.offsetTop = contraction === 'keyboard' ? 50 : 0;
+      if (contraction === 'landscape') resizeViewport(569, 320);
+      viewport.dispatchEvent(new Event('resize'));
+    });
+    fireEvent.pointerUp(pendingHandle);
+  } finally { window.PointerEvent = previousPointerEvent; }
+  const workbench = screen.getByRole('dialog', { name: 'Arrange room' });
+  expect(within(workbench).getByRole('status')).toHaveTextContent('Minimize Scratchpad to keep arranging.');
+  expect(within(workbench).getByRole('button', { name: 'Done', exact: true })).toHaveFocus();
+  expect(screen.queryByRole('combobox', { name: 'Selected item' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Move timer' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Position Leafy friend' })).not.toBeInTheDocument();
+  expect(preview.closest('.room-scene')).toHaveAttribute('inert');
+  fireEvent.keyDown(preview, { key: 'ArrowLeft' });
+  fireEvent.keyDown(timerHandle, { key: 'ArrowRight' });
+  const current = within(notes).getByRole('region', { name: 'Current session' });
+  fireEvent.click(within(current).getByRole('button', { name: 'Pause (2/2)' }));
+  expect(input).toHaveValue('Keep draft and unplaced furniture');
+  await advance(350);
+  expect(diskState.room.decorations).toEqual(saved.room.decorations);
+  expect(diskState.room.widgets).toEqual(saved.room.widgets);
+  expect(diskState.room.notepadPosition).toEqual(saved.room.notepadPosition);
+  expect(diskState.gems).toBe(180);
+  expect(diskState.owned.decorationCounts.plant).toBe(1);
+  fireEvent.click(within(notes).getByRole('button', { name: 'Minimize Scratchpad' }));
+  expect(screen.getByRole('combobox', { name: 'Selected item' })).toBe(selected);
+  expect(selected).toHaveValue('decoration:placement-preview');
+  expect(preview.closest('.room-resident').style.getPropertyValue('--room-x')).toBe('51');
+  fireEvent.click(screen.getByRole('button', { name: 'Place & Done', exact: true }));
+  await advance(350);
+  expect(diskState.room.decorations.filter(item => item.item === 'plant')).toMatchObject([{ x: 51, y: 72 }]);
+  expect(diskState.gems).toBe(180);
+  expect(diskState.scratchpad).toBe('Keep draft and unplaced furniture');
+  expect(diskState.timer.status).toBe('paused');
+});
+
+test('compact Arrange Done exits without dismissing notes or changing accepted placement', async () => {
+  resizeViewport(390, 844);
+  const saved = createInitialState(NOW);
+  await openRoom(saved);
+  fireEvent.click(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' }));
+  const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
+  fireEvent.change(within(notes).getByRole('textbox', { name: 'Scratchpad text' }), { target: { value: 'Exit arranging, keep notes' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Decorate', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));
+  resizeViewport(569, 320);
+  fireEvent.click(within(screen.getByRole('dialog', { name: 'Arrange room' })).getByRole('button', { name: 'Done', exact: true }));
+  expect(screen.queryByRole('dialog', { name: 'Arrange room' })).not.toBeInTheDocument();
+  expect(screen.getByRole('dialog', { name: 'Scratchpad' })).toBe(notes);
+  expect(screen.getByRole('region', { name: 'Focus timer' })).toBeInTheDocument();
+  fireEvent.click(within(notes).getByRole('button', { name: 'Minimize Scratchpad' }));
+  expect(screen.getByRole('banner', { name: 'Room controls' })).toBeVisible();
+  await advance(350);
+  expect(diskState.scratchpad).toBe('Exit arranging, keep notes');
+  expect(diskState.room).toEqual(saved.room);
+});
+
 test('Scratchpad follows keyboard viewport resize and scroll without erasing the focused draft or its workspace', async () => {
   resizeViewport(390, 844);
   const viewport = new EventTarget();

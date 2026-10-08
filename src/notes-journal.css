@@ -158,3 +158,21 @@
   height: 144px;
 }
 .app.notes-sheet .workspace-decorate.drawer-arranging .drawer-content { overflow-y: auto; }
+/* With a keyboard or short landscape viewport, keep one clear route back to
+   editing instead of leaving movement handles underneath the notes sheet. */
+.app.notes-compact.is-arranging .room-scene { visibility: hidden; }
+.app.notes-compact .workspace-decorate.drawer-arranging {
+  left: 6px; right: 6px; width: auto; transform: none;
+}
+.app.notes-compact .workspace-decorate.drawer-arranging > .drawer-heading {
+  display: flex; inset: 8px 8px auto; justify-content: flex-end;
+}
+.app.notes-compact .workspace-decorate.drawer-arranging > .drawer-heading h2 {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);
+}
+.app.notes-compact .workspace-decorate.drawer-arranging > .drawer-content {
+  padding: 8px 60px 8px 10px;
+}
+.app .arrange-notes-pause { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.app .arrange-notes-pause p { flex: 1; min-width: 0; margin: 0; font: 14px/1.25 var(--font-ui); }
+.app .arrange-notes-pause > button { flex: 0 0 auto; min-height: 44px; padding: 8px 12px; }
