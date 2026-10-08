@@ -84,6 +84,7 @@ test("a forfeited completion keeps its recorded minutes and zero reward", () => 
   renderTimer(state, NOW + 27 * 60000);
   expect(screen.getByLabelText("0 Shilligems earned")).toBeInTheDocument();
   expect(screen.getByLabelText("Session result")).toHaveTextContent("25 min");
+  expect(screen.getByText(/25 focus min recorded.*Only this session’s gems were forfeited/)).toBeVisible();
 });
 
 test('pause consequences are visible before starting and before an unrewarded third pause', () => {

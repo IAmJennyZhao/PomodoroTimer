@@ -45,6 +45,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
   useEffect(() => { if (pauseExpired) resumeRef.current?.focus(); }, [pauseExpired]);
   const startBreak = (mode) => act({ type: "START_BREAK", mode });
   const active = !complete && timer.status !== "idle";
+  const timingControl = <Button className="session-settings-button" aria-label="Session settings" aria-expanded={panel === "session"} aria-controls={panel === "session" ? "panel-heading" : undefined} onClick={() => openPanel("session")}><Icon name="sliders" size={16} /><span>Session settings</span></Button>;
   return (
     <section ref={cardRef} data-timer-state={`${timer.mode}-${timer.status}${timer.overtime ? '-overtime' : ''}`} className={`timer-card paper ${counting ? "counting-up" : ""} ${complete ? "session-complete" : ""} ${pauseExpired ? "pause-alert" : ""}`} aria-label="Focus timer">
       <ArtFragment rect={[52, 101, 456, 364]} className="timer-paper-art" />
@@ -67,6 +68,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
             title={focusView ? "Leave focus view" : "Enter focus view"} onClick={() => setFocusView(!focusView)}><Icon name={focusView ? "collapse" : "expand"} size={17} /></Button>}
         </div>
       </div>
+      {editable && <div className="session-setup-action">{timingControl}</div>}
       {(editable || active) && <PauseGuidance timer={timer} now={now} id={pauseHelpId} />}
       {!breakTime && !pauseExpired && (!complete || hasTask) && <SessionTasks timer={timer} history={state.history} act={act} minimal compact={focusView || complete} />}
       <div className="timer-face">
@@ -111,12 +113,13 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
           <span>{completedMinutes ? `${completedMinutes} min` : "Under 1 min"}</span>
           {timer.overtime && !forfeited && <span className="reward-breakdown">{Math.min(completedGems, projectedGems)} target + {Math.max(0, completedGems - projectedGems)} overtime = {completedGems} total gems</span>}
           {!completedMinutes && <span className="reward-breakdown">Complete a full focus minute to earn a gem.</span>}
+          {forfeited && <span className="reward-breakdown">{completedMinutes} focus min recorded{timer.eggId ? " · egg progress kept" : ""}. Only this session’s gems were forfeited.</span>}
           {forfeited && <InfoTip label="Session reward details">Session gems were lost after the pause limit. Your {completedMinutes} focus minutes were recorded.</InfoTip>}
         </div> : !breakTime ? <span className={`session-reward ${forfeited ? "forfeited" : ""}`} aria-label={forfeited ? "0 Shilligems this session" : undefined}><Icon name="gem" size={15} />{forfeited ? "0" : counting ? `1 / min${bonus ? ` +${Math.round(bonus * 100)}%` : ""}` : `+${projectedGems}`}
           <InfoTip label="Session rewards">Earn 1 Shilligem per completed focus minute{bonus ? ` with a ${Math.round(bonus * 100)}% pet bonus (rounded down)` : ""}. Max-level pets add 10% each, up to 50%, set when the session starts. Keep Pomodoro pauses within two pauses of one minute each to keep your reward. Count-up sessions are saved when you finish; sessions under one minute earn no reward.</InfoTip></span> : <span />}
-        <Button className="session-settings-button" aria-label="Session settings" aria-expanded={panel === "session"} aria-controls={panel === "session" ? "panel-heading" : undefined} onClick={() => openPanel("session")}><Icon name="sliders" size={16} /><span>Session settings</span></Button>
+        {!editable && timingControl}
       </div>}
-      {timer.overtime && !complete && <p className="pending-session-reward">{state.history.find(entry => entry.id === timer.id)?.gems || 0} target gems pending · finish this session to spend them. Full overtime minutes add more gems.</p>}
+      {timer.overtime && !complete && !forfeited && <p className="pending-session-reward">{state.history.find(entry => entry.id === timer.id)?.gems || 0} target gems pending · finish this session to spend them. Full overtime minutes add more gems.</p>}
       {breakTime && <p className="auto-focus-note">{settings.autoStartFocus ? "When this break ends, your next focus session starts automatically." : "When this break ends, choose Start to begin your next focus session."}</p>}
       {breakTime && <div className="break-idea"><div><strong>{tip[0]}</strong>{" "}<InfoTip label="Break idea details">{tip[1]}</InfoTip></div><Button className="icon-button" aria-label="Another break idea" onClick={nextTip}><Icon name="shuffle" size={20} /></Button></div>}
       {!breakTime && <EggSelection state={state} openNest={openNest || (() => openPanel("shop"))} />}
