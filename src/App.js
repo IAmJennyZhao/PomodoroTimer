@@ -122,6 +122,7 @@ export default function App() {
   const [silencedAlarm, setSilencedAlarm] = useState(null);
   const [alarmBlocked, setAlarmBlocked] = useState(false);
   const [selectedAnimal, setSelectedAnimal] = useState("starter-cat");
+  const [accessoryShopPetId, setAccessoryShopPetId] = useState(null);
   const [selection, setSelection] = useState(null);
   const [arranging, setArranging] = useState(false);
   const cancellationId = useRef(0);
@@ -325,6 +326,7 @@ export default function App() {
   const openPanel = (id) => {
     if (id === "notes") { setNotesOpen(previous => !previous); return; }
     if (id === "shop") setShopStartAtNest(false);
+    if (id === "decorate") setAccessoryShopPetId(null);
     setPanel((previous) => (previous === id ? null : id));
     if (id !== "decorate") setArranging(false);
   };
@@ -573,11 +575,14 @@ export default function App() {
               act={act}
               selected={selectedAnimal}
               setSelected={setSelectedAnimal}
+              onShopAccessories={id => { setAccessoryShopPetId(id); setSelectedAnimal(id); setArranging(false); setPanel("decorate"); }}
             />
           )}
           {shownPanel === "shop" && <ShopPanel state={state} act={act} onFocus={closePanel} startAtNest={shopStartAtNest} toolsInHeading />}
           {shownPanel === "decorate" && (
             <DecoratePanel
+              accessoryPetId={accessoryShopPetId}
+              onBackToPet={accessoryShopPetId ? id => { setSelectedAnimal(id); setAccessoryShopPetId(null); setPanel("animals"); } : undefined}
               state={state}
               act={act}
               arranging={arranging}

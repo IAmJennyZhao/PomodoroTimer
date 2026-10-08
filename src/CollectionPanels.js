@@ -3,13 +3,14 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { ACCESSORIES, ANIMALS, RARITIES, RARITY_STARS, EGG_MINUTES, animationCount, gemBonus } from "./game";
 import { AnimalArt, Icon, InfoTip, RarityStars, Sprite } from "./ui";
 import "./collection.css";
+import "./pet-customization.css";
 import { PetResponseContext, RoomVisual } from "./RoomInteraction";
 export { RarityStars } from "./ui";
 
 const titleCase = (value) => value.charAt(0).toUpperCase() + value.slice(1);
 const speciesName = (animal) => ANIMALS.find((species) => species.id === animal.species)?.name || "Animal";
 
-export function AnimalsPanel({ state, act, selected, setSelected }) {
+export function AnimalsPanel({ state, act, selected, setSelected, onShopAccessories }) {
   const respondToPet = useContext(PetResponseContext);
   const [mystery, setMystery] = useState(null);
   const petDetails = useRef(null);
@@ -72,11 +73,21 @@ export function AnimalsPanel({ state, act, selected, setSelected }) {
         <label className="toggle-line"><span>Show in room</span>
           <ChoiceInput sound={animal.placed ? undefined : null} type="checkbox" checked={animal.placed} onChange={(event) => act({ type: "PLACE_ANIMAL", id: animal.id, placed: event.target.checked })} />
         </label>
-        <label className="field-label">Accessory
-          <select value={animal.accessory} onChange={(event) => act({ type: "SET_ACCESSORY", animalId: animal.id, id: event.target.value })}>
-            {ACCESSORIES.map((item) => <option key={item.id} value={item.id} disabled={!state.owned.accessories.includes(item.id)}>{item.name}{!state.owned.accessories.includes(item.id) ? " · locked" : ""}</option>)}
-          </select>
-        </label>
+        <section className="pet-accessories" aria-label="Pet accessories">
+          <h4>Accessories</h4>
+          <div className="pet-accessory-tiles">{ACCESSORIES.map(item => {
+            const owned = state.owned.accessories.includes(item.id);
+            const equipped = animal.accessory === item.id;
+            return <Button key={item.id} className="pet-accessory-tile" disabled={!owned} aria-pressed={equipped}
+              aria-label={`${owned ? "Equip" : "Locked"} ${item.name}${owned ? "" : `, ${item.price} Shilligems`}`}
+              onClick={() => act({ type: "SET_ACCESSORY", animalId: animal.id, id: item.id })}>
+              <span className="accessory-tile-art" aria-hidden="true"><AnimalArt animal={{ ...animal, accessory: item.id }} /></span>
+              <span>{item.name}</span>
+              <small>{equipped ? <><Icon name="check" size={14} /> Equipped</> : owned ? "Owned" : <><Icon name="gem" size={14} /> {item.price} · Locked</>}</small>
+            </Button>;
+          })}</div>
+          {onShopAccessories && <Button className="secondary-button pet-accessory-shop" onClick={() => onShopAccessories(animal.id)}>Shop accessories</Button>}
+        </section>
       </section>}
     </div>
   </div>;

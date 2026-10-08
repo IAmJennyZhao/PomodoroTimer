@@ -1,0 +1,16 @@
+.app .pet-album .pet-accessories { grid-column: 1 / -1; text-align: left; }
+.pet-accessories h4 { font: 1rem/1.5 Georgia, serif; margin: 0 0 12px; }
+.pet-accessory-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.app .pet-album .pet-accessory-tile { display: flex; align-items: center; flex-direction: column; gap: 8px; min-width: 0; min-height: 44px; padding: 8px; background: #fff8e9; border: 1px solid #ccb992; border-radius: 8px; font: .875rem/1.4 Georgia, serif; color: #3c5145; text-align: center; }
+.pet-accessory-tile[aria-pressed="true"] { border: 2px solid #526b4d !important; background: #e8eddf !important; }
+.app .pet-album .pet-accessory-tile:disabled { opacity: 1; background: #f0eadf; color: #66624f; cursor: not-allowed; border-style: dashed; }
+.accessory-tile-art { display: block; width: min(100%, 88px); }
+.accessory-tile-art .animal-art { width: 100%; }
+.pet-accessory-tile small { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px; font: inherit; }
+.pet-accessory-shop { margin-top: 12px; }
+.app .pet-album .collection-detail:not(.mystery-detail) { position: static; }
+.app .decoration-catalog .catalogue-pet-preview .animal-art { display: block; width: 110px; margin: 0 auto; }
+.catalogue-pet-return { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; }
+@container room-layout (max-width: 14rem) {
+  .pet-accessory-tiles { grid-template-columns: minmax(0, 1fr); }
+}

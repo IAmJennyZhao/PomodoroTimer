@@ -1,15 +1,18 @@
 import { Button } from "./Controls";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ACCESSORIES, ATELIER_PLACEMENTS, BACKGROUNDS, DECORATIONS, decorationAvailable, decorationQuantity, spendableGems } from "./game";
-import { Accessory, Icon, Sprite } from "./ui";
+import { AnimalArt, Icon, Sprite } from "./ui";
 import RoomBackdrop from "./RoomBackdrop";
 import ArrangePanel from "./ArrangePanel";
 import { OutcomeAccent } from "./OutcomeFeedback";
 
-export default function DecoratePanel({ state, act, arranging, setArranging, selection, setSelection }) {
+export default function DecoratePanel({ state, act, arranging, setArranging, selection, setSelection, accessoryPetId, onBackToPet }) {
   const available = spendableGems(state);
-  const [category, setCategory] = useState("decorations");
-  const [friendId, setFriendId] = useState(state.animals[0]?.id || "");
+  const [category, setCategory] = useState(accessoryPetId ? "accessories" : "decorations");
+  const [friendId, setFriendId] = useState(accessoryPetId || state.animals[0]?.id || "");
+  useEffect(() => {
+    if (accessoryPetId) { setCategory("accessories"); setFriendId(accessoryPetId); }
+  }, [accessoryPetId]);
   const friend = state.animals.find(animal => animal.id === friendId) || state.animals[0];
   const catalog = { backgrounds: BACKGROUNDS, accessories: ACCESSORIES, decorations: DECORATIONS }[category];
   function applyItem(item) {
@@ -21,6 +24,7 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
   }
   if (arranging) return <ArrangePanel state={state} act={act} setArranging={setArranging} selection={selection} setSelection={setSelection} onOpenShop={() => { setCategory("decorations"); setSelection(null); setArranging(false); }} />;
   return <div className={`decoration-catalog catalogue-${category}`}>
+      {onBackToPet && friend && <div className="catalogue-pet-return"><Button className="secondary-button" onClick={() => onBackToPet(friend.id)}>Back to {friend.name}</Button><span className="small">Buy an accessory, then choose Use to equip it.</span></div>}
       <div className="panel-toolbar catalog-toolbar">
         <div className="segmented" role="group" aria-label="Decoration categories">
           {[['decorations', 'Furniture'], ['backgrounds', 'Room style'], ['accessories', 'Accessories']].map(([id, name]) => <Button type="button" key={id} aria-pressed={category === id} className={category === id ? "selected" : ""} onClick={() => setCategory(id)}>{name}</Button>)}
@@ -42,7 +46,7 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
           return <section className={`shop-item catalogue-item ${owned ? "is-owned" : ""} ${active ? "is-active" : ""}`} key={item.id}>
             <OutcomeAccent channel="purchase" target={`${category}:${item.id}`} className="purchase-accent" />
             <OutcomeAccent channel="apply" target={`${category}:${item.id}`} className="apply-accent" />
-            <div className="catalogue-art">{category === "backgrounds" ? <RoomBackdrop theme={item.id} preview /> : category === "accessories" ? <div className="accessory-preview">{item.id === "none" ? <span aria-hidden="true">—</span> : <Accessory id={item.id} />}</div> : <Sprite kind="object" id={item.id} />}</div>
+            <div className="catalogue-art">{category === "backgrounds" ? <RoomBackdrop theme={item.id} preview /> : category === "accessories" ? <div className="catalogue-pet-preview"><AnimalArt animal={{ ...friend, accessory: item.id }} /></div> : <Sprite kind="object" id={item.id} />}</div>
             <h3>{item.name}</h3>
             <div className="catalogue-status">{stockLabel && <span className={owned ? "stock-badge" : "muted"} aria-label={furniture && owned ? `${quantity} owned, ${stock} available` : undefined}>{stockLabel}</span>}</div>
             <div className="catalogue-actions">

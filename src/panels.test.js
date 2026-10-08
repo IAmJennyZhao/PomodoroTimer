@@ -176,12 +176,55 @@ test('collection controls keep an animal safe in the collection and equip only u
   const initial = createInitialState(NOW);
   initial.owned.accessories.push('bow');
   const { getState } = renderPanel(AnimalsPanel, initial);
-  expect(screen.getByRole('option', { name: /Tiny crown/ })).toBeDisabled();
-  fireEvent.change(screen.getByRole('combobox', { name: 'Accessory' }), { target: { value: 'bow' } });
+  expect(screen.getByRole('button', { name: 'Locked Tiny crown, 50 Shilligems' })).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Equip Little bow' }));
   fireEvent.click(screen.getByRole('checkbox', { name: 'Show in room' }));
   expect(getState().animals[0]).toMatchObject({ accessory: 'bow', placed: false });
   expect(screen.getByText('In collection')).toBeInTheDocument();
   expect(getState().animals).toHaveLength(1);
+});
+
+test('accessory tiles preview the selected pet without equipping on hover or focus', () => {
+  const initial = createInitialState(NOW);
+  initial.animals[0] = { ...initial.animals[0], species: 'fox', rarity: 'dreamy' };
+  initial.owned.accessories.push('bow');
+  const onShopAccessories = jest.fn();
+  const { getState } = renderPanel(AnimalsPanel, initial, { onShopAccessories });
+  const tiles = screen.getByRole('region', { name: 'Pet accessories' });
+  expect(within(tiles).getAllByRole('button')).toHaveLength(5);
+  const bow = within(tiles).getByRole('button', { name: 'Equip Little bow' });
+  expect(bow.querySelector('.sprite')).toHaveClass('rarity-dreamy');
+  expect(bow.querySelector('.sprite')).toHaveStyle({ backgroundPosition: '50% 100%' });
+  expect(bow.querySelector('.accessory-bow')).toBeInTheDocument();
+  fireEvent.mouseOver(bow);
+  fireEvent.focus(bow);
+  expect(getState().animals[0].accessory).toBe('none');
+  fireEvent.click(bow);
+  expect(bow).toHaveAttribute('aria-pressed', 'true');
+  expect(bow).toHaveTextContent('Equipped');
+  fireEvent.click(within(tiles).getByRole('button', { name: 'Locked Tiny crown, 50 Shilligems' }));
+  expect(getState().animals[0].accessory).toBe('bow');
+  fireEvent.click(within(tiles).getByRole('button', { name: 'Equip No accessory' }));
+  expect(getState().animals[0].accessory).toBe('none');
+  fireEvent.click(screen.getByRole('button', { name: 'Shop accessories' }));
+  expect(onShopAccessories).toHaveBeenCalledWith(initial.animals[0].id);
+});
+
+test('the pet shop handoff opens accessories for that pet and returns after purchase and apply', () => {
+  const initial = createInitialState(NOW);
+  initial.animals.push({ ...initial.animals[0], id: 'second-pet', name: 'Juniper', species: 'fox', rarity: 'rare' });
+  const onBackToPet = jest.fn();
+  const { getState } = renderPanel(DecoratePanel, initial, { accessoryPetId: 'second-pet', onBackToPet });
+  expect(screen.getByRole('button', { name: 'Accessories', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('combobox', { name: 'Pet' })).toHaveValue('second-pet');
+  fireEvent.click(screen.getByRole('button', { name: 'Unlock Tiny crown for 50 Shilligems' }));
+  expect(getState().gems).toBe(150);
+  expect(getState().animals[1].accessory).toBe('none');
+  fireEvent.click(screen.getByRole('button', { name: 'Use Tiny crown' }));
+  expect(getState().animals[1].accessory).toBe('crown');
+  expect(getState().animals[0].accessory).toBe('none');
+  fireEvent.click(screen.getByRole('button', { name: 'Back to Juniper' }));
+  expect(onBackToPet).toHaveBeenCalledWith('second-pet');
 });
 
 test('sound playback is user initiated and each saved channel controls the actual engine', async () => {
