@@ -3,12 +3,13 @@ import { useContext, useEffect, useRef } from "react";
 import { canTakeBreak, elapsedTime, formatElapsedTime, formatTime, gemBonus, isCountingUp, MAX_PAUSES, pauseRemainingTime, remainingTime } from "./game";
 import { Icon, InfoTip } from "./ui";
 import SessionTasks from "./SessionTasks";
+import EggSelection from "./EggSelection";
 import { ArtFragment, PastelButtonArt } from "./AtelierArt";
 import HoldToStop from "./HoldToStop";
 import { OutcomeFeedbackContext } from "./OutcomeFeedback";
 
 export default function TimerCard({ state, act, now, ready, blocked, onToggleTimer,
-  openPanel, panel, notesOpen, focusView, setFocusView, alarmSilenced, silenceAlarm,
+  openPanel, openNest, panel, notesOpen, focusView, setFocusView, alarmSilenced, silenceAlarm,
   alarmBlocked, retryAlarm, tip, nextTip, cardRef }) {
   const { timer, settings } = state;
   const sessionOutcome = useContext(OutcomeFeedbackContext).session;
@@ -112,6 +113,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
         <Button className="session-settings-button" aria-label="Session settings" title="Session settings" aria-expanded={panel === "session"} aria-controls={panel === "session" ? "panel-heading" : undefined} onClick={() => openPanel("session")}><Icon name="sliders" size={16} /></Button>
       </div>}
       {breakTime && <div className="break-idea"><div><strong>{tip[0]}</strong>{" "}<InfoTip label="Break idea details">{tip[1]}</InfoTip></div><Button className="icon-button" aria-label="Another break idea" onClick={nextTip}><Icon name="shuffle" size={20} /></Button></div>}
+      {!breakTime && <EggSelection state={state} openNest={openNest || (() => openPanel("shop"))} />}
     </section>
   );
 }

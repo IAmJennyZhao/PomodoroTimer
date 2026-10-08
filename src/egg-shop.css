@@ -1,0 +1,90 @@
+/* One painted contact line for both shop displays, independent of viewport crops.
+   The counter continues in document flow so a long nest remains scrollable. */
+.app .workspace-shop { inset: var(--header-height) 0 0; width: 100%; max-height: none; transform: none; border: 0; border-radius: 0; box-shadow: none; background: none; overflow: hidden; }
+.app .workspace-shop .drawer-heading { position: relative; inset: auto; padding: 8px 12px; border: 0; z-index: 3; flex-shrink: 0; background: #fff7e9; }
+.app .workspace-shop .drawer-heading .shop-tools { flex: 1; padding: 0; }
+.app .workspace-shop .drawer-heading > div:first-child { width: 0; }
+.workspace-shop .drawer-heading h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.workspace-shop .drawer-heading .icon-button { background: #fff5e2eb; }
+.app .workspace-shop .drawer-content { flex: 1; min-height: 0; padding: 0; font-family: Georgia, serif; }
+.atelier-shop { --display-height: clamp(240px, min(65vw, calc(100dvh - var(--header-height) - 440px)), 500px); --display-gap: clamp(16px, 4vw, 56px); --display-width: calc(var(--display-height) * 1.2033 + var(--display-gap)); position: relative; isolation: isolate; min-height: 100%; background: #e8c398; }
+.shop-stage { position: relative; display: grid; grid-template-rows: auto 1fr; min-height: calc(var(--display-height) + 64px); isolation: isolate; }
+.app .shop-stage { min-height: calc(var(--display-height) + 24px); }
+.shop-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.shop-displays, .shop-offers { width: var(--display-width); max-width: calc(100% - 24px); margin: 0 auto; display: grid; grid-template-columns: .37fr .8333fr; column-gap: var(--display-gap); }
+.shop-displays { height: var(--display-height); align-items: end; align-self: end; }
+.basic-display { position: relative; width: 100%; }
+.basic-pedestal { display: block; width: 100%; aspect-ratio: 388 / 349; }
+.basic-display-egg { position: absolute; width: 65%; left: 18%; bottom: 89%; }
+.mystery-machine { position: relative; width: 100%; aspect-ratio: 1145 / 1374; }
+.machine-art { display: block; width: 100%; height: 100%; }
+.machine-plaque, .basic-plaque { position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; text-align: center; }
+.machine-plaque { left: 26%; right: 25%; top: 73%; height: 20%; }
+.basic-plaque { left: 14%; right: 12%; top: 43%; bottom: 3%; }
+.machine-plaque h3, .basic-plaque h3 { font: clamp(16px, 2vw, 24px)/1.2 Georgia, serif; margin: 0; }
+.shop-stars { color: #926824; font-size: clamp(12px, 1.5vw, 18px); white-space: nowrap; }
+.shop-tools { position: relative; padding: 8px 68px 8px 12px; display: flex; align-items: start; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+.shop-odds, .shop-pending { display: flex; align-items: center; gap: 4px; background: #fff8e9eb; padding: 0 8px; border-radius: 4px; font-size: .875rem; }
+.shop-pending { margin-right: auto; }
+.guaranteed-roll { font-size: .875rem; color: #52634c; }
+.shop-counter { position: relative; isolation: isolate; padding: 12px 0 24px; }
+.shop-counter-art { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.shop-offers { align-items: start; margin-bottom: 24px; }
+.shop-offer { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; min-width: 0; }
+.app .atelier-shop .pastel-purchase { position: relative; isolation: isolate; background: none; border: 0; padding: 8px 12px; min-height: 44px; width: 100%; max-width: 180px; color: #fff9ea; font: 1rem/1.25 Georgia, serif; }
+.pastel-purchase > span { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.pastel-purchase svg:not(.pastel-cutout) { color: #b2d7e7; fill: #78aaca; flex-shrink: 0; }
+.pastel-purchase:disabled { opacity: .6; cursor: not-allowed; }
+.pastel-purchase:hover:enabled { filter: brightness(.95); }
+.shop-affordability { font-size: .875rem; line-height: 1.4; color: #3c5145; background: #fff8e9df; padding: 4px 8px; border-radius: 4px; }
+.atelier-nest { width: min(850px, calc(100% - 32px)); margin: 0 auto; padding: 16px; background: #fff7e9e6; border: 1px solid #cfb48d; border-radius: 8px; display: grid; grid-template-columns: 1fr auto; gap: 12px; }
+.atelier-nest > :is(.nest-grid, .nest-guidance, .nest-empty) { grid-column: 1 / -1; }
+.nest-heading { display: flex; gap: 4px; align-items: center; }
+.nest-heading h3 { font: 1.25rem/1.25 Georgia, serif; margin: 0; }
+.app .atelier-nest .nest-grid { display: flex; overflow-x: auto; align-items: stretch; gap: 12px; padding: 6px; min-width: 0; scrollbar-width: thin; }
+.app .atelier-nest .nest-egg { display: flex; flex-direction: column; align-items: center; width: 136px; flex: 0 0 136px; background: none; text-align: center; padding: 8px; border: 1px solid #dcc9ae; border-radius: 8px; gap: 4px; box-shadow: none; }
+.app .atelier-nest .nest-egg.selected { border-color: #718869; }
+.app .atelier-nest .nest-egg.studying { background: #e8eddf; }
+.nest-select { position: relative; display: block; border: 0; background: none; width: 100%; height: 110px; padding: 0; isolation: isolate; border-radius: 50% 50% 30% 30%; }
+.nest-select > .sprite { width: 68%; margin: auto; position: absolute; left: 16%; top: 0; }
+.egg-cup { width: 100%; height: 47px; position: absolute; left: 0; bottom: 0; }
+.selected .nest-select::before { content: ""; position: absolute; inset: -3px 7px 12px; border: 2px solid #718869; border-radius: 50% 50% 40% 40%; }
+.nest-check { position: absolute; top: 14px; right: 4px; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #526b4d; color: #fff8e9; border: 2px solid #f8eccf; }
+.app .atelier-nest :is(.nest-egg-name, .egg-progress) { font: .875rem/1.4 Georgia, serif; color: #3c5145; margin: 0; }
+.app .atelier-nest .nest-progress { display: block; width: 100%; height: 5px; margin: 4px 0; }
+.egg-selection-badges { display: flex; flex-direction: column; gap: 4px; width: 100%; min-height: 48px; }
+.egg-selection-badges span { font: .875rem/1.35 Georgia, serif; padding: 3px 5px; border-radius: 4px; }
+.egg-current-badge { background: #526b4d; color: #fff9ec; }
+.egg-next-badge { background: #e6dfcb; color: #3c5145; }
+.app .atelier-nest .egg-hatch { margin-top: auto; padding: 8px; min-height: 44px; font: .875rem Georgia, serif; }
+.app .atelier-nest .egg-hatch:disabled { background: none; color: #94702e; opacity: 1; }
+.nest-guidance, .nest-empty p { font-size: .875rem; line-height: 1.5; margin: 0; }
+.nest-empty { display: flex; align-items: center; justify-content: center; gap: 16px; }
+.empty-nest-art { width: 150px; height: 90px; flex-shrink: 0; }
+.nest-empty strong { display: block; font-weight: normal; font-size: 1.125rem; margin-bottom: 8px; }
+.nest-focus { grid-row: 1; grid-column: 2; justify-self: end; }
+.shop-flow { margin: 16px auto 0; width: min(850px, calc(100% - 32px)); text-align: center; font: .875rem/1.5 Georgia, serif; color: #3c5145; background: #fff8e9cc; padding: 8px 12px; border-radius: 4px; }
+.focus-egg-summary { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #d7c6a4; text-align: left; font-size: .875rem; line-height: 1.4; }
+.focus-egg-summary > div { flex: 1; min-width: 0; }
+.focus-egg-summary span { display: block; }
+.focus-egg-summary strong { font-weight: normal; color: #465d43; }
+.egg-summary-next { color: #606956; }
+@media (max-width: 600px) {
+  .atelier-shop { --display-height: clamp(215px, 70vw, 350px); --display-gap: 12px; }
+  .app .atelier-shop .pastel-purchase { padding-inline: 4px; font-size: .875rem; }
+  .shop-affordability { padding-inline: 4px; }
+  .atelier-nest { padding: 12px; }
+  .nest-focus { max-width: 160px; }
+  .nest-empty { flex-direction: column; gap: 8px; text-align: center; }
+  .empty-nest-art { width: 130px; height: 78px; }
+  .shop-tools { gap: 4px; }
+  .shop-pending { padding-inline: 4px; }
+  .guaranteed-roll { max-width: 90px; }
+}
+@container room-layout (max-width: 14rem) {
+  .shop-tools { padding: 8px 68px 8px 8px; }
+  .shop-displays { height: calc(var(--display-height) + 24px); }
+  .shop-offers { width: calc(100% - 24px); gap: 8px; grid-template-columns: 1fr 1fr; }
+  .atelier-nest .nest-grid { flex-direction: column; }
+  .app .atelier-nest .nest-egg { width: 100%; flex-basis: auto; }
+}

@@ -52,6 +52,52 @@ test('a fully studied egg hatches into a room resident', () => {
   expect(getState().animals).toHaveLength(2);
   expect(getState().animals[1]).toMatchObject({ species: 'deer', rarity: 'dreamy', placed: true });
   expect(getState().eggs).toHaveLength(0);
+  expect(getState().selectedEggId).toBeNull();
+  expect(screen.getByText('Your nest is empty :3')).toBeInTheDocument();
+  expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+});
+
+test('an empty nest explains purchasing and exposes exact affordability and a focus route', () => {
+  const onFocus = jest.fn();
+  renderPanel(ShopPanel, { ...createInitialState(NOW), gems: 15 }, { onFocus });
+  expect(screen.getByText('Your nest is empty :3')).toBeInTheDocument();
+  expect(screen.getByText('Need 10 more gems')).toBeInTheDocument();
+  expect(screen.getByText('Need 45 more gems')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Buy basic egg/ })).toHaveAccessibleDescription('Need 10 more gems');
+  fireEvent.click(screen.getByRole('button', { name: 'Focus to earn gems' }));
+  expect(onFocus).toHaveBeenCalledTimes(1);
+});
+
+test.each(['running', 'paused'])('nest distinguishes the attached egg from the next egg while %s', (status) => {
+  let initial = gameReducer(createInitialState(NOW), { type: 'BUY_EGG', kind: 'basic', now: NOW });
+  initial = gameReducer(initial, { type: 'BUY_EGG', kind: 'mystery', now: NOW, roll: 0.95 });
+  initial = gameReducer(initial, { type: 'START', now: NOW });
+  if (status === 'paused') initial = gameReducer(initial, { type: 'PAUSE', now: NOW });
+  const { getState } = renderPanel(ShopPanel, initial);
+  const current = within(screen.getByRole('group', { name: 'Basic egg 1' }));
+  const next = within(screen.getByRole('group', { name: 'Dreamy egg 2' }));
+  expect(current.getByText('Studying with you')).toBeInTheDocument();
+  expect(current.getByText('Next session')).toBeInTheDocument();
+  fireEvent.click(next.getByRole('button', { name: 'Select dreamy egg 2' }));
+  expect(current.getByText('Studying with you')).toBeInTheDocument();
+  expect(current.queryByText('Next session')).not.toBeInTheDocument();
+  expect(next.getByText('Next session')).toBeInTheDocument();
+  expect(next.queryByText('Studying with you')).not.toBeInTheDocument();
+  expect(getState().timer.eggId).toBe(initial.eggs[0].id);
+  fireEvent.click(next.getByRole('button', { name: 'Deselect dreamy egg 2' }));
+  expect(getState().selectedEggId).toBeNull();
+  expect(current.getByText('Studying with you')).toBeInTheDocument();
+  expect(screen.getByText(/No egg selected for next session/)).toBeInTheDocument();
+});
+
+test('buying an egg after a session starts selects it for next time only', () => {
+  const running = gameReducer(createInitialState(NOW), { type: 'START', now: NOW });
+  const { getState } = renderPanel(ShopPanel, running);
+  fireEvent.click(screen.getByRole('button', { name: /Buy basic egg/ }));
+  expect(screen.getByText('Next session')).toBeInTheDocument();
+  expect(screen.queryByText('Studying with you')).not.toBeInTheDocument();
+  expect(getState().timer.eggId).toBeNull();
+  expect(screen.getByText('No egg is attached to this session.')).toBeInTheDocument();
 });
 
 test('shop explains why ongoing overtime rewards are not yet spendable', () => {

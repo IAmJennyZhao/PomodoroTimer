@@ -28,6 +28,7 @@ import {
   HatchModal,
 } from "./ui";
 import TimerCard, { QuickScratchpad } from "./TimerCard";
+import { EggShopTools } from "./EggShop";
 import { RoomLoading, SaveNotice, ToastNotice, useNoticeTimeout } from "./Feedback";
 import RoomBackdrop from "./RoomBackdrop";
 import RoomWidget from "./RoomWidget";
@@ -113,6 +114,7 @@ export default function App() {
   const reducedMotion = useReducedMotion(state.settings.reducedMotion);
   const [now, setNow] = useState(Date.now());
   const [panel, setPanel] = useState(null);
+  const [shopStartAtNest, setShopStartAtNest] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [focusView, setFocusView] = useState(false);
   const quietFocus = focusView && state.timer.mode === "focus" && state.timer.status === "running";
@@ -322,6 +324,7 @@ export default function App() {
   }, [hatch, closeHatch, arranging, selection]);
   const openPanel = (id) => {
     if (id === "notes") { setNotesOpen(previous => !previous); return; }
+    if (id === "shop") setShopStartAtNest(false);
     setPanel((previous) => (previous === id ? null : id));
     if (id !== "decorate") setArranging(false);
   };
@@ -507,6 +510,7 @@ export default function App() {
         onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "timer", ...position })} concealed={widePanel}>
         <TimerCard cardRef={cardRef} state={state} act={act} now={now} ready={ready} blocked={status === "conflict"}
           onToggleTimer={timerAction} panel={panel} openPanel={openPanel} notesOpen={notesOpen}
+          openNest={() => { setShopStartAtNest(true); setPanel("shop"); setArranging(false); setFocusView(false); }}
           focusView={focusView} setFocusView={setFocusView}
           alarmSilenced={silencedAlarm === state.timer.id}
           silenceAlarm={() => { engine.current?.stopAlarm(); setSilencedAlarm(state.timer.id); }}
@@ -562,7 +566,7 @@ export default function App() {
       </footer>
       {widePanel && <div className="workspace-dismiss" onClick={closePanel} />}
       <Presence value={panel}>{(shownPanel, active) => (
-        <Drawer name={shownPanel} active={active} title={arranging ? "Arrange room" : undefined} onClose={closePanel}>
+        <Drawer name={shownPanel} active={active} title={arranging ? "Arrange room" : undefined} onClose={closePanel} toolbar={shownPanel === "shop" ? <EggShopTools state={state} /> : undefined}>
           {shownPanel === "animals" && (
             <AnimalsPanel
               state={state}
@@ -571,7 +575,7 @@ export default function App() {
               setSelected={setSelectedAnimal}
             />
           )}
-          {shownPanel === "shop" && <ShopPanel state={state} act={act} />}
+          {shownPanel === "shop" && <ShopPanel state={state} act={act} onFocus={closePanel} startAtNest={shopStartAtNest} toolsInHeading />}
           {shownPanel === "decorate" && (
             <DecoratePanel
               state={state}

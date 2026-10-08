@@ -264,7 +264,7 @@ export function clampNotepadPosition(position, bounds, viewport) {
   };
 }
 
-export function Drawer({ name, title, onClose, children, position, onMove, active = true }) {
+export function Drawer({ name, title, onClose, children, toolbar, position, onMove, active = true }) {
   const closeRef = useRef(null);
   const dialogRef = useRef(null);
   const pointer = useRef(null);
@@ -373,6 +373,7 @@ export function Drawer({ name, title, onClose, children, position, onMove, activ
         </button> : <div>
           <h2 id={headingId}>{shownTitle || PANEL_NAMES[name]}</h2>
         </div>}
+        {toolbar}
         <Button
           ref={closeRef}
           className="icon-button"
