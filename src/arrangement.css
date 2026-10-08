@@ -75,8 +75,8 @@
 .app.is-arranging .daily-goal-note .daily-pill { padding: 24px 12px; }
 .app.is-arranging .room-widget .widget-preview-name { display: block; position: absolute; inset: auto; top: calc(100% + 4px * var(--room-edit-inverse,1)); left: 50%; transform: translateX(-50%) scale(var(--room-edit-inverse,1)); transform-origin: 50% 0; white-space: nowrap; font: 14px Georgia,serif; background: var(--paper); padding: 2px 4px; }
 .app.is-arranging .room-widget .widget-move-handle { width: 44px; height: 44px; min-width: 44px; top: -44px; transform: translateX(-50%) scale(var(--room-edit-inverse,1)); transform-origin: 50% 100%; }
-.app.is-arranging .room-widget .selection-close { top: calc(-44px * var(--room-edit-inverse,1)); left: calc(50% + 26px * var(--room-edit-inverse,1)); right: auto; transform: scale(var(--room-edit-inverse,1)); transform-origin: 0 0; width: 44px; height: 44px; min-width: 44px; }
-.app.is-arranging .room-resident .selection-close { width: 44px; height: 44px; min-width: 44px; top: calc(-50px * var(--room-edit-inverse,1)); left: 50%; right: auto; transform: translateX(-50%) scale(var(--room-edit-inverse,1)); transform-origin: 50% 0; }
+.app.is-arranging :is(.room-widget,.room-resident) .selection-close { top: calc(-44px * var(--room-edit-inverse,1)); left: calc(50% + var(--selection-close-offset,26px) * var(--room-edit-inverse,1)); right: auto; transform: scale(var(--room-edit-inverse,1)); transform-origin: 0 0; width: 44px; height: 44px; min-width: 44px; }
+.app.is-arranging .resident-move-handle { position: absolute; top: calc(-44px * var(--room-edit-inverse,1)); left: 50%; transform: translateX(-50%) scale(var(--room-edit-inverse,1)); transform-origin: 50% 0; display: grid; place-items: center; width: 44px; height: 44px; padding: 6px; border: 1px solid var(--sage-strong); border-radius: 5px; background: var(--paper); color: var(--ink); touch-action: none; cursor: grab; }
 .app .workspace-decorate.drawer-arranging .drawer-heading > .icon-button { width: 44px; min-width: 44px; height: 44px; }
 .app .arrange-panel .arrange-toolbar { min-height: 44px; padding-right: 52px; }
 .app .arrange-panel .arrange-toolbar :is(button,select) { min-height: 44px; }
@@ -87,10 +87,12 @@
 .app .decoration-catalog .catalogue-art > .furniture-art[data-furniture="rug"] { height: auto; }
 .app .decoration-catalog .catalogue-art:has([data-furniture="rug"]) { display: flex; align-items: center; }
 .placement-instructions { padding: 8px 0; font: 14px/1.4 Georgia,serif; }
-.placement-instructions > div { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-.app .placement-instructions button { min-height: 44px; font-size: 14px; padding: 6px 10px; }
 .app.is-arranging .placement-preview::after { border-style: dashed; }
 .placement-preview-label { position: absolute; top: 100%; left: 50%; transform: translateX(-50%) scale(var(--room-edit-inverse,1)); transform-origin: 50% 0; font: 14px Georgia,serif; white-space: nowrap; background: var(--paper); padding: 4px; pointer-events: none; }
+.app .arrange-panel.has-placement .library-item > :is(.furniture-art,.sprite,.widget-sketch,svg) { display: none; }
+.app .arrange-panel.has-placement .library-item { min-height: 64px; justify-content: center; }
+.app .arrange-panel.has-placement .library-browser > .icon-button { height: 72px; }
+.app .arrange-panel.has-placement .arrange-deselect, .app .arrange-panel.has-placement .info-disclosure { display: none; }
 @media (max-width: 700px) {
   .app .arrange-panel .arrange-toolbar { grid-template-columns: 44px 44px minmax(0,1fr) auto; padding: 0; }
   .app .arrange-panel .field-label { grid-column: 1 / -1; grid-row: 1; margin-right: 48px; }
@@ -101,6 +103,9 @@
   .app .arrange-panel .library-item { min-height: 96px; }
   .app .arrange-panel .library-item > :is(.furniture-art,.sprite) { height: auto; max-height: 48px; }
   .app .arrange-panel .library-card { flex-basis: 102px; }
+  .app .arrange-panel.has-placement .arrange-toolbar { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+  .app .arrange-panel.has-placement .arrange-remove { grid-column: 1; grid-row: 2; font-size: 13px; padding: 6px 4px; justify-self: stretch; }
+  .app .arrange-panel.has-placement .arrange-finish { grid-column: 2; grid-row: 2; margin: 0; font-size: 13px; padding: 6px 4px; }
 }
 @media (max-height: 500px) and (min-width: 500px) {
   .app.is-arranging .app-header { padding-bottom: 8px; min-height: 0; }
@@ -117,5 +122,12 @@
   .app .arrange-panel .info-disclosure { display: none; }
   .app .arrange-panel .library-browser { gap: 0; }
   .app .arrange-panel .library-browser > .icon-button { flex-basis: 44px; min-width: 44px; width: 44px; }
-  .app .arrange-panel :is(.library-card,.library-item) { flex-basis: 102px; }
+  .app .arrange-panel :is(.library-card,.library-item) { flex-basis: 88px; }
+  .app .arrange-panel.has-placement .arrange-toolbar { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+  .app .arrange-panel.has-placement .arrange-remove { grid-column: 1; font-size: 12px; }
+  .app .arrange-panel.has-placement .arrange-finish { grid-column: 2; font-size: 12px; }
+}
+@media (max-height:600px) and (max-width:499px) {
+  .app.is-arranging .app-header { padding-bottom: 8px; min-height: 0; }
+  .app.is-arranging .app-header .top-nav.paper { display: none; }
 }

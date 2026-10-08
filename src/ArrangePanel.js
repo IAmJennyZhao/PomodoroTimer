@@ -16,27 +16,31 @@ export default function ArrangePanel({ state, act, setArranging, selection, setS
     const name = DECORATIONS.find(kind => kind.id === item.item)?.name || "Furniture";
     return copies.length > 1 ? `${name} · ${copies.findIndex(copy => copy.id === item.id) + 1}` : name;
   };
+  const revealSelection = behavior => {
+    const library = libraryRef.current;
+    const tile = library?.querySelector(".library-item.selected");
+    if (!tile) return;
+    const bounds = library.getBoundingClientRect();
+    const item = tile.getBoundingClientRect();
+    const delta = item.left < bounds.left ? item.left - bounds.left : item.right > bounds.right ? item.right - bounds.right : 0;
+    if (delta) library.scrollBy({ left: delta, behavior });
+  };
   useEffect(() => {
     const library = libraryRef.current;
     const measure = () => setEdges({ start: library.scrollLeft <= 1, end: library.scrollLeft + library.clientWidth >= library.scrollWidth - 1 });
     measure();
     library.addEventListener("scroll", measure);
-    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    const resize = () => { measure(); revealSelection("auto"); };
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(resize) : null;
     observer?.observe(library);
-    window.addEventListener("resize", measure);
-    return () => { library.removeEventListener("scroll", measure); observer?.disconnect(); window.removeEventListener("resize", measure); };
+    window.addEventListener("resize", resize);
+    return () => { library.removeEventListener("scroll", measure); observer?.disconnect(); window.removeEventListener("resize", resize); };
   }, [state.owned.decorations, state.animals]);
   useEffect(() => {
-    const library = libraryRef.current;
-    const tile = library.querySelector(".library-item.selected");
-    if (!tile) return;
-    const bounds = library.getBoundingClientRect();
-    const item = tile.getBoundingClientRect();
-    const delta = item.left < bounds.left ? item.left - bounds.left : item.right > bounds.right ? item.right - bounds.right : 0;
-    if (delta) library.scrollBy({ left: delta, behavior: reduced ? "auto" : "smooth" });
+    revealSelection(reduced ? "auto" : "smooth");
   }, [selection, reduced]);
   const browse = direction => libraryRef.current.scrollBy({ left: direction * libraryRef.current.clientWidth * .75, behavior: reduced ? "auto" : "smooth" });
-  return <div className="arrange-panel">
+  return <div className={`arrange-panel ${pendingFurniture ? "has-placement" : ""}`}>
     <div className="arrange-toolbar">
       <label className="field-label"><span className="visually-hidden">Selected item</span>
         <select value={selectedObject ? `${selection.type}:${selectedObject.id}` : ""} onChange={event => {
@@ -51,15 +55,17 @@ export default function ArrangePanel({ state, act, setArranging, selection, setS
       </label>
       <Button type="button" className="icon-button arrange-deselect" aria-label="Deselect item" disabled={!selectedObject} onClick={() => setSelection(null)}><Icon name="close" size={18} /></Button>
       <InfoTip label="Arrange controls">Drag an item or its move handle. Arrow keys nudge; Shift moves farther. Click a library tile to select placed furniture; click again to select its next copy.</InfoTip>
-      <Button type="button" className="text-button arrange-remove" disabled={Boolean(pendingFurniture) || !selectedObject || selection.type === "widget"} onClick={() => {
+      <Button type="button" className="text-button arrange-remove" disabled={!pendingFurniture && (!selectedObject || selection.type === "widget")} onClick={() => {
+        if (pendingFurniture) { onCancelPlacement(); return; }
         act(selection.type === "animal" ? { type: "PLACE_ANIMAL", id: selectedObject.id, placed: false } : { type: "REMOVE_DECORATION", id: selectedObject.id });
         setSelection(null);
-      }}>Remove</Button>
-      <Button type="button" className="secondary-button arrange-finish" disabled={Boolean(pendingFurniture)} onClick={() => { setSelection(null); setArranging(false); onFinish?.(); }}><Icon name="check" size={17} /> Done</Button>
+      }}>{pendingFurniture ? "Cancel placement" : "Remove"}</Button>
+      <Button type="button" className="secondary-button arrange-finish" onClick={() => {
+        if (pendingFurniture) onConfirmPlacement();
+        setSelection(null); setArranging(false); onFinish?.();
+      }}><Icon name="check" size={17} /> {pendingFurniture ? "Place & Done" : "Done"}</Button>
     </div>
-    {pendingFurniture && <div className="placement-instructions" role="status"><span>Drag and release to place, or choose Place here. Cancel keeps this copy in your library.</span>
-      <div><Button className="secondary-button" onClick={onConfirmPlacement}>Place here</Button><Button className="text-button" onClick={onCancelPlacement}>Cancel placement</Button></div>
-    </div>}
+    {pendingFurniture && <div className="placement-instructions" role="status">Drag and release to place, or choose Place &amp; Done. Cancel keeps this copy in your library.</div>}
     <div className="library-browser">
       <Button type="button" className="icon-button library-previous" disabled={edges.start} aria-label="Previous library items" onClick={() => browse(-1)}><span className="nudge-arrow nudge-left"><Icon name="arrow" size={20} /></span></Button>
       <div ref={libraryRef} className="arrange-library" role="region" aria-label="Room library" tabIndex={0}>

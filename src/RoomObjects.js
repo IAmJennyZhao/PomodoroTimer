@@ -16,7 +16,8 @@ const RoomObjects = forwardRef(function RoomObjects({ arranging, children, onCam
       const room = scene.getBoundingClientRect();
       const residents = Array.from(objects.querySelectorAll(".room-resident"));
       const header = scene.parentElement.querySelector(".app-header").getBoundingClientRect();
-      const top = header.bottom - room.top + 24;
+      // Reserve a physical control row above even the highest saved footprint.
+      const top = header.bottom - room.top + 48;
       const dockBounds = dock?.getBoundingClientRect();
       const sidebar = dockBounds && dockBounds.left > room.left + room.width / 2 && dockBounds.top < header.bottom + 60;
       const right = sidebar ? dockBounds.left - room.left - 24 : room.width - 24;

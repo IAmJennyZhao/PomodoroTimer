@@ -947,7 +947,7 @@ test('furniture purchase, preview, cancel, drop, remove and re-add conserve stoc
     expect(JSON.stringify(diskState.room.decorations)).toBe(original);
     fireEvent.click(screen.getByRole('button',{name:'Place in room: Leafy friend'}));
     expect(screen.getByRole('combobox',{name:'Selected item'})).toHaveValue('decoration:placement-preview');
-    expect(screen.getByRole('button',{name:'Done',exact:true})).toBeDisabled();
+    expect(screen.getByRole('button',{name:'Place & Done',exact:true})).toBeEnabled();
     await advance(500);
     expect(JSON.stringify(diskState.room.decorations)).toBe(original);
     fireEvent.click(screen.getByRole('button',{name:'Cancel placement'}));
@@ -959,7 +959,7 @@ test('furniture purchase, preview, cancel, drop, remove and re-add conserve stoc
     expect(JSON.stringify(diskState.room.decorations)).toBe(original);
     fireEvent.click(screen.getByRole('button',{name:'Add Leafy friend, 1 available'}));
     const scale=Number(container.querySelector('.room-objects').style.getPropertyValue('--room-edit-scale'));
-    const plant=screen.getByRole('button',{name:'Position Leafy friend'});
+    const plant=screen.getByRole('button',{name:'Move Leafy friend'});
     fireEvent.pointerDown(plant,{button:0,clientX:300,clientY:300,pointerType:'touch'});
     fireEvent.pointerMove(plant,{clientX:330,clientY:310,pointerType:'touch'});
     fireEvent.pointerUp(plant);
@@ -974,8 +974,7 @@ test('furniture purchase, preview, cancel, drop, remove and re-add conserve stoc
     expect(screen.getByRole('combobox',{name:'Selected item'})).toHaveValue(`decoration:${placed.id}`);
     fireEvent.click(screen.getByRole('button',{name:'Remove',exact:true}));
     fireEvent.click(screen.getByRole('button',{name:'Add Leafy friend, 1 available'}));
-    fireEvent.click(screen.getByRole('button',{name:'Place here'}));
-    fireEvent.click(screen.getByRole('button',{name:'Done',exact:true}));
+    fireEvent.click(screen.getByRole('button',{name:'Place & Done'}));
     expect(screen.queryByRole('region',{name:'Room library'})).not.toBeInTheDocument();
     await advance(700);
     expect(diskState.gems).toBe(180);

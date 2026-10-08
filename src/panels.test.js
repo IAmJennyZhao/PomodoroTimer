@@ -140,15 +140,15 @@ test('decoration purchases can be used, equipped, positioned, and removed withou
   fireEvent.click(screen.getByRole('button', { name: 'Furniture' }));
   fireEvent.click(screen.getByRole('button', { name: 'Unlock Cozy cushion for 25 Shilligems' }));
   fireEvent.click(screen.getByRole('button', { name: 'Place in room: Cozy cushion' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Place here' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Done', exact:true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Place & Done' }));
   expect(screen.getByRole('button', { name: 'Placed Cozy cushion' })).toBeDisabled();
   fireEvent.click(screen.getByRole('button', { name: 'Buy another Cozy cushion for 25 Shilligems' }));
   fireEvent.click(screen.getByRole('button', { name: 'Place in room: Cozy cushion' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Place here' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Place & Done' }));
   expect(getState().gems).toBe(25);
   expect(getState().room.decorations).toHaveLength(2);
   const first = getState().room.decorations[0].id;
+  fireEvent.click(screen.getByRole('button',{name:'Arrange room'}));
   expect(screen.queryByRole('button', { name: 'Add Cozy cushion' })).not.toBeInTheDocument();
   fireEvent.change(screen.getByRole('combobox', { name: 'Selected item' }), { target: { value: `decoration:${first}` } });
   expect(screen.queryByRole('button', { name: 'Move selected item right' })).not.toBeInTheDocument();

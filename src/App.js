@@ -34,7 +34,7 @@ import { RoomLoading, SaveNotice, ToastNotice, useNoticeTimeout } from "./Feedba
 import RoomBackdrop from "./RoomBackdrop";
 import RoomWidget from "./RoomWidget";
 import RoomObjects from "./RoomObjects";
-import { ArrangementCameraContext } from "./roomGeometry";
+import { ArrangementCameraContext, ROOM_SIZE } from "./roomGeometry";
 import DecoratePanel from "./DecoratePanel";
 import {
   AnimalsPanel,
@@ -408,6 +408,22 @@ export default function App() {
       type === "animal"
         ? item.name
         : DECORATIONS.find((entry) => entry.id === item.item)?.name;
+    const moveKey = (event) => {
+      if (arranging && item.id === pendingFurniture?.id && event.key === "Enter") { event.preventDefault(); confirmFurniturePlacement(); return; }
+      if (!arranging || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+      event.preventDefault();
+      gesture.cancel();
+      const step = event.shiftKey ? 5 : 1;
+      setSelection({ type, id: item.id });
+      const movement = {
+        type: type === "animal" ? "MOVE_ANIMAL" : "MOVE_DECORATION",
+        id: item.id,
+        x: Math.max(5, Math.min(95, item.x + (event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0))),
+        y: Math.max(20, Math.min(85, item.y + (event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0))),
+      };
+      if (item.id === pendingFurniture?.id) setPendingFurniture(current => ({ ...current, x: movement.x, y: movement.y }));
+      else act(movement);
+    };
     return (
       <div
         key={item.id}
@@ -417,6 +433,7 @@ export default function App() {
           top: `${position.y}%`,
           "--room-x": position.x,
           "--room-y": position.y,
+          "--selection-close-offset": roomCamera && roomCamera.left + position.x / 100 * ROOM_SIZE.width * roomCamera.scale > window.innerWidth - 74 ? "-70px" : "26px",
           zIndex: item.item === "rug" ? 1 : chosen ? 250 : (type === "animal" ? 160 : 2) + Math.round(position.y),
           "--delay": `${-(state.animals.findIndex((animal) => animal.id === item.id) * 1.37)}s`,
         }}
@@ -429,22 +446,7 @@ export default function App() {
         }
         onPointerDown={(event) => startDrag(event, type, item)}
         {...gesture.handlers}
-        onKeyDown={(event) => {
-          if (arranging && item.id === pendingFurniture?.id && event.key === "Enter") { event.preventDefault(); confirmFurniturePlacement(); return; }
-          if (!arranging || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
-          event.preventDefault();
-          gesture.cancel();
-          const step = event.shiftKey ? 5 : 1;
-          setSelection({ type, id: item.id });
-          const movement = {
-            type: type === "animal" ? "MOVE_ANIMAL" : "MOVE_DECORATION",
-            id: item.id,
-            x: Math.max(5, Math.min(95, item.x + (event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0))),
-            y: Math.max(20, Math.min(85, item.y + (event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0))),
-          };
-          if (item.id === pendingFurniture?.id) setPendingFurniture(current => ({ ...current, x: movement.x, y: movement.y }));
-          else act(movement);
-        }}
+        onKeyDown={moveKey}
         onClick={(event) => {
           if (!ready || event.currentTarget.closest("[inert]")) return;
           if (arranging) {
@@ -467,6 +469,8 @@ export default function App() {
         <span className="resident-label">{name}</span>
       </button>
       {item.id === pendingFurniture?.id && <span className="placement-preview-label">Placing {name}</span>}
+      {chosen && <button className="resident-move-handle" aria-label={`Move ${name}`} aria-pressed={chosen}
+        onPointerDown={event => startDrag(event,type,item)} {...gesture.handlers} onKeyDown={moveKey}><Icon name="move" size={20} /></button>}
       {chosen && <Button className="selection-close" aria-label={`Deselect ${name}`} onClick={event => { event.currentTarget.parentElement.querySelector(".resident-hitbox").focus(); setSelection(null); }}><Icon name="close" size={16} /></Button>}
       </div>
     );

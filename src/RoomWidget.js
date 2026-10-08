@@ -88,7 +88,8 @@ const RoomWidget = forwardRef(function RoomWidget({ as: Tag = "div", id, name, c
     style={rendered ? { left: camera ? camera.left + rendered.left * camera.scale : rendered.left,
       top: camera ? camera.top + rendered.top * camera.scale : rendered.top, right: "auto",
       transform: camera ? `scale(${camera.scale})` : "none", transformOrigin: "0 0",
-      ...(camera ? { "--room-edit-inverse": 1 / camera.scale } : {}) } : undefined}>
+      ...(camera ? { "--room-edit-inverse": 1 / camera.scale,
+        "--selection-close-offset": camera.left + (rendered.left + ref.current?.offsetWidth / 2) * camera.scale > window.innerWidth - 74 ? "-70px" : "26px" } : {}) } : undefined}>
     {arranging && <span className="widget-preview-name" aria-hidden="true">{id === "timer" ? "Timer" : "Daily goal"}</span>}
     <RoomVisual target={`widget:${id}`} lifted={Boolean(draft)} className="widget-content" inert={arranging ? "" : undefined}>{children}</RoomVisual>
     {arranging && <>
