@@ -27,6 +27,12 @@ test('review copies exact notes and escape restores focus without loading or app
   expect(screen.getByText('Outside recovery')).toHaveAttribute('inert');
   const close = within(dialog).getByRole('button', { name: 'Close unsaved edits' });
   expect(close).toHaveFocus();
+  const last = within(dialog).getByRole('button', { name: 'Load saved room' });
+  last.focus();
+  fireEvent.keyDown(last, { key: 'Tab' });
+  expect(close).toHaveFocus();
+  fireEvent.keyDown(close, { key: 'Tab', shiftKey: true });
+  expect(last).toHaveFocus();
   fireEvent.click(within(dialog).getByRole('button', { name: 'Copy notes' }));
   expect(await within(dialog).findByText(/Notes copied/)).toBeInTheDocument();
   expect(navigator.clipboard.writeText).toHaveBeenCalledWith('My unsaved note');
@@ -72,7 +78,7 @@ test('a failed download keeps recovery available and does not mark the draft exp
   expect(within(dialog).getByRole('textbox')).toHaveValue('My unsaved note');
 });
 
-test('recovery can explicitly load the saved room and remains accessible after a failed load', () => {
+test('retained drafts remain accessible after a failed load without applying them', () => {
   persistence.ready = false;
   persistence.status = 'error';
   const dialog = open();

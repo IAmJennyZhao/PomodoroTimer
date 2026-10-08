@@ -42,6 +42,10 @@ Your Shilligems, animals, room, timer, tasks, scratchpad and session history are
 
 The app uses `state.json` with `state.backup.json` as a recovery copy. Writes replace the save atomically; the backup retains the previous successful revision. If the main file is damaged, the service recovers from the backup. If both files are unreadable, it preserves them and reports an error instead of resetting your collection. Save revision checks prevent two open windows silently overwriting one another.
 
+Save failures explain whether the service is unreachable, the save/backup is unreadable, the folder is inaccessible, or the response is invalid. Open **Save details** for the cause and next action. A connection outage keeps your latest edits available; restart the local service and choose **Retry save**.
+
+When another window has saved newer progress, **Review edits** offers read-only notes and a checklist, **Copy notes**, and **Download draft**. Loading the saved room retains a separate recovery copy in the current window, including after a failed load. You can reopen it from Settings → Local save after dismissing its notice. Drafts remain in memory until the window closes: download and check the file to keep them beyond this visit. Recovery files are for reference; there is no automatic import or merge of balances, inventory, or timers. Browsers may warn before closing a window with unsaved changes or an unexported draft.
+
 No account or cloud service is involved. Runtime saves never go into the build. Git ignores common save/export filenames as an extra precaution. You can copy the save folder to back it up while the app is closed. The default data folder is shared between development and production runs.
 
 For testing or a separate profile, set `POMODORO_DATA_DIR` to another directory **outside this repository** before launching. The service rejects repository folders, including symlink aliases into the repository. `POMODORO_API_PORT` changes the production service port; development uses `PORT` (default 3000) and `POMODORO_API_PORT` (default 3001) as starting ports and advances past occupied ports.
