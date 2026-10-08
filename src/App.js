@@ -10,6 +10,7 @@ import useReducedMotion, { MotionPreferenceContext } from "./useReducedMotion";
 import {
   BACKGROUNDS,
   DECORATIONS,
+  decorationAvailable,
   formatTime,
   formatElapsedTime,
   elapsedTime,
@@ -129,6 +130,10 @@ export default function App() {
   const [selection, setSelection] = useState(null);
   const [arranging, setArranging] = useState(false);
   const [roomCamera, setRoomCamera] = useState(null);
+  const [pendingFurniture, setPendingFurniture] = useState(null);
+  useEffect(() => {
+    if (!arranging || (pendingFurniture && selection?.id !== pendingFurniture.id)) setPendingFurniture(null);
+  }, [arranging, selection, pendingFurniture]);
   const cancellationId = useRef(0);
   const [tip, setTip] = useState(0);
   const [toast, setToast] = useState(null);
@@ -317,7 +322,7 @@ export default function App() {
     const onKey = (event) => {
       if (event.key === "Escape") {
         if (hatch) closeHatch();
-        else if (arranging && selection) setSelection(null);
+        else if (arranging && selection) { setPendingFurniture(null); setSelection(null); }
         else {
           setPanel(null);
           setArranging(false);
@@ -349,6 +354,22 @@ export default function App() {
     act({ type: state.timer.status === "running" ? "PAUSE" : "START" });
   };
   const stats = todayStats(state, now);
+  const beginFurniturePlacement = item => {
+    if (decorationAvailable(state, item.id) < 1) return;
+    const preview = { id: "placement-preview", item: item.id, x: 50, y: 72 };
+    setPendingFurniture(preview);
+    setSelection({ type: "decoration", id: preview.id });
+    setArranging(true);
+  };
+  const cancelFurniturePlacement = () => { setPendingFurniture(null); setSelection(null); };
+  const confirmFurniturePlacement = (position = pendingFurniture) => {
+    if (!pendingFurniture) return;
+    if (decorationAvailable(state, pendingFurniture.item) > 0) {
+      act({ type: "PLACE_DECORATION", item: pendingFurniture.item, x: position.x, y: position.y });
+      notify(`${DECORATIONS.find(item => item.id === pendingFurniture.item)?.name} placed in room.`);
+    }
+    cancelFurniturePlacement();
+  };
   useRoomChanges(state, ready, showOutcome, playControlFeedback);
   const gesture = usePlacementGesture({
     enabled: arranging && ready && status !== "conflict",
@@ -360,13 +381,15 @@ export default function App() {
       };
     },
     commit: (next, origin) => {
+      if (origin.id === pendingFurniture?.id) { confirmFurniturePlacement(next); return; }
       if (next.x !== origin.x || next.y !== origin.y) act({ type: origin.type === "animal" ? "MOVE_ANIMAL" : "MOVE_DECORATION", id: origin.id, x: next.x, y: next.y });
     },
     onCancel: (origin, reason) => {
       const bounds = sceneRef.current?.getBoundingClientRect();
+      const scale = Number(sceneRef.current?.style.getPropertyValue("--room-edit-scale")) || 1;
       showOutcome("room", { id: `return:${++cancellationId.current}`, target: `${origin.type}:${origin.id}`, kind: "cancelled",
-        dx: reason === "cancel" ? (origin.next.x - origin.x) * (bounds?.width || 0) / 100 : 0,
-        dy: reason === "cancel" ? (origin.next.y - origin.y) * (bounds?.height || 0) / 100 : 0 });
+        dx: reason === "cancel" ? (origin.next.x - origin.x) * (bounds?.width || 0) / scale / 100 : 0,
+        dy: reason === "cancel" ? (origin.next.y - origin.y) * (bounds?.height || 0) / scale / 100 : 0 });
     },
   });
   const drag = gesture.draft;
@@ -388,7 +411,7 @@ export default function App() {
     return (
       <div
         key={item.id}
-        className={`room-resident ${type} ${type === "decoration" ? `decoration-${item.item}` : ""} ${arranging ? "draggable" : ""} ${chosen ? "chosen" : ""}`}
+        className={`room-resident ${type} ${type === "decoration" ? `decoration-${item.item}` : ""} ${arranging ? "draggable" : ""} ${chosen ? "chosen" : ""} ${item.id === pendingFurniture?.id ? "placement-preview" : ""}`}
         style={{
           left: `${position.x}%`,
           top: `${position.y}%`,
@@ -407,17 +430,20 @@ export default function App() {
         onPointerDown={(event) => startDrag(event, type, item)}
         {...gesture.handlers}
         onKeyDown={(event) => {
+          if (arranging && item.id === pendingFurniture?.id && event.key === "Enter") { event.preventDefault(); confirmFurniturePlacement(); return; }
           if (!arranging || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
           event.preventDefault();
           gesture.cancel();
           const step = event.shiftKey ? 5 : 1;
           setSelection({ type, id: item.id });
-          act({
+          const movement = {
             type: type === "animal" ? "MOVE_ANIMAL" : "MOVE_DECORATION",
             id: item.id,
             x: Math.max(5, Math.min(95, item.x + (event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0))),
             y: Math.max(20, Math.min(85, item.y + (event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0))),
-          });
+          };
+          if (item.id === pendingFurniture?.id) setPendingFurniture(current => ({ ...current, x: movement.x, y: movement.y }));
+          else act(movement);
         }}
         onClick={(event) => {
           if (!ready || event.currentTarget.closest("[inert]")) return;
@@ -440,6 +466,7 @@ export default function App() {
         </RoomVisual>
         <span className="resident-label">{name}</span>
       </button>
+      {item.id === pendingFurniture?.id && <span className="placement-preview-label">Placing {name}</span>}
       {chosen && <Button className="selection-close" aria-label={`Deselect ${name}`} onClick={event => { event.currentTarget.parentElement.querySelector(".resident-hitbox").focus(); setSelection(null); }}><Icon name="close" size={16} /></Button>}
       </div>
     );
@@ -461,11 +488,12 @@ export default function App() {
         }
       >
         <RoomObjects ref={sceneRef} arranging={arranging} onCameraChange={setRoomCamera}
-          layoutKey={JSON.stringify([state.room.decorations, state.animals.filter(animal => animal.placed).map(({ id, x, y }) => [id, x, y])])}>
+          layoutKey={JSON.stringify([state.room.decorations, state.animals.filter(animal => animal.placed).map(({ id, x, y }) => [id, x, y]), pendingFurniture?.item])}>
         <RoomBackdrop theme={state.room.background} />
         {state.room.decorations.map((item) =>
           renderResident(item, "decoration"),
         )}
+        {arranging && pendingFurniture && renderResident(pendingFurniture, "decoration")}
         {state.animals
           .filter((item) => item.placed)
           .map((item) => renderResident(item, "animal"))}
@@ -594,6 +622,11 @@ export default function App() {
               setArranging={setArranging}
               selection={selection}
               setSelection={setSelection}
+              pendingFurniture={pendingFurniture}
+              onPlaceFurniture={beginFurniturePlacement}
+              onConfirmPlacement={() => confirmFurniturePlacement()}
+              onCancelPlacement={cancelFurniturePlacement}
+              onFinishArrange={closePanel}
             />
           )}
           {shownPanel === "journal" && (

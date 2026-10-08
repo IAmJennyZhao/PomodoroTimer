@@ -13,9 +13,14 @@ function renderPanel(Panel, initial = createInitialState(NOW), extra = {}) {
     const [selection, setSelection] = useState(null);
     const [arranging, setArranging] = useState(false);
     const [playing, setPlaying] = useState(false);
+    const [pendingFurniture, setPendingFurniture] = useState(null);
+    const beginPlacement = item => { setPendingFurniture({id:'placement-preview',item:item.id,x:50,y:72});setSelection({type:'decoration',id:'placement-preview'});setArranging(true); };
+    const confirmPlacement = () => { const next=gameReducer(state,{type:'PLACE_DECORATION',item:pendingFurniture.item,x:pendingFurniture.x,y:pendingFurniture.y,now:NOW});setState(next);setPendingFurniture(null);setSelection({type:'decoration',id:next.room.decorations[next.room.decorations.length-1].id}); };
+    const cancelPlacement = () => {setPendingFurniture(null);setSelection(null);};
     latest = state;
     return <Panel state={state} act={action => setState(previous => gameReducer(previous, { now: NOW, roll: 0.95, ...action }))}
       selected={selected} setSelected={setSelected} selection={selection} setSelection={setSelection}
+      pendingFurniture={pendingFurniture} onPlaceFurniture={beginPlacement} onConfirmPlacement={confirmPlacement} onCancelPlacement={cancelPlacement}
       arranging={arranging} setArranging={setArranging} playing={playing} setPlaying={setPlaying} now={NOW} {...extra} />;
   }
   return { ...render(<Harness />), getState: () => latest };
@@ -134,14 +139,16 @@ test('decoration purchases can be used, equipped, positioned, and removed withou
   expect(getState().animals[0].accessory).toBe('crown');
   fireEvent.click(screen.getByRole('button', { name: 'Furniture' }));
   fireEvent.click(screen.getByRole('button', { name: 'Unlock Cozy cushion for 25 Shilligems' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Add Cozy cushion' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Place in room: Cozy cushion' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Place here' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Done', exact:true }));
   expect(screen.getByRole('button', { name: 'Placed Cozy cushion' })).toBeDisabled();
   fireEvent.click(screen.getByRole('button', { name: 'Buy another Cozy cushion for 25 Shilligems' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Add Cozy cushion' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Place in room: Cozy cushion' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Place here' }));
   expect(getState().gems).toBe(25);
   expect(getState().room.decorations).toHaveLength(2);
   const first = getState().room.decorations[0].id;
-  fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));
   expect(screen.queryByRole('button', { name: 'Add Cozy cushion' })).not.toBeInTheDocument();
   fireEvent.change(screen.getByRole('combobox', { name: 'Selected item' }), { target: { value: `decoration:${first}` } });
   expect(screen.queryByRole('button', { name: 'Move selected item right' })).not.toBeInTheDocument();

@@ -150,7 +150,7 @@ test('furniture purchases acknowledge the matching card and never replace its co
   expect(engine.tap).not.toHaveBeenCalled();
   expect(engine.playSfx).toHaveBeenLastCalledWith('purchase');
   expect(card.querySelector('.purchase-accent')).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Add Cozy cushion' })).toBe(buy);
+  expect(screen.getByRole('button', { name: 'Place in room: Cozy cushion' })).toBe(buy);
   fireEvent.click(screen.getByRole('button', { name: 'Buy another Cozy cushion for 25 Shilligems' }));
   expect(engine.playSfx).toHaveBeenCalledTimes(2);
   await advance(700);
@@ -925,6 +925,92 @@ test('arranging exposes a room library, deselects furniture, and saves widget po
   rect.mockRestore();
 });
 
+test('furniture purchase, preview, cancel, drop, remove and re-add conserve stock and existing layouts', async () => {
+  const saved = createInitialState(NOW);
+  saved.gems = 200;
+  const original = JSON.stringify(saved.room.decorations);
+  const originalPointer = window.PointerEvent;
+  window.PointerEvent = MouseEvent;
+  jest.spyOn(HTMLElement.prototype,'getBoundingClientRect').mockImplementation(function(){
+    if(this.classList.contains('room-objects')) { const scale=Number(this.style.getPropertyValue('--room-edit-scale')) || 1;return {left:0,top:0,width:1672*scale,height:941*scale}; }
+    if(this.classList.contains('app-header')) return {left:0,top:0,width:1200,height:62,bottom:62};
+    if(this.classList.contains('workspace-decorate')) return {left:0,top:620,width:1200,height:180};
+    return {left:0,top:0,width:1200,height:800};
+  });
+  try {
+    const {container}=await openRoom(saved);
+    fireEvent.click(screen.getByRole('button',{name:'Decorate'}));
+    fireEvent.click(screen.getByRole('button',{name:'Unlock Leafy friend for 20 Shilligems'}));
+    await advance(500);
+    expect(diskState.gems).toBe(180);
+    expect(diskState.owned.decorationCounts.plant).toBe(1);
+    expect(JSON.stringify(diskState.room.decorations)).toBe(original);
+    fireEvent.click(screen.getByRole('button',{name:'Place in room: Leafy friend'}));
+    expect(screen.getByRole('combobox',{name:'Selected item'})).toHaveValue('decoration:placement-preview');
+    expect(screen.getByRole('button',{name:'Done',exact:true})).toBeDisabled();
+    await advance(500);
+    expect(JSON.stringify(diskState.room.decorations)).toBe(original);
+    fireEvent.click(screen.getByRole('button',{name:'Cancel placement'}));
+    expect(screen.queryByRole('button',{name:'Position Leafy friend'})).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button',{name:'Add Leafy friend, 1 available'}));
+    fireEvent.keyDown(screen.getByRole('button',{name:'Position Leafy friend'}),{key:'ArrowRight'});
+    fireEvent.keyDown(window,{key:'Escape'});
+    await advance(500);
+    expect(JSON.stringify(diskState.room.decorations)).toBe(original);
+    fireEvent.click(screen.getByRole('button',{name:'Add Leafy friend, 1 available'}));
+    const scale=Number(container.querySelector('.room-objects').style.getPropertyValue('--room-edit-scale'));
+    const plant=screen.getByRole('button',{name:'Position Leafy friend'});
+    fireEvent.pointerDown(plant,{button:0,clientX:300,clientY:300,pointerType:'touch'});
+    fireEvent.pointerMove(plant,{clientX:330,clientY:310,pointerType:'touch'});
+    fireEvent.pointerUp(plant);
+    fireEvent.pointerUp(plant);
+    await advance(700);
+    expect(diskState.room.decorations.filter(item=>item.item==='plant')).toHaveLength(1);
+    const placed=diskState.room.decorations.find(item=>item.item==='plant');
+    expect(placed.x).toBeCloseTo(50+30/(1672*scale)*100);
+    expect(placed.y).toBeCloseTo(72+10/(941*scale)*100);
+    expect(placed.id).not.toBe('placement-preview');
+    expect(JSON.stringify(diskState.room.decorations.filter(item=>item.item!=='plant'))).toBe(original);
+    expect(screen.getByRole('combobox',{name:'Selected item'})).toHaveValue(`decoration:${placed.id}`);
+    fireEvent.click(screen.getByRole('button',{name:'Remove',exact:true}));
+    fireEvent.click(screen.getByRole('button',{name:'Add Leafy friend, 1 available'}));
+    fireEvent.click(screen.getByRole('button',{name:'Place here'}));
+    fireEvent.click(screen.getByRole('button',{name:'Done',exact:true}));
+    expect(screen.queryByRole('region',{name:'Room library'})).not.toBeInTheDocument();
+    await advance(700);
+    expect(diskState.gems).toBe(180);
+    expect(diskState.owned.decorationCounts.plant).toBe(1);
+    expect(diskState.room.decorations.filter(item=>item.item==='plant')).toHaveLength(1);
+    expect(JSON.stringify(diskState.room.decorations.filter(item=>item.item!=='plant'))).toBe(original);
+  } finally {window.PointerEvent=originalPointer;}
+});
+
+test('closing or switching away from a furniture preview and reloading leave the copy in inventory', async () => {
+  const saved=createInitialState(NOW);
+  saved.gems=180;
+  saved.owned.decorations.push('plant');
+  saved.owned.decorationCounts.plant=1;
+  const original=JSON.stringify(saved.room.decorations);
+  await openRoom(saved);
+  fireEvent.click(screen.getByRole('button',{name:'Decorate'}));
+  fireEvent.click(screen.getByRole('button',{name:'Place in room: Leafy friend'}));
+  fireEvent.click(screen.getByRole('button',{name:'Furniture shop'}));
+  expect(screen.queryByRole('button',{name:'Cancel placement'})).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button',{name:'Place in room: Leafy friend'}));
+  fireEvent.click(screen.getByRole('button',{name:'Close panel'}));
+  await advance(700);
+  expect(JSON.stringify(diskState.room.decorations)).toBe(original);
+  fireEvent.click(screen.getByRole('button',{name:'Decorate'}));
+  fireEvent.click(screen.getByRole('button',{name:'Place in room: Leafy friend'}));
+  cleanup();
+  await openRoom(diskState);
+  expect(screen.queryByRole('button',{name:'Cancel placement'})).not.toBeInTheDocument();
+  expect(screen.queryByRole('button',{name:'Position Leafy friend'})).not.toBeInTheDocument();
+  expect(diskState.gems).toBe(180);
+  expect(diskState.owned.decorationCounts.plant).toBe(1);
+  expect(JSON.stringify(diskState.room.decorations)).toBe(original);
+});
+
 test('furniture dragging preserves its grab offset through the temporary arrangement zoom', async () => {
   const saved = createInitialState(NOW);
   saved.room.decorations = [{ id: 'zoom-sofa', item: 'couch', x: 50, y: 50 }];
@@ -963,7 +1049,7 @@ test('furniture dragging preserves its grab offset through the temporary arrange
   window.PointerEvent = originalPointerEvent;
 });
 
-test.each(['pointercancel', 'lostpointercapture', 'blur', 'Escape', 'leave'])('a %s interruption rolls a furniture draft back without a drop or stale release', async interruption => {
+test.each(['pointercancel', 'lostpointercapture', 'blur', 'Escape', 'resize', 'leave'])('a %s interruption rolls a furniture draft back without a drop or stale release', async interruption => {
   const saved = createInitialState(NOW);
   saved.room.decorations = [{ id: 'test-sofa', item: 'couch', x: 50, y: 50 }];
   jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function () {
@@ -987,6 +1073,7 @@ test.each(['pointercancel', 'lostpointercapture', 'blur', 'Escape', 'leave'])('a
     else if (interruption === 'lostpointercapture') fireEvent.lostPointerCapture(sofa);
     else if (interruption === 'blur') fireEvent(window, new Event('blur'));
     else if (interruption === 'Escape') fireEvent.keyDown(window, { key: 'Escape' });
+    else if (interruption === 'resize') fireEvent(window,new Event('resize'));
     else fireEvent.click(screen.getByRole('button', { name: 'Done', exact: true }));
     expect(sofa.querySelector('.room-visual')).not.toHaveAttribute('data-lifted');
     expect(Number(sofa.parentElement.style.getPropertyValue('--room-x'))).toBe(50);

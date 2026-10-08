@@ -4,6 +4,7 @@ import { AnimalArt, clampNotepadPosition, Drawer } from "./ui";
 import DecoratePanel from "./DecoratePanel";
 import RoomWidget from "./RoomWidget";
 import { createInitialState } from "./game";
+import { ArrangementCameraContext, ROOM_SIZE } from "./roomGeometry";
 
 test("notepad moves with keyboard, saves its position, and stays visible on resize", () => {
   const rect = jest.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({ left: 100, top: 100, width: 320, height: 340 });
@@ -51,12 +52,14 @@ test("decoration library uses an explicit arrange action and places free furnitu
   state.room.decorations = [];
   const dispatch = jest.fn();
   const setArranging = jest.fn();
-  render(<DecoratePanel state={state} act={dispatch} arranging={false} setArranging={setArranging} selection={null} setSelection={() => {}} />);
+  const place = jest.fn();
+  render(<DecoratePanel state={state} act={dispatch} arranging={false} setArranging={setArranging} selection={null} setSelection={() => {}} onPlaceFurniture={place} />);
   expect(screen.queryByRole("checkbox", { name: "Arrange room" })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Arrange room" }));
   expect(setArranging).toHaveBeenCalledWith(true);
-  fireEvent.click(screen.getByRole("button", { name: "Add Soft sofa" }));
-  expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: "PLACE_DECORATION", item: "couch" }));
+  fireEvent.click(screen.getByRole("button", { name: "Place in room: Soft sofa" }));
+  expect(place).toHaveBeenCalledWith(expect.objectContaining({ id: "couch" }));
+  expect(dispatch).not.toHaveBeenCalled();
 });
 
 test("arrangement uses drag selection without visible movement arrows", () => {
@@ -76,16 +79,18 @@ test("placed library furniture stays selectable and cycles copies without placin
   state.owned.decorationCounts = { ...state.owned.decorationCounts, couch: 3 };
   const dispatch = jest.fn();
   const select = jest.fn();
-  const { rerender } = render(<DecoratePanel state={state} act={dispatch} arranging setArranging={() => {}} selection={null} setSelection={select} />);
+  const place = jest.fn();
+  const { rerender } = render(<DecoratePanel state={state} act={dispatch} arranging setArranging={() => {}} selection={null} setSelection={select} onPlaceFurniture={place} />);
   fireEvent.click(screen.getByRole("button", { name: "Select Soft sofa, 2 in room" }));
   expect(select).toHaveBeenLastCalledWith({ type: "decoration", id: "sofa-one" });
   expect(dispatch).not.toHaveBeenCalled();
-  rerender(<DecoratePanel state={state} act={dispatch} arranging setArranging={() => {}} selection={{ type: "decoration", id: "sofa-one" }} setSelection={select} />);
+  rerender(<DecoratePanel state={state} act={dispatch} arranging setArranging={() => {}} selection={{ type: "decoration", id: "sofa-one" }} setSelection={select} onPlaceFurniture={place} />);
   expect(screen.getByRole("combobox", { name: "Selected item" })).toHaveValue("decoration:sofa-one");
   fireEvent.click(screen.getByRole("button", { name: "Select Soft sofa, 2 in room" }));
   expect(select).toHaveBeenLastCalledWith({ type: "decoration", id: "sofa-two" });
   fireEvent.click(screen.getByRole("button", { name: "Add Soft sofa, 1 available" }));
-  expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: "PLACE_DECORATION", item: "couch" }));
+  expect(place).toHaveBeenCalledWith(expect.objectContaining({ id: "couch" }));
+  expect(dispatch).not.toHaveBeenCalled();
 });
 
 test("library widgets select without exposing Remove", () => {
@@ -123,6 +128,44 @@ test("landscape widget nudging stays below the compact header and above the work
     Object.defineProperty(window, "innerWidth", { writable: true, configurable: true, value: originalWidth });
     Object.defineProperty(window, "innerHeight", { writable: true, configurable: true, value: originalHeight });
   }
+});
+
+test('widget drags and nudges use the same scaled canvas, and resize cancels an unsaved move', () => {
+  const originalPointer=window.PointerEvent;
+  window.PointerEvent=MouseEvent;
+  const camera={scale:.25,left:20,top:120};
+  const rect=jest.spyOn(HTMLElement.prototype,'getBoundingClientRect').mockImplementation(function(){
+    return this.classList.contains('room-widget') ? {left:parseFloat(this.style.left),top:parseFloat(this.style.top),width:50,height:30}
+      : {left:0,top:0,width:390,height:844};
+  });
+  const width=jest.spyOn(HTMLElement.prototype,'offsetWidth','get').mockReturnValue(200);
+  const height=jest.spyOn(HTMLElement.prototype,'offsetHeight','get').mockReturnValue(120);
+  const onMove=jest.fn();
+  try {
+    render(<ArrangementCameraContext.Provider value={camera}><div>
+      <RoomWidget id="timer" name="timer" position={{x:30,y:40}} arranging selected
+        onSelect={()=>{}} onDeselect={()=>{}} onMove={onMove}><span>25:00</span></RoomWidget>
+    </div></ArrangementCameraContext.Provider>);
+    const handle=screen.getByRole('button',{name:'Move timer'});
+    const widget=handle.parentElement;
+    const initialLeft=20+ROOM_SIZE.width*.3*.25;
+    expect(parseFloat(widget.style.left)).toBeCloseTo(initialLeft);
+    fireEvent.pointerDown(handle,{button:0,clientX:150,clientY:210});
+    fireEvent.pointerMove(handle,{clientX:170,clientY:220});
+    expect(parseFloat(widget.style.left)).toBeCloseTo(initialLeft+20);
+    expect(onMove).not.toHaveBeenCalled();
+    fireEvent.pointerUp(handle);
+    expect(onMove.mock.calls[0][0].x).toBeCloseTo(30+20/(ROOM_SIZE.width*.25)*100);
+    expect(onMove.mock.calls[0][0].y).toBeCloseTo(40+10/(ROOM_SIZE.height*.25)*100);
+    fireEvent.keyDown(handle,{key:'ArrowRight',shiftKey:true});
+    expect(onMove.mock.calls[1][0].x).toBeCloseTo(30+40/(ROOM_SIZE.width*.25)*100);
+    fireEvent.pointerDown(handle,{button:0,clientX:150,clientY:210});
+    fireEvent.pointerMove(handle,{clientX:180,clientY:240});
+    fireEvent(window,new Event('resize'));
+    fireEvent.pointerUp(handle);
+    expect(onMove).toHaveBeenCalledTimes(2);
+    expect(parseFloat(widget.style.left)).toBeCloseTo(initialLeft);
+  } finally {window.PointerEvent=originalPointer;rect.mockRestore();width.mockRestore();height.mockRestore();}
 });
 
 test("duplicate upgrades unlock additional visible room animations", () => {

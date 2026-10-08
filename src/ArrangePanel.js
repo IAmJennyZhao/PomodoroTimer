@@ -1,12 +1,14 @@
 import { Button } from "./Controls";
-import { useEffect, useRef, useState } from "react";
-import { ATELIER_PLACEMENTS, DECORATIONS, decorationAvailable, decorationQuantity } from "./game";
+import { useContext, useEffect, useRef, useState } from "react";
+import { DECORATIONS, decorationAvailable, decorationQuantity } from "./game";
 import { Icon, InfoTip, Sprite } from "./ui";
+import { MotionPreferenceContext } from "./useReducedMotion";
 
-export default function ArrangePanel({ state, act, setArranging, selection, setSelection, onOpenShop }) {
+export default function ArrangePanel({ state, act, setArranging, selection, setSelection, onOpenShop, pendingFurniture, onPlaceFurniture, onConfirmPlacement, onCancelPlacement, onFinish }) {
   const libraryRef = useRef(null);
+  const reduced = useContext(MotionPreferenceContext) || state.settings.reducedMotion;
   const [edges, setEdges] = useState({ start: true, end: true });
-  const selectedObject = selection?.type === "animal" ? state.animals.find(item => item.id === selection.id && item.placed)
+  const selectedObject = selection?.id === pendingFurniture?.id && pendingFurniture ? pendingFurniture : selection?.type === "animal" ? state.animals.find(item => item.id === selection.id && item.placed)
     : selection?.type === "widget" && ["timer", "goal"].includes(selection.id) ? { id: selection.id }
     : selection?.type === "decoration" ? state.room.decorations.find(item => item.id === selection.id) : null;
   const furnitureName = item => {
@@ -31,9 +33,9 @@ export default function ArrangePanel({ state, act, setArranging, selection, setS
     const bounds = library.getBoundingClientRect();
     const item = tile.getBoundingClientRect();
     const delta = item.left < bounds.left ? item.left - bounds.left : item.right > bounds.right ? item.right - bounds.right : 0;
-    if (delta) library.scrollBy({ left: delta, behavior: state.settings.reducedMotion ? "auto" : "smooth" });
-  }, [selection, state.settings.reducedMotion]);
-  const browse = direction => libraryRef.current.scrollBy({ left: direction * libraryRef.current.clientWidth * .75, behavior: state.settings.reducedMotion ? "auto" : "smooth" });
+    if (delta) library.scrollBy({ left: delta, behavior: reduced ? "auto" : "smooth" });
+  }, [selection, reduced]);
+  const browse = direction => libraryRef.current.scrollBy({ left: direction * libraryRef.current.clientWidth * .75, behavior: reduced ? "auto" : "smooth" });
   return <div className="arrange-panel">
     <div className="arrange-toolbar">
       <label className="field-label"><span className="visually-hidden">Selected item</span>
@@ -42,26 +44,30 @@ export default function ArrangePanel({ state, act, setArranging, selection, setS
           setSelection(separator < 0 ? null : { type: event.target.value.slice(0, separator), id: event.target.value.slice(separator + 1) });
         }}>
           <option value="">Select an item</option><option value="widget:timer">Timer</option><option value="widget:goal">Daily goal</option>
+          {pendingFurniture && <option value={`decoration:${pendingFurniture.id}`}>Placing {DECORATIONS.find(item => item.id === pendingFurniture.item)?.name}</option>}
           {state.animals.filter(item => item.placed).map(item => <option key={item.id} value={`animal:${item.id}`}>{item.name}</option>)}
           {state.room.decorations.map(item => <option key={item.id} value={`decoration:${item.id}`}>{furnitureName(item)}</option>)}
         </select>
       </label>
       <Button type="button" className="icon-button arrange-deselect" aria-label="Deselect item" disabled={!selectedObject} onClick={() => setSelection(null)}><Icon name="close" size={18} /></Button>
       <InfoTip label="Arrange controls">Drag an item or its move handle. Arrow keys nudge; Shift moves farther. Click a library tile to select placed furniture; click again to select its next copy.</InfoTip>
-      <Button type="button" className="text-button arrange-remove" disabled={!selectedObject || selection.type === "widget"} onClick={() => {
+      <Button type="button" className="text-button arrange-remove" disabled={Boolean(pendingFurniture) || !selectedObject || selection.type === "widget"} onClick={() => {
         act(selection.type === "animal" ? { type: "PLACE_ANIMAL", id: selectedObject.id, placed: false } : { type: "REMOVE_DECORATION", id: selectedObject.id });
         setSelection(null);
       }}>Remove</Button>
-      <Button type="button" className="secondary-button arrange-finish" onClick={() => { setSelection(null); setArranging(false); }}><Icon name="check" size={17} /> Done</Button>
+      <Button type="button" className="secondary-button arrange-finish" disabled={Boolean(pendingFurniture)} onClick={() => { setSelection(null); setArranging(false); onFinish?.(); }}><Icon name="check" size={17} /> Done</Button>
     </div>
+    {pendingFurniture && <div className="placement-instructions" role="status"><span>Drag and release to place, or choose Place here. Cancel keeps this copy in your library.</span>
+      <div><Button className="secondary-button" onClick={onConfirmPlacement}>Place here</Button><Button className="text-button" onClick={onCancelPlacement}>Cancel placement</Button></div>
+    </div>}
     <div className="library-browser">
       <Button type="button" className="icon-button library-previous" disabled={edges.start} aria-label="Previous library items" onClick={() => browse(-1)}><span className="nudge-arrow nudge-left"><Icon name="arrow" size={20} /></span></Button>
       <div ref={libraryRef} className="arrange-library" role="region" aria-label="Room library" tabIndex={0}>
         {DECORATIONS.filter(item => decorationQuantity(state, item.id) > 0).map(item => {
           const stock = decorationAvailable(state, item.id);
           const copies = state.room.decorations.filter(copy => copy.item === item.id);
-          const selected = selection?.type === "decoration" && copies.some(copy => copy.id === selection.id);
-          const add = () => act({ type: "PLACE_DECORATION", item: item.id, ...(ATELIER_PLACEMENTS[item.id] || { x: 50, y: 65 }) });
+          const selected = selection?.type === "decoration" && (copies.some(copy => copy.id === selection.id) || pendingFurniture?.item === item.id);
+          const add = () => onPlaceFurniture(item);
           return <div className="library-card" key={item.id}>
             <Button type="button" sound={copies.length ? undefined : null} className={`library-item ${selected ? "selected" : ""}`} aria-pressed={selected} title={item.name}
               aria-label={copies.length ? `Select ${item.name}, ${copies.length} in room` : `Add ${item.name}, ${stock} available`}

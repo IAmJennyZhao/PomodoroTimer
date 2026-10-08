@@ -1,12 +1,12 @@
 import { Button } from "./Controls";
 import { useEffect, useState } from "react";
-import { ACCESSORIES, ATELIER_PLACEMENTS, BACKGROUNDS, DECORATIONS, decorationAvailable, decorationQuantity, spendableGems } from "./game";
+import { ACCESSORIES, BACKGROUNDS, DECORATIONS, decorationAvailable, decorationQuantity, spendableGems } from "./game";
 import { AnimalArt, Icon, Sprite } from "./ui";
 import RoomBackdrop from "./RoomBackdrop";
 import ArrangePanel from "./ArrangePanel";
 import { OutcomeAccent } from "./OutcomeFeedback";
 
-export default function DecoratePanel({ state, act, arranging, setArranging, selection, setSelection, accessoryPetId, onBackToPet }) {
+export default function DecoratePanel({ state, act, arranging, setArranging, selection, setSelection, accessoryPetId, onBackToPet, pendingFurniture, onPlaceFurniture, onConfirmPlacement, onCancelPlacement, onFinishArrange }) {
   const available = spendableGems(state);
   const [category, setCategory] = useState(accessoryPetId ? "accessories" : "decorations");
   const [friendId, setFriendId] = useState(accessoryPetId || state.animals[0]?.id || "");
@@ -19,10 +19,12 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
     if (category === "backgrounds") act({ type: "SET_BACKGROUND", id: item.id });
     if (category === "accessories" && friend) act({ type: "SET_ACCESSORY", animalId: friend.id, id: item.id });
     if (category === "decorations") {
-      act({ type: "PLACE_DECORATION", item: item.id, ...(ATELIER_PLACEMENTS[item.id] || { x: 35, y: 72 }) });
+      onPlaceFurniture(item);
     }
   }
-  if (arranging) return <ArrangePanel state={state} act={act} setArranging={setArranging} selection={selection} setSelection={setSelection} onOpenShop={() => { setCategory("decorations"); setSelection(null); setArranging(false); }} />;
+  if (arranging) return <ArrangePanel state={state} act={act} setArranging={setArranging} selection={selection} setSelection={setSelection}
+    pendingFurniture={pendingFurniture} onPlaceFurniture={onPlaceFurniture} onConfirmPlacement={onConfirmPlacement} onCancelPlacement={onCancelPlacement} onFinish={onFinishArrange}
+    onOpenShop={() => { setCategory("decorations"); setSelection(null); setArranging(false); }} />;
   return <div className={`decoration-catalog catalogue-${category}`}>
       {onBackToPet && friend && <div className="catalogue-pet-return"><Button className="secondary-button" onClick={() => onBackToPet(friend.id)}>Back to {friend.name}</Button><span className="small">Buy an accessory, then choose Use to equip it.</span></div>}
       <div className="panel-toolbar catalog-toolbar">
@@ -50,8 +52,8 @@ export default function DecoratePanel({ state, act, arranging, setArranging, sel
             <h3>{item.name}</h3>
             <div className="catalogue-status">{stockLabel && <span className={owned ? "stock-badge" : "muted"} aria-label={furniture && owned ? `${quantity} owned, ${stock} available` : undefined}>{stockLabel}</span>}</div>
             <div className="catalogue-actions">
-              <Button type="button" sound={null} className={owned ? "small-button" : "primary-button"} disabled={active || (furniture && owned ? stock === 0 : !owned && available < item.price)} aria-label={owned ? `${active ? "Using" : furniture ? stock ? "Add" : "Placed" : "Use"} ${item.name}` : `Unlock ${item.name} for ${item.price} Shilligems`} onClick={() => owned ? applyItem(item) : act({ type: "BUY_ITEM", category, id: item.id })}>
-                {active ? <><Icon name="check" size={16} /> {category === "backgrounds" ? "Active" : "Wearing"}</> : owned ? furniture ? stock ? <><Icon name="plus" size={16} /> Add</> : "Placed" : "Use" : "Buy"}
+              <Button type="button" sound={null} className={owned ? "small-button" : "primary-button"} disabled={active || (furniture && owned ? stock === 0 : !owned && available < item.price)} aria-label={owned ? `${active ? "Using" : furniture ? stock ? "Place in room:" : "Placed" : "Use"} ${item.name}` : `Unlock ${item.name} for ${item.price} Shilligems`} onClick={() => owned ? applyItem(item) : act({ type: "BUY_ITEM", category, id: item.id })}>
+                {active ? <><Icon name="check" size={16} /> {category === "backgrounds" ? "Active" : "Wearing"}</> : owned ? furniture ? stock ? <><Icon name="plus" size={16} /> Place in room</> : "Placed" : "Use" : "Buy"}
               </Button>
               {!owned && <span className="catalogue-price"><Icon name="gem" size={18} /> {item.price}</span>}
               {furniture && owned && <Button sound={null} className="text-button furniture-buy" disabled={available < item.price || quantity >= 999} aria-label={`Buy another ${item.name} for ${item.price} Shilligems`} onClick={() => act({ type: "BUY_ITEM", category, id: item.id })}>Buy more <Icon name="gem" size={14} /> {item.price}</Button>}
