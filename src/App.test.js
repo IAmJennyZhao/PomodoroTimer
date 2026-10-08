@@ -65,6 +65,25 @@ test('Arrange keeps paused focus time and compact reward-loss guidance without e
   expect(within(current).getByRole('timer')).toHaveTextContent('24:50');
 });
 
+test('a pause expiring during Arrange returns to a usable focus warning and Resume', async () => {
+  await openRoom();
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  await wakeAt(NOW + 10_000);
+  fireEvent.click(screen.getByRole('button', { name: 'Pause (2/2)' }));
+  leaveFocus();
+  fireEvent.click(screen.getByRole('button', { name: 'Decorate', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));
+  expect(document.querySelector('.app')).toHaveClass('is-arranging');
+  await wakeAt(NOW + 71_000);
+  expect(document.querySelector('.app')).not.toHaveClass('is-arranging');
+  expect(screen.queryByRole('dialog', { name: 'Arrange room' })).not.toBeInTheDocument();
+  expect(screen.getByRole('alert')).toHaveTextContent('Pause ended');
+  expect(screen.getByText('Focus remaining: 24:50')).toBeVisible();
+  fireEvent.click(screen.getByRole('button', { name: 'Resume' }));
+  expect(screen.getByRole('timer')).toHaveTextContent('24:50');
+  expect(screen.getByRole('button', { name: 'Pause' })).toBeEnabled();
+});
+
 test('completion while browsing retains a route to the result and break choices after the toast expires',async()=>{
   const saved=gameReducer(createInitialState(NOW),{type:'SET_SETTINGS',settings:{focusMinutes:1},now:NOW});
   await openRoom(saved);

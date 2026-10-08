@@ -302,6 +302,8 @@ export default function App() {
       notify(null);
       setFocusView(false);
       setPanel(null);
+      setArranging(false);
+      setSelection(null);
       if (state.settings.soundEnabled) engine.current?.chime();
     } else if (event.type === "egg-bought") {
       notify("Egg added");
