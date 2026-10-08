@@ -63,7 +63,7 @@
 /* Notes owns a temporary layout slot, never the persisted room coordinates. */
 .app { --scratchpad-dock-width: 320px; }
 .app .workspace-notes.movable-notes { display: flex; flex-direction: column; overflow: hidden; }
-.app .workspace-notes.movable-notes > .drawer-heading { flex: 0 0 auto; padding: 8px 10px; min-height: 52px; }
+.app .workspace-notes.movable-notes > .drawer-heading { display: flex; flex: 0 0 auto; padding: 8px 10px; min-height: 52px; }
 .app .workspace-notes .drawer-heading h2 { font-size: 22px; margin: 0; }
 .app .workspace-notes .scratchpad-minimize { min-height: 44px; flex: 0 0 auto; padding: 8px 12px; font-size: var(--text-small); }
 .app .workspace-notes .notepad-drag-handle { min-width: 0; }
@@ -105,6 +105,7 @@
 }
 .app.notes-docked.is-arranging .room-scene { width: auto; right: calc(var(--scratchpad-dock-width) + 24px); }
 .app .workspace-animals > .drawer-content { container-type: inline-size; container-name: pets-content; }
+.app.notes-docked .workspace-animals > .drawer-content { overflow-anchor: none; }
 .app.notes-docked .workspace-animals::after { content: none; }
 @container pets-content (max-width: 850px) {
   .app.notes-docked .pet-album .collection-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
