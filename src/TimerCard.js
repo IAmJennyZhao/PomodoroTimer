@@ -11,7 +11,7 @@ import SessionPause, { PauseGuidance } from "./SessionPause";
 
 export default function TimerCard({ state, act, now, ready, blocked, onToggleTimer,
   openPanel, openNest, panel, notesOpen, focusView, setFocusView, alarmSilenced, silenceAlarm,
-  alarmBlocked, retryAlarm, tip, nextTip, cardRef }) {
+  alarmBlocked, retryAlarm, tip, nextTip, cardRef, arranging = false }) {
   const { timer, settings } = state;
   const sessionOutcome = useContext(OutcomeFeedbackContext).session;
   const revealReceipt = sessionOutcome?.target === timer.id;
@@ -34,7 +34,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
   const projectedGems = Math.floor(Math.round(timer.durationMs / 60000) * (100 + Math.round(bonus * 100)) / 100);
   const pauseExpired = limitedPauses && paused && forfeited;
   const pauseTitle = timer.pauseCount > MAX_PAUSES ? "Pause limit reached" : "Pause ended";
-  const showPauseClock = limitedPauses && paused && !forfeited;
+  const showPauseClock = limitedPauses && paused && !forfeited && !arranging;
   const clockDisplay = showPauseClock ? formatTime(pauseRemainingTime(timer, now)) : display;
   const receipt = complete ? state.history.find(entry => entry.id === timer.id) : null;
   const completedMinutes = receipt?.minutes ?? Math.floor(elapsed / 60000);
@@ -72,7 +72,7 @@ export default function TimerCard({ state, act, now, ready, blocked, onToggleTim
       {(editable || active) && <PauseGuidance timer={timer} now={now} id={pauseHelpId} />}
       {!breakTime && !pauseExpired && (!complete || hasTask) && <SessionTasks timer={timer} history={state.history} act={act} minimal compact={focusView || complete} />}
       <div className="timer-face">
-        {pauseExpired ? <div className="pause-expired" role="alert">
+        {pauseExpired && !arranging ? <div className="pause-expired" role="alert">
             <span className="feedback-emblem warning"><Icon name="bell" size={32} /></span>
             <strong>{pauseTitle}</strong><span className="pause-loss-copy">Session gems lost</span>
             <InfoTip label="Pause limit details">Only this session’s Shilligems are lost. Resume and finish to record your study time.</InfoTip>

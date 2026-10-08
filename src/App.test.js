@@ -46,6 +46,25 @@ test('browsing keeps the live clock and pause/resume available without closing t
   expect(screen.getByRole('timer')).toHaveTextContent('24:30');
 });
 
+test('Arrange keeps paused focus time and compact reward-loss guidance without expanding the timer widget', async () => {
+  await openRoom();
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  await wakeAt(NOW + 10_000);
+  fireEvent.click(screen.getByRole('button', { name: 'Pause (2/2)' }));
+  await wakeAt(NOW + 71_000);
+  expect(screen.getByRole('alert')).toHaveTextContent('Pause ended');
+  fireEvent.click(screen.getByRole('button', { name: 'Decorate', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));
+  const timer = screen.getByRole('region', { name: 'Focus timer' });
+  expect(within(timer).getByRole('timer')).toHaveTextContent('24:50');
+  expect(within(timer).queryByRole('alert')).not.toBeInTheDocument();
+  const current = screen.getByRole('region', { name: 'Current session' });
+  expect(current).toHaveTextContent('0 session gems; focus minutes and egg progress are kept.');
+  fireEvent.click(within(current).getByRole('button', { name: 'Resume' }));
+  expect(screen.getByRole('dialog', { name: 'Arrange room' })).toBeInTheDocument();
+  expect(within(current).getByRole('timer')).toHaveTextContent('24:50');
+});
+
 test('completion while browsing retains a route to the result and break choices after the toast expires',async()=>{
   const saved=gameReducer(createInitialState(NOW),{type:'SET_SETTINGS',settings:{focusMinutes:1},now:NOW});
   await openRoom(saved);

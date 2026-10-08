@@ -544,7 +544,7 @@ export default function App() {
             <Icon name="settings" size={22} />
           </Button>
         </div>
-        {showSessionStrip && <SessionStrip timer={state.timer} now={now} disabled={!ready || status === "conflict"}
+        {showSessionStrip && <SessionStrip timer={state.timer} now={now} disabled={!ready || status === "conflict"} compact={arranging}
           onToggle={() => {
             if (state.timer.status !== "running") { engine.current?.unlock(); setNow(Date.now()); }
             act({ type: state.timer.status === "running" ? "PAUSE" : "START" });
@@ -555,7 +555,7 @@ export default function App() {
         {cardRef => <RoomWidget as="main" id="timer" name="timer" className="focus-area" position={focusView ? null : state.room.widgets?.timer}
         arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "timer"}
         onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "timer", ...position })} concealed={widePanel}>
-        <TimerCard cardRef={cardRef} state={state} act={act} now={now} ready={ready} blocked={status === "conflict"}
+        <TimerCard cardRef={cardRef} state={state} act={act} now={now} ready={ready} blocked={status === "conflict"} arranging={arranging}
           onToggleTimer={timerAction} panel={panel} openPanel={openPanel} notesOpen={notesOpen}
           openNest={() => { setShopStartAtNest(true); setPanel("shop"); setArranging(false); setFocusView(false); }}
           focusView={focusView} setFocusView={setFocusView}

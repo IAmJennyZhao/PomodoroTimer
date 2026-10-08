@@ -23,6 +23,10 @@
 .app .session-task-summary .edit-label { display: inline; }
 .app .session-task-summary .session-edit-button { gap: 4px; width: auto; }
 .app.is-arranging .focus-area :is(.session-setup-action,.pause-guidance,.paused-focus-context,.pending-session-reward,.auto-focus-note) { display: none; }
+.app.is-arranging .has-session-strip .session-strip { margin-top: 0; }
+.app.is-arranging .session-strip-time { flex-wrap: wrap; gap: 6px; font-size: 12px; }
+.app.is-arranging .session-strip-time [role="timer"] { font-size: 16px; }
+.app.is-arranging .session-strip-route { flex-basis: auto; margin-left: auto; font-size: 11px; }
 .app .app-header.has-session-strip { flex-wrap: wrap; row-gap: 4px; }
 .app .session-strip { flex: 0 0 100%; display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 8px; padding: 8px 0 0; border-top: 1px solid var(--line); pointer-events: auto; }
 .app .session-strip-time { display: flex; align-items: center; gap: 12px; min-width: 0; font: var(--text-small)/1.5 var(--font-ui); }
@@ -35,6 +39,8 @@
 @media (max-width:850px) {
   .app .app-header.has-session-strip { padding-bottom: 8px; }
   .app .has-session-strip .session-strip { margin-top: 52px; }
+  .app.is-arranging .has-session-strip .top-nav.paper { display: none; }
+  .app.is-arranging .has-session-strip .session-strip { margin-top: 0; }
 }
 @media (max-width:600px) {
   .app .session-strip { grid-template-columns: minmax(0,1fr) auto; }

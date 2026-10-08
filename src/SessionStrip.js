@@ -2,7 +2,7 @@ import { Button } from "./Controls";
 import SessionPause from "./SessionPause";
 import { elapsedTime, formatElapsedTime, formatTime, isCountingUp, remainingTime } from "./game";
 
-export default function SessionStrip({ timer, now, onToggle, onFocus, disabled }) {
+export default function SessionStrip({ timer, now, onToggle, onFocus, disabled, compact = false }) {
   const complete = timer.status === "complete";
   const counting = isCountingUp(timer);
   const phase = timer.mode === "longBreak" ? "Long break" : timer.mode === "break" ? "Short break"
@@ -14,6 +14,6 @@ export default function SessionStrip({ timer, now, onToggle, onFocus, disabled }
       {!complete && <span role="timer" aria-label={`${phase} ${time} ${counting ? "elapsed" : "remaining"}`}>{timer.overtime ? "+" : ""}{time}</span>}
       <span className="session-strip-route">{complete ? "View result & breaks" : "Back to Focus"}</span>
     </Button>
-    {!complete && <SessionPause timer={timer} now={now} onToggle={onToggle} disabled={disabled} />}
+    {!complete && <SessionPause timer={timer} now={now} onToggle={onToggle} disabled={disabled} compact={compact} />}
   </section>;
 }
