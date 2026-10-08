@@ -343,6 +343,28 @@ test('focus earnings buy an egg and the next study session makes it hatchable', 
   expect(latestWrite().state.animals.every(animal => animal.placed)).toBe(true);
 });
 
+test('the Focus nest route restores navigation and keeps current and next eggs distinct', async () => {
+  await openRoom(createFreshState(NOW));
+  fireEvent.click(screen.getByRole('button', { name: 'Egg shop', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: /Buy basic egg/ }));
+  fireEvent.click(screen.getByRole('button', { name: /Roll mystery egg/ }));
+  fireEvent.click(screen.getByRole('button', { name: 'Go to focus' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Start', exact: true }));
+  expect(screen.getByRole('button', { name: 'Leave focus view' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Open nest', exact: true }));
+  expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Nest', exact: true })).toHaveFocus();
+  expect(within(screen.getByRole('group', { name: 'Basic egg 1' })).getByText('Studying with you')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Select everyday egg 2' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Return to focus' }));
+  expect(screen.getByLabelText('Focus egg')).toHaveTextContent('Studying with you: Basic egg 1');
+  expect(screen.getByLabelText('Focus egg')).toHaveTextContent('Next session: Everyday egg 2');
+  await advance(500);
+  expect(diskState.gems).toBe(115);
+  expect(diskState.timer.eggId).toBe(diskState.eggs[0].id);
+  expect(diskState.selectedEggId).toBe(diskState.eggs[1].id);
+});
+
 test.each([
   ['basic', 0, 'Cat joined!', 'hatch', 'hatch-new'],
   ['everyday', 0, 'Miso leveled up!', 'check', 'hatch-upgrade'],

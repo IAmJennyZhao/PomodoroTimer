@@ -58,6 +58,12 @@ test('saves a first-run state rather than leaving the free companion only in mem
   await advance();
   expect(written()).toMatchObject({ revision: 0, state: { gems: 200, animals: [{ id: 'starter-cat' }], history: [] } });
   expect(result.current.status).toBe('saved');
+  const persisted = written().state;
+  global.fetch.mockResolvedValueOnce(response(envelope(persisted, { revision: 1 })));
+  await act(async () => result.current.reload());
+  expect(result.current.state.gems).toBe(200);
+  await advance();
+  expect(writes()).toHaveLength(1);
 });
 
 test('serializes in-flight writes, drops intermediate snapshots, and advances the revision', async () => {

@@ -12,7 +12,7 @@
 .app .shop-stage { min-height: calc(var(--display-height) + 24px); }
 .shop-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
 .shop-displays, .shop-offers { width: var(--display-width); max-width: calc(100% - 24px); margin: 0 auto; display: grid; grid-template-columns: .37fr .8333fr; column-gap: var(--display-gap); }
-.shop-displays { height: var(--display-height); align-items: end; align-self: end; }
+.shop-displays { grid-row: 2; height: var(--display-height); align-items: end; align-self: end; }
 .basic-display { position: relative; width: 100%; }
 .basic-pedestal { display: block; width: 100%; aspect-ratio: 388 / 349; }
 .basic-display-egg { position: absolute; width: 65%; left: 18%; bottom: 89%; }
@@ -23,15 +23,15 @@
 .basic-plaque { left: 14%; right: 12%; top: 43%; bottom: 3%; }
 .machine-plaque h3, .basic-plaque h3 { font: clamp(16px, 2vw, 24px)/1.2 Georgia, serif; margin: 0; }
 .shop-stars { color: #926824; font-size: clamp(12px, 1.5vw, 18px); white-space: nowrap; }
-.shop-tools { position: relative; padding: 8px 68px 8px 12px; display: flex; align-items: start; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+.shop-tools { position: relative; padding: 8px 68px 8px 12px; display: flex; align-items: flex-start; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
 .shop-odds, .shop-pending { display: flex; align-items: center; gap: 4px; background: #fff8e9eb; padding: 0 8px; border-radius: 4px; font-size: .875rem; }
 .shop-pending { margin-right: auto; }
 .guaranteed-roll { font-size: .875rem; color: #52634c; }
 .shop-counter { position: relative; isolation: isolate; padding: 12px 0 24px; }
 .shop-counter-art { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
-.shop-offers { align-items: start; margin-bottom: 24px; }
+.shop-offers { align-items: flex-start; margin-bottom: 24px; }
 .shop-offer { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; min-width: 0; }
-.app .atelier-shop .pastel-purchase { position: relative; isolation: isolate; background: none; border: 0; padding: 8px 12px; min-height: 44px; width: 100%; max-width: 180px; color: #fff9ea; font: 1rem/1.25 Georgia, serif; }
+.app .atelier-shop .pastel-purchase { position: relative; isolation: isolate; background: none; border: 0; padding: 8px 4px; min-height: 44px; width: 100%; max-width: 180px; color: #fff9ea; font: 1rem/1.25 Georgia, serif; }
 .pastel-purchase > span { display: flex; align-items: center; justify-content: center; gap: 6px; }
 .pastel-purchase svg:not(.pastel-cutout) { color: #b2d7e7; fill: #78aaca; flex-shrink: 0; }
 .pastel-purchase:disabled { opacity: .6; cursor: not-allowed; }
@@ -70,7 +70,7 @@
 .focus-egg-summary strong { font-weight: normal; color: #465d43; }
 .egg-summary-next { color: #606956; }
 @media (max-width: 600px) {
-  .atelier-shop { --display-height: clamp(215px, 70vw, 350px); --display-gap: 12px; }
+  .atelier-shop { --display-height: clamp(215px, min(70vw, calc(100dvh - var(--header-height) - 200px)), 350px); --display-gap: 12px; }
   .app .atelier-shop .pastel-purchase { padding-inline: 4px; font-size: .875rem; }
   .shop-affordability { padding-inline: 4px; }
   .atelier-nest { padding: 12px; }

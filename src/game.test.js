@@ -65,7 +65,10 @@ describe('focus sessions and rewards', () => {
   });
 
   test.each([0, 15, 200])('loading an existing %i-gem wallet preserves its balance', (gems) => {
-    expect(normalizeState({ ...createFreshState(NOW), gems }, NOW).gems).toBe(gems);
+    const saved = { ...createFreshState(NOW), gems };
+    expect(normalizeState(saved, NOW).gems).toBe(gems);
+    delete saved.progressionVersion;
+    expect(normalizeState(saved, NOW).gems).toBe(gems);
   });
 
   test('uses elapsed wall time, so throttled tabs do not slow the countdown', () => {
