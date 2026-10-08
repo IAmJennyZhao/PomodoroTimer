@@ -1022,6 +1022,29 @@ test('a click without movement only selects, and clamped keyboard moves produce 
   } finally { window.PointerEvent = original; }
 });
 
+test('pet accessory shopping carries the selected pet through purchase, equip and return', async () => {
+  const initial = createFreshState(NOW);
+  initial.animals.push({ ...initial.animals[0], id: 'test-fox', name: 'Juniper', species: 'fox', rarity: 'rare', upgrades: 2 });
+  await openRoom(initial);
+  fireEvent.click(screen.getByRole('button', { name: 'Pets', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Select Juniper, rare Fox, animal 2' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Shop accessories' }));
+  expect(screen.getByRole('combobox', { name: 'Pet' })).toHaveValue('test-fox');
+  fireEvent.click(screen.getByRole('button', { name: 'Unlock Tiny crown for 50 Shilligems' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Use Tiny crown' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Back to Juniper' }));
+  const details = screen.getByRole('region', { name: 'Juniper details' });
+  expect(within(details).getByRole('button', { name: 'Equip Tiny crown' })).toHaveAttribute('aria-pressed', 'true');
+  await advance(500);
+  expect(diskState.gems).toBe(150);
+  expect(diskState.animals[0].accessory).toBe('none');
+  expect(diskState.animals[1].accessory).toBe('crown');
+  const saved = JSON.stringify(diskState);
+  fireEvent.click(screen.getByRole('button', { name: 'Preview Hop animation, paw 3' }));
+  await advance(3000);
+  expect(JSON.stringify(diskState)).toBe(saved);
+});
+
 test('style and accessory application acknowledge the accepted item and stay silent on restoration', async () => {
   const saved = createInitialState(NOW);
   saved.owned.backgrounds.push('moonroom');

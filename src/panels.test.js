@@ -159,7 +159,7 @@ test('the arrangement shop shortcut opens furniture after entering from accessor
   expect(screen.getByRole('heading', { name: 'Soft sofa' })).toBeInTheDocument();
 });
 
-test('undiscovered tiles reveal the matching egg and owned pets show six upgrade slots', () => {
+test('undiscovered tiles reveal the matching egg and owned pets show seven animation paws', () => {
   renderPanel(AnimalsPanel);
   expect(screen.getByRole('region', { name: 'Undiscovered pets' })).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Dreamy mystery pet 5, 4 stars' }));
@@ -170,6 +170,10 @@ test('undiscovered tiles reveal the matching egg and owned pets show six upgrade
   fireEvent.click(screen.getByRole('button', { name: 'Back to my pet' }));
   expect(screen.getByLabelText('0 of 6 upgrades')).toBeInTheDocument();
   expect(screen.getByText('1 / 7 animations')).toBeInTheDocument();
+  const paws = within(screen.getByRole('group', { name: 'Animation previews' })).getAllByRole('button');
+  expect(paws).toHaveLength(7);
+  expect(paws.filter(paw => !paw.disabled)).toHaveLength(1);
+  expect(paws[0]).toHaveTextContent('Default');
 });
 
 test('collection controls keep an animal safe in the collection and equip only unlocked accessories', () => {

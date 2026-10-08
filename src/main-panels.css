@@ -51,10 +51,6 @@
 .app .pet-album .pet-portrait .animal-art { width: 100%; }
 .app .pet-album .collection-detail h3 { font-size: 26px; margin: 12px 0 8px; }
 .app .pet-album .collection-detail > .rarity-stars { margin: 0; }
-.app .pet-album .upgrade-track { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); gap: 8px; }
-.app .pet-album .upgrade-track > span { width: 32px; height: 32px; justify-content: center; background: var(--paper); color: #9ba387; border-color: #b5bea4; }
-.app .pet-album .upgrade-track > span.earned { background: var(--sage); color: var(--sage-strong); border-color: var(--sage-strong); }
-.app .pet-album .upgrade-track .atelier-icon { fill: currentColor; stroke-width: .8; }
 .app .pet-album .collection-detail > p { margin: 8px 0 18px; font-size: var(--text-small); }
 .app .pet-album .collection-detail > .toggle-line { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 14px 0; margin: 0 0 16px; }
 .app .pet-album .collection-detail .field-label { margin: 0; }
@@ -160,7 +156,6 @@
   .app .pet-album .pet-portrait { grid-row: 1 / span 3; padding: 5px; width: 112px; }
   .app .pet-album .collection-detail h3 { margin: 4px 0; font-size: 23px; }
   .app .pet-album .collection-detail > .rarity-stars { align-items: flex-start; }
-  .app .pet-album .upgrade-track { grid-column: 1 / -1; margin-top: 8px; padding-top: 12px; justify-content: flex-start; }
   .app .pet-album .collection-detail > p,
   .app .pet-album .collection-detail > .toggle-line,
   .app .pet-album .collection-detail > .field-label { grid-column: 1 / -1; }
@@ -194,8 +189,6 @@
   .app .pet-album .collection-detail { grid-template-columns: 90px minmax(0, 1fr); gap: 6px 12px; }
   .app .pet-album .pet-portrait { width: 90px; }
   .app .pet-album .collection-detail h3 { font-size: 21px; }
-  .app .pet-album .upgrade-track { gap: 6px; }
-  .app .pet-album .upgrade-track > span { width: 28px; height: 28px; }
   .app .decoration-catalog .catalog-toolbar { flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
   .app .decoration-catalog .catalog-toolbar .segmented { flex: 1 1 100%; }
   .app .decoration-catalog .catalog-toolbar .segmented button { padding: 9px 5px; }

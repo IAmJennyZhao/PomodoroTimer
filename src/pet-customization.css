@@ -11,6 +11,18 @@
 .app .pet-album .collection-detail:not(.mystery-detail) { position: static; }
 .app .decoration-catalog .catalogue-pet-preview .animal-art { display: block; width: 110px; margin: 0 auto; }
 .catalogue-pet-return { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; }
+.app .pet-album .pet-portrait { max-width: 180px; }
+.pet-motions { grid-column: 1 / -1; text-align: left; margin-top: 12px; }
+.pet-motions > p { font-size: .875rem; line-height: 1.5; margin: 8px 0; }
+.motion-paws { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr)); gap: 8px; }
+.app .pet-album .motion-paw { position: relative; min-width: 0; min-height: 60px; padding: 6px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 1px solid #9cad91; border-radius: 8px; color: #3c5145; background: #fff8e9; font: .875rem/1.4 Georgia, serif; }
+.motion-paw[aria-pressed="true"] { border: 2px solid #526b4d !important; background: #e8eddf !important; }
+.app .pet-album .motion-paw:disabled { opacity: 1; color: #747563; background: #f0eadf; border-style: dashed; cursor: not-allowed; }
+.motion-paw-icon { position: relative; display: flex; align-items: center; gap: 4px; }
+.motion-paw-number { font-size: .875rem; }
+.motion-paw .icon-paw { fill: currentColor; stroke-width: .8; }
+.motion-preview-status { min-height: 3em; color: #52634c; }
+.pet-animation-preview { animation-iteration-count: 1; animation-timing-function: ease-in-out; animation-fill-mode: none; transform-origin: 50% 85%; }
 @container room-layout (max-width: 14rem) {
   .pet-accessory-tiles { grid-template-columns: minmax(0, 1fr); }
 }

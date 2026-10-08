@@ -6,6 +6,8 @@ import { createPortal } from "react-dom";
 import { FurnitureArt } from "./RoomBackdrop";
 import { ArtFragment, ATELIER_ART, PastelButtonArt } from "./AtelierArt";
 import { RARITY_STARS } from "./game";
+import { animationCount } from "./game";
+import { PET_MOTIONS } from "./petMotions";
 export const ART = `${process.env.PUBLIC_URL || ""}/art`;
 export const RARITY_NAMES = {
   basic: "Basic",
@@ -73,6 +75,7 @@ export function Icon({ name, size = 22, className = "", ...props }) {
     close: <path d="m6 6 12 12M6 18 18 6" />,
     play: <path d="m8 4 13 8-13 8Z" />,
     pause: <path d="M8 5v14M16 5v14" />,
+    lock: <><rect x="5" y="10" width="14" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" /></>,
     reset: <path d="M4 10a8 8 0 1 1 1 8M4 4v6h6" />,
     skip: <path d="m5 5 10 7-10 7ZM19 5v14" />,
     check: <path d="m5 12 4 4L20 5" />,
@@ -164,10 +167,12 @@ export function Accessory({ id }) {
     : id === "bow" ? <path d="M1098 576H1388V725L1310 778H1098Z" /> : undefined;
   return <span aria-hidden="true" className={`pet-accessory accessory-${id}`}><ArtFragment rect={rect} preserveAspectRatio="xMidYMid meet" clipShape={clipShape} /></span>;
 }
-export function AnimalArt({ animal, className = "" }) {
+export function AnimalArt({ animal, className = "", preview, onPreviewEnd }) {
   const reducedMotion = useContext(MotionPreferenceContext);
-  const motions = ["breathe", "sway", "hop", "wiggle", "stretch", "peek", "celebrate"];
-  const unlocked = Math.min(7, Math.max(1, (animal.upgrades || 0) + 1));
+  const active = useContext(SurfaceActivityContext);
+  const unlocked = animationCount(animal);
+  const previewMotion = PET_MOTIONS.slice(0, unlocked).find(item => item.id === preview?.motion);
+  const playing = Boolean(previewMotion && active && !reducedMotion && !preview.suppressed);
   const [motion, setMotion] = useState(0);
   const animate = className.includes("idle-animal");
   useEffect(() => {
@@ -176,7 +181,10 @@ export function AnimalArt({ animal, className = "" }) {
     return () => clearInterval(interval);
   }, [animate, reducedMotion, unlocked]);
   return (
-    <span className={`animal-art pet-motion-${motions[motion % unlocked]} ${className}`} data-animations={unlocked}>
+    <span key={preview?.serial || "idle"} className={`animal-art pet-motion-${previewMotion?.id || PET_MOTIONS[motion % unlocked].id} ${playing ? "pet-animation-preview" : ""} ${className}`} data-animations={unlocked}
+      data-preview-motion={previewMotion?.id} data-preview-playing={playing}
+      style={playing ? { animationName: `pet-${previewMotion.id}`, animationDuration: `${previewMotion.durationMs}ms` } : undefined}
+      onAnimationEnd={event => { if (playing && event.target === event.currentTarget) onPreviewEnd?.(preview.serial); }}>
       <Sprite id={animal.species} rarity={animal.rarity} />
       <Accessory id={animal.accessory} />
       {["rare", "dreamy"].includes(animal.rarity) && (

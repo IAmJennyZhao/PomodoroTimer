@@ -207,8 +207,6 @@
 .mystery-detail { position: relative; }
 .mystery-close { position: absolute; top: 8px; right: 8px; }
 .pet-level { color: var(--muted); }
-.upgrade-track > span { color: #c4c8b4; border-color: #d5d5bd; }
-.upgrade-track > span.earned { color: #70875d; border-color: #a8b693; background: #e4e9d3; }
 .journal-panel { color: var(--ink); }
 .journal-choices { background: #eee8d7; border-color: var(--line); border-radius: 5px; }
 .journal-choices button { color: var(--muted); border-radius: 3px; font-weight: 400; }

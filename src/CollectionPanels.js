@@ -1,10 +1,11 @@
-import { Button, ChoiceInput } from "./Controls";
+import { Button } from "./Controls";
 import { useContext, useEffect, useRef, useState } from "react";
-import { ACCESSORIES, ANIMALS, RARITIES, RARITY_STARS, EGG_MINUTES, animationCount, gemBonus } from "./game";
+import { ANIMALS, RARITIES, RARITY_STARS, EGG_MINUTES, gemBonus } from "./game";
 import { AnimalArt, Icon, InfoTip, RarityStars, Sprite } from "./ui";
 import "./collection.css";
 import "./pet-customization.css";
-import { PetResponseContext, RoomVisual } from "./RoomInteraction";
+import { PetResponseContext } from "./RoomInteraction";
+import PetDetails from "./PetDetails";
 export { RarityStars } from "./ui";
 
 const titleCase = (value) => value.charAt(0).toUpperCase() + value.slice(1);
@@ -15,7 +16,7 @@ export function AnimalsPanel({ state, act, selected, setSelected, onShopAccessor
   const [mystery, setMystery] = useState(null);
   const petDetails = useRef(null);
   useEffect(() => {
-    petDetails.current?.scrollIntoView?.({ block: "nearest" });
+    petDetails.current?.scrollIntoView?.({ block: "start" });
   }, [mystery, selected]);
   const animal = state.animals.find((friend) => friend.id === selected) || state.animals[0];
   const discovered = new Set(state.animals.map((friend) => `${friend.species}:${friend.rarity}`));
@@ -62,33 +63,7 @@ export function AnimalsPanel({ state, act, selected, setSelected, onShopAccessor
         <Sprite kind="object" id={mystery.rarity} />
         <p>Found in <strong>{titleCase(mystery.rarity)} egg</strong> <InfoTip label="Egg details">{EGG_MINUTES[mystery.rarity]} focus minutes to hatch. Each egg has a 1 in {ANIMALS.length} chance of this pet.</InfoTip></p>
         <Button className="icon-button mystery-close" aria-label="Back to my pet" title="Back" onClick={() => setMystery(null)}><Icon name="close" size={18} /></Button>
-      </section> : animal && <section ref={petDetails} className="detail-card collection-detail" aria-label={`${animal.name} details`}>
-        <div className="pet-portrait"><RoomVisual target={`animal:${animal.id}`} surface="portrait"><AnimalArt animal={animal} /></RoomVisual></div>
-        <h3>{animal.name} <span className="small muted">· {speciesName(animal)}</span></h3>
-        <RarityStars rarity={animal.rarity} />
-        <div className="upgrade-track" aria-label={`${animal.upgrades || 0} of 6 upgrades`}>
-          {Array.from({ length: 6 }, (_, i) => <span key={i} className={i < (animal.upgrades || 0) ? "earned" : ""} aria-hidden="true"><Icon name="paw" size={17} /></span>)}
-        </div>
-        <p className="small">{animationCount(animal)} / 7 animations <InfoTip label="Pet upgrades">{animal.upgrades === 6 ? "Maxed! This friend gives +10% focus Shilligems." : "Hatch this same pet again to unlock a new animation. Six upgrades earn a +10% Shilligem bonus."}</InfoTip></p>
-        <label className="toggle-line"><span>Show in room</span>
-          <ChoiceInput sound={animal.placed ? undefined : null} type="checkbox" checked={animal.placed} onChange={(event) => act({ type: "PLACE_ANIMAL", id: animal.id, placed: event.target.checked })} />
-        </label>
-        <section className="pet-accessories" aria-label="Pet accessories">
-          <h4>Accessories</h4>
-          <div className="pet-accessory-tiles">{ACCESSORIES.map(item => {
-            const owned = state.owned.accessories.includes(item.id);
-            const equipped = animal.accessory === item.id;
-            return <Button key={item.id} className="pet-accessory-tile" disabled={!owned} aria-pressed={equipped}
-              aria-label={`${owned ? "Equip" : "Locked"} ${item.name}${owned ? "" : `, ${item.price} Shilligems`}`}
-              onClick={() => act({ type: "SET_ACCESSORY", animalId: animal.id, id: item.id })}>
-              <span className="accessory-tile-art" aria-hidden="true"><AnimalArt animal={{ ...animal, accessory: item.id }} /></span>
-              <span>{item.name}</span>
-              <small>{equipped ? <><Icon name="check" size={14} /> Equipped</> : owned ? "Owned" : <><Icon name="gem" size={14} /> {item.price} · Locked</>}</small>
-            </Button>;
-          })}</div>
-          {onShopAccessories && <Button className="secondary-button pet-accessory-shop" onClick={() => onShopAccessories(animal.id)}>Shop accessories</Button>}
-        </section>
-      </section>}
+      </section> : animal && <PetDetails key={animal.id} animal={animal} state={state} act={act} detailsRef={petDetails} onShopAccessories={onShopAccessories} />}
     </div>
   </div>;
 }
