@@ -66,6 +66,7 @@ import "./header.css";
 import "./arrangement.css";
 import "./session-flow.css";
 import "./notes-journal.css";
+import useScratchpadLayout from "./useScratchpadLayout";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
 
@@ -102,11 +103,15 @@ const BREAK_IDEAS = [
 
 export default function App() {
   const headerRef = useRef(null);
+  const [headerHeight, setHeaderHeight] = useState(64);
   useLayoutEffect(() => {
     const header = headerRef.current;
     const measure = () => {
       const height = header?.getBoundingClientRect().height;
-      if (height) header.closest(".app")?.style.setProperty("--header-height", `${height}px`);
+      if (height) {
+        header.closest(".app")?.style.setProperty("--header-height", `${height}px`);
+        setHeaderHeight(previous => previous === height ? previous : height);
+      }
     };
     measure();
     let frame;
@@ -124,6 +129,7 @@ export default function App() {
   const [shopStartAtNest, setShopStartAtNest] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [focusView, setFocusView] = useState(false);
+  const notesLayout = useScratchpadLayout({ open: notesOpen, focusView, panel, headerHeight });
   const quietFocus = focusView && state.timer.mode === "focus" && state.timer.status === "running";
   const focusedSession = useRef(null);
   const [silencedAlarm, setSilencedAlarm] = useState(null);
@@ -228,7 +234,7 @@ export default function App() {
   const displayTime = counting ? Math.max(0, elapsed - (state.timer.overtime ? state.timer.durationMs : 0)) : remaining;
   const sidePanel = ["settings", "session", "sound"].includes(panel);
   const widePanel = Boolean(panel) && !sidePanel && !arranging;
-  const showSessionStrip = ready && !focusView && Boolean(panel) && state.timer.status !== "idle";
+  const showSessionStrip = ready && !focusView && Boolean(panel) && state.timer.status !== "idle" && !(notesOpen && notesLayout.layout === "sheet");
   useEffect(() => {
     if (!ready) return;
     if (state.timer.mode === "focus" && state.timer.status === "running") {
@@ -357,6 +363,10 @@ export default function App() {
       setPanel(null);
       if (state.timer.mode === "focus") setFocusView(true);
     }
+    act({ type: state.timer.status === "running" ? "PAUSE" : "START" });
+  };
+  const toggleSessionInWorkspace = () => {
+    if (state.timer.status !== "running") { engine.current?.unlock(); setNow(Date.now()); }
     act({ type: state.timer.status === "running" ? "PAUSE" : "START" });
   };
   const stats = todayStats(state, now);
@@ -488,7 +498,8 @@ export default function App() {
     <OutcomeFeedbackContext.Provider value={outcomes}>
     <PetResponseContext.Provider value={respondToPet}>
     <div
-      className={`app ${state.room.background} ${reducedMotion ? "reduce-motion" : ""} ${panel ? "panel-open" : ""} ${widePanel ? "wide-panel-open" : ""} ${sidePanel ? "side-panel-open" : ""} ${focusView ? "focus-view" : ""} ${arranging ? "is-arranging" : ""} ${ready && ["error", "conflict"].includes(status) ? "has-save-notice" : ""}`}
+      className={`app ${state.room.background} ${reducedMotion ? "reduce-motion" : ""} ${panel ? "panel-open" : ""} ${widePanel ? "wide-panel-open" : ""} ${sidePanel ? "side-panel-open" : ""} ${focusView ? "focus-view" : ""} ${arranging ? "is-arranging" : ""} ${ready && ["error", "conflict"].includes(status) ? "has-save-notice" : ""} ${notesOpen ? `notes-open notes-${notesLayout.layout}` : ""} ${notesLayout.compact ? "notes-compact" : ""}`}
+      style={notesLayout.style}
     >
       <div
         className="room-scene"
@@ -510,7 +521,7 @@ export default function App() {
         </RoomObjects>
       </div>
       <div className="room-vignette" />
-      <header aria-label="Room controls" ref={headerRef} className={`app-header ${showSessionStrip ? "has-session-strip" : ""}`} data-concealed={focusView ? "true" : undefined} aria-hidden={focusView ? true : undefined} inert={focusView ? "" : undefined}>
+      <header aria-label="Room controls" ref={headerRef} className={`app-header ${showSessionStrip ? "has-session-strip" : ""}`} data-concealed={focusView || notesLayout.hideHeader ? "true" : undefined} aria-hidden={focusView || notesLayout.hideHeader ? true : undefined} inert={focusView || notesLayout.hideHeader ? "" : undefined}>
         <Button className="room-brand" onClick={closePanel}>Little Room</Button>
         <div className="header-actions">
           <Button
@@ -548,10 +559,7 @@ export default function App() {
           </Button>
         </div>
         {showSessionStrip && <SessionStrip timer={state.timer} now={now} disabled={!ready || status === "conflict"} compact={arranging}
-          onToggle={() => {
-            if (state.timer.status !== "running") { engine.current?.unlock(); setNow(Date.now()); }
-            act({ type: state.timer.status === "running" ? "PAUSE" : "START" });
-          }} onFocus={() => { closePanel(); setFocusView(state.timer.mode === "focus" && state.timer.status !== "complete"); }} />}
+          onToggle={toggleSessionInWorkspace} onFocus={() => { closePanel(); setFocusView(state.timer.mode === "focus" && state.timer.status !== "complete"); }} />}
       </header>
       <TimerTransition reduced={reducedMotion} layoutKey={`${focusView}/${widePanel}/${panel}/${arranging}`}
         contentKey={`${state.timer.id}/${state.timer.mode}/${state.timer.status}/${state.timer.overtime}/${state.timer.rewardForfeited}/${focusView}`}>
@@ -663,7 +671,9 @@ export default function App() {
           {shownPanel === "session" && <SessionControls state={state} act={act} />}
         </Drawer>
       )}</Presence>
-      <Presence value={notesOpen ? "notes" : null}>{(name, active) => <Drawer name={name} active={active} onClose={() => setNotesOpen(false)} position={state.room.notepadPosition}
+      <Presence value={notesOpen ? "notes" : null}>{(name, active) => <Drawer name={name} active={active} notesLayout={notesLayout.layout} onClose={() => setNotesOpen(false)} position={state.room.notepadPosition}
+        sessionControls={ready && state.timer.status !== "idle" && notesLayout.layout !== "docked" ? <SessionStrip timer={state.timer} now={now} compact disabled={status === "conflict"}
+          onToggle={toggleSessionInWorkspace} onFocus={() => { setNotesOpen(false); closePanel(); setFocusView(state.timer.mode === "focus" && state.timer.status !== "complete"); }} /> : null}
         onMove={position => act({ type: "MOVE_NOTEPAD", ...position })}>
         <QuickScratchpad state={state} act={act} saveStatus={status} />
       </Drawer>}</Presence>

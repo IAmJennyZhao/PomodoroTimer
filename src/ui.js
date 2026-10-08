@@ -1,5 +1,5 @@
 import { Button } from "./Controls";
-import { useContext, useEffect, useLayoutEffect, useId, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useLayoutEffect, useId, useRef, useState } from "react";
 import { MotionPreferenceContext } from "./useReducedMotion";
 import { ExitSnapshot, exitProps, SurfaceActivityContext, useSurfaceTransition } from "./Transitions";
 import { createPortal } from "react-dom";
@@ -266,13 +266,15 @@ export function InfoTip({ label = "More info", children, contentClassName = "" }
 }
 
 export function clampNotepadPosition(position, bounds, viewport) {
+  const left = (viewport.left ?? 0) + 12;
+  const top = Math.max((viewport.top ?? 0) + 12, viewport.minTop ?? 0);
   return {
-    left: Math.max(12, Math.min(position.left, Math.max(12, viewport.width - bounds.width - 12))),
-    top: Math.max(12, Math.min(position.top, Math.max(12, viewport.height - bounds.height - 12))),
+    left: Math.max(left, Math.min(position.left, Math.max(left, (viewport.left ?? 0) + viewport.width - bounds.width - 12))),
+    top: Math.max(top, Math.min(position.top, Math.max(top, (viewport.top ?? 0) + viewport.height - bounds.height - 12))),
   };
 }
 
-export function Drawer({ name, title, onClose, children, toolbar, position, onMove, active = true }) {
+export function Drawer({ name, title, onClose, children, toolbar, position, onMove, active = true, notesLayout = "floating", sessionControls }) {
   const closeRef = useRef(null);
   const dialogRef = useRef(null);
   const pointer = useRef(null);
@@ -284,14 +286,21 @@ export function Drawer({ name, title, onClose, children, toolbar, position, onMo
   useLayoutEffect(() => { if (active) previousTitle.current = title; }, [active, title]);
   const shownTitle = active ? title : previousTitle.current;
   useSurfaceTransition(dialogRef, active);
-  const movable = name === "notes";
-  const headingId = `${movable ? "scratchpad-heading" : "panel-heading"}${active ? "" : exitId}`;
+  const isNotes = name === "notes";
+  const movable = isNotes && notesLayout === "floating";
+  const headingId = `${isNotes ? "scratchpad-heading" : "panel-heading"}${active ? "" : exitId}`;
   const savedX = position?.x;
   const savedY = position?.y;
+  const notepadViewport = useCallback(() => {
+    const viewport = window.visualViewport;
+    const header = dialogRef.current?.closest('.app')?.querySelector('.app-header:not([aria-hidden="true"])');
+    return { width: viewport?.width ?? window.innerWidth, height: viewport?.height ?? window.innerHeight,
+      left: viewport?.offsetLeft ?? 0, top: viewport?.offsetTop ?? 0, minTop: header ? header.getBoundingClientRect().bottom + 12 : 12 };
+  }, []);
   const moveNotes = (left, top) => {
     const bounds = dialogRef.current?.getBoundingClientRect();
     if (!bounds) return null;
-    const next = clampNotepadPosition({ left, top }, bounds, { width: window.innerWidth, height: window.innerHeight });
+    const next = clampNotepadPosition({ left, top }, bounds, notepadViewport());
     location.current = next;
     setNotesPosition(next);
     return next;
@@ -307,19 +316,24 @@ export function Drawer({ name, title, onClose, children, toolbar, position, onMo
       const next = clampNotepadPosition({
         left: typeof savedX === "number" ? savedX * window.innerWidth : window.innerWidth - bounds.width - 22,
         top: typeof savedY === "number" ? savedY * window.innerHeight : window.innerWidth <= 600 ? 138 : 100,
-      }, bounds, { width: window.innerWidth, height: window.innerHeight });
+      }, bounds, notepadViewport());
       location.current = next;
       setNotesPosition(previous => previous?.left === next.left && previous?.top === next.top ? previous : next);
     };
     place();
     window.addEventListener("resize", place);
+    const viewport = window.visualViewport;
+    viewport?.addEventListener("resize", place);
+    viewport?.addEventListener("scroll", place);
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(place) : null;
     if (dialogRef.current) observer?.observe(dialogRef.current);
     return () => {
       window.removeEventListener("resize", place);
+      viewport?.removeEventListener("resize", place);
+      viewport?.removeEventListener("scroll", place);
       observer?.disconnect();
     };
-  }, [movable, savedX, savedY]);
+  }, [movable, savedX, savedY, notepadViewport]);
   useLayoutEffect(() => {
     if (!active) { pointer.current = null; restoreFocus.current?.(); return; }
     const previous = document.activeElement;
@@ -339,15 +353,15 @@ export function Drawer({ name, title, onClose, children, toolbar, position, onMo
     <SurfaceActivityContext.Provider value={active}><aside
       ref={dialogRef}
       {...exitProps(active)}
-      className={`drawer workspace workspace-${name} paper ${movable ? "movable-notes" : ""} ${shownTitle === "Arrange room" ? "drawer-arranging" : ""}`}
+      className={`drawer workspace workspace-${name} paper ${isNotes ? `movable-notes scratchpad-${notesLayout}` : ""} ${shownTitle === "Arrange room" ? "drawer-arranging" : ""}`}
       style={movable && notesPosition ? notesPosition : undefined}
       role="dialog"
-      id={movable ? "scratchpad" : undefined}
+      id={isNotes ? "scratchpad" : undefined}
       aria-labelledby={headingId}
     >
       {["animals", "decorate", "journal"].includes(name) && <div className="paper-corners" aria-hidden="true"><i /><i /><i /><i /></div>}
       <header className="drawer-heading">
-        {movable ? <button type="button" className="notepad-drag-handle" aria-label="Move notepad" aria-describedby="notepad-move-help"
+        {movable ? <button type="button" className="notepad-drag-handle" aria-label="Move Scratchpad" aria-describedby="notepad-move-help"
           onPointerDown={(event) => {
             if (event.button !== 0) return;
             event.preventDefault();
@@ -384,13 +398,14 @@ export function Drawer({ name, title, onClose, children, toolbar, position, onMo
         {toolbar}
         <Button
           ref={closeRef}
-          className="icon-button"
+          className={isNotes ? "scratchpad-minimize secondary-button" : "icon-button"}
           onClick={onClose}
-          aria-label="Close panel"
+          aria-label={isNotes ? "Minimize Scratchpad" : "Close panel"}
         >
-          <Icon name="close" />
+          {isNotes ? "Minimize" : <Icon name="close" />}
         </Button>
       </header>
+      {sessionControls && <div className="scratchpad-session"><ExitSnapshot active={active}>{sessionControls}</ExitSnapshot></div>}
       <div className="drawer-content"><ExitSnapshot active={active}>{children}</ExitSnapshot></div>
     </aside></SurfaceActivityContext.Provider>
   );

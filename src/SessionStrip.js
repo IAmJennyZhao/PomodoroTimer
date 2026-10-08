@@ -8,7 +8,7 @@ export default function SessionStrip({ timer, now, onToggle, onFocus, disabled, 
   const phase = timer.mode === "longBreak" ? "Long break" : timer.mode === "break" ? "Short break"
     : complete ? "Session complete" : timer.overtime ? "Overtime" : counting ? "Count up" : "Focus";
   const time = counting ? formatElapsedTime(Math.max(0, elapsedTime(timer, now) - (timer.overtime ? timer.durationMs : 0))) : formatTime(remainingTime(timer, now));
-  return <section className="session-strip" aria-label="Current session">
+  return <section className="session-strip" aria-label="Current session" data-status={timer.status}>
     <Button type="button" className="session-strip-time session-strip-return" onClick={onFocus} aria-label={complete ? "View result and breaks" : "Back to Focus"}>
       <strong>{phase}{timer.status === "paused" ? " · paused" : ""}</strong>
       {!complete && <span role="timer" aria-label={`${phase} ${time} ${counting ? "elapsed" : "remaining"}`}>{timer.overtime ? "+" : ""}{time}</span>}

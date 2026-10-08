@@ -11,6 +11,12 @@ const NOW = new Date('2026-10-01T15:00:00Z').getTime();
 // Existing-room fixtures isolate focus earnings from the first-room gift.
 const createInitialState = (now) => ({ ...createFreshState(now), gems: 0 });
 const originalFetch = global.fetch;
+const originalViewport = { width: window.innerWidth, height: window.innerHeight, visual: window.visualViewport };
+const resizeViewport = (width, height) => act(() => {
+  Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: width });
+  Object.defineProperty(window, 'innerHeight', { configurable: true, writable: true, value: height });
+  fireEvent(window, new Event('resize'));
+});
 const response = (body, status = 200) => ({ ok: status >= 200 && status < 300, status, json: async () => body });
 const settle = async () => { await act(async () => { await Promise.resolve(); }); };
 const advance = async ms => { await act(async () => { jest.advanceTimersByTime(ms); }); };
@@ -190,6 +196,9 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: originalViewport.width });
+  Object.defineProperty(window, 'innerHeight', { configurable: true, writable: true, value: originalViewport.height });
+  Object.defineProperty(window, 'visualViewport', { configurable: true, value: originalViewport.visual });
   jest.useRealTimers();
   jest.restoreAllMocks();
   global.fetch = originalFetch;
@@ -584,7 +593,7 @@ test('closing and reopening the notepad preserves the node and draft, without st
   const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
   const input = within(notes).getByRole('textbox');
   fireEvent.change(input, { target: { value: 'Keep this draft' } });
-  fireEvent.click(within(notes).getByRole('button', { name: 'Close panel' }));
+  fireEvent.click(within(notes).getByRole('button', { name: 'Minimize Scratchpad' }));
   expect(notes).toHaveAttribute('inert');
   fireEvent.change(input, { target: { value: 'Late edit' } });
   await advance(80);
@@ -847,7 +856,7 @@ test('focus view hides distractions while scratchpad remains reachable and saves
   fireEvent.change(within(notes).getByRole('textbox', { name: 'Scratchpad text' }), { target: { value: 'Remember to water the plant' } });
   await advance(350);
   expect(latestWrite().state).toMatchObject({ scratchpad: 'Remember to water the plant', timer: { status: 'running' } });
-  fireEvent.click(within(notes).getByRole('button', { name: 'Close panel' }));
+  fireEvent.click(within(notes).getByRole('button', { name: 'Minimize Scratchpad' }));
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   expect(screen.getByRole('region', { name: 'Focus timer' })).toBeVisible();
   expect(screen.queryByRole('navigation', { name: 'Main navigation' })).not.toBeInTheDocument();
@@ -870,14 +879,14 @@ test('scratchpad remains mounted and positioned across panels and closes only th
   const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
   const textbox = within(notes).getByRole('textbox', { name: 'Scratchpad text' });
   fireEvent.change(textbox, { target: { value: 'Keep this thought while changing settings' } });
-  fireEvent.keyDown(within(notes).getByRole('button', { name: 'Move notepad' }), { key: 'ArrowLeft', shiftKey: true });
-  const location = notes.getAttribute('style');
+  fireEvent.keyDown(within(notes).getByRole('button', { name: 'Move Scratchpad' }), { key: 'ArrowLeft', shiftKey: true });
+  await advance(350); const location = latestWrite().state.room.notepadPosition;
   for (const name of ['Settings', 'Decorate', 'Journal']) {
     fireEvent.click(screen.getByRole('button', { name, exact: true }));
     expect(screen.getByRole('dialog', { name })).toBeInTheDocument();
     expect(screen.getByRole('dialog', { name: 'Scratchpad' })).toBe(notes);
     expect(textbox).toHaveValue('Keep this thought while changing settings');
-    expect(notes).toHaveAttribute('style', location);
+    await advance(350); expect(latestWrite().state.room.notepadPosition).toEqual(location);
     expect(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' })).toHaveAttribute('aria-pressed', 'true');
   }
   fireEvent.keyDown(window, { key: 'Escape' });
@@ -887,7 +896,7 @@ test('scratchpad remains mounted and positioned across panels and closes only th
   expect(within(screen.getByRole('region', { name: 'Focus timer' })).getByRole('button', { name: 'Open Scratchpad' })).toHaveAttribute('aria-pressed', 'true');
   await advance(350);
   expect(latestWrite().state.scratchpad).toBe('Keep this thought while changing settings');
-  fireEvent.click(within(notes).getByRole('button', { name: 'Close panel' }));
+  fireEvent.click(within(notes).getByRole('button', { name: 'Minimize Scratchpad' }));
   expect(screen.queryByRole('dialog', { name: 'Scratchpad' })).not.toBeInTheDocument();
   fireEvent.click(within(screen.getByRole('region', { name: 'Focus timer' })).getByRole('button', { name: 'Open Scratchpad' }));
   leaveFocus();
@@ -896,6 +905,130 @@ test('scratchpad remains mounted and positioned across panels and closes only th
   expect(screen.queryByRole('dialog', { name: 'Scratchpad' })).not.toBeInTheDocument();
   expect(screen.getByRole('dialog', { name: 'Settings' })).toBeVisible();
   expect(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' })).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('phone Scratchpad keeps the clock and pause/resume usable while retaining the current workspace and draft', async () => {
+  resizeViewport(390, 844);
+  await openRoom();
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Open Scratchpad' }));
+  const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
+  expect(notes).toHaveClass('scratchpad-sheet');
+  const input = within(notes).getByRole('textbox', { name: 'Scratchpad text' });
+  fireEvent.change(input, { target: { value: 'Phone study draft' } });
+  const current = within(notes).getByRole('region', { name: 'Current session' });
+  expect(within(current).getByRole('timer')).toHaveTextContent('25:00');
+  fireEvent.click(within(current).getByRole('button', { name: 'Pause (2/2)' }));
+  expect(input).toHaveValue('Phone study draft');
+  fireEvent.click(within(current).getByRole('button', { name: 'Resume' }));
+  expect(screen.getByRole('dialog', { name: 'Scratchpad' })).toBe(notes);
+  leaveFocus();
+  fireEvent.click(screen.getByRole('button', { name: 'Journal', exact: true }));
+  expect(screen.getByRole('dialog', { name: 'Journal' })).toBeVisible();
+  expect(screen.getAllByRole('region', { name: 'Current session' })).toHaveLength(1);
+  fireEvent.click(within(current).getByRole('button', { name: 'Pause (1/2)' }));
+  expect(screen.getByRole('dialog', { name: 'Journal' })).toBeVisible();
+  fireEvent.click(within(current).getByRole('button', { name: 'Back to Focus' }));
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Resume' })).toBeEnabled();
+  await advance(350);
+  expect(diskState.scratchpad).toBe('Phone study draft');
+  expect(diskState.timer.status).toBe('paused');
+});
+
+test('docking and phone resize preserve Scratchpad draft, accepted anchors, and keyboard repositioning on return', async () => {
+  resizeViewport(1280, 800);
+  const saved = createInitialState(NOW);
+  saved.room.notepadPosition = { x: .8, y: .2 };
+  await openRoom(saved);
+  fireEvent.click(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' }));
+  const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
+  const input = within(notes).getByRole('textbox', { name: 'Scratchpad text' });
+  fireEvent.change(input, { target: { value: 'Keep this across layouts' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Pets', exact: true }));
+  expect(notes).toHaveClass('scratchpad-docked');
+  expect(within(notes).queryByRole('button', { name: 'Move Scratchpad' })).not.toBeInTheDocument();
+  resizeViewport(320, 640);
+  expect(screen.getByRole('dialog', { name: 'Scratchpad' })).toBe(notes);
+  expect(notes).toHaveClass('scratchpad-sheet');
+  expect(input).toHaveValue('Keep this across layouts');
+  expect(screen.getByRole('dialog', { name: 'Pets' })).toBeVisible();
+  await advance(350);
+  expect(diskState.room.notepadPosition).toEqual(saved.room.notepadPosition);
+  expect(diskState.room.widgets).toEqual(saved.room.widgets);
+  resizeViewport(1280, 800);
+  fireEvent.click(screen.getByRole('button', { name: 'Focus', exact: true }));
+  expect(notes).toHaveClass('scratchpad-floating');
+  fireEvent.keyDown(within(notes).getByRole('button', { name: 'Move Scratchpad' }), { key: 'ArrowLeft' });
+  await advance(350);
+  expect(diskState.room.notepadPosition.x).toBeLessThan(saved.room.notepadPosition.x);
+  expect(diskState.scratchpad).toBe('Keep this across layouts');
+});
+
+test('Scratchpad follows keyboard viewport resize and scroll without erasing the focused draft or its workspace', async () => {
+  resizeViewport(390, 844);
+  const viewport = new EventTarget();
+  Object.assign(viewport, { height: 844, offsetTop: 0 });
+  Object.defineProperty(window, 'visualViewport', { configurable: true, value: viewport });
+  await openRoom();
+  fireEvent.click(screen.getByRole('button', { name: 'Pets', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Open Scratchpad' }));
+  const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
+  const input = within(notes).getByRole('textbox', { name: 'Scratchpad text' });
+  fireEvent.change(input, { target: { value: 'Typing with the keyboard open' } });
+  act(() => { viewport.height = 300; viewport.offsetTop = 50; viewport.dispatchEvent(new Event('resize')); });
+  const app = document.querySelector('.app');
+  expect(app).toHaveClass('notes-compact');
+  expect(app.style.getPropertyValue('--notes-visible-height')).toBe('300px');
+  expect(app.style.getPropertyValue('--notes-visible-top')).toBe('50px');
+  expect(parseFloat(app.style.getPropertyValue('--notes-sheet-height'))).toBeLessThanOrEqual(204);
+  expect(screen.queryByRole('banner', { name: 'Room controls' })).not.toBeInTheDocument();
+  expect(within(screen.getByRole('dialog', { name: 'Pets' })).getByRole('button', { name: 'Close panel' })).toBeEnabled();
+  expect(input).toHaveFocus();
+  act(() => { viewport.offsetTop = 70; viewport.dispatchEvent(new Event('scroll')); });
+  expect(app.style.getPropertyValue('--notes-visible-top')).toBe('70px');
+  expect(input).toHaveValue('Typing with the keyboard open');
+  fireEvent.click(within(notes).getByRole('button', { name: 'Minimize Scratchpad' }));
+  expect(screen.getByRole('banner', { name: 'Room controls' })).toBeVisible();
+  await advance(350);
+  expect(diskState.scratchpad).toBe('Typing with the keyboard open');
+});
+
+test('a phone completion while notes are open retains a route to the receipt and breaks', async () => {
+  resizeViewport(320, 640);
+  const initial = gameReducer(createInitialState(NOW), { type: 'SET_SETTINGS', settings: { focusMinutes: 1 }, now: NOW });
+  await openRoom(initial);
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Open Scratchpad' }));
+  const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
+  await wakeAt(NOW + MINUTE);
+  fireEvent.click(within(notes).getByRole('button', { name: 'View result and breaks' }));
+  expect(screen.queryByRole('dialog', { name: 'Scratchpad' })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Short break, 5 minutes' })).toBeEnabled();
+  await advance(350);
+  expect(diskState.gems).toBe(1);
+  expect(diskState.history).toHaveLength(1);
+});
+
+test('a phone draft survives a save failure, Journal navigation, and retry with shared save feedback', async () => {
+  resizeViewport(320, 640);
+  await openRoom();
+  fireEvent.click(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' }));
+  const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
+  global.fetch.mockResolvedValueOnce(response({}, 500));
+  fireEvent.change(within(notes).getByRole('textbox', { name: 'Scratchpad text' }), { target: { value: 'Keep the draft through retry' } });
+  await advance(350);
+  expect(within(notes).getByRole('status')).toHaveTextContent('Not saved');
+  fireEvent.click(screen.getByRole('button', { name: 'Journal', exact: true }));
+  const journal = screen.getByRole('dialog', { name: 'Journal' });
+  fireEvent.click(within(journal).getByRole('button', { name: 'Scratchpad', exact: true }));
+  expect(within(journal).getByRole('textbox', { name: 'Scratchpad text' })).toHaveValue('Keep the draft through retry');
+  expect(within(journal).getByRole('status')).toHaveTextContent('Not saved');
+  fireEvent.click(screen.getByRole('button', { name: 'Retry save' }));
+  await settle();
+  expect(within(notes).getByRole('status')).toHaveTextContent('Saved');
+  expect(within(journal).getByRole('status')).toHaveTextContent('Saved');
+  expect(diskState.scratchpad).toBe('Keep the draft through retry');
 });
 
 test('a completed Pomodoro repeats its alarm until muted and waits for an explicit break choice', async () => {

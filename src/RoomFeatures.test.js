@@ -12,7 +12,7 @@ test("notepad moves with keyboard, saves its position, and stays visible on resi
   const originalHeight = window.innerHeight;
   const onMove = jest.fn();
   render(<Drawer name="notes" position={{ x: .1, y: .1 }} onMove={onMove} onClose={() => {}}><textarea aria-label="Notes" /></Drawer>);
-  const handle = screen.getByRole("button", { name: "Move notepad" });
+  const handle = screen.getByRole("button", { name: "Move Scratchpad" });
   const panel = screen.getByRole("dialog", { name: "Scratchpad" });
   fireEvent.keyDown(handle, { key: "ArrowRight" });
   expect(onMove.mock.calls[0][0].x).toBeCloseTo((originalWidth * .1 + 10) / originalWidth);
@@ -36,7 +36,7 @@ test("dragging the notepad saves the clamped location on pointer release", () =>
   window.PointerEvent = MouseEvent;
   const onMove = jest.fn();
   render(<Drawer name="notes" position={null} onMove={onMove} onClose={() => {}}><textarea aria-label="Notes" /></Drawer>);
-  const handle = screen.getByRole("button", { name: "Move notepad" });
+  const handle = screen.getByRole("button", { name: "Move Scratchpad" });
   fireEvent.pointerDown(handle, { button: 0, clientX: 150, clientY: 120 });
   fireEvent.pointerMove(handle, { clientX: -200, clientY: -100 });
   expect(onMove).not.toHaveBeenCalled();
@@ -45,6 +45,13 @@ test("dragging the notepad saves the clamped location on pointer release", () =>
   expect(clampNotepadPosition({ left: 10000, top: 10000 }, { width: 320, height: 340 }, { width: 400, height: 600 })).toEqual({ left: 68, top: 248 });
   window.PointerEvent = originalPointerEvent;
   rect.mockRestore();
+});
+
+test("floating Scratchpad clamps below room controls and inside a panned visible viewport", () => {
+  expect(clampNotepadPosition({ left: -20, top: -20 }, { width: 320, height: 340 },
+    { width: 800, height: 600, left: 30, top: 50, minTop: 100 })).toEqual({ left: 42, top: 100 });
+  expect(clampNotepadPosition({ left: 2000, top: 2000 }, { width: 320, height: 340 },
+    { width: 800, height: 600, left: 30, top: 50, minTop: 100 })).toEqual({ left: 498, top: 298 });
 });
 
 test("decoration library uses an explicit arrange action and places free furniture", () => {

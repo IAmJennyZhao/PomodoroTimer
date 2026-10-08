@@ -23,6 +23,11 @@
   .app .journal-panel .journal-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .app .journal-panel :is(.journal-visuals, .journal-bottom) { grid-template-columns: minmax(0, 1fr); }
 }
+@container journal-content (max-width: 400px) {
+  .app .journal-panel :is(.journal-history, .journal-card) { padding-inline: 12px; }
+  .app .journal-panel .journal-chart:not(.dense) li:nth-child(even) .journal-bar-label { visibility: hidden; }
+  .app .journal-panel .journal-chart.dense li:not(:first-child):not(:last-child):not(:nth-child(13)):not(:nth-child(15)) .journal-bar-label { visibility: hidden; }
+}
 
 /* Keep the table's accessible relationships, but give each small-screen session
    a full-width task summary instead of a narrow third column. */
@@ -41,6 +46,7 @@
   .app .journal-panel .journal-ledger tbody td {
     width: auto; padding: 0; border: 0; min-width: 0; text-align: left;
   }
+  .app .journal-panel .journal-ledger.with-date tbody td:first-child { width: auto; }
   .app .journal-panel .journal-ledger .journal-session-date { grid-column: 1; grid-row: 1; }
   .app .journal-panel .journal-ledger .journal-session-date time { display: flex; flex-wrap: wrap; gap: 4px 12px; }
   .app .journal-panel .journal-ledger .journal-session-date time > span { margin: 0; }
@@ -52,4 +58,93 @@
   }
   .app .journal-panel .journal-ledger:not(.with-date) .journal-session-duration::before { content: "Focus "; font-size: var(--text-small); color: var(--muted); }
   .app .journal-panel :is(.journal-task-count, .journal-session-forfeited) { display: block; margin-top: 6px; }
+}
+
+/* Notes owns a temporary layout slot, never the persisted room coordinates. */
+.app { --scratchpad-dock-width: 320px; }
+.app .workspace-notes.movable-notes { display: flex; flex-direction: column; overflow: hidden; }
+.app .workspace-notes.movable-notes > .drawer-heading { flex: 0 0 auto; padding: 8px 10px; min-height: 52px; }
+.app .workspace-notes .drawer-heading h2 { font-size: 22px; margin: 0; }
+.app .workspace-notes .scratchpad-minimize { min-height: 44px; flex: 0 0 auto; padding: 8px 12px; font-size: var(--text-small); }
+.app .workspace-notes .notepad-drag-handle { min-width: 0; }
+.app .workspace-notes .notepad-heading { font-size: 20px; }
+.app .workspace-notes .notepad-drag-handle > span { padding-left: 24px; }
+.app .workspace-notes.scratchpad-floating { max-height: calc(var(--notes-visible-height) - var(--notes-header-height) - 32px); }
+.app .workspace-notes > .drawer-content { flex: 1 1 auto; min-height: 0; overflow: auto; }
+.app .workspace-notes .quick-notes { display: flex; flex-direction: column; min-height: 0; height: 100%; }
+.app .workspace-notes .quick-notes textarea { flex: 1 1 auto; min-height: 100px; max-height: none; }
+.app .workspace-notes .notes-save-state { flex: 0 0 auto; text-align: right; min-height: 21px; }
+.app .scratchpad-session { flex: 0 0 auto; padding: 0 12px 8px; }
+.app .scratchpad-session .session-strip { padding: 6px 0 0; }
+.app .scratchpad-session .session-strip-time { gap: 4px 8px; flex-wrap: wrap; }
+.app .scratchpad-session .session-strip-time [role="timer"] { font-size: 18px; }
+.app .scratchpad-session .session-strip-route { font-size: 12px; }
+.app .scratchpad-session .session-strip .pause-guidance { margin-top: 4px; }
+
+.app.notes-docked .workspace-notes.scratchpad-docked {
+  left: auto; right: 16px; bottom: auto; transform: none;
+  top: calc(var(--notes-visible-top) + var(--notes-header-height) + 16px);
+  width: var(--scratchpad-dock-width);
+  height: calc(var(--notes-visible-height) - var(--notes-header-height) - 32px);
+  max-height: none;
+}
+.app.notes-docked .drawer:not(.movable-notes):not(.drawer-arranging) {
+  left: 24px; right: calc(var(--scratchpad-dock-width) + 40px);
+  width: auto; max-width: none; transform: none;
+}
+.app.notes-docked .drawer:is(.workspace-settings, .workspace-session, .workspace-sound) {
+  max-width: 560px;
+}
+.app.notes-docked:not(.is-arranging) .focus-area {
+  left: calc((100% - var(--scratchpad-dock-width) - 40px) / 2) !important;
+  right: auto !important; transform: translateX(-50%) !important;
+  width: min(740px, calc(100% - var(--scratchpad-dock-width) - 80px));
+}
+.app.notes-docked .workspace-decorate.drawer-arranging {
+  left: auto; right: calc(var(--scratchpad-dock-width) + 40px); width: 300px;
+}
+.app.notes-docked.is-arranging .room-scene { width: auto; right: calc(var(--scratchpad-dock-width) + 24px); }
+.app .workspace-animals > .drawer-content { container-type: inline-size; container-name: pets-content; }
+.app.notes-docked .workspace-animals::after { content: none; }
+@container pets-content (max-width: 850px) {
+  .app .pet-album .collection-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .app .pet-album .collection-detail { position: static; grid-row: 1; padding: 0 0 20px; border-bottom: 1px solid var(--line); }
+  .app .pet-album .pet-portrait { width: 150px; margin: 0 auto; }
+}
+
+.app.notes-sheet .workspace-notes.scratchpad-sheet {
+  left: 8px; right: 8px; bottom: auto; width: auto; margin: 0; transform: none;
+  top: calc(var(--notes-visible-top) + var(--notes-visible-height) - var(--notes-sheet-height) - 8px);
+  height: var(--notes-sheet-height); max-height: none;
+  border-width: 4px; border-image-width: 4px;
+}
+.app.notes-sheet .workspace-notes > .drawer-heading { padding: 4px 8px; }
+.app.notes-sheet .workspace-notes > .drawer-content { padding: 0 10px 8px; }
+.app.notes-sheet .workspace-notes .quick-notes textarea {
+  min-height: 44px; height: auto; margin: 0 0 4px; resize: none;
+}
+.app.notes-sheet .workspace-notes .scratchpad-shared-hint { margin-bottom: 6px; }
+.app.notes-sheet .drawer:not(.movable-notes):not(.drawer-arranging) {
+  top: calc(var(--notes-visible-top) + var(--notes-header-height) + 12px);
+  bottom: auto; height: calc(var(--notes-visible-height) - var(--notes-header-height) - var(--notes-sheet-height) - 32px);
+  max-height: none;
+}
+.app.notes-sheet:not(.is-arranging) .focus-area {
+  left: 12px !important; right: 12px !important; width: auto; transform: none !important;
+  top: calc(var(--notes-visible-top) + var(--notes-header-height) + 12px) !important;
+  max-height: calc(var(--notes-visible-height) - var(--notes-header-height) - var(--notes-sheet-height) - 32px);
+  overflow: auto;
+}
+.app.notes-compact .app-header { display: none; }
+.app.notes-compact .workspace-notes .scratchpad-shared-hint { display: none; }
+.app.notes-compact .workspace-notes .quick-notes textarea { min-height: 32px; }
+.app.notes-compact .scratchpad-session .session-strip-time { flex-wrap: nowrap; }
+.app.notes-compact .scratchpad-session .session-strip:not([data-status="complete"]) .session-strip-route { display: none; }
+.app.notes-compact .scratchpad-session .pause-guidance { font-size: 12px; line-height: 1.25; padding: 2px 6px; }
+.app.notes-compact .drawer:not(.movable-notes) > .drawer-heading { padding-block: 4px; min-height: 44px; }
+.app.notes-compact .drawer:not(.movable-notes) > .drawer-content { padding-top: 0; }
+.app.notes-sheet .workspace-decorate.drawer-arranging {
+  bottom: auto; top: calc(var(--notes-visible-top) + var(--notes-header-height) + 8px);
+  height: calc(var(--notes-visible-height) - var(--notes-header-height) - var(--notes-sheet-height) - 24px);
+  max-height: none;
 }
