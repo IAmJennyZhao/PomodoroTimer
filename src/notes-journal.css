@@ -107,9 +107,9 @@
 .app .workspace-animals > .drawer-content { container-type: inline-size; container-name: pets-content; }
 .app.notes-docked .workspace-animals::after { content: none; }
 @container pets-content (max-width: 850px) {
-  .app .pet-album .collection-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
-  .app .pet-album .collection-detail { position: static; grid-row: 1; padding: 0 0 20px; border-bottom: 1px solid var(--line); }
-  .app .pet-album .pet-portrait { width: 150px; margin: 0 auto; }
+  .app.notes-docked .pet-album .collection-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .app.notes-docked .pet-album .collection-detail { position: static; grid-row: 1; padding: 0 0 20px; border-bottom: 1px solid var(--line); }
+  .app.notes-docked .pet-album .pet-portrait { width: 150px; margin: 0 auto; }
 }
 
 .app.notes-sheet .workspace-notes.scratchpad-sheet {

@@ -309,6 +309,7 @@ export function Drawer({ name, title, onClose, children, toolbar, position, onMo
     if (next) onMove?.({ x: next.left / window.innerWidth, y: next.top / window.innerHeight });
   };
   useLayoutEffect(() => {
+    pointer.current = null;
     if (!movable) return undefined;
     const place = () => {
       const bounds = dialogRef.current?.getBoundingClientRect();
@@ -375,11 +376,11 @@ export function Drawer({ name, title, onClose, children, toolbar, position, onMo
             if (start && start.id === event.pointerId) moveNotes(start.left + event.clientX - start.x, start.top + event.clientY - start.y);
           }}
           onPointerUp={(event) => {
-            if (pointer.current?.id !== event.pointerId) return;
+            if (!pointer.current || pointer.current.id !== event.pointerId) return;
             pointer.current = null;
             saveNotesPosition(location.current);
           }}
-          onPointerCancel={() => { pointer.current = null; saveNotesPosition(location.current); }}
+          onPointerCancel={() => { if (!pointer.current) return; pointer.current = null; saveNotesPosition(location.current); }}
           onKeyDown={(event) => {
             if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
             event.preventDefault();

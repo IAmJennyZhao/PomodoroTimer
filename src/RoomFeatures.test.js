@@ -54,6 +54,24 @@ test("floating Scratchpad clamps below room controls and inside a panned visible
     { width: 800, height: 600, left: 30, top: 50, minTop: 100 })).toEqual({ left: 498, top: 298 });
 });
 
+test("a layout change cancels a floating drag without persisting a temporary dock position", () => {
+  const originalPointerEvent = window.PointerEvent;
+  window.PointerEvent = MouseEvent;
+  const bounds = jest.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({ left: 100, top: 100, width: 320, height: 340 });
+  const onMove = jest.fn();
+  const props = { name: "notes", position: { x: .1, y: .1 }, onMove, onClose: () => {} };
+  const { rerender } = render(<Drawer {...props}><textarea aria-label="Scratchpad text" /></Drawer>);
+  const handle = screen.getByRole("button", { name: "Move Scratchpad" });
+  fireEvent.pointerDown(handle, { button: 0, clientX: 100, clientY: 100 });
+  fireEvent.pointerMove(handle, { clientX: 200, clientY: 200 });
+  rerender(<Drawer {...props} notesLayout="docked"><textarea aria-label="Scratchpad text" /></Drawer>);
+  rerender(<Drawer {...props}><textarea aria-label="Scratchpad text" /></Drawer>);
+  fireEvent.pointerUp(screen.getByRole("button", { name: "Move Scratchpad" }));
+  expect(onMove).not.toHaveBeenCalled();
+  window.PointerEvent = originalPointerEvent;
+  bounds.mockRestore();
+});
+
 test("decoration library uses an explicit arrange action and places free furniture", () => {
   const state = createInitialState(1);
   state.room.decorations = [];
