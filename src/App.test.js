@@ -893,7 +893,13 @@ test('ding and count up continues into overtime once and credits it as one sessi
 });
 
 test('arranging exposes a room library, deselects furniture, and saves widget positions', async () => {
-  await openRoom();
+  const rect = jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function () {
+    return ['app', 'room-scene'].some(name => this.classList.contains(name)) ? { left: 0, top: 0, width: 1200, height: 800 }
+      : this.classList.contains('app-header') ? { left: 0, top: 0, width: 1200, height: 62, bottom: 62 }
+      : this.classList.contains('workspace-decorate') ? { left: 0, top: 620, width: 1200, height: 180 }
+      : { left: 200, top: 150, width: 300, height: 250 };
+  });
+  const { container } = await openRoom();
   fireEvent.click(screen.getByRole('button', { name: 'Decorate' }));
   fireEvent.click(screen.getByRole('button', { name: 'Arrange room' }));
   expect(screen.getByRole('region', { name: 'Room library' })).toBeInTheDocument();
@@ -903,17 +909,14 @@ test('arranging exposes a room library, deselects furniture, and saves widget po
   expect(screen.getByRole('button', { name: 'Position Soft sofa' })).toHaveAttribute('aria-pressed', 'true');
   fireEvent.click(screen.getByRole('button', { name: 'Deselect Soft sofa' }));
   expect(screen.getByRole('button', { name: 'Position Soft sofa' })).toHaveAttribute('aria-pressed', 'false');
-  const rect = jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function () {
-    return this.classList.contains('app') ? { left: 0, top: 0, width: 1200, height: 800 }
-      : this.classList.contains('app-header') ? { left: 0, top: 0, width: 1200, height: 62, bottom: 62 }
-      : this.classList.contains('workspace-decorate') ? { left: 0, top: 620, width: 1200, height: 180 }
-      : { left: 200, top: 150, width: 300, height: 250 };
-  });
   fireEvent.keyDown(screen.getByRole('button', { name: 'Move timer' }), { key: 'ArrowRight' });
   fireEvent.keyDown(screen.getByRole('button', { name: 'Move daily goal' }), { key: 'ArrowDown' });
   await advance(1000);
-  expect(latestWrite().state.room.widgets.timer).toEqual({ x: 17.5, y: 18.75 });
-  expect(latestWrite().state.room.widgets.goal).toEqual({ x: 200 / 1200 * 100, y: 20 });
+  const cameraScale = Number(container.querySelector('.room-objects').style.getPropertyValue('--room-edit-scale'));
+  expect(latestWrite().state.room.widgets.timer.x).toBeCloseTo(24 + 10 / (1672 * cameraScale) * 100);
+  expect(latestWrite().state.room.widgets.timer.y).toBe(24);
+  expect(latestWrite().state.room.widgets.goal.x).toBe(67);
+  expect(latestWrite().state.room.widgets.goal.y).toBeCloseTo(14 + 10 / (941 * cameraScale) * 100);
   fireEvent.keyDown(window, { key: 'Escape' });
   expect(screen.queryByRole('button', { name: 'Deselect daily goal' })).not.toBeInTheDocument();
   expect(screen.getByRole('region', { name: 'Room library' })).toBeInTheDocument();
@@ -929,7 +932,8 @@ test('furniture dragging preserves its grab offset through the temporary arrange
   jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function () {
     if (this.classList.contains('workspace-decorate')) return { left: 0, top: 400, width: 1200, height: 400 };
     if (this.classList.contains('app-header')) return { left: 0, top: 0, width: 1200, height: 62, bottom: 62 };
-    if (['app', 'room-scene', 'room-objects'].some(name => this.classList.contains(name))) return { left: 0, top: 0, width: 1200, height: 800 };
+    if (this.classList.contains('room-objects')) { const scale=Number(this.style.getPropertyValue('--room-edit-scale')) || 1; return { left: 0, top: 0, width: 1672 * scale, height: 941 * scale }; }
+    if (['app', 'room-scene'].some(name => this.classList.contains(name))) return { left: 0, top: 0, width: 1200, height: 800 };
     return { left: 100, top: 150, width: 300, height: 250 };
   });
   jest.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function () { return this.classList.contains('room-resident') ? 300 : 0; });
@@ -952,8 +956,8 @@ test('furniture dragging preserves its grab offset through the temporary arrange
   fireEvent.pointerUp(sofa);
   await advance(1000);
   const position = latestWrite().state.room.decorations[0];
-  expect(position.x).toBeCloseTo(50 + 60 / (1200 * scale) * 100);
-  expect(position.y).toBeCloseTo(50 + 40 / (800 * scale) * 100);
+  expect(position.x).toBeCloseTo(50 + 60 / (1672 * scale) * 100);
+  expect(position.y).toBeCloseTo(50 + 40 / (941 * scale) * 100);
   expect(engine.playSfx).toHaveBeenCalledWith('placement');
   expect(sofa.querySelector('.room-visual')).not.toHaveAttribute('data-lifted');
   window.PointerEvent = originalPointerEvent;

@@ -33,6 +33,7 @@ import { RoomLoading, SaveNotice, ToastNotice, useNoticeTimeout } from "./Feedba
 import RoomBackdrop from "./RoomBackdrop";
 import RoomWidget from "./RoomWidget";
 import RoomObjects from "./RoomObjects";
+import { ArrangementCameraContext } from "./roomGeometry";
 import DecoratePanel from "./DecoratePanel";
 import {
   AnimalsPanel,
@@ -45,7 +46,6 @@ import {
 import "./atelier.css";
 import "./visual-system.css";
 import "./main-panels.css";
-import "./arrangement.css";
 import "./timer-refinements.css";
 import "./utility-panels.css";
 import "./feedback.css";
@@ -61,6 +61,7 @@ import { PetResponseContext, RoomVisual, usePetResponses, useRoomChanges } from 
 import "./room-interactions.css";
 import "./spacing.css";
 import "./header.css";
+import "./arrangement.css";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
 
@@ -104,10 +105,12 @@ export default function App() {
       if (height) header.closest(".app")?.style.setProperty("--header-height", `${height}px`);
     };
     measure();
-    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    let frame;
+    const schedule = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(measure); };
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(schedule) : null;
     if (header) observer?.observe(header);
     window.addEventListener("resize", measure);
-    return () => { observer?.disconnect(); window.removeEventListener("resize", measure); };
+    return () => { cancelAnimationFrame(frame); observer?.disconnect(); window.removeEventListener("resize", measure); };
   }, []);
   const persistence = useLocalSave();
   const { state, dispatch, ready, status } = persistence;
@@ -125,6 +128,7 @@ export default function App() {
   const [accessoryShopPetId, setAccessoryShopPetId] = useState(null);
   const [selection, setSelection] = useState(null);
   const [arranging, setArranging] = useState(false);
+  const [roomCamera, setRoomCamera] = useState(null);
   const cancellationId = useRef(0);
   const [tip, setTip] = useState(0);
   const [toast, setToast] = useState(null);
@@ -350,10 +354,9 @@ export default function App() {
     enabled: arranging && ready && status !== "conflict",
     project: (origin, event) => {
       const bounds = sceneRef.current.getBoundingClientRect();
-      const scale = Number(sceneRef.current.style.getPropertyValue("--room-edit-scale")) || 1;
       return { type: origin.type, id: origin.id,
-        x: Math.max(5, Math.min(95, origin.x + (event.clientX - origin.pointerX) / bounds.width / scale * 100)),
-        y: Math.max(20, Math.min(85, origin.y + (event.clientY - origin.pointerY) / bounds.height / scale * 100)),
+        x: Math.max(5, Math.min(95, origin.x + (event.clientX - origin.pointerX) / bounds.width * 100)),
+        y: Math.max(20, Math.min(85, origin.y + (event.clientY - origin.pointerY) / bounds.height * 100)),
       };
     },
     commit: (next, origin) => {
@@ -387,8 +390,8 @@ export default function App() {
         key={item.id}
         className={`room-resident ${type} ${type === "decoration" ? `decoration-${item.item}` : ""} ${arranging ? "draggable" : ""} ${chosen ? "chosen" : ""}`}
         style={{
-          left: arranging ? "calc(50% + (var(--room-x) - 50) * var(--room-edit-scale, 1) * 1%)" : `${position.x}%`,
-          top: arranging ? "calc(var(--room-edit-top, 0px) + var(--room-y) * var(--room-edit-scale, 1) * 1%)" : `${position.y}%`,
+          left: `${position.x}%`,
+          top: `${position.y}%`,
           "--room-x": position.x,
           "--room-y": position.y,
           zIndex: item.item === "rug" ? 1 : chosen ? 250 : (type === "animal" ? 160 : 2) + Math.round(position.y),
@@ -444,6 +447,7 @@ export default function App() {
   return (
     <ControlFeedbackContext.Provider value={playControlFeedback}>
     <MotionPreferenceContext.Provider value={reducedMotion}>
+    <ArrangementCameraContext.Provider value={arranging ? roomCamera : null}>
     <OutcomeFeedbackContext.Provider value={outcomes}>
     <PetResponseContext.Provider value={respondToPet}>
     <div
@@ -456,7 +460,8 @@ export default function App() {
           BACKGROUNDS.find((item) => item.id === state.room.background)?.name
         }
       >
-        <RoomObjects ref={sceneRef} arranging={arranging}>
+        <RoomObjects ref={sceneRef} arranging={arranging} onCameraChange={setRoomCamera}
+          layoutKey={JSON.stringify([state.room.decorations, state.animals.filter(animal => animal.placed).map(({ id, x, y }) => [id, x, y])])}>
         <RoomBackdrop theme={state.room.background} />
         {state.room.decorations.map((item) =>
           renderResident(item, "decoration"),
@@ -625,6 +630,7 @@ export default function App() {
     </div>
     </PetResponseContext.Provider>
     </OutcomeFeedbackContext.Provider>
+    </ArrangementCameraContext.Provider>
     </MotionPreferenceContext.Provider>
     </ControlFeedbackContext.Provider>
   );

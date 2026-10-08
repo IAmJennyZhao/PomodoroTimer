@@ -12,7 +12,6 @@
 .room-resident.decoration-table { width: clamp(140px, 17vw, 290px); }
 .room-resident.decoration-side-table { width: clamp(95px, 11vw, 175px); }
 .room-resident.decoration-couch .furniture-art { aspect-ratio: 360 / 220; }
-.room-resident.decoration-rug .furniture-art { aspect-ratio: 360 / 150; }
 .room-resident.decoration-bookshelf .furniture-art { aspect-ratio: 220 / 300; }
 .arrange-start { display: inline-flex; gap: 8px; align-items: center; justify-content: center; }
 .arrange-intro { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 20px; border: 1px solid #e1d1da; background: #f3ebef; border-radius: 16px; margin-bottom: 22px; }

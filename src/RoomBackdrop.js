@@ -22,5 +22,8 @@ const furniture = {
 
 export function FurnitureArt({ id, className = "", ...props }) {
   const rect = furniture[id] || furniture.plant;
-  return <ArtFragment sheet="furniture-sheet" size={[1280, 1280]} rect={rect} preserveAspectRatio="xMidYMid meet" className={`furniture-art ${className}`} style={{ aspectRatio: `${rect[2]} / ${rect[3]}` }} {...props} />;
+  // Compress the rug's illustrated plane, including its border and fringe. Giving
+  // a contain-fitted SVG a wider box alone leaves the upright artwork unchanged.
+  const height = id === "rug" ? rect[3] * .48 : rect[3];
+  return <ArtFragment sheet="furniture-sheet" size={[1280, 1280]} rect={rect} preserveAspectRatio={id === "rug" ? "none" : "xMidYMid meet"} data-furniture={id} className={`furniture-art ${className}`} style={{ aspectRatio: `${rect[2]} / ${height}` }} {...props} />;
 }
