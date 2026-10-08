@@ -188,7 +188,7 @@ export function AnimalArt({ animal, className = "" }) {
   );
 }
 
-export function InfoTip({ label = "More info", children }) {
+export function InfoTip({ label = "More info", children, contentClassName = "" }) {
   const reducedMotion = useContext(MotionPreferenceContext);
   const surfaceActive = useContext(SurfaceActivityContext);
   const [open, setOpen] = useState(false);
@@ -214,6 +214,8 @@ export function InfoTip({ label = "More info", children }) {
       setPosition(previous => previous.left === left && previous.top === top ? previous : { left, top });
     };
     place();
+    // Keep the heading outside the scrolling body; every opening starts at the top.
+    contentRef.current?.querySelector(".info-heading button")?.focus({ preventScroll: true });
     window.addEventListener("resize", place);
     document.addEventListener("scroll", place, true);
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(place) : null;
@@ -247,9 +249,9 @@ export function InfoTip({ label = "More info", children }) {
         aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>
         <Icon name="info" size={17} />
       </Button>
-      {open && surfaceActive && createPortal(<div ref={contentRef} className={`info-content feedback-note ${reducedMotion ? "reduce-motion" : ""}`} style={position} role="note" id={id} aria-labelledby={`${id}-title`}>
+      {open && surfaceActive && createPortal(<div ref={contentRef} className={`info-content feedback-note ${contentClassName} ${reducedMotion ? "reduce-motion" : ""}`} style={position} role="note" id={id} aria-labelledby={`${id}-title`}>
         <div className="info-heading"><h3 id={`${id}-title`}>{label}</h3><Button type="button" className="info-button" aria-label="Close details" onClick={close}><Icon name="close" size={17} /></Button></div>
-        <div className="info-body">{children}</div>
+        <div className="info-body" tabIndex={0} aria-label={`${label} details`}>{children}</div>
       </div>, document.body)}
     </span>
   );

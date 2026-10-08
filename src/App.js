@@ -58,6 +58,8 @@ import "./outcomes.css";
 import usePlacementGesture from "./usePlacementGesture";
 import { PetResponseContext, RoomVisual, usePetResponses, useRoomChanges } from "./RoomInteraction";
 import "./room-interactions.css";
+import "./spacing.css";
+import "./header.css";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
 

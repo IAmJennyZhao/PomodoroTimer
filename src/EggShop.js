@@ -34,12 +34,16 @@ export default function EggShop({ state, act }) {
           </Button>
         </div>
       </section>
-      <div className="shop-odds"><InfoTip label="Egg odds">
+      <div className="shop-odds"><InfoTip label="Egg odds" contentClassName="egg-odds-note">
         <strong>Everyday 60% · Rare 30% · Dreamy 10%.</strong>
         <p>Every egg has an equal chance of each of the {ANIMALS.length} species.</p>
         <p>A rare-or-better egg is guaranteed within 5 mystery rolls. On a guaranteed roll: Rare 90% · Dreamy 10%. Rare or dreamy eggs reset the count; basic eggs do not affect it.</p>
         <p>{state.pity >= 4 ? "Rare+ next roll" : `Rare+ within ${5 - state.pity} rolls`}</p>
-        <div className="egg-rarity-guide" aria-label="Egg rarities">{RARITIES.map((rarity) => <div key={rarity}><span>{title(rarity)} {"★".repeat(RARITY_STARS[rarity])}</span><span>{EGG_MINUTES[rarity]} min to hatch</span></div>)}</div>
+        <div className="egg-rarity-guide" aria-label="Egg rarities">{RARITIES.map((rarity) => <div key={rarity}>
+          <span className="rarity-name">{title(rarity)}</span>
+          <span className="rarity-rating" aria-label={`${RARITY_STARS[rarity]} ${RARITY_STARS[rarity] === 1 ? "star" : "stars"}`}>{"★".repeat(RARITY_STARS[rarity])}</span>
+          <span className="rarity-hatch-time">{EGG_MINUTES[rarity]} min to hatch</span>
+        </div>)}</div>
       </InfoTip><span>Odds</span>{state.pity >= 4 && <span className="guaranteed-roll">Rare+ next roll</span>}</div>
     </div>
     <section className="atelier-nest" aria-label="Your nest">

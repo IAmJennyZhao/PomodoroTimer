@@ -38,6 +38,22 @@ test('help notes have a named heading and close back to their own trigger', () =
   expect(trigger).toHaveFocus();
 });
 
+test('keyboard help opens on Close, lets the reader reach details, and Escape returns to the trigger', () => {
+  render(<InfoTip label="Egg odds">All rarity details.</InfoTip>);
+  const trigger = screen.getByRole('button', { name: 'Egg odds' });
+  trigger.focus();
+  fireEvent.click(trigger);
+  expect(screen.getByRole('button', { name: 'Close details' })).toHaveFocus();
+  const body = screen.getByLabelText('Egg odds details');
+  expect(body).toHaveAttribute('tabindex', '0');
+  body.focus();
+  fireEvent.keyDown(body, { key: 'Escape' });
+  expect(screen.queryByRole('note')).not.toBeInTheDocument();
+  expect(trigger).toHaveFocus();
+  fireEvent.click(trigger);
+  expect(screen.getByRole('button', { name: 'Close details' })).toHaveFocus();
+});
+
 test('celebrations trap focus between X and Done, then restore the opener and background', () => {
   function Harness() {
     const [open, setOpen] = useState(false);

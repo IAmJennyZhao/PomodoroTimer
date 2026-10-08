@@ -7,20 +7,6 @@
 .room-vignette { background: none; }
 .paper { background-color: #fff8ea; border-color: #d7c9ad; box-shadow: var(--shadow); }
 .pastel-cutout { display: block; overflow: hidden; pointer-events: none; }
-.app-header { padding: 7px 30px; min-height: 62px; gap: 30px; background: #fff8e9f5; border-bottom: 2px solid #cfbf9c85; box-shadow: 0 1px 6px #6658420a; }
-.room-brand { font: 24px Georgia, serif; background: none; border: 0; padding: 8px 0; white-space: nowrap; letter-spacing: .3px; }
-.header-actions { display: flex; flex: 1; gap: 14px; justify-content: flex-end; }
-.top-nav { order: -1; margin-right: auto; margin-left: auto; background: none; border: 0; box-shadow: none; gap: 17px; padding: 0; }
-.top-nav button { font: 16px Georgia, serif; color: var(--ink); min-height: 42px; border-radius: 0; padding: 7px 8px; flex-direction: row; }
-.top-nav button.active { background: none; color: var(--ink); }
-.top-nav button.active::after { content: ""; position: absolute; height: 3px; bottom: 2px; left: 4px; right: 4px; background: #dc8676; transform: rotate(-1deg); border-radius: 60% 35% 50% 40%; }
-.top-nav button:hover { background: #ebdbbd35; }
-.top-nav i { top: 0; right: -7px; min-width: 14px; height: 14px; padding: 0 3px; font-size: 9px; background: #eadbc1; color: var(--ink); }
-.gem-pill { background: none; border: 0; box-shadow: none; padding: 4px 12px; border-radius: 0; gap: 8px; min-height: 38px; }
-.gem-pill strong { font: 18px Georgia, serif; }
-.gem-pill > svg { color: #5388a3; fill: #b8d6e8; }
-.settings-button.paper, .header-notes { background: none; border: 0; box-shadow: none; width: 36px; min-width: 36px; height: 38px; }
-.header-notes { border-left: 1px solid #d7c9ad; border-radius: 0; padding-left: 12px; width: 44px; }
 .focus-area { left: 38%; top: 24%; transform: translateX(-50%); width: clamp(340px, 29vw, 440px); max-height: calc(100% - 180px); border-radius: 0; }
 .timer-card, .focus-view .timer-card { background: none; border: 0; box-shadow: none; border-radius: 0; padding: 22px 35px 23px; isolation: isolate; }
 .timer-card::before { display: none; }
@@ -150,11 +136,6 @@
 .toast { border-radius: 4px; background: #fff8e9; font-family: "Trebuchet MS", sans-serif; }
 .toast-region { bottom: 15px; }
 @media (max-width: 1000px) {
-  .app-header { gap: 12px; padding: 7px 17px; }
-  .room-brand { font-size: 20px; }
-  .header-actions { gap: 6px; }
-  .top-nav { gap: 4px; }
-  .top-nav button { font-size: 14px; padding: 7px; }
   .focus-area { left: 36%; width: 340px; }
   .daily-goal-note { right: 20%; }
   .machine-plaque h3 { font-size: 18px; }
@@ -162,14 +143,6 @@
 }
 @media (max-width: 600px) {
   .app { min-height: 600px; }
-  .app-header { display: flex; align-items: flex-start; padding: 9px 15px 52px; gap: 6px; min-height: 94px; }
-  .room-brand { font-size: 20px; padding-top: 7px; }
-  .header-actions { display: flex; width: auto; flex: 1; gap: 2px; }
-  .gem-pill { justify-self: auto; padding: 6px; }
-  .gem-pill strong { font-size: 15px; }
-  .header-notes { padding-left: 7px; width: 35px; min-width: 35px; }
-  .top-nav { position: absolute; left: 12px; right: 12px; top: 54px; width: auto; margin: 0; justify-content: space-around; gap: 5px; }
-  .top-nav button { font-size: 14px; min-height: 33px; padding: 4px 6px; flex: 0 1 auto; }
   .room-backdrop { object-fit: cover; object-position: 68% center; }
   .focus-area { left: 50%; top: 191px; width: 320px; max-width: calc(100% - 38px); max-height: calc(100% - 222px); }
   .focus-view .focus-area { top: 17%; max-height: 75%; }
@@ -276,7 +249,6 @@
 }
 /* Shared paper, pencil and pistachio treatment for every workspace. */
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-.app-header { background-image: repeating-linear-gradient(6deg, #e2cda316 0 1px, transparent 1px 4px); border-bottom: 2px solid #c7b992; }
 .header-notes, .settings-button.paper { border-radius: 5px; }
 .header-notes:hover, .settings-button:hover { background: #e7ebd4; }
 .drawer { background-image: repeating-linear-gradient(8deg, #e2cca30c 0 1px, transparent 1px 4px); }

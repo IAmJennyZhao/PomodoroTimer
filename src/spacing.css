@@ -1,0 +1,62 @@
+/* Shared rhythm and readable control sizing, after scene-specific compositions.
+   Artwork, saved widget coordinates and scene geometry keep their own owners. */
+.app { line-height: 1.5; }
+.app :is(.small, .intro, .field-label, .empty-state small, .notes-save-state, .pet-level, .in-room, .furniture-stock, .session-reward, .clock-caption, .elapsed-total, .timer-phase, .timer-options, .pause-budget) { font-size: var(--text-small); line-height: 1.5; }
+.app .intro { margin-bottom: var(--space-6); }
+.app :is(.panel-toolbar, .catalog-toolbar) { gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-6); }
+.app :is(.small-button, .secondary-button, .text-button, .journal-text-button, .segmented button, .journal-choices button, .preset-button, .pause-button, .stop-button, .pastel-purchase, .egg-hatch, .arrange-finish, .arrange-remove) { min-height: var(--control-size); font-size: var(--text-small); }
+.app :is(.icon-button, .info-button, .session-settings-button, .session-edit-button, .session-remove-button, .session-add-field button) { min-width: var(--control-size); min-height: var(--control-size); height: var(--control-size); padding: var(--space-2); flex-shrink: 0; }
+.app .drawer-heading { gap: var(--space-4); align-items: center; }
+.app .drawer-heading > div { min-width: 0; }
+.app .drawer-heading h2 { line-height: 1.25; overflow-wrap: break-word; }
+.app .drawer-heading > .icon-button { margin: 0; }
+.app .drawer:not(.workspace-shop):not(.drawer-arranging):not(.movable-notes) { top: calc(var(--header-height) + var(--space-6)); max-height: calc(100dvh - var(--header-height) - 48px); }
+.app :is(.workspace-animals, .workspace-journal) > .drawer-heading,
+.app .workspace-decorate:not(.drawer-arranging) > .drawer-heading { padding: var(--space-4) var(--panel-gutter) var(--space-3); }
+.app :is(.workspace-animals, .workspace-journal) > .drawer-content,
+.app .workspace-decorate:not(.drawer-arranging) > .drawer-content { padding: var(--space-3) var(--panel-gutter) var(--space-6); }
+.app .workspace-journal > :is(.drawer-heading, .drawer-content) { padding-left: calc(var(--panel-gutter) + var(--space-6)); }
+.app :is(.workspace-settings, .workspace-session, .workspace-sound) > .drawer-heading { padding: var(--space-3) var(--space-4) var(--space-2); }
+.app :is(.workspace-settings, .workspace-session, .workspace-sound) > .drawer-content { padding: var(--space-2) var(--space-4) var(--space-6); }
+.app .drawer-content { overflow-x: hidden; overflow-y: auto; }
+.app :is(.collection-layout, .shop-items, .session-duration-grid) { gap: var(--space-4); }
+.app :is(.field-label select, .arrange-panel .field-label select) { min-height: var(--control-size); font-size: var(--text-small); }
+.app .toggle-line { min-height: var(--control-size); }
+.app .toggle-line > span { min-width: 0; overflow-wrap: break-word; }
+.app .session-duration-grid .number-field > .duration-stepper { grid-template-columns: var(--control-size) minmax(0, 1fr) var(--control-size); min-height: var(--control-size); }
+.app .duration-stepper button { min-height: var(--control-size); }
+.app .timer-heading { flex-wrap: wrap; gap: var(--space-2); }
+.app .timer-tools { margin-left: auto; flex-wrap: wrap; gap: var(--space-1); }
+.app .work-mode-tabs { gap: var(--space-2); }
+.app .work-mode-tabs button { min-height: var(--control-size); font-size: var(--text-small); padding-inline: var(--space-1); }
+.app .timer-options { flex-wrap: wrap; gap: var(--space-2); }
+.app .session-task-summary > span { min-width: 0; max-width: none; }
+.app .session-task-summary .session-edit-button { opacity: 1; }
+.app .session-task-editor { font-family: var(--font-ui); }
+.app .session-task-row { gap: var(--space-2); padding: var(--space-2); }
+.app .session-task-row .session-task-text, .app .session-add-field input { font-size: var(--text-body); }
+.app .session-task-row .task-strike { font-size: var(--text-body); }
+.app .session-editor-tools { flex-wrap: wrap; gap: var(--space-2); }
+.app .session-editor-tools button { min-height: var(--control-size); font-size: var(--text-small); }
+.app .session-editor-tools > span { font-size: var(--text-small); }
+.app .session-tag { min-width: 0; font-size: var(--text-small); }
+.app .session-tag button { min-width: 32px; min-height: 32px; flex-shrink: 0; }
+.app .session-tag-list { gap: var(--space-2); }
+.app .session-task-list { max-height: 200px; }
+.info-button { width: var(--control-size); height: var(--control-size); padding: var(--space-2); }
+
+@media (max-width: 850px) {
+  :root { --panel-gutter: var(--space-4); }
+  .app .drawer:not(.workspace-shop):not(.drawer-arranging):not(.movable-notes) { top: calc(var(--header-height) + var(--space-3)); max-height: calc(100dvh - var(--header-height) - 32px); }
+  .app .workspace-shop { top: var(--header-height); }
+  .app .workspace-journal > :is(.drawer-heading, .drawer-content) { padding-left: calc(var(--panel-gutter) + var(--space-2)); }
+}
+@media (max-width: 600px) {
+  :root { --panel-gutter: var(--space-3); }
+  .app :is(.panel-toolbar, .catalog-toolbar) { margin-bottom: var(--space-4); }
+  .app .drawer-heading h2 { font-size: var(--text-heading); }
+  .app .focus-area:not([style]) { max-width: calc(100% - 24px); }
+  .app .session-duration-grid { gap: var(--space-4) var(--space-2); }
+  .app .duration-stepper input { font-size: 1.25rem; }
+  .app .session-tag-list.compact-tags { overflow-wrap: anywhere; }
+}

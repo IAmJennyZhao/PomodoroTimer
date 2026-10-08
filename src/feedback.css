@@ -41,12 +41,15 @@
 .app .session-receipt.forfeited .icon-gem { fill: none; }
 
 /* Help and save messages are small notes; celebrations are larger taped sheets. */
-.info-content.feedback-note { z-index: 650; padding: 10px 13px 14px; border: 8px solid transparent; border-image: var(--book-frame) 24 / 8px / 0 stretch; border-radius: 10px; width: min(320px, calc(100vw - 24px)); font: 14px/1.55 var(--font-ui); }
-.info-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); padding-bottom: 7px; margin-bottom: 10px; }
-.info-heading h3 { color: var(--ink); font: 16px/1.3 var(--font-ui); margin: 0; }
-.info-heading .info-button { width: 30px; min-width: 30px; height: 30px; padding: 6px; }
-.info-body { color: var(--ink); overflow-wrap: anywhere; }
-.info-body p { margin: 0 0 9px; }
+.info-content.feedback-note { z-index: 650; display: flex; flex-direction: column; overflow: hidden; padding: var(--space-3); border: 8px solid transparent; border-image: var(--book-frame) 24 / 8px / 0 stretch; border-radius: 10px; width: min(360px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); font: var(--text-body)/1.55 var(--font-ui); }
+.info-content.egg-odds-note { width: min(640px, calc(100vw - 24px)); }
+.info-heading { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: var(--space-3); border-bottom: 1px solid var(--line); padding-bottom: var(--space-2); margin-bottom: var(--space-3); }
+.info-heading h3 { min-width: 0; color: var(--ink); font: 1.25rem/1.3 var(--font-ui); margin: 0; }
+.info-heading .info-button { width: var(--control-size); min-width: var(--control-size); height: var(--control-size); padding: var(--space-2); }
+.info-body { container-type: inline-size; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-gutter: stable; padding: 2px var(--space-1) 2px 2px; color: var(--ink); overflow-wrap: break-word; }
+.info-body:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -2px; }
+.info-body p { margin: 0 0 var(--space-3); }
+.info-body > strong { display: block; margin-bottom: var(--space-3); font-weight: 400; }
 .info-body > p:last-child { margin-bottom: 0; }
 .app .save-warning.feedback-note { display: flex; align-items: flex-start; gap: 11px; position: fixed; z-index: 400; top: 90px; left: 20px; width: min(360px, calc(100% - 24px)); max-width: none; padding: 13px; color: var(--ink); }
 .app.focus-view .save-warning.feedback-note { top: 20px; }

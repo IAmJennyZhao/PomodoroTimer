@@ -23,9 +23,13 @@
 .egg-card > .rarity-stars { margin: 0 auto; }
 .mystery-range { display: flex; align-items: center; justify-content: center; gap: 4px; flex-direction: column; color: #a171a2; font-size: 13px; }
 .mystery-range > span { font-size: 11px; }
-.egg-rarity-guide { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px 10px; border-radius: 17px; background: #f4eee7; margin-bottom: 27px; }
-.egg-rarity-guide > div { display: flex; align-items: center; flex-direction: column; gap: 7px; }
-.egg-rarity-guide > div > span:last-child { font-size: 10px; color: #857580; }
+.egg-rarity-guide { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); padding: var(--space-3); border-radius: var(--control-radius); background: var(--paper-shade); margin: var(--space-4) 0 0; }
+.egg-rarity-guide > div { display: flex; align-items: center; flex-direction: column; gap: var(--space-2); padding: var(--space-2) 0; text-align: center; min-width: 0; }
+.egg-rarity-guide .rarity-name { white-space: nowrap; font-size: var(--text-body); }
+.egg-rarity-guide .rarity-rating { white-space: nowrap; line-height: 1.25; color: var(--sage-strong); }
+.egg-rarity-guide .rarity-hatch-time { font-size: var(--text-small); color: var(--muted); }
+@container (min-width: 32rem) { .egg-rarity-guide { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@container (max-width: 12rem) { .egg-rarity-guide { grid-template-columns: minmax(0, 1fr); } }
 .incubation-explainer { max-width: 660px; line-height: 1.65; margin: -3px 0 18px; }
 .nest-egg { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .nest-egg.selected { border-color: #a780ab; box-shadow: 0 0 0 2px #b79dc52b; }
@@ -44,8 +48,6 @@
   .mystery-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
   .mystery-tile { min-height: 86px; }
   .mystery-tile .rarity-stars > span:first-child { letter-spacing: 0; font-size: 12px; }
-  .egg-rarity-guide { gap: 5px; padding: 12px 5px; }
-  .egg-rarity-guide > div > span:last-child { font-size: 9px; }
   .collection-detail { position: static; grid-row: 1; }
   .mystery-detail > .mystery-mark { font-size: 36px; }
   .mystery-detail > .sprite { width: 80px; }
