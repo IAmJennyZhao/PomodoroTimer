@@ -30,7 +30,7 @@ function main() {
   startReact({
     choosePort: async () => {
       app = await startDevelopment();
-      console.log(`Pomodoro app: http://127.0.0.1:${app.devPort}`);
+      console.log(`Little Room app: http://127.0.0.1:${app.devPort}`);
       console.log(`Local save service: http://127.0.0.1:${app.apiPort}`);
       console.log(`Private saves: ${app.store.storagePath}`);
       for (const signal of ['SIGINT', 'SIGTERM']) {

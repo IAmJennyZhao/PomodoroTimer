@@ -149,7 +149,7 @@ async function startServer(options = {}) {
 
 if (require.main === module) {
   startServer().then(({ server, store }) => {
-    console.log(`Pomodoro is ready at http://127.0.0.1:${server.address().port}`);
+    console.log(`Little Room is ready at http://127.0.0.1:${server.address().port}`);
     console.log(`Private saves: ${store.storagePath}`);
     for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => server.close(() => process.exit(0)));
   }).catch(error => { console.error(error.message); process.exitCode = 1; });

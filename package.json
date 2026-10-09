@@ -1,6 +1,12 @@
 {
-  "name": "pomodoro",
+  "name": "little-room",
   "version": "0.1.0",
+  "description": "A local-first Pomodoro app with cozy illustrated rooms, animal companions, and focus tracking.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IAmJennyZhao/PomodoroTimer.git"
+  },
   "private": true,
   "engines": {
     "node": ">=22"
@@ -20,6 +26,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "test:server": "node --test server/*.test.cjs",
+    "audit:publication": "node scripts/audit-publication.cjs",
     "serve": "node server/index.cjs",
     "eject": "react-scripts eject"
   },

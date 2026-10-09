@@ -1,6 +1,10 @@
 # Little Room
 
-A local Pomodoro timer with a full-screen pastel room, illustrated animal companions, and a collection that grows while you focus.
+A local-first Pomodoro app with cozy illustrated rooms, animal companions, and focus tracking. Grow your collection while you focus, decorate your room, and review your sessions in the Journal.
+
+Little Room runs in your browser with a local Node.js save service. There is no account or cloud sync. The initial release targets local desktop use; mobile-sized layouts exist, but physical-phone support and broader browser/accessibility claims still need verification. See the [project scope](docs/PROJECT.md) and [publication audit](docs/PUBLICATION_AUDIT.md) for release boundaries and outstanding work.
+
+Project code and documentation are licensed under [MIT](LICENSE). Artwork and legacy audio have separate rights/provenance records in [ASSET_RIGHTS.md](ASSET_RIGHTS.md); the code license does not relicense those assets or third-party dependencies.
 
 ## Run locally
 
@@ -11,7 +15,7 @@ npm ci
 npm start
 ```
 
-Open the **Pomodoro app** address printed in the terminal (normally **http://127.0.0.1:3000**). This command runs both the React development app and its local save service. If either port is busy, it automatically tries the next port until it finds an available one, with no confirmation prompt. Keep the terminal open while using the app. Both servers listen only on your computer's loopback interface.
+Open the **Little Room app** address printed in the terminal (normally **http://127.0.0.1:3000**). This command runs both the React development app and its local save service. If either port is busy, it automatically tries the next port until it finds an available one, with no confirmation prompt. Keep the terminal open while using the app. Both servers listen only on your computer's loopback interface.
 
 To choose different starting ports, set `PORT` for the frontend and `POMODORO_API_PORT` for the save service. For example, in PowerShell:
 

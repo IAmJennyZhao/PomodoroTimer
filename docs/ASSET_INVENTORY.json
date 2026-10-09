@@ -1,0 +1,275 @@
+{
+  "auditDate": "2026-10-08",
+  "sourceBaseline": "be52e8917716a8617b874f30fb43bc7e21421f07",
+  "scope": "All tracked raster, SVG, icon and audio assets under public/ and src/ at the Phase 1 baseline. Raw output is excluded as a group, not approved media.",
+  "assets": [
+    {
+      "path": "public/art/animals-sheet.png",
+      "bytes": 2435935,
+      "sha256": "102e879543141bff7fc9ce68274569bf674c6eda2cd21fca82688825c6f1870f",
+      "origin": "Recorded earlier OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Exclude unused reference artwork in Phase 3",
+      "evidence": "docs/ARTWORK.md"
+    },
+    {
+      "path": "public/art/atelier/animals-sheet.png",
+      "bytes": 2622519,
+      "sha256": "e900908e12399beb138516f39c9efe9cc84f99e631c3900911efc1fb965e3581",
+      "origin": "Recorded OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "evidence": "docs/atelier-art-prompts.json"
+    },
+    {
+      "path": "public/art/atelier/eggs-sheet.png",
+      "bytes": 1794563,
+      "sha256": "a40b2c0bd09236851efbe09d1b13ff51cd3441679d54da5f3385ebc1a1f7b6b9",
+      "origin": "Recorded OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "evidence": "docs/atelier-art-prompts.json"
+    },
+    {
+      "path": "public/art/atelier/furniture-sheet.png",
+      "bytes": 1956426,
+      "sha256": "86da0b2ed981a20ebfeeac0621f6d337b79dc1cf6aa6891142d35964ad546dd2",
+      "origin": "Recorded OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "evidence": "docs/atelier-art-prompts.json"
+    },
+    {
+      "path": "public/art/atelier/gumball-machine.png",
+      "bytes": 2069697,
+      "sha256": "7cb79bc567af8c4dbad18c7c8f6f404c031c097908a18d886d8bcb1263ecabf1",
+      "origin": "Recorded OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "evidence": "docs/atelier-art-prompts.json"
+    },
+    {
+      "path": "public/art/atelier/interface-sheet.png",
+      "bytes": 2202678,
+      "sha256": "3ac1949c39cd2365547eca7213d8e250bf815188bed779da93cd9b61cb992f6f",
+      "origin": "Recorded OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "evidence": "docs/atelier-art-prompts.json"
+    },
+    {
+      "path": "public/art/atelier/room-greenhouse.png",
+      "bytes": 2576050,
+      "sha256": "664ff874403b3b0dcf2fd2a046c8b24588c73ccbf94a84ad7d7fc69a81c3be35",
+      "origin": "Recorded OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "evidence": "docs/atelier-art-prompts.json"
+    },
+    {
+      "path": "public/art/atelier/room-moonroom.png",
+      "bytes": 2779339,
+      "sha256": "aef2f208c8c9eeab26c665c3847f194e9f1ab701a586d4ad30942e9cd6f07f82",
+      "origin": "Recorded OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "evidence": "docs/atelier-art-prompts.json"
+    },
+    {
+      "path": "public/art/atelier/room-sunroom.png",
+      "bytes": 2582558,
+      "sha256": "9626476fbf94e7f37ab1dfb28a46dbb1e7bc2be84f2e6bc86ad57647861d4b16",
+      "origin": "Recorded OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "evidence": "docs/atelier-art-prompts.json"
+    },
+    {
+      "path": "public/art/atelier/shop-backdrop.png",
+      "bytes": 2632608,
+      "sha256": "1b6482b7e47f563518c4212cadbf53001d6c6c949eda68f5e0a1161b6040c396",
+      "origin": "Recorded OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "evidence": "docs/atelier-art-prompts.json"
+    },
+    {
+      "path": "public/art/objects-sheet.png",
+      "bytes": 2470733,
+      "sha256": "7b82ee53da4eea6950c8fe0904e0e3310777b014489e9a96c1f8f6cc0cab6fbf",
+      "origin": "Recorded earlier OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Exclude unused reference artwork in Phase 3",
+      "evidence": "docs/ARTWORK.md"
+    },
+    {
+      "path": "public/art/room-greenhouse.png",
+      "bytes": 3161115,
+      "sha256": "702d4c47e36441cee8586eab13f8d84e789b152a2d3f1f26f647b2e1fd1e0fe6",
+      "origin": "Recorded earlier OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Exclude unused reference artwork in Phase 3",
+      "evidence": "docs/ARTWORK.md"
+    },
+    {
+      "path": "public/art/room-moonroom.png",
+      "bytes": 3127458,
+      "sha256": "7417890d2743c45b48c49ff6f86c4cce5aae7a3694137f4a72e5f5490fa6255c",
+      "origin": "Recorded earlier OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Exclude unused reference artwork in Phase 3",
+      "evidence": "docs/ARTWORK.md"
+    },
+    {
+      "path": "public/art/room-sunroom.png",
+      "bytes": 2831568,
+      "sha256": "6db0cc6bc04987a9add7ac012daca47408657360a03a973138f12783cc31ebae",
+      "origin": "Recorded earlier OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Exclude unused reference artwork in Phase 3",
+      "evidence": "docs/ARTWORK.md"
+    },
+    {
+      "path": "public/favicon.ico",
+      "bytes": 3870,
+      "sha256": "3d10f7da6c603178340081668c4ac5b3ae9743ca9a262ab0fcd312fbb9f48bdd",
+      "origin": "Create React App starter",
+      "rights": "Upstream attribution retained; no new trademark grant",
+      "disposition": "Exclude starter branding in Phase 3",
+      "evidence": "Git commit 3ebc0c2"
+    },
+    {
+      "path": "public/favicon.svg",
+      "bytes": 517,
+      "sha256": "90ff074d7f59c7ad482f47a7abdf460ebe4357b241d81dbf86376a2c2c02c0b3",
+      "origin": "Project code-drawn SVG",
+      "rights": "Project code MIT",
+      "disposition": "Include",
+      "evidence": "Project source and Git history"
+    },
+    {
+      "path": "public/logo192.png",
+      "bytes": 5347,
+      "sha256": "c386396ec70db3608075b5fbfaac4ab1ccaa86ba05a68ab393ec551eb66c3e00",
+      "origin": "Create React App starter",
+      "rights": "Upstream attribution retained; no new trademark grant",
+      "disposition": "Exclude starter branding in Phase 3",
+      "evidence": "Git commit 3ebc0c2"
+    },
+    {
+      "path": "public/logo512.png",
+      "bytes": 9664,
+      "sha256": "9ea4f4da7050c0cc408926f6a39c253624e9babb1d43c7977cd821445a60b461",
+      "origin": "Create React App starter",
+      "rights": "Upstream attribution retained; no new trademark grant",
+      "disposition": "Exclude starter branding in Phase 3",
+      "evidence": "Git commit 3ebc0c2"
+    },
+    {
+      "path": "src/art/book-frame.svg",
+      "bytes": 707,
+      "sha256": "fe011a9c3cbe30f71175b87a3335415955a70aed605a2020e2001fad748779be",
+      "origin": "Project code-drawn SVG",
+      "rights": "Project code MIT",
+      "disposition": "Include",
+      "evidence": "Project source and Git history"
+    },
+    {
+      "path": "src/art/book-rings.svg",
+      "bytes": 490,
+      "sha256": "0dc3fce5c9d3ba5841c6b734140722028721af84465d9561b693e70e611cdfcf",
+      "origin": "Project code-drawn SVG",
+      "rights": "Project code MIT",
+      "disposition": "Include",
+      "evidence": "Project source and Git history"
+    },
+    {
+      "path": "src/art/leaf-sprig.svg",
+      "bytes": 832,
+      "sha256": "d8dcb8e702fcdca3d063a13f40ef00d249d331a93f238391fb252472f26f21e6",
+      "origin": "Project code-drawn SVG",
+      "rights": "Project code MIT",
+      "disposition": "Include",
+      "evidence": "Project source and Git history"
+    },
+    {
+      "path": "src/art/paper-grain.svg",
+      "bytes": 413,
+      "sha256": "4ed3f60d598e89be0ef1678d9a53b100df1eb6a127f68b42361c3cc38efe9e54",
+      "origin": "Project code-drawn SVG",
+      "rights": "Project code MIT",
+      "disposition": "Include",
+      "evidence": "Project source and Git history"
+    },
+    {
+      "path": "src/art/pencil-frame.svg",
+      "bytes": 520,
+      "sha256": "05ad7a73f7969527151b6d0977b746f9c1d0576e6052d52ddde72e25aaf4bdda",
+      "origin": "Project code-drawn SVG",
+      "rights": "Project code MIT",
+      "disposition": "Include",
+      "evidence": "Project source and Git history"
+    },
+    {
+      "path": "src/art/utility-frame.svg",
+      "bytes": 765,
+      "sha256": "3c0f033a674f143dc48d566da097d76dea281114828b1448c2ad2fa27663d8b0",
+      "origin": "Project code-drawn SVG",
+      "rights": "Project code MIT",
+      "disposition": "Include",
+      "evidence": "Project source and Git history"
+    },
+    {
+      "path": "src/logo.svg",
+      "bytes": 2632,
+      "sha256": "6000b0e9b0b05b3f112de04f0d039768a1db63588ff9b6ef7099dbd71632f383",
+      "origin": "Create React App starter",
+      "rights": "Upstream attribution retained; no new trademark grant",
+      "disposition": "Exclude starter branding in Phase 3",
+      "evidence": "Git commit 3ebc0c2"
+    },
+    {
+      "path": "src/sounds/click-menu-app-147357.mp3",
+      "bytes": 26749,
+      "sha256": "f93b1b0f075cb8aaa94ae2d6f7002751416a8601a90bacb4274c558174a22993",
+      "origin": "Unrecorded original source",
+      "rights": "Unknown; no license inferred",
+      "disposition": "Exclude unused audio in Phase 3; review history in Phase 7",
+      "evidence": "Git commit ef811f3"
+    },
+    {
+      "path": "src/sounds/click.mp3",
+      "bytes": 47647,
+      "sha256": "240535bb0007d4dd9a46bf23df25d1a5ae60ba4d007046ebf597bf46b8a97da6",
+      "origin": "Unrecorded original source",
+      "rights": "Unknown; no license inferred",
+      "disposition": "Exclude unused audio in Phase 3; review history in Phase 7",
+      "evidence": "Git commit ef811f3"
+    },
+    {
+      "path": "src/sounds/puppet music alarm.wav",
+      "bytes": 685654,
+      "sha256": "65b32fa85259ca769b45c3220b1e89a6c12fb327d6fc7bd46b2f4dfb5b914452",
+      "origin": "Unrecorded original source",
+      "rights": "Unknown; no license inferred",
+      "disposition": "Exclude unused audio in Phase 3; review history in Phase 7",
+      "evidence": "Git commit ef811f3"
+    },
+    {
+      "path": "src/sounds/tap.mp3",
+      "bytes": 5015,
+      "sha256": "d07c9a9b05caf5ac0ada847f8c112ebd64b8df48695ecf04504631bca0029664",
+      "origin": "Unrecorded original source",
+      "rights": "Unknown; no license inferred",
+      "disposition": "Exclude unused audio in Phase 3; review history in Phase 7",
+      "evidence": "Git commit ef811f3"
+    }
+  ],
+  "excludedOutput": {
+    "files": 163,
+    "bytes": 46500205,
+    "disposition": "Exclude raw QA evidence; curate future media separately",
+    "generatedMockupCount": 15,
+    "mockupProvenance": "output/mockups/cohesive-atelier-v2/manifest.json and prompts.json"
+  }
+}
