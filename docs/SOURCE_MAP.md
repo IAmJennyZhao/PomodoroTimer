@@ -1,5 +1,9 @@
 # Source map
 
+For the overall data flow, read [architecture](ARCHITECTURE.md). For setup,
+change boundaries and verification expectations, read
+[CONTRIBUTING.md](../CONTRIBUTING.md).
+
 Start with [App.js](../src/App.js) for application composition and navigation,
 [game.js](../src/domain/game.js) for accepted state changes, and
 [useLocalSave.js](../src/persistence/useLocalSave.js) for the save lifecycle.

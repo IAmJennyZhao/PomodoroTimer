@@ -14,6 +14,8 @@
 | Document | Purpose |
 | --- | --- |
 | [Source map](SOURCE_MAP.md) | Owning modules and tests for common changes |
+| [Architecture](ARCHITECTURE.md) | Deployment, state ownership, timer model and save lifecycle |
+| [Contributor guide](../CONTRIBUTING.md) | Change boundaries, checks and pull-request guidance |
 | [Automated validation](AUTOMATION.md) | Commands, CI, reproducibility evidence and limits |
 | [Dependency review](DEPENDENCIES.md) | Tooling advisories and expiring exceptions |
 | [Artwork](ARTWORK.md) | Visual system, assets and generation provenance |

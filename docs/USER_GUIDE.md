@@ -96,9 +96,11 @@ a pet and drag it into place. Arrow keys nudge the selected item; Shift moves
 it farther. The selection outline and X identify the item being edited.
 
 Library tiles cycle through placed copies. Each furniture purchase adds one
-copy; removing furniture returns that copy to the library. Cancel an edit to
-retain the previously saved placement, or use the placement confirmation to
-keep the new position. The illustrated background and furniture scale together.
+copy; removing furniture returns that copy to the library. Release a drag to
+save its position; press Escape during a drag to return to the last saved
+position. For new furniture, **Cancel placement** keeps the copy in your
+library; **Place & Done** confirms it and closes Arrange. The illustrated
+background and furniture scale together.
 
 The timer and **Daily goal** note have move handles and saved positions. They
 stay within the room when its size changes. New rooms begin with a sofa and rug.

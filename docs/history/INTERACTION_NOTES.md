@@ -3,7 +3,7 @@
 Preserved from the README at checkpoint `67e9823`, October 9, 2026. The phase
 numbers below refer to earlier animation passes, not the publication plan.
 This is historical implementation context; use the [user guide](../USER_GUIDE.md),
-[source map](../SOURCE_MAP.md) and [current validation](../AUTOMATION.md)
+[architecture](../ARCHITECTURE.md) and [current validation](../AUTOMATION.md)
 for present-day instructions and evidence.
 
 ## Interaction and motion settings

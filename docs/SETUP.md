@@ -96,7 +96,7 @@ into a production build.
 
 The save service limits state to 1 MiB. It writes through a temporary file and
 atomic replacement, and validates the current revision before accepting a
-write. See the [source map](SOURCE_MAP.md) for the persistence implementation.
+write. See [architecture](ARCHITECTURE.md#save-lifecycle) for the data flow.
 
 ## Backup and recovery
 

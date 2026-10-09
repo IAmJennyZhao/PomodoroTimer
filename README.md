@@ -57,6 +57,15 @@ competing edits from another window. Save problems preserve edits in memory
 and offer a reference-only recovery draft; drafts cannot be imported or merged
 automatically. [Learn how to back up or recover progress](docs/SETUP.md#backup-and-recovery).
 
+```mermaid
+flowchart TD
+    app["React app in your browser"] -->|"Local HTTP"| server["Node save service"]
+    server -->|"Revision-checked writes"| saves["Private save folder and backup"]
+```
+
+See [architecture](docs/ARCHITECTURE.md) for deployment, state ownership and the
+save lifecycle.
+
 ## Explore the project
 
 | For | Start here |
@@ -64,6 +73,8 @@ automatically. [Learn how to back up or recover progress](docs/SETUP.md#backup-a
 | Using the app | [User guide](docs/USER_GUIDE.md) |
 | Installing, running and protecting saves | [Setup](docs/SETUP.md) |
 | Finding the implementation | [Source map](docs/SOURCE_MAP.md) |
+| Understanding how it works | [Architecture and diagrams](docs/ARCHITECTURE.md) |
+| Making a change | [Contributor guide](CONTRIBUTING.md) |
 | Running checks and understanding CI | [Automated validation](docs/AUTOMATION.md) |
 | Current scope, evidence and historical context | [Documentation index](docs/README.md) |
 
