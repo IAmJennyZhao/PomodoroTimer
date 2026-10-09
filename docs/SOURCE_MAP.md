@@ -89,4 +89,4 @@ source tree. Publication Phase 3 preserved the former raw tree in a local
 archive; [REPOSITORY_CLEANUP.md](REPOSITORY_CLEANUP.md) records the disposition.
 Use [RELEASE_QUALITY.md](RELEASE_QUALITY.md) for current acceptance evidence;
 [AUTOMATION.md](AUTOMATION.md) records Phase 4 automation;
-[VERIFICATION.md](VERIFICATION.md) is historical.
+[VERIFICATION.md](history/VERIFICATION.md) is historical.
