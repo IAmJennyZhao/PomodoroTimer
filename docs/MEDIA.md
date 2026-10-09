@@ -71,6 +71,11 @@ publication pass. This phase prepares the file without applying hosted metadata.
 
 ## Verification and remaining gates
 
+Capture revision identifiers below and in the manifest refer to the original
+history at capture time. Phase 7 retains their corresponding commits in the
+[commit map](history/COMMIT_MAP.json); use `npm run history:lookup -- 656cf33`
+to resolve them. Original provenance and media bytes were not rewritten.
+
 - Strict production build and all 22 server/launcher/policy tests passed on
   Windows with Node 22.14.0. App source and dependencies were unchanged;
   frontend suites were not repeated for media work.

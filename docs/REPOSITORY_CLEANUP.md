@@ -25,8 +25,10 @@ experiments; it is not a tracked release-media folder.
 
 To inspect preserved evidence, read the archive's `output/` folder or the
 `removed/` tree. The manifest contains no copied file contents. The archive
-is local to this checkout; future clones can find previously tracked files in
-Git history. No raw screenshot or mockup was promoted into publication media.
+is local to this checkout. Phase 7 subsequently removed the excluded files from
+the publication branch's entire ancestry; their original Git objects remain in
+the private local history backup. See [HISTORY_PREPARATION.md](HISTORY_PREPARATION.md).
+No raw screenshot or mockup was promoted into publication media.
 Fresh, reviewed showcase assets belong to the later visual-showcase phase.
 
 This cleanup changes the **current tree**, not existing Git objects, remote

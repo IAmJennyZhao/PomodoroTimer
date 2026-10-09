@@ -24,7 +24,9 @@ Pet upgrades retain their gentle animations; reduced-motion preferences disable 
 
 The five older raster assets formerly in `public/art/` were removed from the
 current tree in publication Phase 3 and preserved in an ignored local archive.
-They remain in Git history. The following briefs document their earlier
+Their original Git objects remain in the private local history backup; the
+publication branch excludes them from every historical tree. The following
+briefs document their earlier
 generation; the table does not list current production files.
 
 The descriptions below summarize the generation briefs. They are not exact prompt transcripts. They contain no personal tasks, saved progress, or other private user data.

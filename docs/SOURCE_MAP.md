@@ -92,6 +92,14 @@ in [release.spec.cjs](../e2e/release.spec.cjs).
 in `.github/workflows/`. See [AUTOMATION.md](AUTOMATION.md) for commands, CI scope
 and limitations.
 
+[audit-publication.cjs](../scripts/audit-publication.cjs) supports a selected
+ancestry as well as all local refs; its branch-scope/redaction fixture is in
+[audit-publication.test.cjs](../server/audit-publication.test.cjs).
+[check-history.cjs](../scripts/check-history.cjs) verifies the retained lineage
+against [COMMIT_MAP.json](history/COMMIT_MAP.json);
+[history-lookup.cjs](../scripts/history-lookup.cjs) resolves original checkpoint
+identifiers. See [HISTORY_PREPARATION.md](HISTORY_PREPARATION.md) for scope.
+
 ## Local evidence and current status
 
 New raw QA captures belong in ignored `.local/` or `output/`, not the tracked

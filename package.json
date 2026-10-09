@@ -30,6 +30,8 @@
     "showcase:capture": "node scripts/showcase-capture.cjs",
     "showcase:render": "node scripts/showcase-render.cjs",
     "audit:publication": "node scripts/audit-publication.cjs",
+    "history:lookup": "node scripts/history-lookup.cjs",
+    "history:verify": "node scripts/check-history.cjs",
     "audit:dependencies": "node scripts/audit-dependencies.cjs",
     "serve": "node server/index.cjs",
     "eject": "react-scripts eject"

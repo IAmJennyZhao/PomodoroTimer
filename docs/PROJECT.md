@@ -73,5 +73,11 @@ preview and social card are complete locally; see the
 [gallery](SHOWCASE.md), [media preparation and verification](MEDIA.md) and
 [artifact manifest](media/manifest.json). The README now showcases the real app
 using fictional content. The social card is prepared for Phase 8's upload.
-Phase 7's history treatment and Phase 8's hosted metadata/release work remain
-separate passes; the existing asset and hands-on gates remain open.
+Publication Phase 7's local history filtering is complete. Every original
+commit remains, with personal identity metadata replaced by the existing
+noreply identity and excluded historical artifacts removed from the ancestry.
+See [history preparation](HISTORY_PREPARATION.md), the
+[development timeline](history/TIMELINE.md) and [commit map](history/COMMIT_MAP.json).
+Verified original backups stay private and local. GitHub's old history is
+unchanged; replacing it and applying hosted metadata/release work belong to
+Phase 8. The existing asset and hands-on gates remain open.

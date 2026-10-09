@@ -1,0 +1,2883 @@
+{
+  "formatVersion": 1,
+  "date": "2026-10-09",
+  "decision": "Keep every original commit; filter identities and excluded artifacts.",
+  "originalProjectCommits": 125,
+  "rewrittenCommits": 126,
+  "originalHead": "9c86122669c1174dbc1bf782565abd861dcfc847",
+  "cleanedHead": "cfb5b50005e04ec81e5caf936cefafd08c4322b4",
+  "finalTreeAtRewrite": "c3ceed5513a9003ba71847eb180e23a5c1399443",
+  "originalBundleSha256": "045b99b1b9637720a3ecd42c304f1e8476ded030e0675bed696fd2d3930ec831",
+  "exclusionPolicy": {
+    "prefixes": [
+      "output/",
+      "src/sounds/"
+    ],
+    "files": [
+      "public/art/animals-sheet.png",
+      "public/art/objects-sheet.png",
+      "public/art/room-greenhouse.png",
+      "public/art/room-moonroom.png",
+      "public/art/room-sunroom.png",
+      "public/favicon.ico",
+      "public/logo192.png",
+      "public/logo512.png",
+      "src/logo.svg",
+      "src/sounds/click-menu-app-147357.mp3",
+      "src/sounds/click.mp3",
+      "src/sounds/puppet music alarm.wav",
+      "src/sounds/tap.mp3"
+    ]
+  },
+  "uniqueExcludedPaths": 176,
+  "excludedBlobIds": [
+    "a11777cc471a4344702741ab1c8a588998b1311a",
+    "fc44b0a3796c0e0a64c3d858ca038bd4570465d9",
+    "a4e47a6545bc15971f8f63fba70e4013df88a664",
+    "9dfc1c058cebbef8b891c5062be6f31033d7d186",
+    "4f8c2d7d9f9ff5677afb28ba3f0daf424cb51394",
+    "39ce71a9b395efd6b7c3f73e81ac53ea5c21d511",
+    "39fb460b232e1feb2ee91e81eeba4a83b585cc5e",
+    "769f6f06a0cbc1e1db6106dfe8b68387fd22ec68",
+    "bfc7b3ef5d8037ef5468f44791086a30c5644dd0",
+    "91ff13d0f42047c88169630f6a6323521c40c4d1",
+    "7056616a133f6adfc6d4f746ca0146076234fac8",
+    "1f90b49f6440f183f61244d1ff049b09ee0c8120",
+    "db010dcf5d7cb08ad25cafc6d48726458dae1488",
+    "07142a5ce748a406b76259056392556b0b909cc5",
+    "0dc59d9c52b211e6f27ed54fe887b7b3226dfa87",
+    "86d56c5727befa3c23d9dcf63da1fa6fc6a89a9a",
+    "ed3c838ec8a0dc158def1d38271e7ce28ec43b4e",
+    "a910e8076029fcdd8cff689b04b237948bad4356",
+    "604b2ab403d5425a0844fb9730f29cf39a651e26",
+    "33a5a4a8087edf28675a49930431bec8b8ebdf92",
+    "d664309cd968b23cb524ad9c00b73bae4668b14a",
+    "43efb284d2520af03e5a4e7dfc91c945eea8a400",
+    "14a00143540f419c79b5780bdf07f970eb9b9713",
+    "ab13c38af02f6765a879447432d017594cd52893",
+    "f6d3d0663e130cdf2f042084e4810482ab9214c3",
+    "60e25b65c32268456105d3741625ace93d078c81",
+    "9ee40ae5e59a9aa811c2adcee7239562e227e59e",
+    "ef015c63120e513eeeba9806e38574ebf08d176f",
+    "fad5c4c7677764f9e5bb6b3e55054bdfc690c97c",
+    "8ab7d46154136cc3d93d891cd1878bfe58de9336",
+    "0d7f0af5f2a44cd10a184ac4813cb01908154957",
+    "816f0f95a06f971f034142df15e4c0ba3b6a4b33",
+    "a010bd16649a849e1e039a0a1005889b76df2804",
+    "c780db62e431cab453093e222f44ada38232442b",
+    "d3de7b27c7b665d87e3a486ae441c61b2c33c04b",
+    "855269c15c91d22e0c4661e013fa67f1cdc8d525",
+    "a52fa7dea4550ec0c39f59e3c5c6afa21baf4595",
+    "3280134564895e2e3145fab82906bfbde832ae7d",
+    "1cda758cf536e940c48a9d67fd50e57dde24db6c",
+    "66187b8747acfa7c9d9ce54e6b504e1b2aa6220a",
+    "364bf3f8ff7d3c44606759ec41d6b4173bdb7f5f",
+    "5a3332fb071dea957a5048a4f5b9de3fd4f50f5e",
+    "7284d708d61bc71ce1488f0651e428c98ec1a87f",
+    "b01653eea994b3370dab9e9ac72be065d624d74b",
+    "185322a4e11c15b690fb7fcc64261d076ef05e6b",
+    "9483b2e9c5cc46e5a5814e0745b6889206f2424b",
+    "cdef27773c11e183c0f2cf1a2edf8c934134b3db",
+    "c43e4e7f7a2ffb09f34f28e8e58cdf1a0ce69a57",
+    "001a2325a67340501f487df974cef342472dd2bf",
+    "ffacea7bc899ab8fdf140e94fce2898630061202",
+    "f80b6feb2d27270584e40ea048d9464910692f15",
+    "f9330c3b49f2688f254d5d580d59db3d5419d32e",
+    "f8d8aa0e98b621af30f6052cd4dcfb1840605087",
+    "6d6e451431906eacbdb04e2f67effffcca7ee531",
+    "041a3c6ad1abaa7720c473a8b837411372e088e4",
+    "9e443c79ccc1d656cace47f1331eb3cfc462a049",
+    "0ef47f4ca72c42ad61a9e9b96e476bed9e01567d",
+    "1bcfd1aa17a242974928a546953333f161de09dc",
+    "4c7674e2dc19460c8968242aea04cdd8a0a8d71e",
+    "078bd9f64ed69c11794245998d1dfef699fbae2a",
+    "e1453b8b6630db3b5f716dc2d4ed95a68b9ddd82",
+    "35a1d3f427e9b78c2a7f278613f447d0671488ff",
+    "86ea331b9cf7a9abe03fb034a8f2e5b311ba4aaf",
+    "18a971f522b387c4e18a259937676cdfe5db8a0c",
+    "2c5fb3e54c76ce72b69476ed12e6968496a768a9",
+    "c697d10b49a48b4d68057443d9dbea84a8efceca",
+    "455367d247d5139fb82ae49a4aa22f2ea9dec970",
+    "6238461a43b8041d971c968e839c843ffd16b882",
+    "198604dadc7711340d47f08a3a268e4c31293846",
+    "e83df43b37a89e4b6b1e3bec9c87db2c8dd0251a",
+    "5abd0959553afd8a75a5d58da95a852e593c7754",
+    "00ef628f48c6b6eee4a70266f5b174a62effbc9e",
+    "a271992a0e5dd883599d3c3eae3fdcb3bfa9d2a6",
+    "d88ae39bf8184e99bd4971d6514493e6ca516dd5",
+    "cf9520c3e1f5acea43a40d12d5056de231c058bc",
+    "9376137469a55c514fc3196561f5b2a38608e1fb",
+    "57fb48d6ef327547756d95a0002b3622eafdff4c",
+    "325d37f15413c69423ef65c952047154201fb480",
+    "da17f5cac51e0ddd584f86d18107c7b00abb7e4a",
+    "f7614bac4b7a8160852c8ce43d8fd7486b7bebfa",
+    "b2afd816df0bf58ede08f422fc8b97d806068041",
+    "888bf73b6fe244ecb81e81e89758a8e4ed12addb",
+    "c048afd3855ed889c3ca5273de025495c0958464",
+    "030d9f444550b14e45a182161c38d5c6d7d04bb6",
+    "64272c1e11cb6471d554f86921fbbd29a971801d",
+    "15f6ce289640e24f6953078f650b4c36d0fa785e",
+    "d863bd31ff90ea35347138821dda792aa4283b90",
+    "e37a51429d8629a0c7c7dc484ae693aff111cf74",
+    "c642edb1cb9cb72e1063c0c4ece85d3b76c5d77a",
+    "69849fc86734953b70bdea943fd5461692aa6450",
+    "d1cd75c307d0dc366d91290d1574ba6923c90c03",
+    "34bb7470fbe5f564c9444e06d2e915a2146becdb",
+    "b90ed91d6c33b264eaf1683ba0e442867582027d",
+    "070f934a67bbe0f8fd6a778d3b5ebe06cd4af97c",
+    "dfdf937c8eeebd042fa753309c4b06e3d3fcdc17",
+    "e4d95e4537ab12e5b39593aff5842fdeb746030b",
+    "c39f49045aec47faf3ca41af6eda16c9e960c660",
+    "fbb1856140f2cd291237c5dc67e45bdfb44599e4",
+    "a7e7874dd424ef7fdfb365d2c9b5f039d5afe989",
+    "56efacca2af248ae6223c61d52c46ca314bc9c0c",
+    "a123916374dbe281c28e9d891ffa7dd1ecdcd881",
+    "67629581a5d700daabd47276e0f1bd5c6bc976f4",
+    "a2c9526a9f22ae96e4c2636e8f781d381e31d97a",
+    "fe67609e4336121809de5608b6537ebfbd8417e5",
+    "0b35d8d39bf864bc4ff3e2d68638ef240c05cd25",
+    "8934e2b43443fc310a281702a1fc9970bdd87ed2",
+    "b44f8b65e9d6b8311f6ddd515f1c7758e4f95d1e",
+    "4f6b973684e701d8a424485895e254d1cbc85196",
+    "c1cf0fa6a2fbcb89167c6568516a7aa557d323a2",
+    "90a0241d9f8f5c8f68dcc828abea59a3b3e68bd9",
+    "c3d7d2adc8339461440d98fcb6d25c16cc47b442",
+    "e1fcd7060edc266f53f947355de3c8b94f8c96a3",
+    "b6be537f282a6f3cacf8048f66778e86edb00851",
+    "4e78eb37c6dd26def5921be9232a20e040b18655",
+    "caa61d95e9e8e0130705b7ae5e3337c2f2d22240",
+    "fbc09f3586f518945797de23f98dcde17bdf6f28",
+    "eae9f7baebdf32d75e6882d7bef907d4955b8905",
+    "1f608404f3c3fa864670786a4e66c601c1e7b952",
+    "ed1364b975a0b02345e4f2dff73e2cff8ad84aec",
+    "0dacef32e5afa5aa1e87f7c83117693332cd6b0b",
+    "5ed6d7b12c3c88974549bef7125fec88a2619c2c",
+    "4ac1841aaa0cc68bb8b06bd88a94eb2a537864e1",
+    "996057d64b6d641f659f3aa5c32626a718f02009",
+    "1fcc388f74931092785ce4fb77ae134a66be9528",
+    "5279b0f1f3f994bffd99bf6bf43f4e60ce7f2ac0",
+    "9ef7e268f50201ebaf8061ae90004d8a784ea33d",
+    "a77fcb33c2398d13bdff45648b856eddf1ff8ec7",
+    "811b2fe7f45c4728ba4702b7bd008a6b498185e9",
+    "f823b4797fb15db5c76219666d279a136abfe6c1",
+    "64484e88105209ed5567a259effeb6b54b307728",
+    "36e27f33882fe0e0397bbb66d06a9762786aa680",
+    "550b4eccc3b27b50045bb2a710a602d639d10153",
+    "9afa6e0a6bde78170c149380d76dfe5643c85344",
+    "a576018beb8907b04f8ac6a386d19cee514e9b60",
+    "30622630b50237224e314e5be16c1a12dd9cb725",
+    "141e972a8ca15639815105ecb5881d2f222e5f4c",
+    "54c23bc5bd2ebc40f46ce4219712f49def157d6f",
+    "0d61e05900a0b26dbc3badbde6b792fbb52b0545",
+    "506e708a971776d78eb8882feeaf218dd6853961",
+    "288d00e5314810c00640d6c844ea33f1833c78f7",
+    "80abad46dad9109db0e880e131e2eab0b0ae8546",
+    "ee8b76b97bdc49dc1fa6f8e6bfadeb4e5e8b853f",
+    "601f8986f7bb6543625b17d0f80af0f3447f7ad1",
+    "8858a14f92bdd83ba8f3affc8cca61d79096fca2",
+    "f355b06201baea8f87ce02ee336f264cef15c092",
+    "cd92284db1fad1a885a579e6b435b906bb1d32b6",
+    "68d83f36b5fecf9e9a2b417de2daeea7a73cff4c",
+    "a59ded875f922501f43e4e610c1b25f60977bc67",
+    "494bb6d4fa50079d36edeaaa98ec0edbe1aad97c",
+    "c47787d523edef502a207988775c6dce5e593287",
+    "3c4476fee1d254d1eb954f043cfb28d670216c47",
+    "accb1d4a50e815fa5ab309d09f0ab55f2dabb50c",
+    "74c31af746f07c28aea4782fa0f320a4beed314e",
+    "24760093bb76891225594f13e0cd679d72f248fc",
+    "e0a133c8c0cd35df4281ada351cd789a617b7d8f",
+    "a766c7f4c2659b602231c02e74097e1f757abe0f",
+    "371f3e6b3e10796558f468926130bf1c6215d728",
+    "6df7e462a6e9627c613e385adb95f4687b5f1ada",
+    "af3e3e2c135e4ed403914ab37f48ea86cab32576",
+    "e40076bb1e493c9a48eff45c4a677f2ce339cf57",
+    "394aca8386604a32c1fbf7df6e93e0edb446b718",
+    "ebea9258aba4780229e2d538687af4da999d3c7b",
+    "219647f60912387122317b0f608a6084dde2fb81",
+    "f8c88367f2d0e9b11b2dd4aeae24c83fdab65882",
+    "9276a806d8d9652d0fb9d5bee3cc68b84d209f29",
+    "e7702c3656159a2e77abd76d467748a80061d959",
+    "6299a36db4d4e85efa550f82415186bcdc9dd378",
+    "36f96881a8d787b53ecc7559963a28a35ec11ed5",
+    "4e1e4d5dfbeb24777bd58e6923d0bf113dfb5ab5",
+    "a3a5a135fa544569b102717200203ac2284c6cb6",
+    "c0ada2f9262f1873df6e2b881f1f30ffe6a262c8",
+    "04e60a3f03280043d88682e3d6913af7b665668f",
+    "1a4f4262f07045876d3b93a34cfc6f526fe4efef",
+    "a550a1d6160e3fed2236ece285f195fcae8abdcf",
+    "608863764a6777b34d9ef2aa3401f2e4bf421e48",
+    "3d0bb7a93ae52dc0cbcaf6340cd33faf504b0b20",
+    "dd2ea6b587c230f27f043d4d5579993c1165f2b1",
+    "93fe2d316eef57ed8ff820d105af63f34a040f17",
+    "b3ec814b3e767b81ce8baaacbfe8453e5a94aa46",
+    "5f28f0067b06240d720eb468c0918c8a9c1b7105",
+    "8f465d47ea9361781438ec7facb91961cb05adf4",
+    "1c16870daf7733a2a89535316959cfc28d86d2da",
+    "06410aca8f50f17062da5d57d36d56dda7de4586",
+    "c056c2029bf4b5e2fb83421b15ad5f677d20e368",
+    "f0c6a52d15f7871f6eeed97c673a94bc0ea99371",
+    "7f48c91423702a0bb2d729133654db72d9337270",
+    "9a9e08b0f7d9a3c955339dc8daa6f7d23f2761be",
+    "cdd08ebd632a76eb8e63872123959a1f3b8f38eb",
+    "6faa1f5e9b4d024e16b7b64513828046215ad1fd",
+    "2dc333bc419739594d66c9164b9238b89460d63a",
+    "533ef55564bc8c0d701973b031098fd231a6a136",
+    "924136fdf372ce3aa65c7684a074b31db81fe9c1",
+    "6fe6cad618e93a4d986f224f24d7f7e703e7b06c",
+    "d419a0a971417a6fa7d03c23c927d38f5df5a68d",
+    "71362f0fd5d19071370e67367d06cac99e73cb26",
+    "6fd0abcdd020e95a4f670826934fbf093932363c",
+    "2490bf53ba0cfd628319e9257e1ba59b5a6ef554",
+    "da7f0e9abbc2ba485ea6bdb296a46aa16d92749a",
+    "3ec3afa81ccecd791c4650bceb83b58b955ca998",
+    "a6e01be430860b25213925023f81d0e9d62a07ac",
+    "24b6628b4ae9aba105e81c78ec2c8350ddadc46f"
+  ],
+  "originalHashes": "Dated evidence and media provenance retain their original commit identifiers. This map resolves them to retained rewritten commits; it contains no original personal addresses or raw artifacts.",
+  "commits": [
+    {
+      "original": "3ebc0c2bbddb63b3542f1256cd743d604c04565a",
+      "cleaned": "b96aa2a89524d6769ee802dab7e4794be88fb6c4",
+      "subject": "Initialize project using Create React App",
+      "messageSha256": "8c974eb7c5693fb2890a16d090c0c0b541ac4b4082bacf4a99d26bd49f818c3f",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1704306967,
+        "timezone": "-0500"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1704306967,
+        "timezone": "-0500"
+      },
+      "originalParents": [],
+      "treeFiltered": true,
+      "excludedFiles": 4
+    },
+    {
+      "original": "4dca6d7c13d0692c93147ff2a36888e78a90003b",
+      "cleaned": "08529f7e92ef94e753e710683bf6604f3fcf90c7",
+      "subject": "Create Header",
+      "messageSha256": "7c16818a5ae3c9552667ee41fdc91900f14b005d033bf0f239cc102ac2ca294a",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1704312786,
+        "timezone": "-0500"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1704312786,
+        "timezone": "-0500"
+      },
+      "originalParents": [
+        "3ebc0c2bbddb63b3542f1256cd743d604c04565a"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 4
+    },
+    {
+      "original": "b1d6d189fecf4cb6961d80957892b612ae75213d",
+      "cleaned": "d6d47f1519d45aa5a4972334098309470a5e0db6",
+      "subject": "Add in basic components without functionality",
+      "messageSha256": "8ea7a085450ede123e84bbb296ccdc94f63f4ea1ec742582d094cafe521dc454",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1704317959,
+        "timezone": "-0500"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1704317959,
+        "timezone": "-0500"
+      },
+      "originalParents": [
+        "4dca6d7c13d0692c93147ff2a36888e78a90003b"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 4
+    },
+    {
+      "original": "8dd45af0ab55bf40ce3d9807e71e177175a696d6",
+      "cleaned": "8553324098d72e6c2ce287f92b07a5748ff57711",
+      "subject": "Add timer functionality",
+      "messageSha256": "023a5260509a3af898d0a74caab52a62c01e9154f07dfa026582996eefe745fa",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1704331931,
+        "timezone": "-0500"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1704331931,
+        "timezone": "-0500"
+      },
+      "originalParents": [
+        "b1d6d189fecf4cb6961d80957892b612ae75213d"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 4
+    },
+    {
+      "original": "449f3ce197e0a2eaa70f45d19a6bd5342a1b04e8",
+      "cleaned": "eefeb45ab1b059575045ba21b15d8342cbd18fba",
+      "subject": "Add session and break length and style changes",
+      "messageSha256": "97d375c95061d4df7b55152cd53b3db0e6d1e0b8afebbf6818080ce46424b307",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1704334547,
+        "timezone": "-0500"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1704334547,
+        "timezone": "-0500"
+      },
+      "originalParents": [
+        "8dd45af0ab55bf40ce3d9807e71e177175a696d6"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 4
+    },
+    {
+      "original": "ef811f30699a859729f1cdc669ca796375d673db",
+      "cleaned": "fd990e21be05cb7d2ca53d662decb353b03b6d88",
+      "subject": "Add sounds effects",
+      "messageSha256": "b77fd4e3bea6d41a2cf45b97c7b907279a5fd8310c76a76d67b8fc22a00c26f1",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1705180162,
+        "timezone": "-0500"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1705180162,
+        "timezone": "-0500"
+      },
+      "originalParents": [
+        "449f3ce197e0a2eaa70f45d19a6bd5342a1b04e8"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 8
+    },
+    {
+      "original": "822a21b6b577341c250a879b5c508239d8b16037",
+      "cleaned": "8d719609d6b98a52a8aa02a190659118002dd72c",
+      "subject": "Remove testing features",
+      "messageSha256": "46f8793217513d3177d0cbc4f9521a017b17b3bb148e68c1c3854ea98f73e228",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1705188361,
+        "timezone": "-0500"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1705188361,
+        "timezone": "-0500"
+      },
+      "originalParents": [
+        "ef811f30699a859729f1cdc669ca796375d673db"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 8
+    },
+    {
+      "original": "d99b15520159c0681456e106037de9c068b38ab0",
+      "cleaned": "869d22d3581bc28e60a05698ec9a1f1dbafe4942",
+      "subject": "Fix syntax and spacing",
+      "messageSha256": "1b53379464af2b8cb9bcc94d8f4679771659867495df953425563c2e39c54ba3",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1705188671,
+        "timezone": "-0500"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1705188671,
+        "timezone": "-0500"
+      },
+      "originalParents": [
+        "822a21b6b577341c250a879b5c508239d8b16037"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 8
+    },
+    {
+      "original": "918ea70dd18b8366fa814b0d5325d4f45022b799",
+      "cleaned": "b02987bc8067f55a6e0a7d542f97e4e86a7d5316",
+      "subject": "Update README.md",
+      "messageSha256": "e94f4f17628633335a4ca15ebb76407c3239574dc29a5130d57084a6d7c8a600",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1705190041,
+        "timezone": "-0500"
+      },
+      "committer": {
+        "name": "GitHub",
+        "timestamp": 1705190041,
+        "timezone": "-0500"
+      },
+      "originalParents": [
+        "d99b15520159c0681456e106037de9c068b38ab0"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 8
+    },
+    {
+      "original": "32afe3ced9f3a6fe6a4c5a3adda3d6ffb886d5fe",
+      "cleaned": "fb9e68658844fa6d5d02fedcaae65428ebd70aa2",
+      "subject": "Add private local saves, focus rewards, and collection engine",
+      "messageSha256": "33dcc46a154680eb22bea28dc25e1ac69c6295e07e9a654b3d1061d72dd439a3",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790881852,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790881852,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "918ea70dd18b8366fa814b0d5325d4f45022b799"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 8
+    },
+    {
+      "original": "8e0862c5402874f3ed786ea05cb62824613a5797",
+      "cleaned": "765aa17d7da956f84f6a87747099506798d37b3e",
+      "subject": "Build immersive animal room and complete focus workflows",
+      "messageSha256": "c10c6df90ddb89e99c0d7b39e3f1a9fa4af883426923e4c097890d08d8e28ff7",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790883679,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790883679,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "32afe3ced9f3a6fe6a4c5a3adda3d6ffb886d5fe"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "2ebade8d98eff650439e642ca3f248b214baa4b1",
+      "cleaned": "adf41a06b00386ec69bb5d2eb5d7e1cdc4d68726",
+      "subject": "Simplify room navigation and add focused journal analytics",
+      "messageSha256": "ad171913ca22aa5aa6967ffed9e4b31590a64982aec32ca34dc9b0dea9067b5f",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790884904,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790884904,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "8e0862c5402874f3ed786ea05cb62824613a5797"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "a4606d13cfd183c8e1d44d6d69ddc7673d8dd50a",
+      "cleaned": "f5c40c049b8c4c3d3c178b983c46ab2c56ebf50f",
+      "subject": "Polish responsive workspaces and verify local UI flows",
+      "messageSha256": "230fac999948fca6a1b778a8e8d62efbbdffadd563cf074e92d44b8b7530187a",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790885543,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790885543,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "2ebade8d98eff650439e642ca3f248b214baa4b1"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "fa2e6fb54899db1852e79be7e5eecc695ae2d85f",
+      "cleaned": "37c8919cd20a0ca59b82e2567d38ff6888709cc4",
+      "subject": "Add count-up timers, completion choices, and quiet focus mode",
+      "messageSha256": "ae7aab47d57db346097f99882d71d544492c67f20039b789e611b29fc2cf93b3",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790887386,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790887386,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "a4606d13cfd183c8e1d44d6d69ddc7673d8dd50a"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "36b227d42423d664e7f2bf1074d0666a4d64ebc9",
+      "cleaned": "5182149e49decbf6432f29b027e41a0f025c0afb",
+      "subject": "Document verified focus, overtime, and break flows",
+      "messageSha256": "aebdd0a4d21ba7b6450acb27a030a2deea1d167101d5c608844998743fe9efdf",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790888124,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790888124,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "fa2e6fb54899db1852e79be7e5eecc695ae2d85f"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "f5e1eb84ed83ccd922204780c59fdec14bef0b7b",
+      "cleaned": "48cf99e5b9920e8d2749af6d172c90038398ef5a",
+      "subject": "Modify port selection when running",
+      "messageSha256": "003f837b49efc59a247e5d81bb79c4b7d1ac9e94880d984abd92f9f549ab375c",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790945190,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790945190,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "36b227d42423d664e7f2bf1074d0666a4d64ebc9"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "531790278e71c5a79419454a7b681530e4b8c9f1",
+      "cleaned": "606851f9e253475c943d68c1e69d414bb4f179df",
+      "subject": "Add pause limits, egg incubation, pet upgrades, and session metadata",
+      "messageSha256": "9b320219dfea3211b7b0f753047c56f809d6e560b4030a0f3e7b3ce15d4f6e92",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790946010,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790946010,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "f5e1eb84ed83ccd922204780c59fdec14bef0b7b"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "5f5f0a1b312c98df44fff5ac664d00567f7770ea",
+      "cleaned": "aae40cfe93e274ae897169108e2fc2f1fabe0cb8",
+      "subject": "Add movable room furniture, pet collection tiles, and tagged task sessions",
+      "messageSha256": "2ac6c18c2e0d3cc59335ccb480d03758a3730950d6f4cbd1b894d9cd71c9e206",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790946181,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790946181,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "531790278e71c5a79419454a7b681530e4b8c9f1"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "91d2bb44c758259044a462b68537ccb9f1dde2de",
+      "cleaned": "3ae19bb0249626ae5fa957a2e07bb7e7b6a999bd",
+      "subject": "Protect overtime rewards and document verified feature flows",
+      "messageSha256": "f3d76b5ff061792efb81b4c7ba97c764dba5abfdd306410e03d1bb93d06a655e",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790946740,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790946740,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "5f5f0a1b312c98df44fff5ac664d00567f7770ea"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "e9c330c41f380494f7c347f8d714f1817e442f84",
+      "cleaned": "a5b61aebd463501e1cfab692026e0b82ac986db1",
+      "subject": "Add Candy Pastel Atelier artwork and generation prompts",
+      "messageSha256": "69442a7da20223eea2c48e5633e4ee922dc41b29336cb2b8cb93cbbae8b531e6",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790949622,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790949622,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "91d2bb44c758259044a462b68537ccb9f1dde2de"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "a7fbde748e91b2035f8663799810620a436f71fb",
+      "cleaned": "b428e03c0e8404d0096fd45a42c3cd48d44e5892",
+      "subject": "Match focus room and egg shop to Candy Pastel Atelier",
+      "messageSha256": "1fbbaea0e25ecc19fb93b93d9e5f3658ed082c3843f850a066aac08f183740e7",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790950832,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790950832,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "e9c330c41f380494f7c347f8d714f1817e442f84"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "afe80e009ac2096bc9fa67504b989b55bb93bb93",
+      "cleaned": "0c8b3c527f3f8b6c42b92eeb4b0c6ab37bd03f97",
+      "subject": "Polish Atelier controls and record verified visual flows",
+      "messageSha256": "5d2af78618cb7d8c4255e69ca8a37ad05d7869456c4ea02896e1ae7ed93f3475",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790951803,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790951803,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "a7fbde748e91b2035f8663799810620a436f71fb"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "84bfde82afd458e191c3a8cdc39cd63577049680",
+      "cleaned": "5a43c085be9c0672e8ffea4636dec008bd95b1cd",
+      "subject": "Limit furniture placement to owned copies and preserve preview proportions",
+      "messageSha256": "247a8153bc7a358623ad8800e4904061fa44a729daaf8820f66df875791237a1",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790952930,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790952930,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "afe80e009ac2096bc9fa67504b989b55bb93bb93"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "1677ff8212cbdc82beffb16933aba31934cb8cd8",
+      "cleaned": "f50e8bb8e310fe60decd692a1e70507be7a25f0a",
+      "subject": "Add bottom room library, selection controls, and movable timer widgets",
+      "messageSha256": "38c260182fa64f83a39b4d98a044fda740b736d42f0e65040d979b5e5328537b",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790953463,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790953463,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "84bfde82afd458e191c3a8cdc39cd63577049680"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "4910b9c7975b30f763270e6e8aad96dff4006087",
+      "cleaned": "136610b8d6a74eeba89a730d73cc9b08e271319b",
+      "subject": "Simplify pause alerts and collection copy and unify the atelier UI",
+      "messageSha256": "cd90de0d1c40267ba85238d1cca7a4e990e23da7361c573f2e5859fc12502308",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790954060,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790954060,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "1677ff8212cbdc82beffb16933aba31934cb8cd8"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "3931c8281c12c6b01348cf2951f9d44a732fcecc",
+      "cleaned": "4a55e26f99c2cba92662d75d38b3fbaa79b2c2f5",
+      "subject": "Polish narrow room controls and document enhancement verification",
+      "messageSha256": "824540e541c80fb2bbaa48f8cb47751dabd8f7c16e4f00555646a8d2c58bab5a",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790954370,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790954370,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "4910b9c7975b30f763270e6e8aad96dff4006087"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 13
+    },
+    {
+      "original": "aef399375b26f1f36cfaec165975c45392be5291",
+      "cleaned": "67a4766c7f9d02bc437cdc22fa48a9004a5c2eaf",
+      "subject": "Generate cohesive illustrated mockups for primary app screens",
+      "messageSha256": "bbacbf812a14caab8a6c487e168e69c5c75a63882a599a387239ef60bd019efa",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790955784,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790955784,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "3931c8281c12c6b01348cf2951f9d44a732fcecc"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 21
+    },
+    {
+      "original": "177ab62b30eb7d44402b2fbb58ae6be72cdddc11",
+      "cleaned": "b87cebd4f62c3d74c54f62c5c188ef1a524f75f9",
+      "subject": "Complete illustrated screen mockups and review gallery",
+      "messageSha256": "19b7daf0ad8c14b89bf88ae7b0280fbb403e336a7b76196b90889e42e21a311f",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790956629,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1790956629,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "aef399375b26f1f36cfaec165975c45392be5291"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "70ea4485bd8bd1ac602251f432a880f66c18ad58",
+      "cleaned": "2c8bc6cde8b359ebb1c38ecbdef63f7448c40106",
+      "subject": "Establish shared paper and pencil visual system",
+      "messageSha256": "f4ac63066206c39502c1144d641b0e2b27ce6a262b970872862524772c08b4f7",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791213847,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791213847,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "177ab62b30eb7d44402b2fbb58ae6be72cdddc11"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "e55ee8f2d1001c5c2fb81008ecf43b920f0a4ee1",
+      "cleaned": "6139dc88dcd47e48e7859c557c90430e01db2c11",
+      "subject": "Polish shared control states and responsive styling",
+      "messageSha256": "034e39d47a3deddcbd3d10a7ea1bbe82935ca1764c1103616f1b8fa7f68babf8",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791214798,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791214798,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "70ea4485bd8bd1ac602251f432a880f66c18ad58"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "61c1753dc2c09ef9f3a3cccf372ec1ac133cabe5",
+      "cleaned": "af337c100a26603acfe848df8b91b3bd8be1f26a",
+      "subject": "Restyle Pets as an illustrated collection album",
+      "messageSha256": "8ebceb0689bf2baf0c42fd02522e8ec3ef0cd1e93daf41c831d7a0caa2076364",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791215906,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791215906,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "e55ee8f2d1001c5c2fb81008ecf43b920f0a4ee1"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "eb42fa42842eea398c7c667ed923ecb734361947",
+      "cleaned": "28c1250abd76f31a380dac2bce5bbe6a6410e78a",
+      "subject": "Restyle Decorate as an illustrated catalogue",
+      "messageSha256": "f082cdd2a15e8665942aff3909cc7de1ab5de99e2eaae19fb07e2f7d97dfcc94",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791216953,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791216953,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "61c1753dc2c09ef9f3a3cccf372ec1ac133cabe5"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "6b8f9315d1fcb17f9bd59063fc2cb03daec33b99",
+      "cleaned": "80567dc8c852ca20835455e1ae0006b14f570dc4",
+      "subject": "Restyle Journal as an illustrated focus notebook",
+      "messageSha256": "b322e21b6662a6469b5355ce82de988b24b4cee6ff4011946a08b690bca43824",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791217922,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791217922,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "eb42fa42842eea398c7c667ed923ecb734361947"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "fee0a8efa31e16c9f1d5b687991172cb7deb7518",
+      "cleaned": "7a2efd72ca60f1fde5162a4745eab21750c77b15",
+      "subject": "Refine arrangement library and selection controls",
+      "messageSha256": "ce3a1f61ca024c25897ce056af365ab0f3c51c106f83c6dae3d8886acbe442cc",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791219254,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791219254,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "6b8f9315d1fcb17f9bd59063fc2cb03daec33b99"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "5cf2173293e01bbbda54529fa8afd18178fef709",
+      "cleaned": "00a358936bca50d26c6a7fa9f406eea1cf79c87d",
+      "subject": "Keep room selections and move handles clear above the library",
+      "messageSha256": "77f5a7a7c4dc554e6ca1a88cab215ba677822f22e61b3aa3b343ee26e655dd2d",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791221379,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791221379,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "fee0a8efa31e16c9f1d5b687991172cb7deb7518"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "c1ec3132aca1b8389ab175694660f7da88705288",
+      "cleaned": "f49b40d632d13af780ba328fb32f9f5fa85ef153",
+      "subject": "Record room arrangement verification",
+      "messageSha256": "6b16e5d66259f6be25b888e490ab8d6c10b2d5958c71a8f2e61f9edd089cec72",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791221506,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791221506,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "5cf2173293e01bbbda54529fa8afd18178fef709"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "13c954059e4719e71af7c8ec510dd7d8be38d4c3",
+      "cleaned": "bb3c2d7a798982554d2400552fb304abb8cd346e",
+      "subject": "Align arrangement background and furniture and fix rug bounds",
+      "messageSha256": "8dba57f2fb54d8a4fa8b5cf6b3fbc8c307dd2e9ca15ef5c1984cc2510735bf9d",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791222479,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791222479,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "c1ec3132aca1b8389ab175694660f7da88705288"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "327b4d84473eba1fdb5a2b6e85ccfbea483a19d3",
+      "cleaned": "8bf6d7b072b31443230d25bcd7ec4202208efa67",
+      "subject": "Keep movable scratchpad open independently of other panels",
+      "messageSha256": "6f7e0cd41f7b507e882f0ec9b4c8a2f3e860319b0154ddb9700b97d5eedec7f3",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791222662,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791222662,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "13c954059e4719e71af7c8ec510dd7d8be38d4c3"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "1b86d0e8919b662ecefb5ee104475a34e2b50b63",
+      "cleaned": "1a3eb1a2fbfa4cbcf405539d029d1b72f197fb2e",
+      "subject": "Simplify focus controls and guard Stop with a five-second hold",
+      "messageSha256": "a537118b09692f606e303988d3a50d5c4a98697b7e7b349263ada7d071156dfe",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791223811,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791223811,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "327b4d84473eba1fdb5a2b6e85ccfbea483a19d3"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "df263f99eae92ea3f7683635c9156beeb16c495f",
+      "cleaned": "575f7720856749c041840288b80ce1f86abaa795",
+      "subject": "Document room, scratchpad, and guarded timer enhancements",
+      "messageSha256": "4c18e48c4d02aeb16a527c9a7fa8242f362074e98776917074cf0d1032242c95",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791223997,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791223997,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "1b86d0e8919b662ecefb5ee104475a34e2b50b63"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "a5a07dfafbcc11fc4ceb20284f06b432ee4cd804",
+      "cleaned": "682a65fc861119f2883ad6a8048393134e04e28f",
+      "subject": "Refine timer and settings panels as compact stationery sheets",
+      "messageSha256": "cdb0842c56238d38b9a9ba3acffa2df93f40eb3f3cbba4097d1de92a2a42ded4",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791229855,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791229855,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "df263f99eae92ea3f7683635c9156beeb16c495f"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "a04b147e3a20478c7a897d2520797e574ddff172",
+      "cleaned": "364b8d47f011a699618376dc66df8337094cc184",
+      "subject": "Illustrate scratchpad, sound mixer, and compact timer actions",
+      "messageSha256": "92b4c38935976ad74f8176970e8a0a1436fcb5438c2eb6f68426d464a620eb19",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791230568,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791230568,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "a5a07dfafbcc11fc4ceb20284f06b432ee4cd804"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "f4c49dd6871b227cbd69ba17b89af3d0ceb09d20",
+      "cleaned": "b7ce71aab435397daee273fa0d064950fa0f10c0",
+      "subject": "Record utility-panel visual and interaction verification",
+      "messageSha256": "2ae7ec668bf1a3ce320de221c672251fe8b61cff28bd40cf923f8a3521961d1a",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791230729,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791230729,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "a04b147e3a20478c7a897d2520797e574ddff172"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "308d6d43cca527e36eea7576fc50c2c10ebb3d9c",
+      "cleaned": "e3e82a0dffd878bfccb3c1d9ae5ce125fecbfeb2",
+      "subject": "Unify pause alerts and keep session completion receipts visible",
+      "messageSha256": "c951c1780a7e79ecb165adcb3dc025800297a25a7689ba4f87a31a991939c712",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791231794,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791231794,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "f4c49dd6871b227cbd69ba17b89af3d0ceb09d20"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "e40c15bab64d814f562ff618ac506759b4425816",
+      "cleaned": "4ac9db862d22e0049f2affcaccf1ddcc5330cebd",
+      "subject": "Illustrate hatch celebrations, help notes, and save recovery",
+      "messageSha256": "6218765c0a2a0199d27f5c21af5ebf89783a440bb5e122a883e610cf432613e3",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791232778,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791232778,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "308d6d43cca527e36eea7576fc50c2c10ebb3d9c"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "7980d030aabe02ff1eca591a83a0221e9dd74fbf",
+      "cleaned": "9887c842e897997a6f258ea73c66affd5802b43f",
+      "subject": "Verify popup states and restore focus after load recovery",
+      "messageSha256": "53a8253b67bebf8d27fbe6955c65a8b8044581b395adf6c044797917f2a14591",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791233134,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791233134,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "e40c15bab64d814f562ff618ac506759b4425816"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "3de24ec94d5dbce23788d24afeabca1284351bc9",
+      "cleaned": "e20fc5b360309fd438a50f606824f42de18ddf65",
+      "subject": "Keep egg purchases clear of the nest on narrow screens",
+      "messageSha256": "fb573601df3576c1e2ce3c059f5999badf818aab82bc4b6e32c6d7b317696e1f",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791289032,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791289032,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "7980d030aabe02ff1eca591a83a0221e9dd74fbf"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "168db41f755a92272f538bf61ffbc04351d9aa02",
+      "cleaned": "76b97e29150ad844eb2434cc3c4269e50d4f6766",
+      "subject": "Keep room data readable and compact layouts within the screen",
+      "messageSha256": "a4e07abeacd7e9e0fbd5c434eb2b51fba608143870f21d765b05b065b768d4b0",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791290250,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791290250,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "3de24ec94d5dbce23788d24afeabca1284351bc9"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "c4ea00af9bb3571524b943dedcdc41a73b408867",
+      "cleaned": "2a1b145cabd68b01dc080e9475ec59e62cad0501",
+      "subject": "Keep small landscape rooms and widget handles usable",
+      "messageSha256": "453443c5986b77236f80fecf7e171aabd92a249e9254046859547a2107254265",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791291170,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791291170,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "168db41f755a92272f538bf61ffbc04351d9aa02"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "9dd678b1946ec5729765be5e0653e93129529de5",
+      "cleaned": "0f1ab457b60fda2efb6c0c2376d127ba1e71573b",
+      "subject": "Record final responsive and data polish verification",
+      "messageSha256": "4efa23629337d2cb377a10e94d25ad1e8c139be238c5270a557d1904107a98bf",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791291344,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791291344,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "c4ea00af9bb3571524b943dedcdc41a73b408867"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "e87e254993597632d709bdd644a0f8337ef079aa",
+      "cleaned": "ef8b21bf4a80ba77696e01e66b8d14f6f4b18253",
+      "subject": "Add quiet interaction sound palette with independent audio routing",
+      "messageSha256": "96ca20e4b2a929a233aa3465ff36b6ee4c1f5a8477abe2f7b5f119c85a5fe26c",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791312491,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791312491,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "9dd678b1946ec5729765be5e0653e93129529de5"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "6afd206d1536ad86a7818bfe7cb15e8a44ed6e1e",
+      "cleaned": "ecd95bf60c10c063e0fa8e8cef54d10bb1f986fd",
+      "subject": "Establish shared motion rules and saved interaction sound controls",
+      "messageSha256": "d99869414c3216f26742d7a217e06b31e60354ab8c2ca540b88a7516d290b92a",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791313101,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791313101,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "e87e254993597632d709bdd644a0f8337ef079aa"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "091446802e2caae3d1df45da0084bef91f56fa38",
+      "cleaned": "56fee1d7a0317ccd19e32d56bc0fe5f8404350e7",
+      "subject": "Document interaction foundation and phase-one verification",
+      "messageSha256": "e8a168236611caf346e71d7bc68780577bc0a165c31ee4895f0e7e1ed8c7efbc",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791313172,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791313172,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "6afd206d1536ad86a7818bfe7cb15e8a44ed6e1e"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "f588971884e10329360800b386f2c0cc7f6a8a4a",
+      "cleaned": "7d6d0134302f1ccc1eb6717f29c16108dc5e371b",
+      "subject": "Prevent interaction sound groups from overlapping during rapid input",
+      "messageSha256": "316b9602c0ffc6f4a574219a1b0de881eeaa4e00e6a67eaade2b9db647b0bb47",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791319446,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791319446,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "091446802e2caae3d1df45da0084bef91f56fa38"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "b13b3d9acbd4ddfdc87aa04038884e37ba04a915",
+      "cleaned": "ccb7d63a466f998245eb49f4938021f80adae793",
+      "subject": "Make everyday controls tactile with consistent press and selection feedback",
+      "messageSha256": "7321da992d100f931015c15ffdc1fe299cf56a4995a2ac62e71215f2750704a4",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791320124,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791320124,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "f588971884e10329360800b386f2c0cc7f6a8a4a"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "1e95a703eef569b2105feb081bd7942a5f01a6a2",
+      "cleaned": "0e40035fb2b0a99f67eb34eaf243e3bdd0e5b7c6",
+      "subject": "Document phase-two controls and native browser verification",
+      "messageSha256": "e9a8085610b06968e3ef68c254c336fde983a9fab84b67312b4f8204de7d7e85",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791320188,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791320188,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "b13b3d9acbd4ddfdc87aa04038884e37ba04a915"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "a22460f25496d762ff333a4a02c2b8c00ada70d6",
+      "cleaned": "b70b53a884c73bbd33101d5ee826b57578fabf2a",
+      "subject": "Retain inactive panel exits and coordinate interruptible surface transitions",
+      "messageSha256": "e2df9d011e0fd3734bfcf96188e371c111608440ddcfa46ae2c7a2fc90439182",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791321975,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791321975,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "1e95a703eef569b2105feb081bd7942a5f01a6a2"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "fc79f3054d98c255d7ac521c993e346c27253354",
+      "cleaned": "844505987b108fc0bdaaef4e44f21bdf8f7465f5",
+      "subject": "Smooth timer layout changes and continuous hold-to-stop feedback",
+      "messageSha256": "210ba836d3b093ba332de70c361f73350986087ecb769f0c63cac87bd5635dc5",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791322638,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791322638,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "a22460f25496d762ff333a4a02c2b8c00ada70d6"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "495e22c93091a23719c612f38bd4abec3efe58b8",
+      "cleaned": "a5d1c94cec5b476643d60843c258ade9e0026f3f",
+      "subject": "Document phase-three transitions and interruption verification",
+      "messageSha256": "8be6df6ace615c388742929c20e1a5478d01b22e011629bc8b8bd3ba148beea0",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791322756,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791322756,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "fc79f3054d98c255d7ac521c993e346c27253354"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "2e8c8c85852557da4475b4e1f117293470d46d32",
+      "cleaned": "0f00a14f5c4bd02c2741e81670116b63b7f638cc",
+      "subject": "Add local task completion feedback with immediate undo",
+      "messageSha256": "3fa6946a12bc0b2a75d347d48f1ef39e089b3610d1cdb3f220e7e801d84650d5",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791375851,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791375851,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "495e22c93091a23719c612f38bd4abec3efe58b8"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "c196d6c155559c5bbc5e934edd76722c79d2dd27",
+      "cleaned": "2283586df0275b7183b99c5275b53195a702a34d",
+      "subject": "Acknowledge confirmed purchases with local accents and owned sound",
+      "messageSha256": "752788bf0d1700eb4ad45691a3f3f45d23be1c80700e77d78942619198aa27c5",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791376175,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791376175,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "2e8c8c85852557da4475b4e1f117293470d46d32"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "8705d41717bc8e7fea031a796f54e7d3faba1a41",
+      "cleaned": "f8c7f584e98736fc374da1a3ae464b7a0dcd1602",
+      "subject": "Reveal session rewards and acknowledge daily goals once",
+      "messageSha256": "1bebe7005f6fc217a96ac4209938d8b4b684043efe2689cc4351d4b6a9d522fd",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791376329,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791376329,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "c196d6c155559c5bbc5e934edd76722c79d2dd27"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "97877d9b202fa8cd1a5d22f67135b1b0219d06b2",
+      "cleaned": "8dc36324cae3f95ea51642696c7c9aaff7b1d1fc",
+      "subject": "Add dismissible hatch anticipation and distinct outcome reveals",
+      "messageSha256": "13bd86b6dbd4a93fa8cad664f15965f743b30e46078088542d7f792b5dcc9d9b",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791377331,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791377331,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "8705d41717bc8e7fea031a796f54e7d3faba1a41"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "d04f1d9cc95348cce3ed9ba794d6ead2d28d42bc",
+      "cleaned": "8177abff3a2babeebf3db11ae9ca5fa3a5af8bf9",
+      "subject": "Prevent reward replay on remount and verify phase-four interactions",
+      "messageSha256": "fbf14072dda7ee1e6b77471db03246b25bb1282ea6075c82e083755255d77f0c",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791378160,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791378160,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "97877d9b202fa8cd1a5d22f67135b1b0219d06b2"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "cb8d44e7e81d8120be4e627de6f12cd56e3f0936",
+      "cleaned": "c543d60c980e890c625abe3dc29bef2d0c449e82",
+      "subject": "Add precise room pickup, settle, and cancellation feedback",
+      "messageSha256": "80bba73986027e72c0840d1dd11d043b16a8c900d596b6850354323f997b4717",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791381180,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791381180,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "d04f1d9cc95348cce3ed9ba794d6ead2d28d42bc"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "2147b2ec5c00f8ec2974fec26669ff9ece1e9539",
+      "cleaned": "7bb9f4c6bef83925b10c4cf73d30f814dedf8093",
+      "subject": "Acknowledge room styles, accessories, and direct pet interaction",
+      "messageSha256": "d9d35fcb79db9c10eae9e35104642b18ec9d02ff6e6bdb8c8f15e4477be96d24",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791384078,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791384078,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "cb8d44e7e81d8120be4e627de6f12cd56e3f0936"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "252348ed29774cddb407b9fb85f4e432ecee9d72",
+      "cleaned": "a2c7469d7b3b18881afcbd1c54b82cb3c3eb94a4",
+      "subject": "Document and verify phase-five room interactions",
+      "messageSha256": "6ed25cc1245ca0511fe7afac314bbea42d3feacf711395dad1ef23396c778d94",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791384169,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791384169,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "2147b2ec5c00f8ec2974fec26669ff9ece1e9539"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "e2dec679b70bd3c92eac5eddf647e750040f88ec",
+      "cleaned": "14beced15b4f2851bfd767674919a7897090241e",
+      "subject": "Give timer alerts priority and cancel dismissed interaction sounds",
+      "messageSha256": "979f710d523a4b78f80087e10f3ccdcfdcb075b392cfd901d94f5caa83f4b377",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791396383,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791396383,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "252348ed29774cddb407b9fb85f4e432ecee9d72"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "1b8808c58106614386eeaca91c70f8cb69023696",
+      "cleaned": "d2962f6c009218adc4d0c05bbd5d7f739fb46a5b",
+      "subject": "Keep focus quiet and bound notice reading without stale feedback",
+      "messageSha256": "07aa97ff1df6172a0eaabd81556857a88e1cf7eed48802cec87aaf49b537f74b",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791397217,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791397217,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "e2dec679b70bd3c92eac5eddf647e750040f88ec"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "af35726e58932085da05d2a88fb5dc047816d628",
+      "cleaned": "8c5376b52e2e9f81dada83e59e1cb9452bdf602a",
+      "subject": "Fit phone clocks and keep save warnings clear of timer controls",
+      "messageSha256": "dffd843eacb6f92a7ed6d19250d688724b108aa4c05aab55c260164b30e4fa63",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791397664,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791397664,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "1b8808c58106614386eeaca91c70f8cb69023696"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "e45ba8c746d552006ad6da5d94fd8eb790ba4000",
+      "cleaned": "b1ec728221582c356b21fe73419a1834e1144785",
+      "subject": "Record final interaction calibration and cross-device verification",
+      "messageSha256": "1b8f51d551ada756cf7e461ecc399e1977957681554caa27a5a363f0ede90ad7",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791397807,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791397807,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "af35726e58932085da05d2a88fb5dc047816d628"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "45140b826ef8f849d4ee6aa6f18efd20fcd7998e",
+      "cleaned": "702473f2ded47680862508e51a246676488af185",
+      "subject": "Standardize shared spacing, header controls, and egg odds layout",
+      "messageSha256": "0b0d635203616ca6e9af3979836f20cdef322623f6f022ce7335abfa5265d189",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791425690,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791425690,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "e45ba8c746d552006ad6da5d94fd8eb790ba4000"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "22deec13df9965e7eb0b6a6493506562a8f32b5b",
+      "cleaned": "68c3ac3f348de054dd5906ce58704cf03af93cae",
+      "subject": "Keep shared controls readable on narrow screens and enlarged text",
+      "messageSha256": "c92e6eb123e564b01fda753373c54acab8558a941ce3fe282205b854a77f70af",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791426415,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791426415,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "45140b826ef8f849d4ee6aa6f18efd20fcd7998e"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 31
+    },
+    {
+      "original": "f8aabc1748ce69aaf23ce472007ab8b2b4ccd33e",
+      "cleaned": "ed64d38e3b7319330a1408c1986954d1b5732e5b",
+      "subject": "Finalize phase 1 control sizing and record browser verification",
+      "messageSha256": "c5c8e2909aaca155b98dc0d50cecc1a554b67cec68c9b0f2629f75cec1c3d3db",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791426855,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791426855,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "22deec13df9965e7eb0b6a6493506562a8f32b5b"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 34
+    },
+    {
+      "original": "96a0740954f66d7735a87c3de2aa76dfe71c94b0",
+      "cleaned": "afd8b561aa8ab7b32124dd86c64a1755f6eca76e",
+      "subject": "Give new rooms 200 gems without changing saved balances or earned rewards",
+      "messageSha256": "cc48506f53dae1e0948f9ae157e72cdbbdb8813ce7171478c0d51b7eeadb37b9",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791427568,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791427568,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "f8aabc1748ce69aaf23ce472007ab8b2b4ccd33e"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 34
+    },
+    {
+      "original": "9d0a080d4dd708784166c65c4d25850b7adfe5ba",
+      "cleaned": "e2145b663277353e7ab3232e65433e4e81f76d27",
+      "subject": "Ground egg shop displays and make nest selection and empty states explicit",
+      "messageSha256": "19f168e2e89e406f11bb4258ee28fef7df79b9a8965ec8d8509eae246f2913ab",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791428309,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791428309,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "96a0740954f66d7735a87c3de2aa76dfe71c94b0"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 34
+    },
+    {
+      "original": "8fbb5e0031a79f3645926cd032cd64dd2bd0a626",
+      "cleaned": "022895767e4e0550b3ea681893d407bf4792c4df",
+      "subject": "Verify phase 2 shop flows and finalize responsive counter alignment",
+      "messageSha256": "248cfda6a0fd187aa2f5dcb7fee99b2ca2f61d3a5d48657d19aec58bb96ff906",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791429234,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791429234,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "9d0a080d4dd708784166c65c4d25850b7adfe5ba"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 40
+    },
+    {
+      "original": "5cd6561b7a40ff263ea4c7d4983f3ca6841f3f0c",
+      "cleaned": "a17642bb7b3b24919a7cff3108137e7b6639c48f",
+      "subject": "Add pet accessory preview tiles and direct catalogue handoff",
+      "messageSha256": "fa3a2e78fee2f79e9e891596a4d1ecc6d05b063a6cc390cd010b7436bd4b9bd2",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791445281,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791445281,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "8fbb5e0031a79f3645926cd032cd64dd2bd0a626"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 40
+    },
+    {
+      "original": "51a28d69200230bc838ecabb8751299be1ef2829",
+      "cleaned": "24d4cfdc9035e842266a112b8e90010efaddfed9",
+      "subject": "Add seven unlock-aware pet animation previews",
+      "messageSha256": "6cf1c407edb206d5af6676aa21e82d0a9c022d654db6e9acbd1d470517d60b32",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791446550,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791446550,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "5cd6561b7a40ff263ea4c7d4983f3ca6841f3f0c"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 40
+    },
+    {
+      "original": "6a59521553ffcffc2502ec086a49838869fccab2",
+      "cleaned": "367b4ca1a355a4ab14e52648cc55817cdfbe2145",
+      "subject": "Record phase 3 browser and regression verification",
+      "messageSha256": "62e7290d160e15dad01a5782f940adc703a26039550709a767c83803fc66a183",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791446767,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791446767,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "51a28d69200230bc838ecabb8751299be1ef2829"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 49
+    },
+    {
+      "original": "aeeafae6490936914b95d0ea95132a40ccb87f08",
+      "cleaned": "814f6169298fca81343fcf1b6de5c94bd7a7f0db",
+      "subject": "Flatten the rug and fit Arrange to a shared room canvas",
+      "messageSha256": "77c0ac1ea6c396daf96c56bd1737be9a8098bba21da237a11964b6ebd1aad753",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791451463,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791451463,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "6a59521553ffcffc2502ec086a49838869fccab2"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 49
+    },
+    {
+      "original": "b288326fbbd9a390815aac70e77f060908e8313f",
+      "cleaned": "1c9a3c2ca48a395675d6a1f62ef0eaa6d1951f24",
+      "subject": "Hand furniture purchases into cancellable room placement",
+      "messageSha256": "df74a6a6d4bf16137b70d6f30925c02743d38899e036128644ddd6f299b2ada0",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791452363,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791452363,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "aeeafae6490936914b95d0ea95132a40ccb87f08"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 49
+    },
+    {
+      "original": "679abda21c9c84381b9d7072ac1c47a5c145ba46",
+      "cleaned": "ca90b4459f1a238d71fff69d1da46c61aa12f8f2",
+      "subject": "Keep small-screen placement controls usable and finish placement directly",
+      "messageSha256": "5c54d9c6ab9c2e01c97e81cc94dd22e5916e2a498a0ca0dd5c259c0ce5c8611a",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791454192,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791454192,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "b288326fbbd9a390815aac70e77f060908e8313f"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 49
+    },
+    {
+      "original": "8d924ad3cf645474c19cb8f57da0b9498bedeadd",
+      "cleaned": "ff6e64d46a8a25b4116f4916190fcb326e609fc6",
+      "subject": "Record Phase 4 acceptance checks and browser evidence",
+      "messageSha256": "27bbf18240d55dacdec1da87390e1f91e049356cbaf4ddf604622810952d1039",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791454414,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791454414,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "679abda21c9c84381b9d7072ac1c47a5c145ba46"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 69
+    },
+    {
+      "original": "dc555cb549489d2c52f51d7e120f4e35cb7bd366",
+      "cleaned": "4a4cd40e48f1d759ef57a9d2ea588e6a3d5241af",
+      "subject": "Clarify session actions and preserve timer context while browsing",
+      "messageSha256": "ffcaabc7b6e3c38c81a0a7ebba6971240a8522c90dfdbfd469b74a1c704fa7b8",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791464157,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791464157,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "8d924ad3cf645474c19cb8f57da0b9498bedeadd"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 69
+    },
+    {
+      "original": "2293f7db69b5b666010c82bc882b9e003e470abf",
+      "cleaned": "2a13eaaf546547e891061a87a70e4bcb8b2de788",
+      "subject": "Keep session setup and reward details clear on small screens",
+      "messageSha256": "e899540c3827cc19597b839b22cd5f04f03823c39f2fc1d1e399d3d52f456b36",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791465451,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791465451,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "dc555cb549489d2c52f51d7e120f4e35cb7bd366"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 69
+    },
+    {
+      "original": "44c0afac8fe8791e2121a917bc38c903a3e6b5e3",
+      "cleaned": "560dcff31a8270ec20dfc3be8fbc0197334efdd2",
+      "subject": "Preserve room editing space and paused timer context",
+      "messageSha256": "047967b435aaffe670e48c41817bea5bd555273fd342991c3e451dc5687dd330",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791466227,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791466227,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "2293f7db69b5b666010c82bc882b9e003e470abf"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 69
+    },
+    {
+      "original": "6178f83b627871912e15b40a010cb665ec5d35d2",
+      "cleaned": "d12434cc8d25dea04ed3745f81c20da8a0838746",
+      "subject": "Restore session controls when a pause expires during Arrange",
+      "messageSha256": "0f7db88366d93664710c5ba8daa9ca914284b51799892bdc59d9024b3709fd18",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791466638,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791466638,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "44c0afac8fe8791e2121a917bc38c903a3e6b5e3"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 69
+    },
+    {
+      "original": "1ac01b46d8a4ed579f61abd6f616f57eaa69181d",
+      "cleaned": "d1683e6fe65c96e7478f2eeed78d10d28395dffe",
+      "subject": "Record Phase 5 acceptance checks and browser evidence",
+      "messageSha256": "5223f23b7bb7456c4382a89605ffd2d8cb7dccab2bd9ab037d09384b3035dd52",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791466847,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791466847,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "6178f83b627871912e15b40a010cb665ec5d35d2"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 87
+    },
+    {
+      "original": "d6fb40ac73f8db1a9b540732954a5ce6e4f2f3b0",
+      "cleaned": "44f6f9ff73edeaea4e96d61a18b9d1b61b5d0a85",
+      "subject": "Make Journal entries readable in narrow panels and clarify shared notes",
+      "messageSha256": "aa3cdac5be3ddb300e19ddd5ff1db4867d6bb64b12ec9f51d6c7d2856c050559",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791480230,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791480230,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "1ac01b46d8a4ed579f61abd6f616f57eaa69181d"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 87
+    },
+    {
+      "original": "746c0ccddd5d2657fcb32e5c3cff8c94d9b51c15",
+      "cleaned": "81ce2b5fc9a97edd8fccc706e5bd1303e3cb4df3",
+      "subject": "Reserve workspace space for Scratchpad and retain phone session controls",
+      "messageSha256": "1b845cd2c61ead46c73c44db845bfac9fd52373ff91123dea41415e400690ede",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791480987,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791480987,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "d6fb40ac73f8db1a9b540732954a5ce6e4f2f3b0"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 87
+    },
+    {
+      "original": "d5aa0141b7ef7437691d1e43ba8a16823234afde",
+      "cleaned": "e0f4973861351a8fc2a85ca76c15fcb83d6a989b",
+      "subject": "Guard notes layout transitions and record Phase 6 verification status",
+      "messageSha256": "2fecefd0c9b4089244c0804227395d18598a8aac551dc13af8892fc13cf2e38d",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791481316,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791481316,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "746c0ccddd5d2657fcb32e5c3cff8c94d9b51c15"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 88
+    },
+    {
+      "original": "6a074c59020721e1539c039f0cb605a21615e0cd",
+      "cleaned": "af8d83f7ac3187da36215d5e39999800c2d01235",
+      "subject": "Keep phone Arrange usable beside Scratchpad",
+      "messageSha256": "5d3efe45a059891f2fe44d2f925f04be5a03b4462a9f84dd8d42a7be374b5a63",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791482240,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791482240,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "d5aa0141b7ef7437691d1e43ba8a16823234afde"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 88
+    },
+    {
+      "original": "46fec7f7795a11883cf07ce53d6e62dec7a1c97b",
+      "cleaned": "f8df141ab2323ccd4cc76b71dbb28f27c42cb5b7",
+      "subject": "Keep notes exits and pet details visible through layout changes",
+      "messageSha256": "9e99309368d5ef72dd8ad6180d1021cd9bbaa937138ade1cb38e1fd3c6b2ba49",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791486361,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791486361,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "6a074c59020721e1539c039f0cb605a21615e0cd"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 88
+    },
+    {
+      "original": "0649e67adb6ab5fdde60ca58e7ed6061c5242910",
+      "cleaned": "a1db4d4ef74ebbca01d6a25cc727f3ab1a985896",
+      "subject": "Keep compact Arrange controls clear of Scratchpad",
+      "messageSha256": "7eececa86eeadd9a95c4616c9e5a67e30519ff63cafcb6cbc182ae07a4c1db6f",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791487642,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791487642,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "46fec7f7795a11883cf07ce53d6e62dec7a1c97b"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 88
+    },
+    {
+      "original": "8ef4b819ddaecb1a533b307dae832d02455ad916",
+      "cleaned": "5858fce14a08aab9ef839a2cbf37d93ef255ce72",
+      "subject": "Record Phase 6 browser acceptance and remaining phone checks",
+      "messageSha256": "ecfe93c511c7ddcc7bb01988ede18aeb697d75a61adb93dad6ccd9fd7befbc37",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791487954,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791487954,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "0649e67adb6ab5fdde60ca58e7ed6061c5242910"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 104
+    },
+    {
+      "original": "14e821e709dcc9bf8fffef3b471608f913e89fb5",
+      "cleaned": "e68ccefc755c6546d94d1cfd5f4cded9ab426d80",
+      "subject": "Explain local save failures by cause and reject invalid responses",
+      "messageSha256": "5dbcbec1ea20099889c06304405c40bd262b8b8b0a53879c0a9c69c2ec7deff9",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791488595,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791488595,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "8ef4b819ddaecb1a533b307dae832d02455ad916"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 104
+    },
+    {
+      "original": "2f0accae827c2077f389fb646134970debe387a3",
+      "cleaned": "9af8f5769b8092d678b154ba09d7a2c55c1f1e3b",
+      "subject": "Retain reviewable recovery drafts across conflicting save reloads",
+      "messageSha256": "66cf1019ae2d0f4d0d36fd127c39e7cc4048390452b3e8db95c974f9aa3504ba",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791489391,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791489391,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "14e821e709dcc9bf8fffef3b471608f913e89fb5"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 104
+    },
+    {
+      "original": "ceccd7f4f0b8d04e4dce127d63e9ebcbeafac69f",
+      "cleaned": "6eff22e5568c4d247b765280c544dde99d2eba91",
+      "subject": "Reserve layout space for persistent save recovery notices",
+      "messageSha256": "e730568ed27eeca0acb6cf4d88f9ddfca44376711a94baeee9caa1288d6d714d",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791489896,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791489896,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "2f0accae827c2077f389fb646134970debe387a3"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 104
+    },
+    {
+      "original": "01f586b1221d74fd4521eaa48f1a511a3c00acbb",
+      "cleaned": "773141ae6e1c8524d286cca91ce7ed8a9de43f31",
+      "subject": "Record Phase 7 recovery acceptance and document draft lifecycle",
+      "messageSha256": "911ab926fb4c61a9c8c374492399702945fca44fa27b62850866dfa499ae1d21",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791490564,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791490564,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "ceccd7f4f0b8d04e4dce127d63e9ebcbeafac69f"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 118
+    },
+    {
+      "original": "009b9e1b99e36ddf70435b159e9182c9c867e68d",
+      "cleaned": "3326a35d65794508fbff9adcb3b08fa6e1cf0041",
+      "subject": "Record Phase 8 regression baseline and current UX findings",
+      "messageSha256": "91a02bd98c6077b25393c06c63d7ecdb9f3b08d00546cc48df23993d011524b9",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791492582,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791492582,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "01f586b1221d74fd4521eaa48f1a511a3c00acbb"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 130
+    },
+    {
+      "original": "3ec35f9aafeee84729d340837b503fb82620964b",
+      "cleaned": "de1459e1a897ca30257586bb41c829ccfc2d1dd7",
+      "subject": "Record Phase 8 timing, progression and accessibility checks",
+      "messageSha256": "f3ce6abf84f6143299f292b49521983fd52bfe9fe502d7a45af9bd1458e99ef2",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791494507,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791494507,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "009b9e1b99e36ddf70435b159e9182c9c867e68d"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 149
+    },
+    {
+      "original": "4218fd25950fc0ea67056193d79711efbb3b4600",
+      "cleaned": "9febb63c556c4245cff4eba8ad1a11e8f17430ad",
+      "subject": "Record integrated room, timer and save-recovery browser checks",
+      "messageSha256": "f6690812cb0dc6535ff385db0bab0c88353c7d9e69cd0626168fa52ebb00f219",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791495150,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791495150,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "3ec35f9aafeee84729d340837b503fb82620964b"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 161
+    },
+    {
+      "original": "64e22df0af47be86b7b61f78d8ab2f20f01f2127",
+      "cleaned": "2ddaac20cbccfaeff43684c6514e41efce2cfe0a",
+      "subject": "Record remaining timer and responsive browser cases",
+      "messageSha256": "a3538eeddfdc679d1edd19eed019239d04c9283b22bfc4d49a179febefe0c9f4",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791495497,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791495497,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "4218fd25950fc0ea67056193d79711efbb3b4600"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 168
+    },
+    {
+      "original": "530a9bab16558fa374832b3dcfd3e3e37d5e67d2",
+      "cleaned": "833d94a14567726612f16d8a22f8f4e87bcc37b3",
+      "subject": "Record pointer, keyboard and Phase 8 completion audit",
+      "messageSha256": "c25e16a2cf0c8f2030ce24ee08e8ccda5dd1b3ac1dca8c2fde918e1ca07f49a4",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791496760,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791496760,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "64e22df0af47be86b7b61f78d8ab2f20f01f2127"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 176
+    },
+    {
+      "original": "be52e8917716a8617b874f30fb43bc7e21421f07",
+      "cleaned": "c8f91f1d45da7835230721ef619488d47bc82287",
+      "subject": "Record Phase 8 hands-on verification blocker",
+      "messageSha256": "84cb679cd456aa37d95b7f5609284c362d82fb7fbb2b1658b19d0321db2f22b6",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791496974,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791496974,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "530a9bab16558fa374832b3dcfd3e3e37d5e67d2"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 176
+    },
+    {
+      "original": "206260eb26d7039558faae0d676164b1b23a217a",
+      "cleaned": "21e5a9b6dfb3de0a993a4f785109cd1bb1541453",
+      "subject": "Define Little Room identity, release scope and code licensing",
+      "messageSha256": "1832580b633132a5f7ebb061ec2c95b3f503b0d504800c3fffbc83cafad3c771",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791514475,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791514475,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "be52e8917716a8617b874f30fb43bc7e21421f07"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 176
+    },
+    {
+      "original": "1fe773bb3b4bab29698055210eb718ff544f425d",
+      "cleaned": "dd4c5993705f7ffbe6cf4e9c61e0aec6253eb23d",
+      "subject": "Audit publication contents and sanitize private generation paths",
+      "messageSha256": "66f7b0f0e42310d55da89d8730631602411da94796d4e3219d2ac06c4ad3493b",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791514936,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791514936,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "206260eb26d7039558faae0d676164b1b23a217a"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 176
+    },
+    {
+      "original": "7197df9c28ff10fb5af9f734341e250e7656e373",
+      "cleaned": "8a004b0e73d4cbe75fdad7fcd12a8d850fa64774",
+      "subject": "Fix compact Scratchpad routes and focus control visibility",
+      "messageSha256": "c3d8900ebdb1a1167adcdcef23c739df04b8e627da05e13f27f62a00f7a27668",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791516007,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791516007,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "1fe773bb3b4bab29698055210eb718ff544f425d"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 176
+    },
+    {
+      "original": "25e25ed1d28ef2d85d268d6fbb8f68ef106a5f81",
+      "cleaned": "ea45b25d0c12d49712f58acb1f98f86672400ba0",
+      "subject": "Keep compact Scratchpad editable during save warnings",
+      "messageSha256": "609fef4c9cd010c55f65a7f5c0db1af2f895d428a0785e7bb8aac2cf7d256c5a",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791516416,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791516416,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "7197df9c28ff10fb5af9f734341e250e7656e373"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 176
+    },
+    {
+      "original": "21a33ca3c48836e3d74c89869d60f43b42c89e3c",
+      "cleaned": "357608ca2e21b63076383d8d0f89b35aa5de85fb",
+      "subject": "Add isolated release QA workflow and acceptance record",
+      "messageSha256": "13069cdb0c4b5dca82233f80458395644a2915228a45b3d5e5b9d774509e9a17",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791516682,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791516682,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "25e25ed1d28ef2d85d268d6fbb8f68ef106a5f81"
+      ],
+      "treeFiltered": true,
+      "excludedFiles": 176
+    },
+    {
+      "original": "2a0d80ebcc28a8fcf13b63971aff5996175f7dd7",
+      "cleaned": "a155147491c95fc05c162528fe955785d06c6171",
+      "subject": "Archive raw QA artifacts and remove unused release assets",
+      "messageSha256": "ac6f62a075376e7cd7fa561c5d217724a91e34587dc446e3dd696d64d51c2ac9",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791545838,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791545838,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "21a33ca3c48836e3d74c89869d60f43b42c89e3c"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    },
+    {
+      "original": "01a675d29379fa7abf4ac30a89f0eefca9f05c54",
+      "cleaned": "2d614991a8bae01fe37f9eae4312dbce84f67e4c",
+      "subject": "Group source by feature and preserve the CSS cascade",
+      "messageSha256": "f42611d00158337c5a7f60d80f7b18c8f6e359cc42599bb30ad57bde1e3a79bb",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791546703,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791546703,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "2a0d80ebcc28a8fcf13b63971aff5996175f7dd7"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    },
+    {
+      "original": "fd14f7092a5960e30d1ab89daa4a561f11b95022",
+      "cleaned": "5ee4b321622b731f28fd3fa0fb857e86a6b77599",
+      "subject": "Document source ownership and verified cleanup disposition",
+      "messageSha256": "5bdd66a98ab29dcc8851f783549794a375bac3cc178e5aed193986d8dd792a77",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791546892,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791546892,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "01a675d29379fa7abf4ac30a89f0eefca9f05c54"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    },
+    {
+      "original": "8fa3ae56e42763b791dc91e2afca56b0b5a5e9e2",
+      "cleaned": "eb9bedc4b572a1f4ff844f4c492814dcd23660fe",
+      "subject": "Add reproducible CI, production regressions and dependency review",
+      "messageSha256": "9ce1325369570b4b2af60c94b86a836ff65e7d05e42f187714e737990390829e",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791554798,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791554798,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "fd14f7092a5960e30d1ab89daa4a561f11b95022"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    },
+    {
+      "original": "b74187b58e368bdacf9047c29d6dd9f555874d90",
+      "cleaned": "95bd7d6e3c7690e6d405a5b0e392907bd9bb82fb",
+      "subject": "Cover timer lifecycle and narrow Nest in production browsers",
+      "messageSha256": "fee560085ff2efee26ed7aca4226e999698bb73ff2c1c6325b65e53a4f09b567",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791554958,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791554958,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "8fa3ae56e42763b791dc91e2afca56b0b5a5e9e2"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    },
+    {
+      "original": "6594f623f4e8196026f958f1b7af3bd57ebb5c35",
+      "cleaned": "e177f309376b87afe777c6649d2bf455b398c96e",
+      "subject": "Verify development startup and fix Windows test discovery",
+      "messageSha256": "7d58f30592c7c49a631dd4d886049f017dbc6fd19e001b68bcf22dfa27471000",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791555338,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791555338,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "b74187b58e368bdacf9047c29d6dd9f555874d90"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    },
+    {
+      "original": "67e9823021fc6ac995381c56a35e249daa950bf7",
+      "cleaned": "4827bcfb36fbe5efeafefac4f2cb6111949713aa",
+      "subject": "Record clean-install verification and remaining release gates",
+      "messageSha256": "e0500bdcc89c277e175c60d9b9695ba5b1dd3a0d4237a002cc4a5d0f04a10c6e",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791556293,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791556293,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "6594f623f4e8196026f958f1b7af3bd57ebb5c35"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    },
+    {
+      "original": "9e38e84c4721b1e51f01d9cae14bea1a8d479fba",
+      "cleaned": "83627561df746b4f846847b910391d11c0feadf6",
+      "subject": "Clarify project entry and separate current guides from historical notes",
+      "messageSha256": "ecfc73f964c169809a5576646633f3c25a5a1d4d7082f4b5a4aefca0a9d6c9f1",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791559849,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791559849,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "67e9823021fc6ac995381c56a35e249daa950bf7"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    },
+    {
+      "original": "b0c7cb9ecc73ea148ec6309efbe9c33478ec372f",
+      "cleaned": "d638e260ccb52d1e3fc2c122e86860e1f7787f07",
+      "subject": "Document architecture, save lifecycle and contributor workflow",
+      "messageSha256": "684e9a566b85294c1199b586cc6896f5f4f54473a6dad520a4536df612f84fe4",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791560214,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791560214,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "9e38e84c4721b1e51f01d9cae14bea1a8d479fba"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    },
+    {
+      "original": "4f5f533feebc77e064de755af0c7ef4fbabbc91a",
+      "cleaned": "bc490c2bfe645b70d4cdbe142fe3580e8083deb8",
+      "subject": "Record documentation verification and Phase 5 completion",
+      "messageSha256": "2a8e4aa225f8ae77eb20ea2f445a5dd3e73c16dbc4e150fbdb7851d6855718b5",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791560385,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791560385,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "b0c7cb9ecc73ea148ec6309efbe9c33478ec372f"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    },
+    {
+      "original": "ff9e148c6f448f47d23a0673a152a76d40d75dcc",
+      "cleaned": "21cb73dea4d10ec24dd3a70d8afd5ff67f024002",
+      "subject": "Add isolated production showcase capture and media rendering tools",
+      "messageSha256": "2241998ea65189c1df2406dad1921b52694cccf5dc2eefadb0049f7883207ab3",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791572444,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791572444,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "4f5f533feebc77e064de755af0c7ef4fbabbc91a"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    },
+    {
+      "original": "656cf3321abca508b1bf53c7283c18e0c939899b",
+      "cleaned": "f8e26cc77cc2ff7899d377a761ef0163747a48d0",
+      "subject": "Improve walkthrough encoding and remove loading pre-roll",
+      "messageSha256": "ebf4d943d92d3200e653274da36a074bc17e5f7a5c8277d125bc25a2f8d9be6f",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791572824,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791572824,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "ff9e148c6f448f47d23a0673a152a76d40d75dcc"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    },
+    {
+      "original": "aed85fa92c0243b391aea87069f94488877ac4b6",
+      "cleaned": "88c6ed5e658cc5d4c7efa088f1f4abee31effe33",
+      "subject": "Showcase the app with reviewed screenshots, walkthrough and social card",
+      "messageSha256": "e59c6d4544bed384d75267417fcb95099c861db5f70e54990186e082776cc3b3",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791573427,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791573427,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "656cf3321abca508b1bf53c7283c18e0c939899b"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    },
+    {
+      "original": "22adc031948c31c7f2d3855290515c2f81e43ee8",
+      "cleaned": "9bd490d8c418cf71c81b6bc7b678cee771e03939",
+      "subject": "Record showcase verification and Phase 6 completion",
+      "messageSha256": "c4c0dd339cd6c01e5bb0a198f5f99d9c18673bcf8a76c8452d229a1275bfbfdf",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791573877,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791573877,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "aed85fa92c0243b391aea87069f94488877ac4b6"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    },
+    {
+      "original": "9c86122669c1174dbc1bf782565abd861dcfc847",
+      "cleaned": "cfb5b50005e04ec81e5caf936cefafd08c4322b4",
+      "subject": "Scope publication audits and record history preservation decisions",
+      "messageSha256": "6de2b099d58b0e8bbbbec2b88cd40b3b5943332ef24ea464e4422e0aecfcdee9",
+      "author": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791574255,
+        "timezone": "-0400"
+      },
+      "committer": {
+        "name": "Jenny Zhao",
+        "timestamp": 1791574255,
+        "timezone": "-0400"
+      },
+      "originalParents": [
+        "22adc031948c31c7f2d3855290515c2f81e43ee8"
+      ],
+      "treeFiltered": false,
+      "excludedFiles": 0
+    }
+  ]
+}

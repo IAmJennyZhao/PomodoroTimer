@@ -7,6 +7,11 @@ See [REPOSITORY_CLEANUP.md](REPOSITORY_CLEANUP.md) for the October 9 disposition
 and [SOURCE_MAP.md](SOURCE_MAP.md) for current source locations. The counts and
 history findings in this audit remain a dated Phase 1 snapshot.
 
+Publication Phase 7 subsequently retained every commit while filtering personal
+identities and excluded artifacts from the local publication ancestry. See
+[HISTORY_PREPARATION.md](HISTORY_PREPARATION.md) for current evidence and the
+unchanged hosted-history boundary; the counts below describe the original refs.
+
 ## Decisions
 
 - Product: **Little Room**; local package: `little-room`; repository URL and legacy save-directory names stay stable.
