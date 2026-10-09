@@ -42,7 +42,7 @@ const steps = {
     run('Production build (warnings fail)', ['node_modules/react-scripts/scripts/build.js'], unattended);
   },
   smoke() {
-    run('Production startup and persistence smoke', ['--test', 'scripts/production-smoke.test.cjs']);
+    run('Development / production startup and persistence smoke', ['--test', 'scripts/production-smoke.test.cjs']);
   },
   browser() {
     run('Production browser regressions', ['node_modules/@playwright/test/cli.js', 'test'], { CI: 'true' });

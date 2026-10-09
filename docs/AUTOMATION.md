@@ -36,7 +36,7 @@ tab. No fixed review-room port needs to be free.
 
 | Command | What it proves |
 | --- | --- |
-| `npm run check` | CJS syntax; all frontend and server/launcher/policy tests; strict production build; real production entry-point smoke. No browser download required. |
+| `npm run check` | CJS syntax; all frontend and server/launcher/policy tests; strict production build; real development and production entry-point smoke. No browser download required. |
 | `npm run validate` | Everything in `check`, then all production browser regressions. |
 | `npm run test:ci` | Frontend tests once, in band, without watch mode. |
 | `npm run test:server` | Server/launcher/policy tests through an explicit file list, avoiding shell wildcard differences. |
@@ -49,8 +49,12 @@ tab. No fixed review-room port needs to be free.
 No PowerShell environment assignment or forwarded Jest flags are required. It
 sets unattended test/build variables itself and checks subprocess exit statuses.
 It also forces build lint/error gates on instead of inheriting disabling flags.
+Jest uses relative discovery patterns within CRA's `src` root, avoiding an
+absolute-glob escaping failure when Windows checkouts have hidden path components.
 
 [Production smoke tests](../scripts/production-smoke.test.cjs) launch the real
+development launcher, compile its browser bundle and write/read through its
+frontend save proxy. They also launch the real
 `server/index.cjs` executable, test platform-specific default path resolution in
 an isolated OS profile, verify a custom data-directory override, serve the actual
 built HTML/JS/CSS/public artwork, write a fictional note, restart the process and

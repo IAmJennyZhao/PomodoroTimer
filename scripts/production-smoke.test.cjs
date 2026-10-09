@@ -7,6 +7,7 @@ const path = require('node:path');
 const os = require('node:os');
 const { spawn, spawnSync } = require('node:child_process');
 const { once } = require('node:events');
+const net = require('node:net');
 const root = path.resolve(__dirname, '..');
 
 async function temporary(t) {
@@ -19,9 +20,11 @@ async function temporary(t) {
   return directory;
 }
 
-async function launch(t, dataDir) {
-  const child = spawn(process.execPath, ['server/index.cjs'], {
-    cwd: root, env: { ...process.env, POMODORO_API_PORT: '0', POMODORO_DATA_DIR: dataDir },
+async function launch(t, dataDir, developmentPort) {
+  const development = developmentPort !== undefined;
+  const child = spawn(process.execPath, [development ? 'scripts/dev.cjs' : 'server/index.cjs'], {
+    cwd: root, env: { ...process.env, CI: 'true', BROWSER: 'none',
+      PORT: String(developmentPort || 3000), POMODORO_API_PORT: String(developmentPort || 0), POMODORO_DATA_DIR: dataDir },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   const stopped = once(child, 'exit');
@@ -39,12 +42,51 @@ async function launch(t, dataDir) {
     child.stderr.on('data', data => { output += data; });
     child.stdout.on('data', data => {
       output += data;
-      const match = output.match(/Little Room is ready at (http:\/\/127\.0\.0\.1:\d+)/);
+      const match = output.match(/Little Room (?:is ready at|app:) (http:\/\/127\.0\.0\.1:\d+)/);
       if (match) finish(resolve)(match[1]);
     });
   });
-  return { url, stop };
+  return { url, stop, get output() { return output; }, get exited() { return child.exitCode !== null || child.signalCode !== null; } };
 }
+
+test('the development entry point compiles and proxies saves on its selected frontend port', { timeout: 180_000 }, async t => {
+  const directory = await temporary(t);
+  const reservation = net.createServer();
+  await new Promise((resolve, reject) => {
+    reservation.once('error', reject);
+    reservation.listen(0, '127.0.0.1', resolve);
+  });
+  const port = reservation.address().port;
+  await new Promise(resolve => reservation.close(resolve));
+  // The launcher can choose subsequent ports if another process claims this
+  // preferred port. Requests always use the actual URL it reports.
+  const app = await launch(t, path.join(directory, 'development'), port);
+  let html;
+  const deadline = Date.now() + 150_000;
+  // The launcher prints its selected address before CRA binds the frontend.
+  // Poll that exact owned service rather than sleeping for compiler speed.
+  while (!html) {
+    if (app.exited) throw new Error(`Development process exited before readiness: ${app.output}`);
+    try { html = await fetch(app.url, { signal: AbortSignal.timeout(Math.max(1, deadline - Date.now())) }); }
+    catch (error) {
+      if (error.cause?.code !== 'ECONNREFUSED' || Date.now() >= deadline) throw error;
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+  assert.equal(html.status, 200);
+  assert.match(await html.text(), /<title>Little Room[^<]*<\/title>/);
+  const bundle = await fetch(`${app.url}/static/js/bundle.js`, { signal: AbortSignal.timeout(15_000) });
+  assert.equal(bundle.status, 200);
+  assert.match(bundle.headers.get('content-type'), /javascript/);
+  assert.doesNotMatch(app.output, /Failed to compile/);
+  const state = { schemaVersion: 1, scratchpad: 'Fictional development startup note' };
+  const write = await fetch(`${app.url}/api/save`, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ state, revision: 0 }), signal: AbortSignal.timeout(15_000) });
+  assert.equal(write.status, 200);
+  const saved = await fetch(`${app.url}/api/save`, { signal: AbortSignal.timeout(15_000) }).then(response => response.json());
+  assert.deepEqual(saved.state, state);
+  assert.equal(saved.storagePath, path.join(directory, 'development'));
+});
 
 test('platform defaults resolve under an isolated OS profile and honor the data-directory override', async t => {
   const directory = await temporary(t);
