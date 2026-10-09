@@ -9,25 +9,26 @@
   },
   "private": true,
   "engines": {
-    "node": ">=22"
+    "node": "^22 || ^24"
   },
   "dependencies": {
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "use-sound": "^4.0.1",
-    "web-vitals": "^2.1.4"
+    "react-dom": "^18.2.0"
   },
   "scripts": {
     "start": "node scripts/dev.cjs",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "test:server": "node --test server/*.test.cjs",
+    "test:ci": "node scripts/check.cjs frontend",
+    "test:server": "node scripts/check.cjs server",
+    "test:e2e": "node node_modules/@playwright/test/cli.js test",
+    "browsers:install": "node node_modules/@playwright/test/cli.js install chromium firefox webkit",
+    "build:check": "node scripts/check.cjs build",
+    "check": "node scripts/check.cjs core",
+    "validate": "node scripts/check.cjs all",
     "qa:release": "node scripts/release-qa.cjs",
     "audit:publication": "node scripts/audit-publication.cjs",
+    "audit:dependencies": "node scripts/audit-dependencies.cjs",
     "serve": "node server/index.cjs",
     "eject": "react-scripts eject"
   },
@@ -50,6 +51,13 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "7.21.11"
+    "@babel/core": "^7.23.7",
+    "@babel/plugin-transform-modules-commonjs": "^7.23.3",
+    "@babel/plugin-proposal-private-property-in-object": "7.21.11",
+    "@playwright/test": "1.64.0",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "react-scripts": "5.0.1"
   }
 }

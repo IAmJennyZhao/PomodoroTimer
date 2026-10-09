@@ -1,0 +1,97 @@
+# Automated validation
+
+Use **Node.js 22 or 24 LTS** and npm. The pinned reproducibility baseline is
+**22.23.3** in [.nvmrc](../.nvmrc); version managers can use `nvm install` /
+`nvm use`, or install that version directly. CI also checks the latest Node 24
+release resolved by setup-node. Unsupported Node majors are rejected by the
+validation runner.
+
+## Clean setup
+
+From a new checkout, run these commands in PowerShell, bash or zsh:
+
+```sh
+npm ci
+npm run browsers:install
+npm run validate
+npm run audit:dependencies
+```
+
+[`npm ci`](https://docs.npmjs.com/cli/v11/commands/npm-ci/) installs the checked-in
+lockfile and fails if it disagrees with `package.json`. It replaces that checkout's
+`node_modules`; close development processes before reinstalling in a working
+checkout. Keep dev dependencies installed to build/test/run the QA fixtures.
+Installation and live advisory review need registry access. Browser installation
+downloads test binaries. On Linux, use
+`node node_modules/@playwright/test/cli.js install --with-deps chromium firefox webkit`
+to install browser OS dependencies as in CI.
+
+These checks do not use the personal save directory. Server/smoke tests and every
+browser case create an isolated temporary profile and ephemeral loopback port,
+then stop their own servers and remove their own profiles. Browser contexts are
+new for every case, contain only fictional data and never reuse an ordinary app
+tab. No fixed review-room port needs to be free.
+
+## Commands and coverage
+
+| Command | What it proves |
+| --- | --- |
+| `npm run check` | CJS syntax; all frontend and server/launcher/policy tests; strict production build; real production entry-point smoke. No browser download required. |
+| `npm run validate` | Everything in `check`, then all production browser regressions. |
+| `npm run test:ci` | Frontend tests once, in band, without watch mode. |
+| `npm run test:server` | Server/launcher/policy tests through an explicit file list, avoiding shell wildcard differences. |
+| `npm run build:check` | Production compilation and source lint; CRA warnings fail through `CI=true`. |
+| `npm run test:e2e` | Chromium, Firefox and WebKit against the current production build. Run `build:check` first after changing app code. |
+| `npm run audit:dependencies` | Live advisory review against specific, expiring tooling exceptions; see [DEPENDENCIES.md](DEPENDENCIES.md). |
+| `npm test` | Interactive frontend watch mode for development. |
+
+[check.cjs](../scripts/check.cjs) invokes Node directly with structured arguments.
+No PowerShell environment assignment or forwarded Jest flags are required. It
+sets unattended test/build variables itself and checks subprocess exit statuses.
+It also forces build lint/error gates on instead of inheriting disabling flags.
+
+[Production smoke tests](../scripts/production-smoke.test.cjs) launch the real
+`server/index.cjs` executable, test platform-specific default path resolution in
+an isolated OS profile, verify a custom data-directory override, serve the actual
+built HTML/JS/CSS/public artwork, write a fictional note, restart the process and
+check persistence and stale-revision rejection. Existing server tests cover
+backup recovery, unsafe storage locations, origin checks and port collisions.
+
+[Browser tests](../e2e/release.spec.cjs) check note persistence across service
+restart/reload, loaded production art, an egg purchase, F19 compact Journal
+concealment and keyboard routes, F20 opaque purchase-label colors, F21 visible
+Finish with docked notes, and F22 keyboard access to Pause/notes plus outage/retry.
+They assert observable behavior and saved state rather than screenshot pixels.
+
+## CI and failure evidence
+
+[Checks workflow](../.github/workflows/checks.yml) runs on pushes, pull requests
+and manual dispatch. Six core jobs cover Windows/macOS/Linux with Node 22.23.3
+and Node 24. A separate Linux job installs the three browser engines, builds and
+runs the regression suite. All jobs start with `npm ci`. Successful test runs
+have no retries that could hide flaky behavior.
+
+[Dependency review](../.github/workflows/dependencies.yml) additionally runs every
+Monday. It reads the lockfile without installing dependencies or running package
+lifecycle scripts. [Dependabot](../.github/dependabot.yml) prepares weekly updates.
+Actions are pinned to full commit hashes; permissions are read-only and checkout
+credentials are not persisted. No deployment or automatic merge is configured.
+
+Browser failures retain local screenshots/traces in ignored `test-results/` and
+an HTML report in ignored `playwright-report/`. The CI browser job uploads only
+those fictional failure artifacts for seven days. View the report with
+`node node_modules/@playwright/test/cli.js show-report`, or inspect the trace path
+printed with a failing test using `show-trace`. A missing browser executable
+requires `browsers:install`; a missing build requires `build:check`. Fix failing
+assertions or app behavior rather than weakening checks or adding unconditional
+retries.
+
+## Limits and acceptance
+
+A configured workflow is not evidence of a hosted pass. Record actual job
+results after the code is pushed; platform support claims remain limited until
+the corresponding jobs run successfully. These browser checks are headless
+engine regressions, not complete acceptance of Firefox or Safari on real devices.
+They also do not cover screen-reader speech, genuine browser zoom, physical touch,
+software keyboards or audible alarms. Those release gates remain in
+[RELEASE_QUALITY.md](RELEASE_QUALITY.md) and were deferred by the owner.

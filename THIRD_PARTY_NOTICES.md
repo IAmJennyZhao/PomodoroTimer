@@ -34,7 +34,7 @@ Upstream reference: [CRA 5.0.1 license](https://github.com/react/create-react-ap
 
 ## Direct dependency inventory
 
-These versions and declarations were read from installed package manifests and checked against the lockfile on October 8, 2026. A declared SPDX identifier is an inventory fact, not a substitute for the package's full notice.
+These current versions and declarations were read from installed package manifests and checked against the lockfile on October 9, 2026, after the Phase 4 clean install. A declared SPDX identifier is an inventory fact, not a substitute for the package's full notice.
 
 | Package | Locked version | Declared license |
 | --- | --- | --- |
@@ -44,10 +44,11 @@ These versions and declarations were read from installed package manifests and c
 | `react` | 18.2.0 | MIT |
 | `react-dom` | 18.2.0 | MIT |
 | `react-scripts` | 5.0.1 | MIT |
-| `use-sound` | 4.0.1 | MIT |
-| `web-vitals` | 2.1.4 | Apache-2.0 |
+| `@babel/core` | 7.29.7 | MIT |
+| `@babel/plugin-transform-modules-commonjs` | 7.23.3 | MIT |
 | `@babel/plugin-proposal-private-property-in-object` | 7.21.11 | MIT |
+| `@playwright/test` | 1.64.0 | Apache-2.0 |
 
 Retain applicable upstream copyright, license and NOTICE files when distributing dependency code. For a built release, generate and review notices for the actual bundled dependency set, including transitive dependencies and any applicable Apache notices. This Phase 1 inventory does not claim that a distributable bundle's complete notice obligations have been fulfilled.
 
-The publication scanner also inspected 1,556 locked package entries and 1,555 available installed manifests, with no installed-version mismatch. It reads both current `license` fields and legacy `licenses` declarations. The optional platform-specific `fsevents@2.3.3` package is not installed on this Windows checkout; its full notices must be verified on a relevant platform before distribution. The detailed local inventory remains in ignored `.local/publication/audit.json` rather than duplicating the dependency lockfile in public documentation.
+The Phase 1 publication scanner inspected 1,556 locked package entries and 1,555 available installed manifests, with no installed-version mismatch. It reads both current `license` fields and legacy `licenses` declarations. The optional platform-specific `fsevents@2.3.3` package is not installed on this Windows checkout; its full notices must be verified on a relevant platform before distribution. The detailed local inventory remains in ignored `.local/publication/audit.json` rather than duplicating the dependency lockfile in public documentation. The current lockfile and tooling exposure are reviewed in [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md); Playwright browser downloads are test tooling, separate from application distribution.
