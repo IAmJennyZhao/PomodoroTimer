@@ -12,7 +12,7 @@ const SCENARIOS = ['fresh', 'journal', 'overtime', 'countup', 'alarm'];
 let game;
 function loadGame() {
   if (game) return game;
-  const filename = path.resolve(__dirname, '../src/game.js');
+  const filename = path.resolve(__dirname, '../src/domain/game.js');
   const compiled = new Module(filename, module);
   compiled.filename = filename;
   compiled.paths = module.paths;

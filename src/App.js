@@ -1,12 +1,8 @@
-import { Button, ControlFeedbackContext } from "./Controls";
+import { Button, ControlFeedbackContext } from "./shared/Controls";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import "./App.css";
-import "./layout.css";
-import "./timer-flow.css";
-import "./RoomFeatures.css";
-import { ArtFragment } from "./AtelierArt";
-import useLocalSave from "./useLocalSave";
-import useReducedMotion, { MotionPreferenceContext } from "./useReducedMotion";
+import { ArtFragment } from "./shared/AtelierArt";
+import useLocalSave from "./persistence/useLocalSave";
+import useReducedMotion, { MotionPreferenceContext } from "./shared/useReducedMotion";
 import {
   BACKGROUNDS,
   DECORATIONS,
@@ -18,8 +14,8 @@ import {
   remainingTime,
   todayStats,
   MAX_PAUSES,
-} from "./game";
-import { createAmbientEngine } from "./audio";
+} from "./domain/game";
+import { createAmbientEngine } from "./audio/engine";
 import {
   RARITY_NAMES,
   Icon,
@@ -27,47 +23,28 @@ import {
   AnimalArt,
   Drawer,
   HatchModal,
-} from "./ui";
-import TimerCard, { QuickScratchpad } from "./TimerCard";
-import SessionStrip from "./SessionStrip";
-import { EggShopTools } from "./EggShop";
-import { RoomLoading, SaveNotice, ToastNotice, useNoticeTimeout } from "./Feedback";
-import RoomBackdrop from "./RoomBackdrop";
-import RoomWidget from "./RoomWidget";
-import RoomObjects from "./RoomObjects";
-import { ArrangementCameraContext, ROOM_SIZE } from "./roomGeometry";
-import DecoratePanel from "./DecoratePanel";
+} from "./shared/ui";
+import TimerCard, { QuickScratchpad } from "./features/timer/TimerCard";
+import SessionStrip from "./features/timer/SessionStrip";
+import ShopPanel, { EggShopTools } from "./features/collection/EggShop";
+import { AnimalsPanel } from "./features/collection/PetsPanel";
+import JournalPanel from "./features/journal/JournalPanel";
+import { RoomLoading, SaveNotice, ToastNotice, useNoticeTimeout } from "./shared/Feedback";
+import RoomBackdrop from "./features/room/RoomBackdrop";
+import RoomWidget from "./features/room/RoomWidget";
+import RoomObjects from "./features/room/RoomObjects";
+import { ArrangementCameraContext, ROOM_SIZE } from "./features/room/roomGeometry";
+import DecoratePanel from "./features/room/DecoratePanel";
 import {
-  AnimalsPanel,
-  ShopPanel,
-  JournalPanel,
   SoundPanel,
   SettingsPanel,
   SessionControls,
-} from "./panels";
-import "./atelier.css";
-import "./visual-system.css";
-import "./main-panels.css";
-import "./timer-refinements.css";
-import "./utility-panels.css";
-import "./feedback.css";
-import "./polish.css";
-import "./motion.css";
-import "./tactile-controls.css";
-import { Presence, TimerTransition } from "./Transitions";
-import "./transitions.css";
-import { OutcomeAccent, OutcomeFeedbackContext, useOutcomeFeedback } from "./OutcomeFeedback";
-import "./outcomes.css";
-import usePlacementGesture from "./usePlacementGesture";
-import { PetResponseContext, RoomVisual, usePetResponses, useRoomChanges } from "./RoomInteraction";
-import "./room-interactions.css";
-import "./spacing.css";
-import "./header.css";
-import "./arrangement.css";
-import "./session-flow.css";
-import "./notes-journal.css";
-import "./save-recovery.css";
-import useScratchpadLayout from "./useScratchpadLayout";
+} from "./features/settings/UtilityPanels";
+import { Presence, TimerTransition } from "./shared/Transitions";
+import { OutcomeAccent, OutcomeFeedbackContext, useOutcomeFeedback } from "./shared/OutcomeFeedback";
+import usePlacementGesture from "./features/room/usePlacementGesture";
+import { PetResponseContext, RoomVisual, usePetResponses, useRoomChanges } from "./features/room/RoomInteraction";
+import useScratchpadLayout from "./features/journal/useScratchpadLayout";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
 

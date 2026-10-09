@@ -1,10 +1,10 @@
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import App from './App';
-import { createInitialState as createFreshState, gameReducer } from './game';
-import { createAmbientEngine } from './audio';
+import { createInitialState as createFreshState, gameReducer } from './domain/game';
+import { createAmbientEngine } from './audio/engine';
 
-jest.mock('./audio', () => ({ createAmbientEngine: jest.fn() }));
+jest.mock('./audio/engine', () => ({ createAmbientEngine: jest.fn() }));
 
 const MINUTE = 60_000;
 const NOW = new Date('2026-10-01T15:00:00Z').getTime();
