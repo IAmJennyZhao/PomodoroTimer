@@ -636,7 +636,9 @@ export default function App() {
       </footer>
       {widePanel && <div className="workspace-dismiss" onClick={closePanel} />}
       <Presence value={panel}>{(shownPanel, active) => (
-        <Drawer name={shownPanel} active={active} title={arranging ? "Arrange room" : undefined} onClose={closePanel} toolbar={shownPanel === "shop" ? <EggShopTools state={state} /> : undefined}>
+        <Drawer name={shownPanel} active={active} title={arranging ? "Arrange room" : undefined} onClose={closePanel}
+          suspendedByNotes={active && notesLayout.compact && !arranging} onMinimizeNotes={() => setNotesOpen(false)}
+          toolbar={shownPanel === "shop" ? <EggShopTools state={state} /> : undefined}>
           {shownPanel === "animals" && (
             <AnimalsPanel
               state={state}

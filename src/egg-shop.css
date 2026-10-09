@@ -33,6 +33,12 @@
 .shop-offer { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; min-width: 0; }
 .app .atelier-shop .pastel-purchase { position: relative; isolation: isolate; background: none; border: 0; padding: 8px 4px; min-height: 44px; width: 100%; max-width: 180px; color: #fff9ea; font: 1rem/1.25 Georgia, serif; }
 .pastel-purchase > span { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.app .atelier-shop .purchase-label {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 3px 8px; border-radius: 4px;
+  color: #35443d; background: #fff9ea;
+}
+.app .atelier-shop .pastel-purchase:disabled .purchase-label { color: var(--muted); background: none; }
 .pastel-purchase svg:not(.pastel-cutout) { color: #b2d7e7; fill: #78aaca; flex-shrink: 0; }
 .pastel-purchase:disabled { opacity: .6; cursor: not-allowed; }
 .pastel-purchase:hover:enabled { filter: brightness(.95); }

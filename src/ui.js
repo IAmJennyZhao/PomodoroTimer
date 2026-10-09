@@ -274,8 +274,10 @@ export function clampNotepadPosition(position, bounds, viewport) {
   };
 }
 
-export function Drawer({ name, title, onClose, children, toolbar, position, onMove, active = true, notesLayout = "floating", sessionControls }) {
+export function Drawer({ name, title, onClose, children, toolbar, position, onMove, active = true, notesLayout = "floating", sessionControls, suspendedByNotes = false, onMinimizeNotes }) {
   const closeRef = useRef(null);
+  const minimizeNotesRef = useRef(null);
+  const contentRef = useRef(null);
   const dialogRef = useRef(null);
   const pointer = useRef(null);
   const location = useRef(null);
@@ -350,11 +352,16 @@ export function Drawer({ name, title, onClose, children, toolbar, position, onMo
     (name === "notes" ? dialog?.querySelector("textarea") : closeRef.current)?.focus();
   }, [name, active]);
   useLayoutEffect(() => () => restoreFocus.current?.(), []);
+  useLayoutEffect(() => {
+    if (active && suspendedByNotes && contentRef.current?.contains(document.activeElement)) {
+      minimizeNotesRef.current?.focus();
+    }
+  }, [active, suspendedByNotes]);
   return (
     <SurfaceActivityContext.Provider value={active}><aside
       ref={dialogRef}
       {...exitProps(active)}
-      className={`drawer workspace workspace-${name} paper ${isNotes ? `movable-notes scratchpad-${notesLayout}` : ""} ${shownTitle === "Arrange room" ? "drawer-arranging" : ""}`}
+      className={`drawer workspace workspace-${name} paper ${isNotes ? `movable-notes scratchpad-${notesLayout}` : ""} ${shownTitle === "Arrange room" ? "drawer-arranging" : ""} ${suspendedByNotes ? "workspace-notes-suspended" : ""}`}
       style={movable && notesPosition ? notesPosition : undefined}
       role="dialog"
       id={isNotes ? "scratchpad" : undefined}
@@ -396,7 +403,10 @@ export function Drawer({ name, title, onClose, children, toolbar, position, onMo
         </button> : <div>
           <h2 id={headingId}>{shownTitle || PANEL_NAMES[name]}</h2>
         </div>}
-        {toolbar}
+        {suspendedByNotes && <Button ref={minimizeNotesRef} className="notes-resume-panel secondary-button" onClick={onMinimizeNotes}>
+          Minimize Scratchpad to use {shownTitle || PANEL_NAMES[name]}
+        </Button>}
+        {!suspendedByNotes && toolbar}
         <Button
           ref={closeRef}
           className={isNotes ? "scratchpad-minimize secondary-button" : "icon-button"}
@@ -407,7 +417,11 @@ export function Drawer({ name, title, onClose, children, toolbar, position, onMo
         </Button>
       </header>
       {sessionControls && <div className="scratchpad-session"><ExitSnapshot active={active}>{sessionControls}</ExitSnapshot></div>}
-      <div className="drawer-content"><ExitSnapshot active={active}>{children}</ExitSnapshot></div>
+      <div ref={contentRef} className="drawer-content" hidden={suspendedByNotes} inert={suspendedByNotes ? "" : undefined} aria-hidden={suspendedByNotes || undefined}>
+        <SurfaceActivityContext.Provider value={active && !suspendedByNotes}>
+          <ExitSnapshot active={active}>{children}</ExitSnapshot>
+        </SurfaceActivityContext.Provider>
+      </div>
     </aside></SurfaceActivityContext.Provider>
   );
 }

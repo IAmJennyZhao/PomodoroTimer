@@ -42,7 +42,7 @@ export default function EggShop({ state, act, onFocus, startAtNest = false, tool
   const { active, current, next } = eggSessionSelection(state);
   const purchase = (kind, price, label) => <div className="shop-offer">
     <Button sound={null} className="pastel-purchase" aria-label={label} aria-describedby={`${kind}-affordability`} disabled={available < price} onClick={() => act({ type: "BUY_EGG", kind })}>
-      <PastelButtonArt /><span><Icon name="gem" size={18} />{kind === "mystery" ? "Roll " : "Buy "}{price}</span>
+      <PastelButtonArt /><span className="purchase-label"><Icon name="gem" size={18} />{kind === "mystery" ? "Roll " : "Buy "}{price}</span>
       <OutcomeAccent channel="purchase" target={`egg:${kind}`} className="purchase-accent" />
     </Button>
     <span id={`${kind}-affordability`} className="shop-affordability">{available < price ? `Need ${price - available} more gems` : kind === "basic" ? "25 min to hatch" : "50–100 min to hatch"}</span>

@@ -100,6 +100,13 @@
   right: auto !important; transform: translateX(-50%) !important;
   width: min(740px, calc(100% - var(--scratchpad-dock-width) - 80px));
 }
+/* Docking removes vertical centering. Allocate the entire visible slot from its
+   top edge so the card's scroll range can actually reach Finish and the nest. */
+.app.notes-docked.focus-view .focus-area {
+  top: calc(var(--notes-visible-top) + var(--notes-header-height) + 12px);
+  max-height: calc(var(--notes-visible-height) - var(--notes-header-height) - 24px);
+  overflow: auto;
+}
 .app.notes-docked .workspace-decorate.drawer-arranging {
   left: auto; right: calc(var(--scratchpad-dock-width) + 40px); width: 300px;
 }
@@ -176,3 +183,15 @@
 .app .arrange-notes-pause { display: flex; align-items: center; gap: 12px; min-height: 44px; }
 .app .arrange-notes-pause p { flex: 1; min-width: 0; margin: 0; font: 14px/1.25 var(--font-ui); }
 .app .arrange-notes-pause > button { flex: 0 0 auto; min-height: 44px; padding: 8px 12px; }
+/* A compact sheet leaves room for a route back, not a second usable workspace.
+   Keep its state mounted, but remove the concealed controls from interaction. */
+.app .workspace-notes-suspended > .drawer-content { display: none; }
+.app .workspace-notes-suspended > .drawer-heading { padding: 4px 8px; gap: 8px; }
+.app .workspace-notes-suspended > .drawer-heading > div:first-child { position: absolute; }
+.app .workspace-notes-suspended > .drawer-heading h2 {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);
+}
+.app .workspace-notes-suspended .notes-resume-panel {
+  flex: 1; min-width: 0; min-height: 44px; padding: 4px 8px; font-size: 14px; line-height: 1.2;
+}
+.app .workspace-notes-suspended > .drawer-heading > .icon-button { flex: 0 0 auto; }

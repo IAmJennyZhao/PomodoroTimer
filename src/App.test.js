@@ -914,6 +914,47 @@ test('scratchpad remains mounted and positioned across panels and closes only th
   expect(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' })).toHaveAttribute('aria-pressed', 'false');
 });
 
+test('compact notes remove concealed Journal controls and restore its selected view without losing the draft', async () => {
+  resizeViewport(390, 844);
+  await openRoom();
+  fireEvent.click(screen.getByRole('button', { name: 'Journal', exact: true }));
+  const journal = screen.getByRole('dialog', { name: 'Journal' });
+  fireEvent.click(within(journal).getByRole('button', { name: 'History', exact: true }));
+  fireEvent.click(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' }));
+  const notes = screen.getByRole('dialog', { name: 'Scratchpad' });
+  fireEvent.change(within(notes).getByRole('textbox'), { target: { value: 'Keep this note and Journal view' } });
+  const history = within(journal).getByRole('button', { name: 'History', exact: true });
+  history.focus();
+  resizeViewport(569, 320);
+  expect(within(journal).queryByRole('group', { name: 'Journal views' })).not.toBeInTheDocument();
+  const minimize = within(journal).getByRole('button', { name: 'Minimize Scratchpad to use Journal' });
+  expect(minimize).toBeVisible();
+  expect(minimize).toHaveFocus();
+  fireEvent.click(minimize);
+  expect(within(journal).getByRole('button', { name: 'History', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.queryByRole('dialog', { name: 'Scratchpad' })).not.toBeInTheDocument();
+  await advance(350);
+  expect(diskState.scratchpad).toBe('Keep this note and Journal view');
+});
+
+test('compact notes retain textarea focus and restore the Journal period after expanding', async () => {
+  resizeViewport(390, 844);
+  await openRoom();
+  fireEvent.click(screen.getByRole('button', { name: 'Journal', exact: true }));
+  const journal = screen.getByRole('dialog', { name: 'Journal' });
+  fireEvent.click(within(journal).getByRole('button', { name: '7 days', exact: true }));
+  fireEvent.click(within(screen.getByRole('banner', { name: 'Room controls' })).getByRole('button', { name: 'Open Scratchpad' }));
+  const input = within(screen.getByRole('dialog', { name: 'Scratchpad' })).getByRole('textbox');
+  fireEvent.change(input, { target: { value: 'Keep writing through a resize' } });
+  resizeViewport(569, 320);
+  expect(input).toHaveFocus();
+  expect(within(journal).queryByRole('group', { name: 'Analytics period' })).not.toBeInTheDocument();
+  resizeViewport(390, 844);
+  expect(input).toHaveFocus();
+  expect(within(journal).getByRole('button', { name: '7 days', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  expect(input).toHaveValue('Keep writing through a resize');
+});
+
 test('phone Scratchpad keeps the clock and pause/resume usable while retaining the current workspace and draft', async () => {
   resizeViewport(390, 844);
   await openRoom();
