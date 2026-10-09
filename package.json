@@ -27,6 +27,8 @@
     "check": "node scripts/check.cjs core",
     "validate": "node scripts/check.cjs all",
     "qa:release": "node scripts/release-qa.cjs",
+    "showcase:capture": "node scripts/showcase-capture.cjs",
+    "showcase:render": "node scripts/showcase-render.cjs",
     "audit:publication": "node scripts/audit-publication.cjs",
     "audit:dependencies": "node scripts/audit-dependencies.cjs",
     "serve": "node server/index.cjs",

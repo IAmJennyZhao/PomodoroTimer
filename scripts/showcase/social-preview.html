@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Little Room social preview</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; width: 1280px; height: 640px; overflow: hidden; background: #fff7e8; color: #35443d; }
+    .card { position: relative; display: grid; grid-template-columns: 440px 1fr; gap: 32px; height: 100%; padding: 60px 48px; background: radial-gradient(ellipse at 2% 96%, #e4e8d0 0, transparent 47%), radial-gradient(ellipse at 98% 4%, #f6ded0 0, transparent 44%); }
+    .copy { display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 2; }
+    .eyebrow { font: 600 15px/1.4 Arial, sans-serif; letter-spacing: 2px; text-transform: uppercase; color: #6c785a; margin: 0 0 22px; }
+    h1 { font: 64px/1.05 Georgia, serif; letter-spacing: -2px; margin: 0 0 16px; white-space: nowrap; }
+    .tagline { font: 28px/1.3 Georgia, serif; margin: 0 0 24px; }
+    .description { font: 18px/1.6 Arial, sans-serif; margin: 0; max-width: 350px; color: #56624f; }
+    .features { display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0 0; }
+    .features span { padding: 9px 13px; border: 1px solid #b4c0a1; border-radius: 20px; background: #fffaf0; font: 15px Arial, sans-serif; }
+    .local { margin: 30px 0 0; font: 14px Arial, sans-serif; color: #67735a; }
+    .product { align-self: center; position: relative; margin: 0; padding: 10px; background: #fffdf4; border: 1px solid #cbb999; border-radius: 14px; transform: rotate(1deg); box-shadow: 0 16px 36px #6b57451c; }
+    .product img { width: 100%; display: block; border-radius: 7px; }
+    .product::before { content: ''; display: block; position: absolute; width: 92px; height: 23px; top: -13px; left: 40%; background: #d9b26bad; transform: rotate(-4deg); }
+    .footer { position: absolute; bottom: 29px; right: 48px; font: 14px Georgia, serif; color: #6d775e; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <section class="copy">
+      <p class="eyebrow">Local-first Pomodoro</p>
+      <h1>Little Room</h1>
+      <p class="tagline">A gentler Pomodoro.</p>
+      <p class="description">Focus in a cozy room.<br>Grow a collection of companions.<br>Make a little space of your own.</p>
+      <div class="features"><span>Focus</span><span>Collect</span><span>Decorate</span><span>Reflect</span></div>
+      <p class="local">No account · progress saved on your computer</p>
+    </section>
+    <figure class="product"><img src="/room.jpg" alt="Actual Little Room app showing its countdown timer, daily goal and animal companions in an illustrated room."></figure>
+    <span class="footer">Focus, then a little tea break.</span>
+  </main>
+</body>
+</html>
