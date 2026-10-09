@@ -13,6 +13,15 @@ const git = (...args) => execFileSync('git', args, {
   cwd, encoding: 'utf8', maxBuffer: 512 * 1024 * 1024,
 });
 const root = git('rev-parse', '--show-toplevel').trim();
+const args = process.argv.slice(2);
+if (args.length && (args.length !== 2 || args[0] !== '--ref' || !args[1] || args[1].startsWith('-'))) {
+  throw new Error('Usage: node scripts/audit-publication.cjs [--ref <commit-or-ref>]');
+}
+const selectedTip = args.length
+  ? git('rev-parse', '--verify', '--end-of-options', `${args[1]}^{commit}`).trim() : null;
+const historySelection = selectedTip
+  ? { mode: 'single-ref', ref: args[1], tip: selectedTip }
+  : { mode: 'all-refs' };
 const files = git('ls-files', '-z').split('\0').filter(Boolean);
 const findings = [];
 const rules = [
@@ -97,8 +106,9 @@ for (const location of files) {
     kind: inspect(buffer, 'worktree', location) });
 }
 
-// --all includes local branches, remote-tracking refs and tags, not just HEAD.
-const objects = git('rev-list', '--objects', '--all').trim().split('\n').map(line => {
+// The default includes local branches, remote-tracking refs and tags.
+// --ref confines history to one ancestry; the worktree remains a separate scope.
+const objects = git('rev-list', '--objects', selectedTip || '--all').trim().split('\n').map(line => {
   const separator = line.indexOf(' ');
   return { oid: separator < 0 ? line : line.slice(0, separator),
     location: separator < 0 ? '(unnamed object)' : line.slice(separator + 1) };
@@ -158,7 +168,8 @@ const counts = {};
 for (const finding of findings) counts[finding.category] = (counts[finding.category] || 0) + 1;
 const report = {
   head: git('rev-parse', 'HEAD').trim(),
-  scopes: ['tracked worktree files', 'all unique blobs reachable from local refs', 'commit messages', 'author/committer metadata', 'binary strings and PNG compressed text metadata', 'lockfile and available installed manifests'],
+  historySelection,
+  scopes: ['tracked worktree files', selectedTip ? 'unique blobs reachable from selected commit ancestry' : 'all unique blobs reachable from local refs', 'commit messages', 'author/committer metadata', 'binary strings and PNG compressed text metadata', 'lockfile and available installed manifests'],
   summary: { trackedFiles: current.length, outputFiles: outputFiles.length,
     outputBytes: outputFiles.reduce((sum, file) => sum + file.bytes, 0),
     reachableCommits: commits, reachableBlobs: blobs, textBlobs, binaryBlobs,

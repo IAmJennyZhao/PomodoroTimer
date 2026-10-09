@@ -35,6 +35,7 @@ the current user instructions or imply that every release check has passed.
 | [Release quality](RELEASE_QUALITY.md) | Acceptance findings, fixes and deferred hands-on checks |
 | [Repository cleanup](REPOSITORY_CLEANUP.md) | Current-tree cleanup and archived local artifacts |
 | [Documentation review](DOCUMENTATION_REVIEW.md) | Phase 5 guidance, diagrams and verification evidence |
+| [History preparation](HISTORY_PREPARATION.md) | Phase 7 preservation, identity filtering and publication handoff |
 
 ## Historical context
 
