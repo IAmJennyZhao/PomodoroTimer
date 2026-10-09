@@ -12,10 +12,10 @@ function encodeWalkthrough(source, destination) {
   const { registry } = require(path.join(core, 'lib/coreBundle.js')).registry;
   const ffmpeg = registry.findExecutable('ffmpeg').executablePath();
   assert.ok(fs.existsSync(ffmpeg), 'Run npm run browsers:install first.');
-  execFileSync(ffmpeg, ['-y', '-i', source, '-an', '-c:v', 'libvpx-vp9', '-b:v', '900k', '-crf', '32', '-r', '12', '-deadline', 'good', '-cpu-used', '5', destination], { timeout: 300_000, stdio: 'pipe', maxBuffer: 8 * 1024 * 1024 });
+  execFileSync(ffmpeg, ['-y', '-ss', '2', '-i', source, '-an', '-c:v', 'libvpx-vp9', '-b:v', '1400k', '-crf', '26', '-r', '15', '-deadline', 'good', '-cpu-used', '5', destination], { timeout: 300_000, stdio: 'pipe', maxBuffer: 8 * 1024 * 1024 });
   const bytes = fs.statSync(destination).size;
   assert.ok(bytes < 8_000_000, 'Review encoding before publishing a walkthrough larger than 8 MB.');
-  return { codec: 'VP9', fps: 12, targetBitrate: 900000, bytes };
+  return { codec: 'VP9', fps: 15, targetBitrate: 1400000, leadTrimSeconds: 2, bytes };
 }
 
 module.exports = { encodeWalkthrough };

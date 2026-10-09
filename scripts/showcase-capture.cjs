@@ -154,11 +154,11 @@ async function capture() {
         await app.getByRole('dialog', { name: 'Sound', exact: true }).getByRole('button', { name: 'Close panel', exact: true }).click();
         await chapter('Little Room · a gentler Pomodoro', 'Focus, collect and make a little space of your own.');
         await pause(2000);
-        await fs.writeFile(path.join(output, 'walkthrough-timeline.json'), JSON.stringify(timeline, null, 2) + '\n');
       } finally { await context.close(); }
       const source = path.join(output, 'raw-video/walkthrough-source.webm');
       await video.saveAs(source);
       const encoding = encodeWalkthrough(source, path.join(output, 'walkthrough.webm'));
+      await fs.writeFile(path.join(output, 'walkthrough-timeline.json'), JSON.stringify(timeline.map(chapter => ({ ...chapter, seconds: Math.max(0, chapter.seconds - encoding.leadTrimSeconds) })), null, 2) + '\n');
       artifacts.push({ file: 'walkthrough.webm', width: 1360, height: 1056, kind: 'actual-app-walkthrough', silent: true, encoding });
       console.log('Captured walkthrough.webm');
     }
