@@ -61,3 +61,10 @@ review are complete locally; see [AUTOMATION.md](AUTOMATION.md) and
 [DEPENDENCIES.md](DEPENDENCIES.md). Hosted workflow results remain pending a push,
 and the old CRA tooling families retain specific exceptions that expire on
 November 30, 2026. Revisit them during the final release review.
+
+Publication Phase 5's current user/contributor guides, historical separation
+and architecture diagrams are complete locally; see the
+[documentation index](README.md), [architecture](ARCHITECTURE.md) and
+[documentation review](DOCUMENTATION_REVIEW.md). Phase 6's visual showcase,
+Phase 7's history treatment and Phase 8's GitHub publication remain separate
+passes, with the existing distribution and hands-on release gates still open.

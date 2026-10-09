@@ -32,6 +32,7 @@ the current user instructions or imply that every release check has passed.
 | [Publication audit](PUBLICATION_AUDIT.md) | Identity, privacy, rights and file-disposition decisions |
 | [Release quality](RELEASE_QUALITY.md) | Acceptance findings, fixes and deferred hands-on checks |
 | [Repository cleanup](REPOSITORY_CLEANUP.md) | Current-tree cleanup and archived local artifacts |
+| [Documentation review](DOCUMENTATION_REVIEW.md) | Phase 5 guidance, diagrams and verification evidence |
 
 ## Historical context
 
