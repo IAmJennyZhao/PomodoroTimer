@@ -74,6 +74,12 @@ and [ASSET_RIGHTS.md](../ASSET_RIGHTS.md).
 
 ## Validation tooling
 
+Publication media uses [showcase-capture.cjs](../scripts/showcase-capture.cjs)
+with [fictional data](../scripts/showcase-data.cjs), then
+[showcase-render.cjs](../scripts/showcase-render.cjs) and its
+[social-card template](../scripts/showcase/social-preview.html).
+See [MEDIA.md](MEDIA.md) for reproduction and curation.
+
 [scripts/check.cjs](../scripts/check.cjs) runs the common unattended checks.
 [Startup smoke tests](../scripts/production-smoke.test.cjs) boot the development
 launcher and production executable with private temporary profiles. The

@@ -21,8 +21,8 @@ npm run showcase:render
 The capture launches the production service on an ephemeral loopback port,
 creates a temporary save directory outside the repository, and uses fresh
 Chromium contexts with [fictional data](../scripts/showcase-data.cjs). It never
-reads the ordinary profile or reuses an existing browser tab. The service and
-temporary profile are cleaned up on success or failure.
+reads the ordinary profile or reuses an existing browser tab. Once service startup
+succeeds, capture cleanup stops it and removes its profile on success or failure.
 
 The seven JPEGs use quality 90, 1440×1000 or 1440×1200 CSS viewports, device scale
 1, `en-US` locale and UTC timezone. Their clock is fixed at October 9, 2026,
@@ -75,8 +75,11 @@ publication pass. This phase prepares the file without applying hosted metadata.
   Windows with Node 22.14.0. App source and dependencies were unchanged;
   frontend suites were not repeated for media work.
 - Canonical capture used clean checkpoint `656cf33`. Browser requests and page
-  code reported zero errors. The walkthrough asserted saved notes, completion,
-  gem deduction, egg purchase, pet upgrade, room movement and an ambient setting.
+  code reported zero errors. The walkthrough asserted completion, gem deduction,
+  egg purchase, pet upgrade, room movement and an ambient setting.
+- A follow-up capture from clean checkpoint `aed85fa` additionally asserted the
+  exact typed note on disk and one-minute gem/egg credit. All assertions passed.
+  The published media retain the reviewed `656cf33` capture and its transcript.
 - Seven screenshots and the social card were visually reviewed. Compressed video
   decoded and played at 1360×1056 for approximately 39 seconds; chapter frames
   were inspected. The GIF decoded to six 3.5-second frames, looping in 21 seconds.

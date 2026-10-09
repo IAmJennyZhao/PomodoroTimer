@@ -12,7 +12,7 @@ installation starts with its own starter room.
 ## Walkthrough
 
 [**Download the captioned walkthrough**](media/walkthrough.webm) — 39 seconds,
-WebM, about 3.3 MB. It is a silent recording of real app interactions; captions
+WebM, about 3.4 MB. It is a silent recording of real app interactions; captions
 sit outside the app. The sample count-up session starts with just over a minute
 already elapsed, so finishing can show a whole-minute reward. The ready egg and
 existing collection are seeded demo content.

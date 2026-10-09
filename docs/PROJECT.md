@@ -65,6 +65,13 @@ November 30, 2026. Revisit them during the final release review.
 Publication Phase 5's current user/contributor guides, historical separation
 and architecture diagrams are complete locally; see the
 [documentation index](README.md), [architecture](ARCHITECTURE.md) and
-[documentation review](DOCUMENTATION_REVIEW.md). Phase 6's visual showcase,
-Phase 7's history treatment and Phase 8's GitHub publication remain separate
-passes, with the existing distribution and hands-on release gates still open.
+[documentation review](DOCUMENTATION_REVIEW.md). Later publication work follows
+in separate passes, with the distribution and hands-on release gates still open.
+
+Publication Phase 6's reviewed screenshots, captioned walkthrough, animated
+preview and social card are complete locally; see the
+[gallery](SHOWCASE.md), [media preparation and verification](MEDIA.md) and
+[artifact manifest](media/manifest.json). The README now showcases the real app
+using fictional content. The social card is prepared for Phase 8's upload.
+Phase 7's history treatment and Phase 8's hosted metadata/release work remain
+separate passes; the existing asset and hands-on gates remain open.

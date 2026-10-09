@@ -75,6 +75,7 @@ with a separate fictional profile. Redact personal paths and content.
 
 Do not commit or upload personal saves, Scratchpad notes, session history,
 recovery drafts, secrets or raw QA output. Keep local reports in ignored
-`.local/`, `output/`, `test-results/` or `playwright-report/`. Curated release
-media has a separate review pass. Avoid history rewrites in ordinary changes;
+`.local/`, `output/`, `test-results/` or `playwright-report/`. Prepare curated
+release media using the [media guide](docs/MEDIA.md). Avoid history rewrites in
+ordinary changes;
 publication history treatment is tracked in the [project plan](docs/PROJECT.md).
