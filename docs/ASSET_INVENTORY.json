@@ -1,17 +1,13 @@
 {
-  "auditDate": "2026-10-08",
-  "sourceBaseline": "be52e8917716a8617b874f30fb43bc7e21421f07",
-  "scope": "All tracked raster, SVG, icon and audio assets under public/ and src/ at the Phase 1 baseline. Raw output is excluded as a group, not approved media.",
+  "auditDate": "2026-10-09",
+  "cleanupBaseline": "21a33ca",
+  "scope": "Current media assets under public/ and src/ after publication Phase 3 cleanup. Archived assets are historical provenance records, not files in the release tree.",
+  "phase1Snapshot": {
+    "auditDate": "2026-10-08",
+    "sourceBaseline": "be52e8917716a8617b874f30fb43bc7e21421f07",
+    "assetCount": 29
+  },
   "assets": [
-    {
-      "path": "public/art/animals-sheet.png",
-      "bytes": 2435935,
-      "sha256": "102e879543141bff7fc9ce68274569bf674c6eda2cd21fca82688825c6f1870f",
-      "origin": "Recorded earlier OpenAI image generation",
-      "rights": "No separate reuse license selected; outside code MIT",
-      "disposition": "Exclude unused reference artwork in Phase 3",
-      "evidence": "docs/ARTWORK.md"
-    },
     {
       "path": "public/art/atelier/animals-sheet.png",
       "bytes": 2622519,
@@ -94,51 +90,6 @@
       "evidence": "docs/atelier-art-prompts.json"
     },
     {
-      "path": "public/art/objects-sheet.png",
-      "bytes": 2470733,
-      "sha256": "7b82ee53da4eea6950c8fe0904e0e3310777b014489e9a96c1f8f6cc0cab6fbf",
-      "origin": "Recorded earlier OpenAI image generation",
-      "rights": "No separate reuse license selected; outside code MIT",
-      "disposition": "Exclude unused reference artwork in Phase 3",
-      "evidence": "docs/ARTWORK.md"
-    },
-    {
-      "path": "public/art/room-greenhouse.png",
-      "bytes": 3161115,
-      "sha256": "702d4c47e36441cee8586eab13f8d84e789b152a2d3f1f26f647b2e1fd1e0fe6",
-      "origin": "Recorded earlier OpenAI image generation",
-      "rights": "No separate reuse license selected; outside code MIT",
-      "disposition": "Exclude unused reference artwork in Phase 3",
-      "evidence": "docs/ARTWORK.md"
-    },
-    {
-      "path": "public/art/room-moonroom.png",
-      "bytes": 3127458,
-      "sha256": "7417890d2743c45b48c49ff6f86c4cce5aae7a3694137f4a72e5f5490fa6255c",
-      "origin": "Recorded earlier OpenAI image generation",
-      "rights": "No separate reuse license selected; outside code MIT",
-      "disposition": "Exclude unused reference artwork in Phase 3",
-      "evidence": "docs/ARTWORK.md"
-    },
-    {
-      "path": "public/art/room-sunroom.png",
-      "bytes": 2831568,
-      "sha256": "6db0cc6bc04987a9add7ac012daca47408657360a03a973138f12783cc31ebae",
-      "origin": "Recorded earlier OpenAI image generation",
-      "rights": "No separate reuse license selected; outside code MIT",
-      "disposition": "Exclude unused reference artwork in Phase 3",
-      "evidence": "docs/ARTWORK.md"
-    },
-    {
-      "path": "public/favicon.ico",
-      "bytes": 3870,
-      "sha256": "3d10f7da6c603178340081668c4ac5b3ae9743ca9a262ab0fcd312fbb9f48bdd",
-      "origin": "Create React App starter",
-      "rights": "Upstream attribution retained; no new trademark grant",
-      "disposition": "Exclude starter branding in Phase 3",
-      "evidence": "Git commit 3ebc0c2"
-    },
-    {
       "path": "public/favicon.svg",
       "bytes": 517,
       "sha256": "90ff074d7f59c7ad482f47a7abdf460ebe4357b241d81dbf86376a2c2c02c0b3",
@@ -146,24 +97,6 @@
       "rights": "Project code MIT",
       "disposition": "Include",
       "evidence": "Project source and Git history"
-    },
-    {
-      "path": "public/logo192.png",
-      "bytes": 5347,
-      "sha256": "c386396ec70db3608075b5fbfaac4ab1ccaa86ba05a68ab393ec551eb66c3e00",
-      "origin": "Create React App starter",
-      "rights": "Upstream attribution retained; no new trademark grant",
-      "disposition": "Exclude starter branding in Phase 3",
-      "evidence": "Git commit 3ebc0c2"
-    },
-    {
-      "path": "public/logo512.png",
-      "bytes": 9664,
-      "sha256": "9ea4f4da7050c0cc408926f6a39c253624e9babb1d43c7977cd821445a60b461",
-      "origin": "Create React App starter",
-      "rights": "Upstream attribution retained; no new trademark grant",
-      "disposition": "Exclude starter branding in Phase 3",
-      "evidence": "Git commit 3ebc0c2"
     },
     {
       "path": "src/art/book-frame.svg",
@@ -218,6 +151,88 @@
       "rights": "Project code MIT",
       "disposition": "Include",
       "evidence": "Project source and Git history"
+    }
+  ],
+  "archivedAssets": [
+    {
+      "path": "public/art/animals-sheet.png",
+      "bytes": 2435935,
+      "sha256": "102e879543141bff7fc9ce68274569bf674c6eda2cd21fca82688825c6f1870f",
+      "origin": "Recorded earlier OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Removed from the current tree in publication Phase 3; preserved in the ignored local archive and Git history",
+      "evidence": "docs/ARTWORK.md",
+      "previousDisposition": "Exclude unused reference artwork in Phase 3"
+    },
+    {
+      "path": "public/art/objects-sheet.png",
+      "bytes": 2470733,
+      "sha256": "7b82ee53da4eea6950c8fe0904e0e3310777b014489e9a96c1f8f6cc0cab6fbf",
+      "origin": "Recorded earlier OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Removed from the current tree in publication Phase 3; preserved in the ignored local archive and Git history",
+      "evidence": "docs/ARTWORK.md",
+      "previousDisposition": "Exclude unused reference artwork in Phase 3"
+    },
+    {
+      "path": "public/art/room-greenhouse.png",
+      "bytes": 3161115,
+      "sha256": "702d4c47e36441cee8586eab13f8d84e789b152a2d3f1f26f647b2e1fd1e0fe6",
+      "origin": "Recorded earlier OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Removed from the current tree in publication Phase 3; preserved in the ignored local archive and Git history",
+      "evidence": "docs/ARTWORK.md",
+      "previousDisposition": "Exclude unused reference artwork in Phase 3"
+    },
+    {
+      "path": "public/art/room-moonroom.png",
+      "bytes": 3127458,
+      "sha256": "7417890d2743c45b48c49ff6f86c4cce5aae7a3694137f4a72e5f5490fa6255c",
+      "origin": "Recorded earlier OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Removed from the current tree in publication Phase 3; preserved in the ignored local archive and Git history",
+      "evidence": "docs/ARTWORK.md",
+      "previousDisposition": "Exclude unused reference artwork in Phase 3"
+    },
+    {
+      "path": "public/art/room-sunroom.png",
+      "bytes": 2831568,
+      "sha256": "6db0cc6bc04987a9add7ac012daca47408657360a03a973138f12783cc31ebae",
+      "origin": "Recorded earlier OpenAI image generation",
+      "rights": "No separate reuse license selected; outside code MIT",
+      "disposition": "Removed from the current tree in publication Phase 3; preserved in the ignored local archive and Git history",
+      "evidence": "docs/ARTWORK.md",
+      "previousDisposition": "Exclude unused reference artwork in Phase 3"
+    },
+    {
+      "path": "public/favicon.ico",
+      "bytes": 3870,
+      "sha256": "3d10f7da6c603178340081668c4ac5b3ae9743ca9a262ab0fcd312fbb9f48bdd",
+      "origin": "Create React App starter",
+      "rights": "Upstream attribution retained; no new trademark grant",
+      "disposition": "Removed from the current tree in publication Phase 3; preserved in the ignored local archive and Git history",
+      "evidence": "Git commit 3ebc0c2",
+      "previousDisposition": "Exclude starter branding in Phase 3"
+    },
+    {
+      "path": "public/logo192.png",
+      "bytes": 5347,
+      "sha256": "c386396ec70db3608075b5fbfaac4ab1ccaa86ba05a68ab393ec551eb66c3e00",
+      "origin": "Create React App starter",
+      "rights": "Upstream attribution retained; no new trademark grant",
+      "disposition": "Removed from the current tree in publication Phase 3; preserved in the ignored local archive and Git history",
+      "evidence": "Git commit 3ebc0c2",
+      "previousDisposition": "Exclude starter branding in Phase 3"
+    },
+    {
+      "path": "public/logo512.png",
+      "bytes": 9664,
+      "sha256": "9ea4f4da7050c0cc408926f6a39c253624e9babb1d43c7977cd821445a60b461",
+      "origin": "Create React App starter",
+      "rights": "Upstream attribution retained; no new trademark grant",
+      "disposition": "Removed from the current tree in publication Phase 3; preserved in the ignored local archive and Git history",
+      "evidence": "Git commit 3ebc0c2",
+      "previousDisposition": "Exclude starter branding in Phase 3"
     },
     {
       "path": "src/logo.svg",
@@ -225,8 +240,9 @@
       "sha256": "6000b0e9b0b05b3f112de04f0d039768a1db63588ff9b6ef7099dbd71632f383",
       "origin": "Create React App starter",
       "rights": "Upstream attribution retained; no new trademark grant",
-      "disposition": "Exclude starter branding in Phase 3",
-      "evidence": "Git commit 3ebc0c2"
+      "disposition": "Removed from the current tree in publication Phase 3; preserved in the ignored local archive and Git history",
+      "evidence": "Git commit 3ebc0c2",
+      "previousDisposition": "Exclude starter branding in Phase 3"
     },
     {
       "path": "src/sounds/click-menu-app-147357.mp3",
@@ -234,8 +250,9 @@
       "sha256": "f93b1b0f075cb8aaa94ae2d6f7002751416a8601a90bacb4274c558174a22993",
       "origin": "Unrecorded original source",
       "rights": "Unknown; no license inferred",
-      "disposition": "Exclude unused audio in Phase 3; review history in Phase 7",
-      "evidence": "Git commit ef811f3"
+      "disposition": "Removed from the current tree in publication Phase 3; preserved in the ignored local archive and Git history",
+      "evidence": "Git commit ef811f3",
+      "previousDisposition": "Exclude unused audio in Phase 3; review history in Phase 7"
     },
     {
       "path": "src/sounds/click.mp3",
@@ -243,8 +260,9 @@
       "sha256": "240535bb0007d4dd9a46bf23df25d1a5ae60ba4d007046ebf597bf46b8a97da6",
       "origin": "Unrecorded original source",
       "rights": "Unknown; no license inferred",
-      "disposition": "Exclude unused audio in Phase 3; review history in Phase 7",
-      "evidence": "Git commit ef811f3"
+      "disposition": "Removed from the current tree in publication Phase 3; preserved in the ignored local archive and Git history",
+      "evidence": "Git commit ef811f3",
+      "previousDisposition": "Exclude unused audio in Phase 3; review history in Phase 7"
     },
     {
       "path": "src/sounds/puppet music alarm.wav",
@@ -252,8 +270,9 @@
       "sha256": "65b32fa85259ca769b45c3220b1e89a6c12fb327d6fc7bd46b2f4dfb5b914452",
       "origin": "Unrecorded original source",
       "rights": "Unknown; no license inferred",
-      "disposition": "Exclude unused audio in Phase 3; review history in Phase 7",
-      "evidence": "Git commit ef811f3"
+      "disposition": "Removed from the current tree in publication Phase 3; preserved in the ignored local archive and Git history",
+      "evidence": "Git commit ef811f3",
+      "previousDisposition": "Exclude unused audio in Phase 3; review history in Phase 7"
     },
     {
       "path": "src/sounds/tap.mp3",
@@ -261,15 +280,9 @@
       "sha256": "d07c9a9b05caf5ac0ada847f8c112ebd64b8df48695ecf04504631bca0029664",
       "origin": "Unrecorded original source",
       "rights": "Unknown; no license inferred",
-      "disposition": "Exclude unused audio in Phase 3; review history in Phase 7",
-      "evidence": "Git commit ef811f3"
+      "disposition": "Removed from the current tree in publication Phase 3; preserved in the ignored local archive and Git history",
+      "evidence": "Git commit ef811f3",
+      "previousDisposition": "Exclude unused audio in Phase 3; review history in Phase 7"
     }
-  ],
-  "excludedOutput": {
-    "files": 163,
-    "bytes": 46500205,
-    "disposition": "Exclude raw QA evidence; curate future media separately",
-    "generatedMockupCount": 15,
-    "mockupProvenance": "output/mockups/cohesive-atelier-v2/manifest.json and prompts.json"
-  }
+  ]
 }

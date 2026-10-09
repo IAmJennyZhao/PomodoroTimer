@@ -2,7 +2,9 @@
 
 Publication Phase 2, October 8, 2026. Application baseline: `25e25ed`, including
 `7197df9`. This is the current follow-up to the historical UX records in
-`output/`; those records describe an older build and use different phase numbers.
+the former `output/` tree; those records describe an older build and use
+different phase numbers. Publication Phase 3 preserved that raw tree in an
+ignored local archive rather than keeping it in the current tracked tree.
 
 **Status: code fixes and available automated/Chrome checks pass; hands-on
 acceptance remains open. Phase 2 is not fully complete.**
