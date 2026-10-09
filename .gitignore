@@ -35,3 +35,13 @@ state.backup.json
 .env
 playwright-report/
 test-results/
+
+# Raw publication audits and QA captures are local evidence, not release media.
+# Already tracked output remains tracked until the repository-cleanup pass.
+/output/
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+little-room-draft-*.json

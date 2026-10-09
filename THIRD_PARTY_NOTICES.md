@@ -49,3 +49,5 @@ These versions and declarations were read from installed package manifests and c
 | `@babel/plugin-proposal-private-property-in-object` | 7.21.11 | MIT |
 
 Retain applicable upstream copyright, license and NOTICE files when distributing dependency code. For a built release, generate and review notices for the actual bundled dependency set, including transitive dependencies and any applicable Apache notices. This Phase 1 inventory does not claim that a distributable bundle's complete notice obligations have been fulfilled.
+
+The publication scanner also inspected 1,556 locked package entries and 1,555 available installed manifests, with no installed-version mismatch. It reads both current `license` fields and legacy `licenses` declarations. The optional platform-specific `fsevents@2.3.3` package is not installed on this Windows checkout; its full notices must be verified on a relevant platform before distribution. The detailed local inventory remains in ignored `.local/publication/audit.json` rather than duplicating the dependency lockfile in public documentation.
