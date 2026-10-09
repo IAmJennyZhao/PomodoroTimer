@@ -24,6 +24,17 @@ manifests and passed restoration and integrity checks. No backup branch or tag
 was added to the publication repository. Original objects also remain in local
 reflogs; no destructive garbage collection was run.
 
+To inspect or recover the preserved original history into a separate ignored
+folder, run from this checkout's root (the destination must not already exist):
+
+```sh
+git clone --branch main .local/archive/publication-phase7-2026-10-09/prepared-history.bundle .local/phase7/recovery-copy
+```
+
+This recovers the original lineage separately; it does not move cleaned `main`.
+The private bundle and raw file archive are local evidence, not future clone
+contents or distribution assets.
+
 The rewrite removed `output/`, legacy audio, unused raster references and
 starter branding from all retained historical trees, following
 [the publication inventory](PUBLICATION_AUDIT.md#intended-contents).
@@ -119,6 +130,12 @@ is a separate hosted concern.
   blob and a new commit with personal identity metadata. Invalid/unknown lookup
   hashes and invalid ref options also failed. Both original and rewritten hash
   lookups returned the same retained commit.
+- At committed checkpoint `7ba1dad`, the selected ancestry contained 127 commits
+  and 181 tracked files, with zero personal identity metadata and zero
+  credential/user-path candidates. The all-ref audit contained 170 commits and
+  42 personal-identity commits because the original hosted tracking ancestry
+  remained. These scopes were checked separately. All **256 local documentation
+  links** resolved, and syntax checks passed for the changed audit/history files.
 
 Local history filtering and preservation are complete. Final public-tree checks
 are recorded at stable checkpoints. Hosted history replacement, clean-install
