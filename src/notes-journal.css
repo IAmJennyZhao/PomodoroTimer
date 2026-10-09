@@ -146,7 +146,10 @@
 .app.notes-compact .app-header,
 .app.notes-sheet.is-arranging .app-header { display: none; }
 .app.notes-compact .workspace-notes .scratchpad-shared-hint { display: none; }
-.app.notes-compact .workspace-notes .quick-notes textarea { min-height: 32px; }
+.app.notes-compact .workspace-notes.movable-notes { overflow-y: auto; }
+.app.notes-compact .workspace-notes > .drawer-content { flex: 0 0 auto; overflow: visible; }
+.app.notes-compact .workspace-notes .quick-notes { height: auto; }
+.app.notes-compact .workspace-notes .quick-notes textarea { flex: 0 0 auto; height: 44px; min-height: 44px; }
 .app.notes-compact .scratchpad-session .session-strip-time { flex-wrap: nowrap; }
 .app.notes-compact .scratchpad-session .session-strip:not([data-status="complete"]) .session-strip-route { display: none; }
 .app.notes-compact .scratchpad-session .pause-guidance { font-size: 12px; line-height: 1.25; padding: 2px 6px; }
