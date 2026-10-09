@@ -25,6 +25,7 @@ const test = base.extend({
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(room.url);
     await expect(page.getByRole('region', { name: 'Focus timer' })).toBeVisible();
+    await expect(page.locator('.loading-screen')).toHaveCount(0);
     await use(page);
     expect(errors, 'uncaught browser errors').toEqual([]);
   },

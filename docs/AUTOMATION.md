@@ -57,9 +57,11 @@ built HTML/JS/CSS/public artwork, write a fictional note, restart the process an
 check persistence and stale-revision rejection. Existing server tests cover
 backup recovery, unsafe storage locations, origin checks and port collisions.
 
-[Browser tests](../e2e/release.spec.cjs) check note persistence across service
+[Browser tests](../e2e/release.spec.cjs) check timer start/pause/resume/finish,
+note persistence across service
 restart/reload, loaded production art, an egg purchase, F19 compact Journal
-concealment and keyboard routes, F20 opaque purchase-label colors, F21 visible
+concealment and keyboard routes, F20 opaque purchase-label colors, F08's 44px Nest
+target, F21 visible
 Finish with docked notes, and F22 keyboard access to Pause/notes plus outage/retry.
 They assert observable behavior and saved state rather than screenshot pixels.
 

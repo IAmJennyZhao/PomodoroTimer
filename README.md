@@ -10,10 +10,12 @@ For development, use the [source map](docs/SOURCE_MAP.md) to find the feature,
 state, persistence and styling modules. The [repository cleanup record](docs/REPOSITORY_CLEANUP.md)
 explains which historical artifacts were archived locally. Current acceptance
 results and deferred hands-on checks are in [release quality](docs/RELEASE_QUALITY.md).
+Reproducible checks and CI are described in [automated validation](docs/AUTOMATION.md),
+with the remaining tooling advisories in [dependency review](docs/DEPENDENCIES.md).
 
 ## Run locally
 
-Use Node.js 22 or newer.
+Use Node.js 22 or 24 LTS; [.nvmrc](.nvmrc) pins the 22.23.3 baseline.
 
 ```sh
 npm ci
@@ -40,6 +42,19 @@ npm run serve
 ```
 
 Open **http://127.0.0.1:3001**. The same local service serves the built app and saves your progress. A static-only hosting service such as GitHub Pages cannot write the private local save folder; use the local commands above.
+
+For a complete unattended check after installing dependencies:
+
+```sh
+npm run browsers:install
+npm run validate
+npm run audit:dependencies
+```
+
+`npm run check` runs the unit/server tests, strict build and production smoke
+without browser downloads. See [automated validation](docs/AUTOMATION.md) for
+Linux browser setup, individual commands and failure reports. The dependency
+gate uses documented, expiring CRA tooling exceptions; a pass is not a clean audit.
 
 ## Private progress
 

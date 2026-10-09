@@ -1,6 +1,24 @@
 'use strict';
 const { test, expect, savedState } = require('./fixtures.cjs');
 
+test('a count-up session starts, pauses, resumes and finishes through the real service', async ({ page, room }) => {
+  const timer = page.getByRole('region', { name: 'Focus timer' });
+  await expect(timer.getByRole('button', { name: 'Start', exact: true })).toBeEnabled();
+  await timer.getByRole('button', { name: 'Count up', exact: true }).click();
+  await timer.getByRole('button', { name: 'Start', exact: true }).click();
+  await expect(timer).toHaveAttribute('data-timer-state', 'focus-running');
+  await timer.getByRole('button', { name: 'Pause', exact: true }).click();
+  await expect.poll(async () => (await savedState(room)).timer.status).toBe('paused');
+  await timer.getByRole('button', { name: 'Resume', exact: true }).click();
+  await expect.poll(async () => (await savedState(room)).timer.status).toBe('running');
+  await timer.getByRole('button', { name: 'Finish session', exact: true }).click();
+  await expect.poll(async () => (await savedState(room)).timer.status).toBe('complete');
+  // A session under a minute earns no focus reward or journal minute.
+  const saved = await savedState(room);
+  expect(saved.history).toHaveLength(8);
+  expect(saved.gems).toBe(200);
+});
+
 test('notes survive saving, service restart and reload; real build art loads', async ({ page, room }) => {
   await page.getByRole('banner', { name: 'Room controls' }).getByRole('button', { name: 'Open Scratchpad', exact: true }).click();
   const notes = page.getByRole('textbox', { name: 'Scratchpad text' });
@@ -54,6 +72,12 @@ test('narrow shop keeps readable purchase labels and persists an egg purchase (F
   await purchase.click();
   await expect.poll(async () => (await savedState(room)).eggs.length).toBe(before.eggs.length + 1);
   expect((await savedState(room)).gems).toBe(before.gems - 25);
+  await page.getByRole('dialog', { name: 'Egg shop', exact: true }).getByRole('button', { name: 'Close panel', exact: true }).click();
+  const nest = page.getByRole('button', { name: 'Open nest', exact: true });
+  await expect(nest).toBeVisible();
+  const target = await nest.boundingBox();
+  expect(Math.round(target.width * 100) / 100).toBeGreaterThanOrEqual(44);
+  expect(Math.round(target.height * 100) / 100).toBeGreaterThanOrEqual(44);
 });
 
 test.describe('active focus', () => {
