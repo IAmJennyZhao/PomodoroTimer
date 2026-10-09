@@ -9,6 +9,10 @@ ignored local archive rather than keeping it in the current tracked tree.
 **Status: code fixes and available automated/Chrome checks pass; hands-on
 acceptance remains open. Phase 2 is not fully complete.**
 
+On October 9, the owner deferred the remaining Phase 2 hands-on checks to proceed
+with repository cleanup. They remain unverified release gates; this deferral
+does not record a pass or prevent the separate cleanup phase from completing.
+
 ## Resolved findings
 
 | Finding | Change | Verification on this build |
@@ -107,8 +111,9 @@ iOS/Safari access is still unestablished; Android results cannot cover it.
 
 ## Remaining acceptance checks
 
-These are still required evidence from the previous review. No user-approved
-deferral has been recorded. Use this build and the disposable room, record
+These are still required evidence from the previous review, deferred by the
+owner on October 9 while publication Phase 3 proceeds. Use the current build and
+the disposable room, record
 device/OS/browser or screen-reader versions, and distinguish failures from
 unavailable equipment. Do not infer a pass from automated event tests or desktop
 viewport emulation.

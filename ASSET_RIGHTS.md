@@ -12,7 +12,7 @@ Generated artwork must be disclosed as generated, rather than attributed to a hu
 
 ## Current audio
 
-The app's active alarm, ambient mixer and interaction sounds are synthesized by project code in `src/audio.js` using Web Audio. They do not load or sample the former files in `src/sounds/`. The procedural engine is covered by the project's MIT license.
+The app's active alarm, ambient mixer and interaction sounds are synthesized by project code in `src/audio/engine.js` using Web Audio. They do not load or sample the former files in `src/sounds/`. The procedural engine is covered by the project's MIT license.
 
 ## Removed legacy audio: provenance unresolved
 

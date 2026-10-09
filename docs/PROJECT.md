@@ -49,3 +49,9 @@ The existing UX/verification records use their own phase numbers. The publicatio
 8. **GitHub release:** apply metadata, verify the clean checkout and all outstanding distribution gates, tag and publish.
 
 Phase 1 defines and records these gates; it does not claim that the app, complete asset bundle, or published history is release-ready. See [PUBLICATION_AUDIT.md](PUBLICATION_AUDIT.md) for evidence and file disposition.
+
+Publication Phase 3's current-tree artifact cleanup and source navigation are
+complete; see [REPOSITORY_CLEANUP.md](REPOSITORY_CLEANUP.md) and
+[SOURCE_MAP.md](SOURCE_MAP.md). The owner deferred Phase 2's remaining hands-on
+acceptance on October 9. Those checks remain release gates, while later
+publication phases continue as separate passes.

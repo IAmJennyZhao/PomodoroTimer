@@ -2,6 +2,11 @@
 
 Audit date: October 8, 2026. Starting baseline: `be52e89` (pre-phase application behavior baseline `01f586b`). This pass changes metadata, launcher messages and publication records, with no changes to game/save behavior. This document records the identity/publication phase; the earlier UX verification uses a different phase sequence.
 
+Publication Phase 3 subsequently implemented the current-tree exclusions below.
+See [REPOSITORY_CLEANUP.md](REPOSITORY_CLEANUP.md) for the October 9 disposition
+and [SOURCE_MAP.md](SOURCE_MAP.md) for current source locations. The counts and
+history findings in this audit remain a dated Phase 1 snapshot.
+
 ## Decisions
 
 - Product: **Little Room**; local package: `little-room`; repository URL and legacy save-directory names stay stable.
