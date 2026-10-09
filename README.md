@@ -6,6 +6,21 @@ and make a little space of your own.
 Little Room is a local-first React app with a Node.js save service. It runs on
 your computer and saves progress to disk, without an account or cloud sync.
 
+![Little Room showing a 25-minute countdown, a daily goal and three animal companions in a pastel illustrated room.](docs/media/room.jpg)
+
+*Actual app, fictional demo room.* [Screenshots and walkthrough](docs/SHOWCASE.md)
+· [Download the captioned demo](docs/media/walkthrough.webm) (39 seconds, WebM).
+
+<details>
+<summary>See the animated feature preview (21 seconds)</summary>
+
+![Six captioned app views: room, focus with notes, egg shop, pets, room arrangement and Journal.](docs/media/feature-tour.gif)
+
+The [static gallery and walkthrough transcript](docs/SHOWCASE.md) cover the same
+features without animation.
+
+</details>
+
 ## What you can do
 
 - **Focus:** countdown or count-up, tasks and tags, pause/resume, overtime, and
@@ -71,6 +86,7 @@ save lifecycle.
 | For | Start here |
 | --- | --- |
 | Using the app | [User guide](docs/USER_GUIDE.md) |
+| Seeing the main features | [Screenshots and walkthrough](docs/SHOWCASE.md) |
 | Installing, running and protecting saves | [Setup](docs/SETUP.md) |
 | Finding the implementation | [Source map](docs/SOURCE_MAP.md) |
 | Understanding how it works | [Architecture and diagrams](docs/ARCHITECTURE.md) |

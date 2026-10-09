@@ -34,3 +34,12 @@ A descriptive filename does not establish a source or a license. These files rem
 The CRA starter logos (`src/logo.svg`, `public/logo192.png`, `public/logo512.png`, and `public/favicon.ico`) were introduced by the initial Create React App commit and removed from the current tree in publication Phase 3 after reference checks. Software licensing does not itself establish trademark rights to the React logo. The active app uses `public/favicon.svg`.
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for CRA attribution and direct dependency declarations, and [ASSET_INVENTORY.json](docs/ASSET_INVENTORY.json) for paths, hashes and intended disposition. Existing QA screenshots and fixtures are not approved publication media. Each future screenshot must use fictional demo content and be reviewed before inclusion.
+
+Publication Phase 6's reviewed gallery, walkthrough, animated screenshot preview
+and social card are in `docs/media/`. They use fictional content and actual
+production UI; [MEDIA.md](docs/MEDIA.md) records capture conditions and
+[the media manifest](docs/media/manifest.json) records hashes and provenance.
+These files contain the generated illustrations and remain outside the code
+license. Preparing them does not settle the illustration distribution gate or
+grant additional reuse rights. The social card is an HTML/CSS composition around
+an actual screenshot; no new generated illustrations were introduced in this pass.

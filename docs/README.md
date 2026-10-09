@@ -6,6 +6,7 @@
 | --- | --- |
 | [Project README](../README.md) | Product overview and quick start |
 | [User guide](USER_GUIDE.md) | Timer, collection, room, notes, Journal, sound and motion |
+| [Screenshots and walkthrough](SHOWCASE.md) | Actual app gallery, captioned video and transcript |
 | [Setup and local saves](SETUP.md) | Installation, launch modes, profiles, backup and recovery |
 | [Project scope](PROJECT.md) | Identity, support boundaries and publication phases |
 
@@ -19,6 +20,7 @@
 | [Automated validation](AUTOMATION.md) | Commands, CI, reproducibility evidence and limits |
 | [Dependency review](DEPENDENCIES.md) | Tooling advisories and expiring exceptions |
 | [Artwork](ARTWORK.md) | Visual system, assets and generation provenance |
+| [Media preparation](MEDIA.md) | Capture, provenance, reproduction and social preview |
 | [Asset rights](../ASSET_RIGHTS.md) | Rights boundaries distinct from the MIT code license |
 | [Third-party notices](../THIRD_PARTY_NOTICES.md) | Dependency attribution |
 

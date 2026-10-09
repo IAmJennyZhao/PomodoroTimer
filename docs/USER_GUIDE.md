@@ -28,7 +28,7 @@ reward or daily-goal credit.
 | Count up | Starts at zero. Pause/resume excludes paused time; Finish credits the whole active minutes. |
 | Pomodoro pause | Two pauses, up to one minute each. A third pause or an overlong pause forfeits that session's Shilligems, including its overtime reward. Resume keeps remaining focus time; egg progress and Journal credit are retained. |
 | Count-up or break pause | Unrestricted pauses. |
-| Stop | Hold for five continuous seconds to abandon unfinished countdown or count-up work. Releasing early, Escape or losing focus cancels the hold. Space or Enter can also be held. Overtime uses Finish. |
+| Abandon | Hold for five continuous seconds to abandon unfinished countdown or count-up work. Releasing early, Escape or losing focus cancels the hold. Space or Enter can also be held. Overtime uses Finish. |
 | Short/long break | Starts when you choose it after reaching the focus target. The configured interval recommends a long break. |
 | **Auto-start focus** | Optionally begins the next focus session when a running break ends. Loading an already expired break leaves the next session idle. |
 
