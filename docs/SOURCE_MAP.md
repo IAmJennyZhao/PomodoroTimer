@@ -68,10 +68,25 @@ Production PNGs stay in `public/art/atelier/`; SVG frames/textures stay in
 `src/art/`. Asset provenance and reuse boundaries are in [ARTWORK.md](ARTWORK.md)
 and [ASSET_RIGHTS.md](../ASSET_RIGHTS.md).
 
+## Validation tooling
+
+[scripts/check.cjs](../scripts/check.cjs) runs the common unattended checks.
+[Startup smoke tests](../scripts/production-smoke.test.cjs) boot the development
+launcher and production executable with private temporary profiles. The
+[browser fixtures](../e2e/fixtures.cjs) isolate the production room for each case
+in [release.spec.cjs](../e2e/release.spec.cjs).
+
+[audit-dependencies.cjs](../scripts/audit-dependencies.cjs) enforces the live
+[dependency review](DEPENDENCIES.md); its failure-path tests are in
+[dependency-review.test.cjs](../server/dependency-review.test.cjs). Workflows live
+in `.github/workflows/`. See [AUTOMATION.md](AUTOMATION.md) for commands, CI scope
+and limitations.
+
 ## Local evidence and current status
 
 New raw QA captures belong in ignored `.local/` or `output/`, not the tracked
 source tree. Publication Phase 3 preserved the former raw tree in a local
 archive; [REPOSITORY_CLEANUP.md](REPOSITORY_CLEANUP.md) records the disposition.
 Use [RELEASE_QUALITY.md](RELEASE_QUALITY.md) for current acceptance evidence;
+[AUTOMATION.md](AUTOMATION.md) records Phase 4 automation;
 [VERIFICATION.md](VERIFICATION.md) is historical.

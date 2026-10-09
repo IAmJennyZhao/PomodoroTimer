@@ -10,7 +10,7 @@ Prepared GitHub description: **A local-first Pomodoro app with cozy illustrated 
 
 ## Initial release scope
 
-The current package version is `0.1.0`. It is a preparation baseline, not an announced finished release. The initial release is a browser interface plus a Node.js service running on the same desktop computer, with Node.js 22 or newer.
+The current package version is `0.1.0`. It is a preparation baseline, not an announced finished release. The initial release is a browser interface plus a Node.js service running on the same desktop computer, with Node.js 22 or 24 LTS. The reproducibility baseline is pinned in `.nvmrc`.
 
 | Capability | Included behavior |
 | --- | --- |
@@ -28,9 +28,9 @@ The release does not include cloud accounts/sync, collaboration, packaged native
 
 | Environment | Current evidence | Release claim |
 | --- | --- | --- |
-| Windows desktop with Chrome | Phase 2 automated checks pass; F19/F20/F21/F08 and compact-recovery follow-up fixed and checked in Chrome. | Verified desktop baseline; hands-on release acceptance is still pending. See [RELEASE_QUALITY.md](RELEASE_QUALITY.md). |
-| macOS/Linux desktop | Platform-specific save locations are implemented; clean-install/run checks are not recorded here. | Intended support, not verified platform support yet. |
-| Firefox/Safari/WebKit | No equivalent current acceptance record. | Do not advertise verified cross-browser support yet. |
+| Windows desktop with Chrome | Phase 2 UI fixes checked in Chrome; Phase 4 clean installs and full validation pass on Node 22.23.3 and 24.21.0. See [AUTOMATION.md](AUTOMATION.md). | Verified desktop baseline; hands-on release acceptance is still pending. See [RELEASE_QUALITY.md](RELEASE_QUALITY.md). |
+| macOS/Linux desktop | Platform-specific save locations are implemented; Phase 4 CI configures clean installs, builds and startup/path/save checks on both platforms. Hosted jobs are pending a push. | Intended support, not verified platform support yet. |
+| Firefox/Safari/WebKit | Phase 4 adds headless Firefox/WebKit production regressions alongside Chromium; see [AUTOMATION.md](AUTOMATION.md). Real-browser/device acceptance remains open. | Do not advertise complete cross-browser support yet. |
 | Narrow/phone-sized layouts | Desktop Chrome viewport checks exist. | Responsive layouts exist; actual mobile support is unverified. |
 | Physical phone | Android USB forwarding instructions now exist for the isolated QA room; no physical touch/software-keyboard/orientation acceptance recorded. | Not an initial supported deployment target. Ordinary loopback URLs on the PC are not phone URLs; the QA forwarding route remains unverified on hardware. |
 | Assistive technology/zoom | Keyboard/DOM checks exist; actual screen reader and genuine 200% zoom checks remain missing. | Do not claim full accessibility conformance. |
@@ -55,3 +55,9 @@ complete; see [REPOSITORY_CLEANUP.md](REPOSITORY_CLEANUP.md) and
 [SOURCE_MAP.md](SOURCE_MAP.md). The owner deferred Phase 2's remaining hands-on
 acceptance on October 9. Those checks remain release gates, while later
 publication phases continue as separate passes.
+
+Publication Phase 4's CI configuration, reproducible validation and dependency
+review are complete locally; see [AUTOMATION.md](AUTOMATION.md) and
+[DEPENDENCIES.md](DEPENDENCIES.md). Hosted workflow results remain pending a push,
+and the old CRA tooling families retain specific exceptions that expire on
+November 30, 2026. Revisit them during the final release review.

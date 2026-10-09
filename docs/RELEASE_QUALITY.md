@@ -13,6 +13,12 @@ On October 9, the owner deferred the remaining Phase 2 hands-on checks to procee
 with repository cleanup. They remain unverified release gates; this deferral
 does not record a pass or prevent the separate cleanup phase from completing.
 
+Publication Phase 4 adds clean-install validation, CI, startup/persistence smoke
+and automated production regressions in Chromium, Firefox and WebKit. Current
+commands and evidence are in [AUTOMATION.md](AUTOMATION.md). It also refreshes
+Browserslist data; the stale-data warning in the dated Phase 2 build record below
+is resolved. The remaining hands-on acceptance checks below remain pending.
+
 ## Resolved findings
 
 | Finding | Change | Verification on this build |

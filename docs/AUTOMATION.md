@@ -1,8 +1,8 @@
 # Automated validation
 
 Use **Node.js 22 or 24 LTS** and npm. The pinned reproducibility baseline is
-**22.23.3** in [.nvmrc](../.nvmrc); version managers can use `nvm install` /
-`nvm use`, or install that version directly. CI also checks the latest Node 24
+**22.23.3** in [.nvmrc](../.nvmrc). Install that version directly or select it with your
+Node version manager. CI also checks the latest Node 24
 release resolved by setup-node. Unsupported Node majors are rejected by the
 validation runner.
 
@@ -101,3 +101,48 @@ engine regressions, not complete acceptance of Firefox or Safari on real devices
 They also do not cover screen-reader speech, genuine browser zoom, physical touch,
 software keyboards or audible alarms. Those release gates remain in
 [RELEASE_QUALITY.md](RELEASE_QUALITY.md) and were deferred by the owner.
+
+## Phase 4 verification record
+
+October 9, 2026; implementation checkpoint **`6594f62`**. Exported only the tracked
+files of that commit to a disposable temporary checkout, then performed a fresh
+`npm ci` with each runtime's bundled npm. No existing `node_modules`, build or
+personal save profile was copied into that checkout. Portable Node archives were
+verified against the official release checksums; the installed system Node was
+not replaced.
+
+| Windows x64 check | Node 22.23.3 / npm 10.9.9 | Node 24.21.0 / npm 11.19.0 |
+| --- | --- | --- |
+| Clean lockfile installation | Passed | Passed |
+| Frontend | 396 tests / 22 suites passed | 396 tests / 22 suites passed |
+| Server, launcher and advisory policy | 22 passed | 22 passed |
+| Strict production build | Passed | Passed |
+| Development compile/proxy, default paths, production persistence/restart | 3 passed | 3 passed |
+| Chromium / Firefox / WebKit production cases | 18 passed, no retries | 18 passed, no retries |
+| Complete `npm run validate` | Exit 0 | Exit 0 |
+
+The live advisory gate passed with the documented 25 source advisories / 100
+affected tooling packages, including from the clean Node 24 checkout. The separate
+runtime-only audit returned zero findings. Registry failures, changed advisories,
+runtime reclassification and expired policies are covered by the policy tests.
+
+Both workflows passed **actionlint 1.7.12**, and the workflow/Dependabot files
+parsed as YAML. The Windows hidden-directory discovery regression passed all 396
+frontend tests after the pattern fix. All 16 production/source asset hashes still
+match the inventory; application JS, CSS source and artwork were unchanged.
+Emitted CSS differences from dependency updates were vendor-prefix removal and
+equivalent selector/declaration grouping. Existing CRA/package deprecation
+diagnostics remain documented tooling debt, rather than compiler failures.
+
+The publication scan found one current-tree email candidate in `glob`'s public
+npm deprecation metadata; it was compared with the registry and retained as
+upstream metadata. It found no current-tree credential or user-path candidates.
+The dependency inventory had zero installed-version mismatches. Historical
+privacy/artifact findings remain assigned to the history pass.
+
+Raw install, test and audit reports remain in ignored `.local/phase4/`; browser
+failure output remains ignored. The GitHub workflows have **not been pushed or
+executed on hosted runners** in this pass, so macOS/Linux hosted results and
+repository-required-check settings remain for the publication pass. Phase 4's
+implementation and available local verification are complete; this does not
+close the separate asset, history, hands-on or release-publication gates.
