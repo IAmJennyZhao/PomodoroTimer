@@ -26,6 +26,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "test:server": "node --test server/*.test.cjs",
+    "qa:release": "node scripts/release-qa.cjs",
     "audit:publication": "node scripts/audit-publication.cjs",
     "serve": "node server/index.cjs",
     "eject": "react-scripts eject"

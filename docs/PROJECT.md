@@ -28,11 +28,11 @@ The release does not include cloud accounts/sync, collaboration, packaged native
 
 | Environment | Current evidence | Release claim |
 | --- | --- | --- |
-| Windows desktop with Chrome | Existing automated and browser verification, with known UI findings. | Initial verification baseline; release quality is still pending. |
+| Windows desktop with Chrome | Phase 2 automated checks pass; F19/F20/F21/F08 and compact-recovery follow-up fixed and checked in Chrome. | Verified desktop baseline; hands-on release acceptance is still pending. See [RELEASE_QUALITY.md](RELEASE_QUALITY.md). |
 | macOS/Linux desktop | Platform-specific save locations are implemented; clean-install/run checks are not recorded here. | Intended support, not verified platform support yet. |
 | Firefox/Safari/WebKit | No equivalent current acceptance record. | Do not advertise verified cross-browser support yet. |
 | Narrow/phone-sized layouts | Desktop Chrome viewport checks exist. | Responsive layouts exist; actual mobile support is unverified. |
-| Physical phone | No recorded touch/software-keyboard/orientation acceptance or supported phone access. | Not an initial supported deployment target. Loopback URLs on the PC are not phone URLs. |
+| Physical phone | Android USB forwarding instructions now exist for the isolated QA room; no physical touch/software-keyboard/orientation acceptance recorded. | Not an initial supported deployment target. Ordinary loopback URLs on the PC are not phone URLs; the QA forwarding route remains unverified on hardware. |
 | Assistive technology/zoom | Keyboard/DOM checks exist; actual screen reader and genuine 200% zoom checks remain missing. | Do not claim full accessibility conformance. |
 
 ## Release gates and separate passes
