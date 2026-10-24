@@ -44,6 +44,15 @@ records retain their dated results.
   Those fixtures now resolve the temporary parent before creating profiles and
   keep cleanup guards against that same resolved parent. Application save-path
   checks and runtime behavior are unchanged; hosted results verify the fix.
+- At `80ee1ab`, all seven
+  [hosted check jobs](https://github.com/IAmJennyZhao/PomodoroTimer/actions/runs/40118670828)
+  passed: Node 22/24 on Windows, macOS and Linux, plus the browser regressions.
+  The [hosted dependency review](https://github.com/IAmJennyZhao/PomodoroTimer/actions/runs/40118670832)
+  also passed. Later documentation updates do not change application behavior.
+- Following explicit owner approval of this exact upload, the reviewed
+  `docs/media/social-preview.png` was applied in GitHub Settings on October 24.
+  The card remained visible after reloading the settings page. The upload does
+  not grant any additional artwork reuse rights.
 
 ## Owner decisions
 
@@ -57,10 +66,6 @@ records retain their dated results.
 
 - Keep private backups local and do not merge old ancestry back into `main`.
 - Confirm hosted CI for the exact release candidate after hands-on acceptance.
-- The social-card Settings upload was blocked by automatic approval review;
-  it requested fresh owner approval for that specific screenshot-card upload.
-  The social preview remains unchanged while that request is pending. This
-  does not change the prepared card or grant any additional artwork reuse rights.
 
 Source publication and a supported release have different acceptance boundaries.
 Physical listening, screen-reader speech, genuine 200% zoom, continuous real

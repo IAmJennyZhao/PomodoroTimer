@@ -76,7 +76,8 @@ Publication Phase 6's reviewed screenshots, captioned walkthrough, animated
 preview and social card are complete locally; see the
 [gallery](SHOWCASE.md), [media preparation and verification](MEDIA.md) and
 [artifact manifest](media/manifest.json). The README now showcases the real app
-using fictional content. The social card is prepared for Phase 8's upload.
+using fictional content. Phase 8 uploaded the social card on October 24 following
+explicit owner approval and verified that it persisted after a settings reload.
 Publication Phase 7's local history filtering is complete. Every original
 commit remains, with personal identity metadata replaced by the existing
 noreply identity and excluded historical artifacts removed from the ancestry.

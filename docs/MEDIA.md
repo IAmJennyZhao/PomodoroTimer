@@ -66,8 +66,9 @@ profiles and checker output local.
 
 The PNG is **1280×640**, has a solid background and is **735,389 bytes**, meeting
 [GitHub's recommended dimensions and under-1-MB requirement](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/customizing-your-repositorys-social-media-preview).
-Uploading it under repository Settings → Social preview remains in the GitHub
-publication pass. This phase prepares the file without applying hosted metadata.
+The owner explicitly approved uploading this card during publication preparation.
+It was applied under repository Settings → Social preview on October 24, 2026,
+and verified after reloading that page. Artwork reuse terms remain unchanged.
 
 ## Verification and remaining gates
 
