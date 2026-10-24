@@ -12,10 +12,11 @@ const { createAppServer, startServer } = require('./index.cjs');
 const state = gems => ({ schemaVersion: 1, gems, notes: 'A test-only task' });
 
 async function temporary(t) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'pomodoro-server-test-'));
+  const temporaryRoot = await fs.realpath(os.tmpdir());
+  const root = await fs.mkdtemp(path.join(temporaryRoot, 'pomodoro-server-test-'));
   t.after(async () => {
     // Only remove the exact temporary tree created by this test.
-    assert.equal(path.dirname(path.resolve(root)), path.resolve(os.tmpdir()));
+    assert.equal(path.dirname(root), temporaryRoot);
     assert.ok(path.basename(root).startsWith('pomodoro-server-test-'));
     await fs.rm(root, { recursive: true, force: true });
   });

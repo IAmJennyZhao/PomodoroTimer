@@ -51,9 +51,11 @@ async function reservedRange(t, length = 4) {
 }
 
 async function temporaryData(t) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'pomodoro-ports-test-'));
+  // Windows short TEMP names and directory aliases resolve to the same location.
+  const temporaryRoot = await fs.realpath(os.tmpdir());
+  const root = await fs.mkdtemp(path.join(temporaryRoot, 'pomodoro-ports-test-'));
   t.after(async () => {
-    assert.equal(path.dirname(path.resolve(root)), path.resolve(os.tmpdir()));
+    assert.equal(path.dirname(root), temporaryRoot);
     assert.ok(path.basename(root).startsWith('pomodoro-ports-test-'));
     await fs.rm(root, { recursive: true, force: true });
   });

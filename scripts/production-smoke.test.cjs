@@ -11,9 +11,10 @@ const net = require('node:net');
 const root = path.resolve(__dirname, '..');
 
 async function temporary(t) {
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'little-room-smoke-'));
+  const temporaryRoot = await fs.realpath(os.tmpdir());
+  const directory = await fs.mkdtemp(path.join(temporaryRoot, 'little-room-smoke-'));
   t.after(async () => {
-    assert.equal(path.dirname(directory), path.resolve(os.tmpdir()));
+    assert.equal(path.dirname(directory), temporaryRoot);
     assert.ok(path.basename(directory).startsWith('little-room-smoke-'));
     await fs.rm(directory, { recursive: true, force: true });
   });

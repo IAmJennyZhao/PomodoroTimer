@@ -16,7 +16,8 @@ records retain their dated results.
 - A fresh isolated clone of dependency checkpoint `d0d447d` passed `npm ci`
   and the complete `npm run validate` with Node 22.23.3: the same core checks
   plus all 18 production cases across Chromium, Firefox and WebKit, with zero
-  retries. Subsequent changes are documentation-only.
+  retries. Later preparation changes rights/documentation and the test-only TEMP
+  fixtures described below; production application code is unchanged.
 - The full dependency audit has 56 affected tooling packages and 24 reviewed
   source advisories. The production-only audit has zero findings. Specific
   exceptions still expire November 30, 2026; see [DEPENDENCIES.md](DEPENDENCIES.md).
@@ -37,6 +38,12 @@ records retain their dated results.
   and [Dependency review workflow](https://github.com/IAmJennyZhao/PomodoroTimer/actions/workflows/dependencies.yml).
   These links expose actual runner outcomes; configured workflows alone are not
   evidence of a pass. Subsequent documentation-only checkpoints also trigger CI.
+- The first hosted Windows run exposed test fixtures comparing an abbreviated
+  TEMP path with the service's canonical path. A disposable junction-based TEMP
+  reproduced the same failures in the server/port tests and startup smoke checks.
+  Those fixtures now resolve the temporary parent before creating profiles and
+  keep cleanup guards against that same resolved parent. Application save-path
+  checks and runtime behavior are unchanged; hosted results verify the fix.
 
 ## Owner decisions
 
