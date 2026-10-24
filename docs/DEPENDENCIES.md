@@ -36,6 +36,10 @@ not extended. No cross-major overrides or removal of functioning build tooling
 were used to silence findings.
 
 Current validation evidence belongs in [PUBLICATION_STATUS.md](PUBLICATION_STATUS.md).
+React 18.3 also exposes a development-test deprecation warning from Testing
+Library 13's use of `ReactDOMTestUtils.act`; all 396 tests pass, and the strict
+production build has no compiler warnings. A Testing Library migration remains
+separate work; the warning is not suppressed.
 
 ## Changes and audit results
 

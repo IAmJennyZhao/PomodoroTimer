@@ -10,21 +10,31 @@ records retain their dated results.
   original-history backup was verified again against its SHA-256 manifest.
 - Compatible dependencies were refreshed, including React/React DOM 18.3.1,
   Babel's CommonJS transform 7.29.7 and Playwright 1.64.1.
-- The core checks passed on Windows with Node 22.23.3: frontend tests,
+- The core checks passed on Windows with Node 22.23.3: 396 frontend tests,
   23 server/launcher/audit tests, strict production build, and all three
   development/production startup and save-persistence checks.
+- A fresh isolated clone of dependency checkpoint `d0d447d` passed `npm ci`
+  and the complete `npm run validate` with Node 22.23.3: the same core checks
+  plus all 18 production cases across Chromium, Firefox and WebKit, with zero
+  retries. Subsequent changes are documentation-only.
 - The full dependency audit has 56 affected tooling packages and 24 reviewed
   source advisories. The production-only audit has zero findings. Specific
   exceptions still expire November 30, 2026; see [DEPENDENCIES.md](DEPENDENCIES.md).
 - GitHub's description and topics were applied. The repository is already public.
+- The selected publication ancestry passes the history verifier and publication
+  scan: zero personal-email commits, credential candidates or user-path
+  candidates. Retained email-like matches are the previously reviewed public
+  fixture identity, upstream `glob` metadata and compressed walkthrough bytes.
+- Local Markdown documentation links resolve. The three pinned GitHub
+  Actions commits resolve in their respective upstream repositories.
+- A dry-run of the explicitly leased replacement of `main` succeeded without
+  changing the remote branch. Publication still waits on the decisions below.
 
 ## Pending publication steps
 
 - Owner choice of artwork reuse/distribution terms. Code remains MIT; no new
   artwork permission is assumed. See [ASSET_RIGHTS.md](../ASSET_RIGHTS.md).
 - Owner choice of a public preview or a v0.1.0 release after hands-on acceptance.
-- Clean-checkout installation and browser regression verification on the
-  refreshed lockfile, followed by the publication scan and documentation checks.
 - Publish only the verified branch, with an explicit lease on hosted `main`
   at `f4c49dd6871b227cbd69ba17b89af3d0ceb09d20`, after rechecking that tip.
   Keep all private backups local and do not merge the old ancestry back in.

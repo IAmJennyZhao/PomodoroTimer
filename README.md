@@ -112,6 +112,8 @@ Windows clean-install validation and headless Chromium, Firefox and WebKit
 checks are recorded. Hosted CI, hands-on accessibility/audio checks and broader
 device acceptance remain open. See the [support scope](docs/PROJECT.md#support-claims)
 and [release quality record](docs/RELEASE_QUALITY.md) for the exact boundaries.
+The [current publication status](docs/PUBLICATION_STATUS.md) records the latest
+dependency refresh and remaining publication steps.
 
 ## License and artwork
 

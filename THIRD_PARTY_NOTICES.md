@@ -34,7 +34,10 @@ Upstream reference: [CRA 5.0.1 license](https://github.com/react/create-react-ap
 
 ## Direct dependency inventory
 
-These current versions and declarations were read from installed package manifests and checked against the lockfile on October 9, 2026, after the Phase 4 clean install. A declared SPDX identifier is an inventory fact, not a substitute for the package's full notice.
+These versions and declarations were checked against installed manifests and the
+lockfile on October 9, 2026, and refreshed on October 24 for React/React DOM,
+the Babel CommonJS transform and Playwright. A declared SPDX identifier is an
+inventory fact, not a substitute for the package's full notice.
 
 | Package | Locked version | Declared license |
 | --- | --- | --- |
