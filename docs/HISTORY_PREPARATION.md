@@ -3,6 +3,11 @@
 Publication Phase 7, October 9, 2026. Starting point: `22adc03`.
 This pass prepares local history; publishing the replacement remains Phase 8.
 
+**October 24 update:** Phase 8 published the cleaned source branch to GitHub
+with an explicit lease on the old hosted tip. The text below remains the
+October 9 preparation record. See [current publication status](PUBLICATION_STATUS.md)
+for hosted verification and the separate, still-pending v0.1.0 release.
+
 ## Decisions and preservation
 
 The owner chose to **retain every original commit**, filtering identities and

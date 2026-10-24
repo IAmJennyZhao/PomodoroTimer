@@ -29,6 +29,14 @@ records retain their dated results.
   Actions commits resolve in their respective upstream repositories.
 - A dry-run of the explicitly leased replacement of `main` succeeded without
   changing the remote branch.
+- Cleaned source history was subsequently published at `23ae8ac` on October 24,
+  replacing the checked old `main` tip with an explicit force-with-lease. Only
+  `main` was pushed. Private backups remain local; no release or tag was created.
+- Hosted validation is tracked by the
+  [Checks workflow](https://github.com/IAmJennyZhao/PomodoroTimer/actions/workflows/checks.yml)
+  and [Dependency review workflow](https://github.com/IAmJennyZhao/PomodoroTimer/actions/workflows/dependencies.yml).
+  These links expose actual runner outcomes; configured workflows alone are not
+  evidence of a pass. Subsequent documentation-only checkpoints also trigger CI.
 
 ## Owner decisions
 
@@ -38,12 +46,10 @@ records retain their dated results.
 - Prepare v0.1.0 and hold its tag/release announcement until hands-on checks pass.
   [Release notes and acceptance steps](RELEASE_PLAN.md) are prepared.
 
-## Pending publication steps
+## Release follow-up
 
-- Publish only the verified branch, with an explicit lease on hosted `main`
-  at `f4c49dd6871b227cbd69ba17b89af3d0ceb09d20`, after rechecking that tip.
-  Keep all private backups local and do not merge the old ancestry back in.
-- Verify hosted CI after source publication.
+- Keep private backups local and do not merge old ancestry back into `main`.
+- Confirm hosted CI for the exact release candidate after hands-on acceptance.
 - The social-card Settings upload was blocked by automatic approval review;
   it requested fresh owner approval for that specific screenshot-card upload.
   The social preview remains unchanged while that request is pending. This
@@ -54,8 +60,8 @@ Physical listening, screen-reader speech, genuine 200% zoom, continuous real
 input, mobile and additional real-browser acceptance remain recorded in
 [RELEASE_QUALITY.md](RELEASE_QUALITY.md). No pass is inferred from automation.
 
-The cleaned branch has not yet replaced hosted history. A branch replacement
-does not remove old objects from caches, forks or other clones. See
+The cleaned branch has replaced hosted `main`. A branch replacement does not
+remove old objects from caches, forks or other clones. See
 [HISTORY_PREPARATION.md](HISTORY_PREPARATION.md) for the preservation record and
 safe publication procedure.
 

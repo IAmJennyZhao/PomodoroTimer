@@ -32,7 +32,7 @@ The release does not include cloud accounts/sync, collaboration, packaged native
 | Environment | Current evidence | Release claim |
 | --- | --- | --- |
 | Windows desktop with Chrome | Phase 2 UI fixes checked in Chrome; Phase 4 clean installs and full validation pass on Node 22.23.3 and 24.21.0. See [AUTOMATION.md](AUTOMATION.md). | Verified desktop baseline; hands-on release acceptance is still pending. See [RELEASE_QUALITY.md](RELEASE_QUALITY.md). |
-| macOS/Linux desktop | Platform-specific save locations are implemented; Phase 4 CI configures clean installs, builds and startup/path/save checks on both platforms. Hosted jobs are pending a push. | Intended support, not verified platform support yet. |
+| macOS/Linux desktop | Platform-specific save locations and clean-install/build/startup/save CI are implemented. Current hosted results are linked in [PUBLICATION_STATUS.md](PUBLICATION_STATUS.md). | Intended support; hands-on platform acceptance remains unverified. |
 | Firefox/Safari/WebKit | Phase 4 adds headless Firefox/WebKit production regressions alongside Chromium; see [AUTOMATION.md](AUTOMATION.md). Real-browser/device acceptance remains open. | Do not advertise complete cross-browser support yet. |
 | Narrow/phone-sized layouts | Desktop Chrome viewport checks exist. | Responsive layouts exist; actual mobile support is unverified. |
 | Physical phone | Android USB forwarding instructions now exist for the isolated QA room; no physical touch/software-keyboard/orientation acceptance recorded. | Not an initial supported deployment target. Ordinary loopback URLs on the PC are not phone URLs; the QA forwarding route remains unverified on hardware. |
@@ -61,7 +61,8 @@ publication phases continue as separate passes.
 
 Publication Phase 4's CI configuration, reproducible validation and dependency
 review are complete locally; see [AUTOMATION.md](AUTOMATION.md) and
-[DEPENDENCIES.md](DEPENDENCIES.md). Hosted workflow results remain pending a push,
+[DEPENDENCIES.md](DEPENDENCIES.md). Current hosted workflow results are linked
+in [PUBLICATION_STATUS.md](PUBLICATION_STATUS.md),
 and the old CRA tooling families retain specific exceptions that expire on
 November 30, 2026. Revisit them during the final release review.
 
@@ -81,9 +82,8 @@ commit remains, with personal identity metadata replaced by the existing
 noreply identity and excluded historical artifacts removed from the ancestry.
 See [history preparation](HISTORY_PREPARATION.md), the
 [development timeline](history/TIMELINE.md) and [commit map](history/COMMIT_MAP.json).
-Verified original backups stay private and local. GitHub's old history is
-unchanged; replacing it and applying hosted metadata/release work belong to
-Phase 8. On October 24 the owner selected limited artwork permission for running
+Verified original backups stay private and local. Phase 8 published the cleaned
+source ancestry to GitHub on October 24. On that date the owner selected limited artwork permission for running
 the app and sharing screenshots, with other reuse reserved. v0.1.0 remains held
 for hands-on acceptance; see [release preparation](RELEASE_PLAN.md) and
 [current publication status](PUBLICATION_STATUS.md).
