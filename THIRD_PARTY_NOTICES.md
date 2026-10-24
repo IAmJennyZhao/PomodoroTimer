@@ -41,13 +41,13 @@ These current versions and declarations were read from installed package manifes
 | `@testing-library/jest-dom` | 5.17.0 | MIT |
 | `@testing-library/react` | 13.4.0 | MIT |
 | `@testing-library/user-event` | 13.5.0 | MIT |
-| `react` | 18.2.0 | MIT |
-| `react-dom` | 18.2.0 | MIT |
+| `react` | 18.3.1 | MIT |
+| `react-dom` | 18.3.1 | MIT |
 | `react-scripts` | 5.0.1 | MIT |
 | `@babel/core` | 7.29.7 | MIT |
-| `@babel/plugin-transform-modules-commonjs` | 7.23.3 | MIT |
+| `@babel/plugin-transform-modules-commonjs` | 7.29.7 | MIT |
 | `@babel/plugin-proposal-private-property-in-object` | 7.21.11 | MIT |
-| `@playwright/test` | 1.64.0 | Apache-2.0 |
+| `@playwright/test` | 1.64.1 | Apache-2.0 |
 
 Retain applicable upstream copyright, license and NOTICE files when distributing dependency code. For a built release, generate and review notices for the actual bundled dependency set, including transitive dependencies and any applicable Apache notices. This Phase 1 inventory does not claim that a distributable bundle's complete notice obligations have been fulfilled.
 

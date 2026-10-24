@@ -1,7 +1,41 @@
 # Dependency review
 
-Publication Phase 4, October 9, 2026. This review covers the current lockfile and
-the app's use of it. It does not certify the repository as vulnerability-free.
+Latest review: **October 24, 2026**, during publication preparation. The original
+Phase 4 review below is dated October 9. This review covers the current lockfile
+and the app's use of it. It does not certify the repository as vulnerability-free.
+
+## October 24 dependency refresh
+
+Applied compatible updates with `npm update`, the pinned Playwright **1.64.1**
+patch, and `npm audit fix` without `--force`. React/React DOM are now **18.3.1**
+and the CommonJS Babel transform is **7.29.7**. React 19, Testing Library major
+updates and a CRA replacement remain separate migrations.
+
+The new [body-parser advisory](https://github.com/advisories/GHSA-27r3-jxmh-p828)
+is fixed by **1.20.9**. The four new fast-uri findings are fixed by **3.1.9**;
+see the [upstream advisory](https://github.com/advisories/GHSA-w74x-v6f9-j3xg).
+The former `braces` and `sprintf-js` findings are absent from the live report,
+so their exceptions were removed. The selector-parser 6.x dependency moved from
+6.1.4 to **6.1.5**, which remains affected by the previously reviewed advisory.
+
+The live full audit reports **56 affected tooling packages**: 18 high,
+29 moderate and 9 low, with **24 source advisories** and zero critical findings.
+The separate `npm audit --omit=dev` reports **zero findings**. These are dated
+registry results, and propagated parent findings are not distinct bugs.
+
+One new, low-severity
+[serialize-javascript advisory](https://github.com/advisories/GHSA-m5mm-p8h7-m29v)
+was reviewed for the existing 4.0.0/6.0.2 build-only copies. It requires an
+attacker-controlled serialized function source to be embedded in HTML. Here
+the package is reached through CRA's CSS minifier and Workbox/Rollup tooling;
+the application and Node save service do not import it or serialize user
+functions into HTML. This is an exposure assessment, not a proof of immunity.
+The fix is in 7.1.3, outside those parents' 4.x/6.x constraints. Its temporary
+exception shares the existing **November 30, 2026** deadline; the review was
+not extended. No cross-major overrides or removal of functioning build tooling
+were used to silence findings.
+
+Current validation evidence belongs in [PUBLICATION_STATUS.md](PUBLICATION_STATUS.md).
 
 ## Changes and audit results
 
@@ -45,7 +79,7 @@ findings; this would remove functioning tooling rather than repair the app.
 | `webpack-dev-server`, `webpack-dev-middleware` | Source exposure, internal developer endpoints, malformed requests and path traversal concern the development server. Existing wrappers bind to loopback and retain Host checks. These controls reduce exposure but do not establish that every advisory is mitigated. [Source exposure advisory](https://github.com/advisories/GHSA-79cf-xcqc-c78w), [middleware advisory](https://github.com/advisories/GHSA-g84c-rxfj-3j2c). | Temporary tooling exception. Use the production service for app use and release review. Replace the development toolchain before a claim that tooling advisories are resolved. |
 | `serialize-javascript` | Build worker/config serialization can execute crafted input when the result is evaluated. The app's save service uses native JSON and does not import this package. Untrusted build/config inputs remain a risk. [Upstream advisory](https://github.com/advisories/GHSA-5c6j-r48x-rmvq). | Temporary tooling exception; do not treat a build of arbitrary contributed code as trusted. CI uses ordinary `pull_request` events, read-only permissions, no secrets and no saved checkout credentials. |
 | `postcss`, `postcss-selector-parser`, `svgo`, `nth-check` | CSS/source-map reads, selector resource exhaustion and incomplete SVG sanitization concern asset compilation. The app compiles repository-owned CSS/SVG and has no user-supplied SVG/CSS import feature. Generated PNGs are not processed as SVG. SVGO is not a security sanitizer for arbitrary uploads. [Selector advisory](https://github.com/advisories/GHSA-rp65-9cf3-cjxr). | Temporary tooling exceptions. Replace old loaders/processors through a reviewed toolchain migration; avoid cross-major overrides that merely silence the audit. |
-| `braces`, `sprintf-js`, `underscore` | Resource exhaustion can be triggered by crafted patterns, formatting parameters or nested values in build/test utilities. They are absent from the application's production server imports. | Temporary tooling exceptions; evaluate fixes with the tools that depend on these APIs. |
+| `underscore` | Resource exhaustion can be triggered by nested values in build/test utilities. It is absent from the application's production server imports. | Temporary tooling exception; evaluate fixes with the tools that depend on these APIs. The October 9 `braces` and `sprintf-js` findings are absent from the October 24 report. |
 | `node-forge`, `uuid`, `@tootallnate/once` | Certificate signature parsing, buffer bounds and promise control flow affect transitive development/test utilities. The production service uses Node's built-in HTTP, filesystem and crypto APIs. | Temporary tooling exceptions; migrate/upgrade the parent utilities and retest development startup, tests and the release fixtures. |
 
 These are exposure assessments based on the import graph and advisory descriptions,

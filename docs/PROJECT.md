@@ -1,5 +1,8 @@
 # Little Room: project identity and release scope
 
+For the October 24 dependency refresh, applied GitHub metadata and remaining
+publication steps, see [current publication status](PUBLICATION_STATUS.md).
+
 ## Identity
 
 **Little Room** is a local-first Pomodoro app with cozy illustrated rooms, animal companions, and focus tracking. It is for people who want a quiet focus timer with a collection that grows through completed work.
