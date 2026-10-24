@@ -13,8 +13,8 @@
       "bytes": 2622519,
       "sha256": "e900908e12399beb138516f39c9efe9cc84f99e631c3900911efc1fb965e3581",
       "origin": "Recorded OpenAI image generation",
-      "rights": "No separate reuse license selected; outside code MIT",
-      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "rights": "Limited permission to run Little Room and share screenshots; other reuse reserved",
+      "disposition": "Production asset included under ASSET_RIGHTS.md limited artwork permission",
       "evidence": "docs/atelier-art-prompts.json"
     },
     {
@@ -22,8 +22,8 @@
       "bytes": 1794563,
       "sha256": "a40b2c0bd09236851efbe09d1b13ff51cd3441679d54da5f3385ebc1a1f7b6b9",
       "origin": "Recorded OpenAI image generation",
-      "rights": "No separate reuse license selected; outside code MIT",
-      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "rights": "Limited permission to run Little Room and share screenshots; other reuse reserved",
+      "disposition": "Production asset included under ASSET_RIGHTS.md limited artwork permission",
       "evidence": "docs/atelier-art-prompts.json"
     },
     {
@@ -31,8 +31,8 @@
       "bytes": 1956426,
       "sha256": "86da0b2ed981a20ebfeeac0621f6d337b79dc1cf6aa6891142d35964ad546dd2",
       "origin": "Recorded OpenAI image generation",
-      "rights": "No separate reuse license selected; outside code MIT",
-      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "rights": "Limited permission to run Little Room and share screenshots; other reuse reserved",
+      "disposition": "Production asset included under ASSET_RIGHTS.md limited artwork permission",
       "evidence": "docs/atelier-art-prompts.json"
     },
     {
@@ -40,8 +40,8 @@
       "bytes": 2069697,
       "sha256": "7cb79bc567af8c4dbad18c7c8f6f404c031c097908a18d886d8bcb1263ecabf1",
       "origin": "Recorded OpenAI image generation",
-      "rights": "No separate reuse license selected; outside code MIT",
-      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "rights": "Limited permission to run Little Room and share screenshots; other reuse reserved",
+      "disposition": "Production asset included under ASSET_RIGHTS.md limited artwork permission",
       "evidence": "docs/atelier-art-prompts.json"
     },
     {
@@ -49,8 +49,8 @@
       "bytes": 2202678,
       "sha256": "3ac1949c39cd2365547eca7213d8e250bf815188bed779da93cd9b61cb992f6f",
       "origin": "Recorded OpenAI image generation",
-      "rights": "No separate reuse license selected; outside code MIT",
-      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "rights": "Limited permission to run Little Room and share screenshots; other reuse reserved",
+      "disposition": "Production asset included under ASSET_RIGHTS.md limited artwork permission",
       "evidence": "docs/atelier-art-prompts.json"
     },
     {
@@ -58,8 +58,8 @@
       "bytes": 2576050,
       "sha256": "664ff874403b3b0dcf2fd2a046c8b24588c73ccbf94a84ad7d7fc69a81c3be35",
       "origin": "Recorded OpenAI image generation",
-      "rights": "No separate reuse license selected; outside code MIT",
-      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "rights": "Limited permission to run Little Room and share screenshots; other reuse reserved",
+      "disposition": "Production asset included under ASSET_RIGHTS.md limited artwork permission",
       "evidence": "docs/atelier-art-prompts.json"
     },
     {
@@ -67,8 +67,8 @@
       "bytes": 2779339,
       "sha256": "aef2f208c8c9eeab26c665c3847f194e9f1ab701a586d4ad30942e9cd6f07f82",
       "origin": "Recorded OpenAI image generation",
-      "rights": "No separate reuse license selected; outside code MIT",
-      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "rights": "Limited permission to run Little Room and share screenshots; other reuse reserved",
+      "disposition": "Production asset included under ASSET_RIGHTS.md limited artwork permission",
       "evidence": "docs/atelier-art-prompts.json"
     },
     {
@@ -76,8 +76,8 @@
       "bytes": 2582558,
       "sha256": "9626476fbf94e7f37ab1dfb28a46dbb1e7bc2be84f2e6bc86ad57647861d4b16",
       "origin": "Recorded OpenAI image generation",
-      "rights": "No separate reuse license selected; outside code MIT",
-      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "rights": "Limited permission to run Little Room and share screenshots; other reuse reserved",
+      "disposition": "Production asset included under ASSET_RIGHTS.md limited artwork permission",
       "evidence": "docs/atelier-art-prompts.json"
     },
     {
@@ -85,8 +85,8 @@
       "bytes": 2632608,
       "sha256": "1b6482b7e47f563518c4212cadbf53001d6c6c949eda68f5e0a1161b6040c396",
       "origin": "Recorded OpenAI image generation",
-      "rights": "No separate reuse license selected; outside code MIT",
-      "disposition": "Production asset; asset distribution terms required before redistributable bundle",
+      "rights": "Limited permission to run Little Room and share screenshots; other reuse reserved",
+      "disposition": "Production asset included under ASSET_RIGHTS.md limited artwork permission",
       "evidence": "docs/atelier-art-prompts.json"
     },
     {
@@ -284,5 +284,10 @@
       "evidence": "Git commit ef811f3",
       "previousDisposition": "Exclude unused audio in Phase 3; review history in Phase 7"
     }
-  ]
+  ],
+  "rightsDecision": {
+    "date": "2026-10-24",
+    "terms": "ASSET_RIGHTS.md#limited-artwork-permission",
+    "permission": "Run Little Room and share screenshots; other artwork reuse reserved"
+  }
 }

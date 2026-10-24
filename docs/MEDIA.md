@@ -91,7 +91,9 @@ to resolve them. Original provenance and media bytes were not rewritten.
 - The curated set is about 7.5 MB. Public manifest hashes match the files; raw
   evidence stays in `.local/phase6/`.
 
-These captures do not close physical audio, phone, screen-reader, genuine zoom,
-hosted CI or distribution gates. Illustration-containing media follows the
-separate [asset-rights boundary](../ASSET_RIGHTS.md), without new reuse rights.
-Historical privacy/artifact treatment remains Phase 7; GitHub publication is Phase 8.
+These captures do not close physical audio, phone, screen-reader, genuine zoom
+or hosted CI gates. On October 24, the owner permitted running the app and
+sharing its screenshots under the
+[limited artwork permission](../ASSET_RIGHTS.md#limited-artwork-permission).
+Other illustration reuse remains reserved. Current publication and release
+status is in [PUBLICATION_STATUS.md](PUBLICATION_STATUS.md).

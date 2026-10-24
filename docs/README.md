@@ -32,6 +32,7 @@ the current user instructions or imply that every release check has passed.
 | Record | Purpose |
 | --- | --- |
 | [Current publication status](PUBLICATION_STATUS.md) | October 24 dependency refresh, current evidence and remaining owner decisions |
+| [v0.1.0 release preparation](RELEASE_PLAN.md) | Draft release notes and hands-on acceptance before tagging |
 | [Publication audit](PUBLICATION_AUDIT.md) | Identity, privacy, rights and file-disposition decisions |
 | [Release quality](RELEASE_QUALITY.md) | Acceptance findings, fixes and deferred hands-on checks |
 | [Repository cleanup](REPOSITORY_CLEANUP.md) | Current-tree cleanup and archived local artifacts |

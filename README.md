@@ -119,5 +119,6 @@ dependency refresh and remaining publication steps.
 
 Project code and documentation use the [MIT license](LICENSE). Artwork rights
 are recorded separately in [ASSET_RIGHTS.md](ASSET_RIGHTS.md) and
-[ARTWORK.md](docs/ARTWORK.md); the code license does not relicense those assets.
+[ARTWORK.md](docs/ARTWORK.md). You may run the app and share screenshots; other illustration reuse is reserved under the
+[limited artwork permission](ASSET_RIGHTS.md#limited-artwork-permission).
 Dependency notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

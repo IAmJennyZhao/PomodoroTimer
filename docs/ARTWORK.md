@@ -1,5 +1,10 @@
 # Little Room artwork
 
+The production illustrations may be used to run Little Room and shown in shared
+screenshots. Other reuse is reserved; see the owner's
+[limited artwork permission](../ASSET_RIGHTS.md#limited-artwork-permission),
+selected October 24, 2026. Code-drawn SVGs remain MIT licensed.
+
 The active artwork lives in `public/art/atelier/`, regenerated using the built-in `image_gen` tool to match the selected **04 Candy-Pastel Atelier** mockup. The medium is oil pastel and colored pencil on cream cotton paper: broken pigment, imperfect sketch edges, strawberry pink, pistachio green and faded cornflower blue. All labels and controls are real HTML, separate from the artwork.
 
 The exact production prompts are saved in [atelier-art-prompts.json](atelier-art-prompts.json). The furniture prompt includes its final gutter correction. Original generated files remain in the image-generation folder; the app consumes copies committed inside this repository.

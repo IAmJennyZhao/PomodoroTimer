@@ -28,17 +28,26 @@ records retain their dated results.
 - Local Markdown documentation links resolve. The three pinned GitHub
   Actions commits resolve in their respective upstream repositories.
 - A dry-run of the explicitly leased replacement of `main` succeeded without
-  changing the remote branch. Publication still waits on the decisions below.
+  changing the remote branch.
+
+## Owner decisions
+
+- On October 24, the owner permitted running Little Room and sharing screenshots,
+  with other artwork reuse reserved. The terms are in
+  [ASSET_RIGHTS.md](../ASSET_RIGHTS.md#limited-artwork-permission).
+- Prepare v0.1.0 and hold its tag/release announcement until hands-on checks pass.
+  [Release notes and acceptance steps](RELEASE_PLAN.md) are prepared.
 
 ## Pending publication steps
 
-- Owner choice of artwork reuse/distribution terms. Code remains MIT; no new
-  artwork permission is assumed. See [ASSET_RIGHTS.md](../ASSET_RIGHTS.md).
-- Owner choice of a public preview or a v0.1.0 release after hands-on acceptance.
 - Publish only the verified branch, with an explicit lease on hosted `main`
   at `f4c49dd6871b227cbd69ba17b89af3d0ceb09d20`, after rechecking that tip.
   Keep all private backups local and do not merge the old ancestry back in.
-- Upload the prepared social card and verify hosted CI after publication.
+- Verify hosted CI after source publication.
+- The social-card Settings upload was blocked by automatic approval review;
+  it requested fresh owner approval for that specific screenshot-card upload.
+  The social preview remains unchanged while that request is pending. This
+  does not change the prepared card or grant any additional artwork reuse rights.
 
 Source publication and a supported release have different acceptance boundaries.
 Physical listening, screen-reader speech, genuine 200% zoom, continuous real

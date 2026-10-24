@@ -83,4 +83,7 @@ See [history preparation](HISTORY_PREPARATION.md), the
 [development timeline](history/TIMELINE.md) and [commit map](history/COMMIT_MAP.json).
 Verified original backups stay private and local. GitHub's old history is
 unchanged; replacing it and applying hosted metadata/release work belong to
-Phase 8. The existing asset and hands-on gates remain open.
+Phase 8. On October 24 the owner selected limited artwork permission for running
+the app and sharing screenshots, with other reuse reserved. v0.1.0 remains held
+for hands-on acceptance; see [release preparation](RELEASE_PLAN.md) and
+[current publication status](PUBLICATION_STATUS.md).
