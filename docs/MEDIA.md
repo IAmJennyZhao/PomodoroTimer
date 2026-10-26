@@ -21,6 +21,14 @@ The screenshot set is `room.jpg`, `focus-notes.jpg`, `journal.jpg`,
 `pets.jpg`, `egg-shop.jpg`, `arrange-room.jpg` and `sound.jpg`.
 These replace the October 9 stills.
 
+## Architecture diagram
+
+The technical guide includes `architecture.png`, an AI-generated technical
+diagram with an opaque white background. It was created with the built-in
+image-generation tool and reviewed against the implementation. It is a
+conceptual diagram, separate from the actual app screenshots. The
+[generation prompt](media/architecture-prompt.txt) records the labels and layout.
+
 ## Retained earlier media
 
 `walkthrough.webm`, `feature-tour.gif` and `social-preview.png` retain their

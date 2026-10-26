@@ -109,9 +109,18 @@
       "currentInterface": false,
       "originalManifest": "../history/media-2026-10-09.json",
       "note": "Walkthrough, animated preview and social card retain original bytes and dated provenance. Not the current README gallery."
+    },
+    {
+      "id": "architecture-diagram",
+      "createdOn": "2026-10-26",
+      "method": "Built-in image_gen tool; generated technical diagram, not an app screenshot",
+      "prompt": "architecture-prompt.txt",
+      "content": "React state and reducer, local HTTP API, revision-checked disk writes and backup",
+      "background": "Fully opaque white; RGB PNG without a transparency chunk",
+      "review": "Labels and connectors visually reviewed against the technical guide."
     }
   ],
-  "artwork": "Generated illustrations in actual app screenshots; separate terms in ASSET_RIGHTS.md.",
+  "artwork": "Generated illustrations in actual app screenshots and a generated architecture diagram; separate terms in ASSET_RIGHTS.md.",
   "artifacts": [
     {
       "file": "room.jpg",
@@ -213,6 +222,23 @@
       "sha256": "ad14846dbacc4a86b1c204fd43ea94009cc36652e9cb8be34e412830ef3b9408",
       "captureSet": "2026-10-09",
       "currentInterface": false
+    },
+    {
+      "file": "architecture.png",
+      "captureSet": "architecture-diagram",
+      "kind": "generated-architecture-diagram",
+      "bytes": 1476815,
+      "sha256": "a3ae4eb526caf026ec87a2b9b36ff622147773a74d45507f30487404d31b438c",
+      "width": 1605,
+      "height": 980,
+      "opaqueBackground": true
+    },
+    {
+      "file": "architecture-prompt.txt",
+      "captureSet": "architecture-diagram",
+      "kind": "image-generation-prompt",
+      "bytes": 4866,
+      "sha256": "56658d41a3168cf0e8be6b65ff1132ec9e45ec05b74ee59847d55391a79af7b7"
     }
   ]
 }

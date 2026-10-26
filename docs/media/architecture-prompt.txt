@@ -1,0 +1,45 @@
+Initial generation prompt
+
+Use case: infographic-diagram.
+Create a professional software architecture DIAGRAM for technical documentation, not an illustration or infographic poster.
+Output a sharp landscape raster image, approximately 1800x1100, with a completely opaque solid white background. White fills every corner. No transparency.
+
+Visual direction: understated engineering documentation, like a well-designed architecture figure in a technical paper or engineering RFC. Flat rectangular boxes, thin straight charcoal outlines, precise aligned grid, generous whitespace, restrained navy blue and light gray section headers. Plain modern sans-serif typography similar to Helvetica/Inter. Uniform line weights. Square or very slightly rounded corners. High contrast and extremely legible labels. No textures, shadows, gradients, clip art, icons, plants, animals, decorative illustrations, faux paper, 3D objects, doodles, hand lettering, playful or chunky fonts. Avoid a giant headline and avoid marketing styling.
+
+Small top-left title exactly: "Little Room — Architecture"
+No subtitle.
+
+Composition: three aligned zones from left to right. The Browser zone is about 45% of the width, the Node.js zone about 27%, Files about 20%; reserve narrow clear gaps for connecting arrows. All lines and labels must fit inside the canvas with comfortable margins.
+
+Left zone: thin outlined grouping container with a light-gray header strip exactly "Browser / React".
+Inside it three simple rectangular component boxes:
+- Top: "Interface" on first line, "Timer · Room · Pets · Journal" on second line.
+- Below left: "useLocalSave" on first line, "State & save coordination" on second line.
+- Below right: "gameReducer" on first line, "Timer & progression rules" on second line.
+Connect Interface to useLocalSave with one downward arrow labeled "Actions" and a separate upward return arrow labeled "State / status".
+Connect useLocalSave to gameReducer with a straight rightward arrow labeled "Action", and a separate leftward return arrow labeled "Next state". Place these boxes with adequate separation so labels do not cross boxes or lines.
+
+Middle zone: thin outlined grouping container with a light-gray header strip exactly "Local Node.js service".
+Inside two vertically stacked rectangular component boxes:
+- "HTTP API" on first line, "GET / PUT /api/save" on second line.
+- "Disk store" on first line, "Revision checks · atomic writes" on second line.
+Connect HTTP API down to Disk store with a simple arrow.
+
+Right zone: thin outlined grouping container with a light-gray header strip exactly "Private save folder".
+Inside two simple flat rectangular boxes, NOT a folder icon or database cylinder:
+- "state.json"
+- "state.backup.json"
+
+Connect useLocalSave and HTTP API across zone boundaries with one clear bidirectional arrow labeled "JSON / loopback".
+Connect Disk store to the Private save folder zone with one clear bidirectional arrow labeled "Read / write".
+Route these external connectors through open whitespace, without crossing other connectors or any text. The interface must not connect directly to disk. Do not add any other nodes or labels.
+
+All specified labels must be spelled exactly. Use simple flat diagram geometry, balanced spacing and clean typography. The result should look deliberately drawn by a software engineer using a professional diagram editor.
+
+Targeted connector correction
+
+Edit the architecture diagram just generated. Preserve its professional flat technical-diagram style, exact typography, all existing boxes and labels, overall three-zone layout, and fully opaque white background. Make ONLY these connector corrections:
+1. Delete the current horizontal "JSON / loopback" bidirectional arrow between Interface and HTTP API. It is technically wrong: Interface must not connect directly to HTTP API.
+2. Draw a clear orthogonal bidirectional connector from the BOTTOM edge of the useLocalSave box to the LEFT edge of HTTP API. Route it down into the generous empty space below the three grouping containers, across horizontally beneath the Browser group, then up through the empty space just inside the left boundary of the Local Node.js service group, finally right into HTTP API. Label the long bottom horizontal segment "JSON / loopback". Use thin charcoal right-angle lines and arrowheads matching the existing diagram. Do not cross any component box, label or other connector.
+3. The Read / write bidirectional connector should connect Disk store to the LEFT BOUNDARY of the Private save folder grouping container, representing both saved files; do not connect it specifically to the state.backup.json box. Keep its label.
+Keep all Interface-to-useLocalSave and useLocalSave-to-gameReducer arrows unchanged. Keep HTTP API-to-Disk store unchanged. Keep both filenames unchanged. Do not add decorations or extra text.

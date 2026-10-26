@@ -1,19 +1,17 @@
 # Little Room
 
-**A gentler Pomodoro.** Focus in an illustrated room, collect animal companions,
-and make a little space of your own.
+**Pomodoros with Pet Gachas and Customizeable Rooms!** Turn focus time into surprise pets,
+dress up your companions, and build your dream little room.
 
 ![A 25-minute timer and daily goal in a room with Miso, Mochi and a crowned Maple.](docs/media/room.jpg)
 
-## What it does
+## Focus. Hatch. Decorate. Repeat.
 
-- Countdown or count up, with tasks, tags and automatic breaks.
-- Earn Shilligems through focus, hatch pets and unlock accessories.
-- Arrange furniture, companions, the timer and your daily goal.
-- Keep a Scratchpad and review focus history and charts in the Journal.
-- Mix rain, fireplace and brown noise, with separate sound and motion controls.
-
-Shilligems are in-app points; there are no real-money purchases.
+- Pick a countdown or count-up timer, add a task, and get into the zone.
+- Earn Shilligems, roll for eggs, and meet your next animal companion.
+- Give your pets little accessories and your room a furniture makeover.
+- Jot down a thought, chase your daily goal, and watch your Journal fill up.
+- Put on some rain or fireplace sounds. Take a break. Come back for another round.
 
 ## Screenshots
 
@@ -22,9 +20,6 @@ Shilligems are in-app points; there are no real-money purchases.
 | ![An active count-up session with a saved Scratchpad beside the timer.](docs/media/focus-notes.jpg) | ![Daily goal, 74 fictional sessions and a 30-day activity chart.](docs/media/journal.jpg) |
 | **Pets** | **Egg shop** |
 | ![Miso, Mochi and Maple, with unlocked animations for Miso.](docs/media/pets.jpg) | ![Basic and mystery eggs, with the nest below.](docs/media/egg-shop.jpg) |
-
-Actual app screenshots using fictional demo progress and a custom room layout.
-A fresh installation starts with its own starter room.
 
 ## Quick start
 

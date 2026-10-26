@@ -22,13 +22,7 @@ save service. The launcher chooses distinct available ports, normally 3000
 and 3001. In production, one Node service serves both `build/` and the API,
 normally on port 3001. Services bind to `127.0.0.1`.
 
-```mermaid
-flowchart LR
-    UI[React interface] -->|Actions| State[Game reducer and save hook]
-    State -->|HTTP on loopback| API[Node save service]
-    API --> Store[Local JSON files and backup]
-    State --> UI
-```
+![Architecture: the React interface dispatches actions through useLocalSave and the game reducer; the hook exchanges JSON with a local Node API, which saves revision-checked state and a backup to disk.](media/architecture.png)
 
 The service checks Host and Origin, caps request size and restricts static
 paths to the build directory. It is designed for local desktop use and has
