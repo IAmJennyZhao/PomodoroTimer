@@ -2,7 +2,7 @@
 
 > Historical record. Current scope and source status are in
 > [PROJECT.md](../PROJECT.md) and [PUBLICATION_STATUS.md](../PUBLICATION_STATUS.md).
-> Use [RELEASE_PLAN.md](../RELEASE_PLAN.md) for the live release checklist.
+> The owner confirmed acceptance complete on October 26, 2026; see [current status](../PUBLICATION_STATUS.md#acceptance).
 
 For the October 24 dependency refresh, applied GitHub metadata and remaining
 publication steps, see [current publication status](../PUBLICATION_STATUS.md).
@@ -90,5 +90,5 @@ See [history preparation](HISTORY_PREPARATION.md), the
 Verified original backups stay private and local. Phase 8 published the cleaned
 source ancestry to GitHub on October 24. On that date the owner selected limited artwork permission for running
 the app and sharing screenshots, with other reuse reserved. v0.1.0 remains held
-for hands-on acceptance; see [release preparation](../RELEASE_PLAN.md) and
+for hands-on acceptance; see [release preparation](../PUBLICATION_STATUS.md#acceptance) and
 [current publication status](../PUBLICATION_STATUS.md).

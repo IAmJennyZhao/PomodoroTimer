@@ -3,8 +3,8 @@
 These records preserve dated decisions, implementation notes and verification.
 Their phase numbers and procedures describe earlier work. Current guidance is in
 the [documentation index](../README.md); current evidence is in
-[publication status](../PUBLICATION_STATUS.md), and unfinished release work is
-in the [release checklist](../RELEASE_PLAN.md#acceptance-checklist).
+[publication status](../PUBLICATION_STATUS.md), including the owner's
+[acceptance confirmation](../PUBLICATION_STATUS.md#acceptance).
 
 ## Publication records
 
@@ -15,7 +15,7 @@ in the [release checklist](../RELEASE_PLAN.md#acceptance-checklist).
 | [Repository cleanup](REPOSITORY_CLEANUP.md) | October 9 artifact preservation and source organization |
 | [Documentation review](DOCUMENTATION_REVIEW.md) | October 9 guide and architecture review |
 | [History preparation](HISTORY_PREPARATION.md) | Filtering, commit preservation, private backups and later publication handoff |
-| [Earlier release-quality record](RELEASE_QUALITY.md) | Dated findings and QA evidence; live acceptance moved to RELEASE_PLAN.md |
+| [Earlier release-quality record](RELEASE_QUALITY.md) | Dated findings and QA evidence; the owner confirmed acceptance complete on October 26 |
 | [October 26 publication snapshot](PUBLICATION_STATUS_2026-10-26.md) | Full handoff before the status page was shortened |
 
 ## Implementation and media records

@@ -48,8 +48,7 @@ history, and Web Audio synthesizes the sounds.
 
 Little Room runs on your computer without an account, database or cloud sync.
 It needs the local Node service; a static-only host cannot provide saving.
-Desktop use is the current target. The initial v0.1.0 release is being prepared;
-hands-on audio and accessibility acceptance is still pending.
+Desktop use is the current target.
 
 ## Documentation
 

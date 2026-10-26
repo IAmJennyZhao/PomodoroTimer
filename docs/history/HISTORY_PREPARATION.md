@@ -2,7 +2,7 @@
 
 > Historical record. Current scope and source status are in
 > [PROJECT.md](../PROJECT.md) and [PUBLICATION_STATUS.md](../PUBLICATION_STATUS.md).
-> Use [RELEASE_PLAN.md](../RELEASE_PLAN.md) for the live release checklist.
+> The owner confirmed acceptance complete on October 26, 2026; see [current status](../PUBLICATION_STATUS.md#acceptance).
 
 Publication Phase 7, October 9, 2026. Starting point: `22adc03`.
 This pass prepares local history; publishing the replacement remains Phase 8.

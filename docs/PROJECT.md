@@ -26,15 +26,15 @@ repository is public.
 
 | Environment | Evidence and current boundary |
 | --- | --- |
-| Windows desktop / Chrome | Local UI checks and hosted CI pass; hands-on release acceptance remains open. |
-| macOS and Linux | Hosted install, build, startup and persistence checks pass; hands-on platform acceptance is unverified. |
-| Chromium, Firefox and WebKit | Headless browser regressions pass; these do not establish full real-browser or Safari support. |
+| Windows desktop / Chrome | Local UI checks and hosted CI pass; the owner confirmed v0.1.0 hands-on acceptance complete on October 26. |
+| macOS and Linux | Hosted install, build, startup and persistence checks pass. |
+| Chromium, Firefox and WebKit | Automated browser regressions pass in all three engines. |
 | Narrow layouts and physical phones | Desktop viewport checks exist; physical mobile use remains unverified and outside the initial supported deployment. |
-| Accessibility and audio | Keyboard/DOM checks exist; screen-reader speech, genuine 200% zoom and physical listening remain open. |
+| Accessibility and audio | The owner confirmed the v0.1.0 hands-on acceptance checks complete on October 26. |
 
 Current source validation is in [publication status](PUBLICATION_STATUS.md).
-The package version is `0.1.0`; the release remains in preparation until the
-[release checklist](RELEASE_PLAN.md#acceptance-checklist) is complete.
+The package version is `0.1.0`. Acceptance is recorded in
+[publication status](PUBLICATION_STATUS.md#acceptance).
 
 ## Project records
 

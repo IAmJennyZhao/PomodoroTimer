@@ -2,7 +2,7 @@
 
 > Historical record. Current scope and source status are in
 > [PROJECT.md](../PROJECT.md) and [PUBLICATION_STATUS.md](../PUBLICATION_STATUS.md).
-> Use [RELEASE_PLAN.md](../RELEASE_PLAN.md) for the live release checklist.
+> The owner confirmed acceptance complete on October 26, 2026; see [current status](../PUBLICATION_STATUS.md#acceptance).
 
 Updated October 26, 2026. This is the current publication handoff; older phase
 records retain their dated results.
@@ -88,7 +88,7 @@ acceptance remains open; this source update does not publish a release tag.
   with other artwork reuse reserved. The terms are in
   [ASSET_RIGHTS.md](../../ASSET_RIGHTS.md#limited-artwork-permission).
 - Prepare v0.1.0 and hold its tag/release announcement until hands-on checks pass.
-  [Release notes and acceptance steps](../RELEASE_PLAN.md) are prepared.
+  [Current acceptance confirmation](../PUBLICATION_STATUS.md#acceptance) are prepared.
 
 ## Release follow-up
 

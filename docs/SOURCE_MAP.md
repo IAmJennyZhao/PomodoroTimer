@@ -105,6 +105,6 @@ identifiers. See [HISTORY_PREPARATION.md](history/HISTORY_PREPARATION.md) for sc
 New raw QA captures belong in ignored `.local/` or `output/`, not the tracked
 source tree. Publication Phase 3 preserved the former raw tree in a local
 archive; [REPOSITORY_CLEANUP.md](history/REPOSITORY_CLEANUP.md) records the disposition.
-Use [the release checklist](RELEASE_PLAN.md#acceptance-checklist) for current acceptance;
+Use [publication status](PUBLICATION_STATUS.md#acceptance) for current acceptance;
 [AUTOMATION.md](AUTOMATION.md) records Phase 4 automation;
 [VERIFICATION.md](history/VERIFICATION.md) is historical.

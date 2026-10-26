@@ -2,7 +2,7 @@
 
 > Historical record. Current scope and source status are in
 > [PROJECT.md](../PROJECT.md) and [PUBLICATION_STATUS.md](../PUBLICATION_STATUS.md).
-> Use [RELEASE_PLAN.md](../RELEASE_PLAN.md) for the live release checklist.
+> The owner confirmed acceptance complete on October 26, 2026; see [current status](../PUBLICATION_STATUS.md#acceptance).
 
 Publication Phase 2, October 8, 2026. Application baseline: `25e25ed`, including
 `7197df9`. This is the current follow-up to the historical UX records in

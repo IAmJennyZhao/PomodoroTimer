@@ -12,7 +12,7 @@ issue to discuss the design first. Small fixes can go directly to a pull request
 Keep each change focused, with commits that explain a stable step.
 
 Use a separate local profile or the
-[fictional review room](docs/RELEASE_PLAN.md#repeatable-review-room) while
+[fictional demo](docs/SETUP.md#try-the-demo) while
 developing. Default development and production runs share a personal save folder.
 Avoid opening two services against the same folder.
 
@@ -60,8 +60,7 @@ For documentation-only edits, verify commands against `package.json` and the
 implementation, resolve local links and headings, and preview any changed
 diagrams. For behavior changes, add regression coverage where it protects the
 observable behavior; avoid tests that merely repeat implementation details.
-Headless checks do not replace the remaining
-[hands-on acceptance](docs/RELEASE_PLAN.md#acceptance-checklist).
+For behavior changes, also check the affected flows in a real browser.
 
 ## Pull requests and reports
 

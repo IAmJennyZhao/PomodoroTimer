@@ -2,7 +2,7 @@
 
 > Historical record. Current scope and source status are in
 > [PROJECT.md](../PROJECT.md) and [PUBLICATION_STATUS.md](../PUBLICATION_STATUS.md).
-> Use [RELEASE_PLAN.md](../RELEASE_PLAN.md) for the live release checklist.
+> The owner confirmed acceptance complete on October 26, 2026; see [current status](../PUBLICATION_STATUS.md#acceptance).
 
 Audit date: October 8, 2026. Starting baseline: `be52e89` (pre-phase application behavior baseline `01f586b`). This pass changes metadata, launcher messages and publication records, with no changes to game/save behavior. This document records the identity/publication phase; the earlier UX verification uses a different phase sequence.
 

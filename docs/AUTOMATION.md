@@ -98,8 +98,8 @@ Hosted results for the verified source checkpoint are recorded in
 [publication status](PUBLICATION_STATUS.md). These browser checks are headless
 engine regressions, not complete acceptance of Firefox or Safari on real devices.
 They also do not cover screen-reader speech, genuine browser zoom, physical touch,
-software keyboards or audible alarms. Those release gates remain in
-[the release checklist](RELEASE_PLAN.md#acceptance-checklist).
+software keyboards or audible alarms. The owner confirmed v0.1.0 hands-on
+acceptance complete on October 26; see [publication status](PUBLICATION_STATUS.md#acceptance).
 
 ## Phase 4 verification record
 
@@ -143,5 +143,6 @@ Raw install, test and audit reports remain in ignored `.local/phase4/`; browser
 failure output remains ignored. The GitHub workflows have **not been pushed or
 executed on hosted runners** in this pass, so macOS/Linux hosted results and
 repository-required-check settings remain for the publication pass. Phase 4's
-implementation and available local verification are complete; this does not
-close the separate asset, history, hands-on or release-publication gates.
+implementation and available local verification were complete at that checkpoint.
+Current hosted results and the owner's completed acceptance are recorded in
+[publication status](PUBLICATION_STATUS.md).

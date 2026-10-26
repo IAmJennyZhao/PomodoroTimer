@@ -15,16 +15,16 @@ The main reading path is the [README](../README.md),
 Media dates and provenance are recorded separately in [MEDIA.md](MEDIA.md).
 
 The maintenance pass also archives completed plans, consolidates the release
-checklist, applies compatible dependency/Actions updates and records the
+documentation, applies compatible dependency/Actions updates and records the
 [PR resolutions](DEPENDENCIES.md#october-26-pr-resolution).
 
 ## Validation
 
-At `6e6255f`:
+At `c32fbce`:
 
-- All seven [Checks jobs](https://github.com/IAmJennyZhao/PomodoroTimer/actions/runs/40369639929)
+- All seven [Checks jobs](https://github.com/IAmJennyZhao/PomodoroTimer/actions/runs/40373909219)
   passed: Node 22/24 on Windows, macOS and Linux, plus browser regressions.
-- [Dependency review](https://github.com/IAmJennyZhao/PomodoroTimer/actions/runs/40369639879)
+- [Dependency review](https://github.com/IAmJennyZhao/PomodoroTimer/actions/runs/40373909194)
   passed using the documented, expiring tooling exceptions.
 - Local interface validation passed 396 frontend tests, 24 server/demo tests,
   the strict production build and 21 Chromium/Firefox/WebKit cases.
@@ -35,13 +35,16 @@ and [Dependency review](https://github.com/IAmJennyZhao/PomodoroTimer/actions/wo
 Later release candidates need their own validation. Dependency exceptions expire **November 30, 2026**; see
 [DEPENDENCIES.md](DEPENDENCIES.md).
 
-## Remaining release work
+## Acceptance
 
-**v0.1.0 is not yet released.** Physical audio, genuine browser zoom,
-screen-reader, continuous-input and additional real-browser checks remain open.
-The procedures and results belong in the single
-[release checklist](RELEASE_PLAN.md#acceptance-checklist).
-Mobile support remains outside the initial supported scope.
+The owner confirmed v0.1.0 hands-on acceptance complete on October 26, 2026.
+The acceptance checklist was removed at the owner's request. Earlier records
+in `history/` describe their original review dates, not outstanding work.
+
+## Repository protection
+
+Repository secret scanning and push protection were enabled and verified on
+October 26, 2026.
 
 The owner selected MIT for code/documentation and limited permission to run the
 app and share screenshots; other artwork reuse is reserved. See
