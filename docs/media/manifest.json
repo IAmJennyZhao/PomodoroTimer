@@ -1,136 +1,180 @@
 {
-  "formatVersion": 1,
-  "sourceRevision": "656cf3321abca508b1bf53c7283c18e0c939899b",
-  "buildHtmlSha256": "138f60d68e19b5026373f46712d738ddb37dd21b144bf1b2e05a1c4408d6bb17",
-  "capturedAt": "2026-10-09T19:08:10.017Z",
-  "browser": "156.0.8078.4",
-  "locale": "en-US",
-  "timezone": "UTC",
-  "stillClock": "2026-10-09T16:00:00.000Z",
-  "fixture": "scripts/showcase-data.cjs",
-  "content": "Entirely fictional, prepopulated demo profile; balances, pets, eggs and nine sample sessions are seeded. This is not a fresh-user room.",
-  "artwork": "Actual production UI with generated illustration assets; separate rights in ASSET_RIGHTS.md. Social card uses native HTML/CSS around the room screenshot.",
-  "capture": "Loopback production service, ephemeral port, new temporary profile outside the repo, new browser contexts, no ordinary save folder or browser session.",
-  "video": {
-    "width": 1360,
-    "height": 1056,
-    "duration": 39.2,
-    "silent": true,
-    "chapters": [
-      {
-        "seconds": 0,
-        "title": "01 · Focus, without losing your train of thought",
-        "caption": "A sample count-up session is already underway. Capture a note as you work."
+  "formatVersion": 2,
+  "captureSets": [
+    {
+      "id": "2026-10-26",
+      "sourceRevision": "3d2d789938e45bf50f8fdf7a7be84b7b1b4f96e5",
+      "capturedAt": "2026-10-26T15:48:52.076Z",
+      "runtime": "CRA development app; source unchanged since recorded revision",
+      "browser": "Chrome, existing desktop browser session",
+      "method": "Direct browser screenshots via UI automation; existing viewport; real clock; no compositing",
+      "fixture": "scripts/demo-data.cjs",
+      "content": "74 fictional sessions across 28 days, seeded pets and eggs, 255 demo gems after in-app decoration purchases",
+      "roomLayout": {
+        "room": {
+          "background": "sunroom",
+          "artVersion": 1,
+          "decorations": [
+            {
+              "id": "atelier:couch",
+              "item": "couch",
+              "x": 80,
+              "y": 76
+            },
+            {
+              "id": "atelier:rug",
+              "item": "rug",
+              "x": 45.417814724844284,
+              "y": 85
+            },
+            {
+              "id": "demo:plant",
+              "item": "plant",
+              "x": 5,
+              "y": 78.18735048694786
+            },
+            {
+              "id": "decoration:1793028908355:4",
+              "item": "cushion",
+              "x": 91.55484398339638,
+              "y": 64.35270379338176
+            },
+            {
+              "id": "decoration:1793028921749:5",
+              "item": "table",
+              "x": 26.105970002953097,
+              "y": 71.86815702890675
+            },
+            {
+              "id": "decoration:1793028965355:6",
+              "item": "books",
+              "x": 12.198822539905354,
+              "y": 74.61007917177623
+            },
+            {
+              "id": "decoration:1793028994976:7",
+              "item": "window-plants",
+              "x": 56.190935289122535,
+              "y": 84.07344261881664
+            }
+          ],
+          "widgets": {
+            "timer": {
+              "x": 32.14703656275928,
+              "y": 17.43826298017843
+            },
+            "goal": {
+              "x": 5.359194093252226,
+              "y": 18.37009074264561
+            }
+          },
+          "notepadPosition": null
+        },
+        "animals": [
+          {
+            "id": "starter-cat",
+            "species": "cat",
+            "rarity": "everyday",
+            "name": "Miso",
+            "accessory": "bow",
+            "x": 80,
+            "y": 68
+          },
+          {
+            "id": "demo:dog",
+            "species": "dog",
+            "rarity": "basic",
+            "name": "Mochi",
+            "accessory": "none",
+            "x": 31.55821148145096,
+            "y": 82.43022564816197
+          },
+          {
+            "id": "demo:fox",
+            "species": "fox",
+            "rarity": "rare",
+            "name": "Maple",
+            "accessory": "crown",
+            "x": 24.050733381451824,
+            "y": 56.66263835511371
+          }
+        ]
       },
-      {
-        "seconds": 8,
-        "title": "02 · Turn focus into a growing collection",
-        "caption": "Finishing credits whole minutes. Buy an egg, then hatch a ready one."
-      },
-      {
-        "seconds": 16,
-        "title": "03 · Meet your companions",
-        "caption": "Matching pets unlock animations. Choose an unlocked paw to preview."
-      },
-      {
-        "seconds": 21,
-        "title": "04 · Make the room yours",
-        "caption": "Select Maple in the library, nudge with arrow keys, then choose Done."
-      },
-      {
-        "seconds": 25,
-        "title": "05 · Look back at your focus",
-        "caption": "Review activity and tags, then open History for tasks and completed minutes."
-      },
-      {
-        "seconds": 30,
-        "title": "06 · Set the atmosphere",
-        "caption": "Rain, fireplace and brown noise have independent levels that save locally."
-      },
-      {
-        "seconds": 35,
-        "title": "Little Room · a gentler Pomodoro",
-        "caption": "Focus, collect and make a little space of your own."
-      }
-    ]
-  },
-  "animatedPreview": {
-    "frames": 6,
-    "frameDelayMs": 3500,
-    "durationSeconds": 21,
-    "description": "Six captioned actual-app stills; this is a screenshot preview rather than the interaction recording."
-  },
-  "verification": {
-    "browserErrors": [],
-    "renderErrors": [],
-    "seekedVideoFrames": [
-      1,
-      5,
-      12,
-      20,
-      25,
-      30,
-      35,
-      38
-    ],
-    "gifFrames": 6
-  },
+      "review": "All seven stills visually inspected. Journal set to 30 days. Count-up focus screenshot finished under one minute; no history or balance change. Layout preserved.",
+      "browserLogNote": "Extension messaging errors were present in the existing Chrome session; no zero-console-error claim is made."
+    },
+    {
+      "id": "2026-10-09",
+      "sourceRevision": "656cf3321abca508b1bf53c7283c18e0c939899b",
+      "currentInterface": false,
+      "originalManifest": "../history/media-2026-10-09.json",
+      "note": "Walkthrough, animated preview and social card retain original bytes and dated provenance. Not the current README gallery."
+    }
+  ],
+  "artwork": "Generated illustrations in actual app screenshots; separate terms in ASSET_RIGHTS.md.",
   "artifacts": [
     {
       "file": "room.jpg",
-      "width": 1440,
-      "height": 1000,
+      "captureSet": "2026-10-26",
+      "width": 1638,
+      "height": 786,
       "kind": "actual-app-screenshot",
-      "bytes": 351075,
-      "sha256": "779127de3dca2f712f4569260608e3a8e2b4e171cff45aa2e10b7a2187da435a"
+      "bytes": 223683,
+      "sha256": "9faf248114025450ec715506992c572276ed8f5f2b653dd07d93d9e24e783831"
     },
     {
       "file": "focus-notes.jpg",
-      "width": 1440,
-      "height": 1000,
+      "captureSet": "2026-10-26",
+      "width": 1638,
+      "height": 786,
       "kind": "actual-app-screenshot",
-      "bytes": 316804,
-      "sha256": "9b3b8df7d8d8aeaac6d6b6042c9b7d0daec654decf7e56dbc5cf6417868f67cb"
-    },
-    {
-      "file": "egg-shop.jpg",
-      "width": 1440,
-      "height": 1200,
-      "kind": "actual-app-screenshot",
-      "bytes": 419332,
-      "sha256": "ab9667b366b689aa606f847701a9875841bb6d134208a3ea50af1238786369d0"
-    },
-    {
-      "file": "pets.jpg",
-      "width": 1440,
-      "height": 1200,
-      "kind": "actual-app-screenshot",
-      "bytes": 257603,
-      "sha256": "6b377001ed965f051104cb8bcd277509731cec0bb6623b11445ba0a6dc6163a2"
-    },
-    {
-      "file": "arrange-room.jpg",
-      "width": 1440,
-      "height": 1000,
-      "kind": "actual-app-screenshot",
-      "bytes": 296634,
-      "sha256": "dae519d20ae6636dfe14189d77f7491d215ac643b6464b1a60bfcf90c105bc97"
+      "bytes": 198031,
+      "sha256": "bbdaf2e8e0d91d0c3ae4b9d630e9bd9f3fbd3c816292b6ea654fd07a2ab9d817"
     },
     {
       "file": "journal.jpg",
-      "width": 1440,
-      "height": 1200,
+      "captureSet": "2026-10-26",
+      "width": 1638,
+      "height": 786,
       "kind": "actual-app-screenshot",
-      "bytes": 238288,
-      "sha256": "281c58b58c3ffaab269d90024ef575a8ef28678e57c60f42ba7a4068ca67396a"
+      "bytes": 143940,
+      "sha256": "8f2147d569963b2d524e98a04d51d4085f9b576d262e7e3569828e1870be4a39"
+    },
+    {
+      "file": "pets.jpg",
+      "captureSet": "2026-10-26",
+      "width": 1638,
+      "height": 786,
+      "kind": "actual-app-screenshot",
+      "bytes": 150920,
+      "sha256": "36c6023826295309bd3f997f502dfc027f24739fcd8ea5a69f4841ee486db0b9"
+    },
+    {
+      "file": "egg-shop.jpg",
+      "captureSet": "2026-10-26",
+      "width": 1638,
+      "height": 786,
+      "kind": "actual-app-screenshot",
+      "bytes": 186639,
+      "sha256": "62dd93bc3edf189a53bd2726bba890bf9cd2737b8e64035cdcb436b4ea40c9af"
+    },
+    {
+      "file": "arrange-room.jpg",
+      "captureSet": "2026-10-26",
+      "width": 1638,
+      "height": 786,
+      "kind": "actual-app-screenshot",
+      "bytes": 124286,
+      "sha256": "e56de9a07e3ace912b90655db3476f67d513f77d64b600dec9c3a3ba49195c61"
     },
     {
       "file": "sound.jpg",
-      "width": 1440,
-      "height": 1000,
+      "captureSet": "2026-10-26",
+      "width": 1638,
+      "height": 786,
       "kind": "actual-app-screenshot",
-      "bytes": 318221,
-      "sha256": "03b2cfe71b50a94bd2e8e59aac6e0553b58c137082cf9658e308086a0093c947"
+      "bytes": 199260,
+      "sha256": "022420edb3a7d1e210dbc6cbb47baec8911fcf8188260a240952feea1cee83cf"
     },
     {
       "file": "walkthrough.webm",
@@ -146,7 +190,9 @@
         "bytes": 3422415
       },
       "bytes": 3422415,
-      "sha256": "ea375a98f864f3a86c06614f3d42f261907942c98c86f5cd251d787fafeb6f65"
+      "sha256": "ea375a98f864f3a86c06614f3d42f261907942c98c86f5cd251d787fafeb6f65",
+      "captureSet": "2026-10-09",
+      "currentInterface": false
     },
     {
       "file": "social-preview.png",
@@ -154,7 +200,9 @@
       "height": 640,
       "kind": "social-layout",
       "bytes": 735389,
-      "sha256": "cf00c0f18efedd4aefa5177f378bfd75cab8b603061e342fd70be178364e07b8"
+      "sha256": "cf00c0f18efedd4aefa5177f378bfd75cab8b603061e342fd70be178364e07b8",
+      "captureSet": "2026-10-09",
+      "currentInterface": false
     },
     {
       "file": "feature-tour.gif",
@@ -162,7 +210,9 @@
       "height": 760,
       "kind": "captioned-screenshot-preview",
       "bytes": 1185722,
-      "sha256": "ad14846dbacc4a86b1c204fd43ea94009cc36652e9cb8be34e412830ef3b9408"
+      "sha256": "ad14846dbacc4a86b1c204fd43ea94009cc36652e9cb8be34e412830ef3b9408",
+      "captureSet": "2026-10-09",
+      "currentInterface": false
     }
   ]
 }

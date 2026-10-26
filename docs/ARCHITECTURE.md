@@ -1,188 +1,136 @@
-# Architecture
+# Technical guide
 
-Little Room has a React browser interface, a central game reducer, and a local
-Node.js HTTP/filesystem service. It has no database, account system or cloud sync.
-This page describes the current implementation; the
-[source map](SOURCE_MAP.md) identifies the files and tests for a specific change.
+[Overview and screenshots](../README.md) · [How to run](SETUP.md)
 
-## Local deployment
+Little Room combines a React browser app, a central game reducer and a local
+Node.js service. Progress lives in JSON files outside the repository. There is
+no account system, database or cloud sync.
 
-In production, the service serves both `build/` and `/api/save` on one loopback
-port. The save folder is outside the repository and build output.
+## Stack and deployment
 
-```mermaid
-flowchart TD
-    browser["Browser: React interface"]
-    service["Node service: server/index.cjs"]
-    build["build/: HTML, JavaScript, CSS and artwork"]
-    store["Disk store: server/store.cjs"]
-    files["Private save folder: state.json and state.backup.json"]
-    browser -->|"HTTP on 127.0.0.1"| service
-    service -->|"Static assets"| build
-    service -->|"Save API"| store
-    store -->|"Read and atomic replacement"| files
-```
-
-Development uses two distinct loopback ports. [dev.cjs](../scripts/dev.cjs)
-chooses available ports, starts the API, then starts CRA with the selected proxy
-target. [start-react.cjs](../scripts/start-react.cjs) configures CRA startup.
-
-```mermaid
-flowchart TD
-    browser["Browser"]
-    frontend["CRA development server: usually port 3000"]
-    api["Node save service: usually port 3001"]
-    folder["Private save folder"]
-    browser -->|"App and /api requests"| frontend
-    frontend -->|"Proxy /api to selected port"| api
-    api --> folder
-```
-
-The HTTP service checks Host/Origin and listens locally. Its production static
-handler resolves assets within the build root and supports extensionless SPA
-routes. The store rejects repository-contained data directories and unsafe
-save-file links. This deployment is designed for one local service per profile;
-it does not provide authentication for a public network deployment.
-
-## Application and state ownership
-
-```mermaid
-flowchart TD
-    features["Feature UI"]
-    app["App.js: composition and effects"]
-    persistence["useLocalSave: state and save scheduling"]
-    domain["game.js: reducer and normalization"]
-    api["Local save API"]
-    features -->|"Actions"| app
-    app -->|"dispatch(action)"| persistence
-    persistence -->|"Reduce or normalize"| domain
-    domain -->|"Next state"| persistence
-    persistence -->|"State and status"| app
-    app -->|"Props"| features
-    persistence <-->|"Load / save"| api
-```
-
-[App.js](../src/App.js) imports feature panels directly and composes the room,
-timer, workspaces and shared feedback. `useLocalSave` calls `gameReducer` and
-publishes current game state. Components receive state and callbacks; they do
-not access disk or implement their own reward accounting.
-
-The app supplies current time and purchase/hatch rolls in actions, derives
-Journal summaries through `analytics.js`, and drives the Web Audio engine from
-settings and timer feedback.
-
-| State | Owner and lifetime |
+| Layer | Implementation |
 | --- | --- |
-| Timer, settings, balance, pets, eggs, ownership, room placements, notes, history and mystery-roll pity | Domain state managed by `useLocalSave`; persisted to disk |
-| Open panel, selection, quiet focus view, hatch presentation, notices and alarm mute for this visit | React state/effects in the app and feature hooks; transient |
-| Pending snapshot, acknowledged revision, write in flight and recovery drafts | Persistence hook; retained in this window, with explicit draft download |
-| Journal totals and charts | Derived from saved history by `domain/analytics.js` |
-| Audio context, synthesized sounds and active playback | `audio/engine.js`; settings persisted, playback transient |
+| Interface | React 18, JavaScript, CSS and illustrated raster assets |
+| State and rules | React hooks and a central reducer |
+| Charts | Derived session statistics rendered in the app |
+| Sound | Procedural Web Audio |
+| Local service | Node.js HTTP and filesystem APIs |
+| Tooling | Create React App 5, Jest, React Testing Library, Node's test runner and Playwright |
 
-`event` communicates a domain outcome to the current UI. Persistence sets it
-to `null` in snapshots so restoring a save does not replay that notification.
-Reduced motion combines the saved preference with the system preference.
-Animations and audio report accepted actions; their completion is not required
-for rewards, saving or navigation.
+In development, CRA serves the interface and proxies `/api` requests to the
+save service. The launcher chooses distinct available ports, normally 3000
+and 3001. In production, one Node service serves both `build/` and the API,
+normally on port 3001. Services bind to `127.0.0.1`.
+
+```mermaid
+flowchart LR
+    UI[React interface] -->|Actions| State[Game reducer and save hook]
+    State -->|HTTP on loopback| API[Node save service]
+    API --> Store[Local JSON files and backup]
+    State --> UI
+```
+
+The service checks Host and Origin, caps request size and restricts static
+paths to the build directory. It is designed for local desktop use and has
+no authentication for an internet-facing deployment.
+
+## Code map
+
+| Area | Entry points |
+| --- | --- |
+| App composition and effects | [src/App.js](../src/App.js) |
+| Timer, rewards, eggs, purchases and normalization | [src/domain/game.js](../src/domain/game.js) |
+| Journal aggregation | [src/domain/analytics.js](../src/domain/analytics.js) |
+| Feature UI | [src/features/](../src/features/) — timer, collection, room, journal and settings |
+| Shared controls and surfaces | [src/shared/](../src/shared/) |
+| Load, save, conflicts and drafts | [src/persistence/useLocalSave.js](../src/persistence/useLocalSave.js) |
+| Synthesized audio | [src/audio/engine.js](../src/audio/engine.js) |
+| HTTP routes and static serving | [server/index.cjs](../server/index.cjs) |
+| File validation, revisions and atomic writes | [server/store.cjs](../server/store.cjs) |
+| Startup and demo data | [scripts/dev.cjs](../scripts/dev.cjs), [scripts/demo.cjs](../scripts/demo.cjs) |
+| Ordered global CSS | [src/styles/index.css](../src/styles/index.css) |
+
+Feature components dispatch actions through the app. Saved state includes the
+timer, settings, collection, room placement, notes and history. Panels,
+selection, focus view and feedback are transient. Domain events are removed
+from save snapshots so reloading does not replay a reward notice.
 
 ## Timer and progression
 
-[game.js](../src/domain/game.js) owns countdown/count-up rules, pause limits,
-completion, overtime, egg progress and rewards. The app dispatches `TICK` every
-250 ms while ready and on visibility changes. Elapsed time comes from saved
-timestamps and elapsed/remaining snapshots, rather than subtracting one unit
-per tick. Browser scheduling can delay presentation; settlement catches up
-against the actual deadline.
+The timer separates `mode` (`focus`, `break`, `longBreak`), `status`
+(`idle`, `running`, `paused`, `complete`) and focus `workMode`
+(`pomodoro`, `countup`). Overtime stays part of the same focus session.
 
-The timer has three separate dimensions: `mode` (`focus`, `break`, `longBreak`),
-`status` (`idle`, `running`, `paused`, `complete`), and focus `workMode`
-(`pomodoro`, `countup`). Overtime is a flag on the same focus session, not a
-new session or mode.
+Time comes from timestamps and elapsed snapshots. The app dispatches `TICK`
+every 250 ms and on visibility changes; accuracy does not depend on counting
+ticks. Browser suspension can delay the display or sound.
 
-| Trigger | Domain result |
-| --- | --- |
-| Start/resume | Captures timestamps; a new focus session captures its selected egg and maxed-pet bonus. Resume preserves them. |
-| Pause | Settles any crossed deadline, snapshots time, and applies Pomodoro pause limits. |
-| Countdown target | Credits base focus once, then becomes complete or continues with `overtime: true`. |
-| Finish count-up/overtime | Credits whole active minutes, updates the same history entry by session ID and becomes complete. |
-| Chosen break | Settles overtime if needed and starts a short or long break. |
-| Running break expires | Creates the next focus timer, optionally starting it under the live auto-start preference. |
-| Loaded save | Normalizes/migrates values and settles elapsed time with auto-start disabled. An expired break restores to idle focus. |
+- Countdown completion credits focus once. The app then starts the appropriate
+  short or long break, unless the session was set to count overtime.
+- Finishing count-up or overtime settles whole active minutes. History uses
+  session IDs so the same focus is not rewarded twice.
+- Sessions under one minute receive no history, gem or daily-goal credit.
+- A new focus session captures its selected egg and pet bonus. Countdown allows
+  two pauses of at most one minute; exceeding either limit forfeits session
+  gems while keeping recorded time and egg progress.
+- Break completion returns to focus and optionally starts it. Loading an
+  expired break returns to idle focus rather than generating unattended sessions.
 
-Count-up/overtime are bounded at 24 hours. An under-one-minute session receives
-no history/reward/goal credit. Progression normalization handles legacy eggs
-and duplicate pets while preserving valid saved layouts. Tests can supply
-explicit `now` and `roll` values; the app supplies current time and random rolls.
-The [user guide](USER_GUIDE.md) describes the visible rules.
+The reducer accepts explicit time and random-roll inputs for deterministic
+tests. Journal totals are derived from history. Animation and sound do not
+control reward settlement.
 
 ## Save lifecycle
 
-```mermaid
-sequenceDiagram
-    participant UI as App / feature UI
-    participant Hook as useLocalSave
-    participant API as HTTP service
-    participant Store as Disk store
-    UI->>Hook: Dispatch action
-    Hook->>Hook: Reduce state and queue newest snapshot
-    Note over Hook: Debounce 350 ms with one write in flight
-    Hook->>API: PUT /api/save with state and revision N
-    API->>Store: Validate and enqueue write
-    Store->>Store: Load current revision
-    alt Revision matches N
-        Store->>Store: Preserve previous record in backup
-        Store->>Store: Write temp file, sync, rename main
-        Store-->>API: Revision N + 1
-        API-->>Hook: Acknowledge revision N + 1
-        Hook->>Hook: Flush newer pending edits if any
-    else Revision changed
-        Store-->>API: Conflict
-        API-->>Hook: HTTP 409
-        Hook->>Hook: Retain draft and block writes and game actions
-        Hook-->>UI: Review edits / load saved version
-    end
+| Request | Result |
+| --- | --- |
+| `GET /api/health` | Service availability |
+| `GET /api/save` | `{state, revision, recovered, storagePath}` |
+| `PUT /api/save` with `{state, revision}` | Save if the revision matches; return the new revision |
+
+The save hook updates the UI immediately, debounces changes by 350 ms and keeps
+one write in flight. Newer edits remain queued until that write finishes.
+An empty profile returns `state: null` at revision 0; the app creates its starter
+state. Load normalization handles legacy values and elapsed timers.
+
+The store serializes operations, checks revisions, writes an exclusive temporary
+file, syncs it and renames it into place. `state.backup.json` normally holds the
+previous successful save; the first save also creates a backup. A valid backup
+can restore an unreadable main file. If both are unreadable, they are preserved
+and the service reports an error.
+
+A stale revision returns HTTP 409. The app retains a recovery draft and blocks
+game actions until the saved version is loaded. Connection failures retain
+edits in the window and offer retry. Downloaded drafts are reference copies;
+there is no automatic import or merge. See [backup and recovery](SETUP.md#backup-and-recovery).
+
+Request bodies and serialized state are each limited to 1 MiB. The disk envelope
+uses `formatVersion: 1`; game state separately uses `schemaVersion: 1` and
+`progressionVersion: 2`. There is no interprocess lock: run only one service
+per save folder.
+
+## Development and checks
+
+Use Node.js 22 or 24 LTS and install with `npm ci`. Keep domain rules in the
+reducer, save scheduling in its hook, HTTP policy in the server and disk
+operations in the store. Preserve save compatibility and the CSS import order.
+
+```sh
+npm run check
 ```
 
-On load, `GET /api/save` returns `{state, revision, recovered, storagePath}`.
-An empty profile returns `state: null` and revision 0; the hook creates and saves
-the initial room. Loaded state is validated and normalized before use.
+This runs syntax checks, frontend and server tests, a strict production build,
+and startup/persistence smoke tests. For browser regressions:
 
-Edits update React state immediately. Changed snapshots are debounced by 350 ms;
-the hook keeps the latest pending state while a write is in flight. A failed
-write preserves edits made after the request started. Connection/storage
-failures block flushing but still permit local edits while ready. A revision
-conflict also blocks game actions until the saved version is loaded.
+```sh
+npm run browsers:install
+npm run validate
+```
 
-The store serializes reads/writes through a queue **within one store instance**.
-It does not have an interprocess lock: separate services should not write the
-same profile. Within the service, stale revisions produce HTTP 409 rather than
-silently overwriting another window's save.
+The browser suite covers Chromium, Firefox and WebKit. Headless checks do not
+establish physical audio quality, screen-reader speech or mobile support.
+CRA tooling has [reviewed dependency exceptions](DEPENDENCIES.md), which expire
+and must be revisited; a passing gate does not imply zero advisories.
 
-The disk envelope is `{formatVersion: 1, revision, savedAt, state}`. The game
-state separately has `schemaVersion: 1` and `progressionVersion: 2`; these fields
-serve different purposes and are not a single version counter. Server validation
-checks envelope/state shape, schema and size; detailed domain sanitation and
-migration live in browser normalization. This is not a tamper-proof economy.
-
-Writes use an exclusive temporary file, sync it, then rename it into place.
-Subsequent backups preserve the previous successful revision; the first save
-also creates a backup of itself. A valid backup repairs an unreadable main file.
-If neither file is readable, the store preserves them and returns an error.
-The API caps incoming request bodies at 1 MiB and the store caps state at 1 MiB;
-the request envelope also consumes body space.
-
-Recovery drafts are visit-memory reference copies, not queued server records or
-automatically mergeable saves. Reload waits for an existing write to settle and
-keeps a recovery copy where needed. Visibility changes request a flush; exit
-warnings and small keepalive writes are best-effort. See
-[setup and recovery](SETUP.md#backup-and-recovery) before manipulating files.
-
-## Boundaries to preserve
-
-Keep domain changes in the reducer/normalizer, persistence coordination in the
-hook, HTTP policy in `server/index.cjs`, and disk operations in `server/store.cjs`.
-Keep global CSS in the ordered `styles/index.css` entry and artwork behind the
-shared art helpers. New changes should follow the
-[contributor guide](../CONTRIBUTING.md) and be verified using
-[automated validation](AUTOMATION.md); remaining hands-on gates are recorded in
-[release quality](RELEASE_QUALITY.md).
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for contributions. Dated publication
+and acceptance evidence remains in [PUBLICATION_STATUS.md](PUBLICATION_STATUS.md).

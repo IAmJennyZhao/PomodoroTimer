@@ -1,146 +1,130 @@
-# Setup and local saves
+# How to run Little Room
+
+[Overview and screenshots](../README.md) · [Technical guide](ARCHITECTURE.md)
 
 ## Requirements
 
-- Node.js **22 or 24 LTS** and its bundled npm. [.nvmrc](../.nvmrc) pins the tested
-  Node 22.23.3 baseline. Use a Node version manager if you want to follow it.
-- A desktop browser. See [support claims](PROJECT.md#support-claims) for verified
-  environments and remaining hands-on checks.
-- Network access to install dependencies. Core runtime behavior uses the local
-  service and bundled assets.
+- **Node.js 22 or 24 LTS**, with npm. [.nvmrc](../.nvmrc) pins the tested baseline.
+- A desktop browser and network access for the initial dependency install.
 
-Run commands from the repository root. Use `npm ci` with the checked-in lockfile.
+Run the commands below from the repository folder.
 
-## Development
+## Install and start
 
 ```sh
+git clone https://github.com/IAmJennyZhao/PomodoroTimer.git
+cd PomodoroTimer
 npm ci
 npm start
 ```
 
-Open the **Little Room app** URL printed in the terminal. By default, startup
-tries frontend port 3000 and save-service port 3001. It advances past occupied
-development ports, keeps the two ports distinct, and points the frontend proxy
-at the selected API port. Use the printed URL rather than assuming port 3000.
-Keep the terminal open; **Ctrl+C** stops both child services.
+Open the **Little Room app** URL printed in the terminal, usually
+**http://127.0.0.1:3000**. The launcher starts the browser app and save service
+together and selects available ports if the defaults are busy. Keep the
+terminal open; **Ctrl+C** stops both.
 
-## Production on your computer
+Choose Countdown or Count up, add an optional task, and press Start. The sliders
+icon opens session settings. Finishing focus starts a break automatically,
+unless you selected Count overtime. During a break, **Start new session** begins
+focus immediately; **×** cancels the break and returns to an idle timer.
+
+## Try the demo
+
+```sh
+npm run demo
+```
+
+Open the printed URL, usually **http://127.0.0.1:3002**. The demo has 74 fictional
+sessions, populated Journal charts, pets and eggs. Each launch creates a separate
+temporary profile and does not change your ordinary progress. The screenshots
+show a customized demo room; the demo starts with its seeded layout.
+Stop it with **Ctrl+C** when finished.
+
+## Run a production build locally
+
+After installing dependencies:
 
 ```sh
 npm run build:check
 npm run serve
 ```
 
-`build:check` runs the strict production build used by validation. `serve` uses
-that build and normally prints **http://127.0.0.1:3001**. The single Node service
-serves the static app and save API. Rebuild after changing frontend source.
-Unlike development, production startup fails if its configured port is busy.
+Open the printed URL, usually **http://127.0.0.1:3001**. One Node service serves
+the built app and its save API. Rebuild after changing frontend source.
+Production startup fails if its configured port is busy.
 
-Both launch modes bind to **127.0.0.1**. A loopback address on another device
-refers to that device, not this computer. Static-only hosting does not provide
-the required local disk-save API. These instructions are for local desktop use.
+The Node service is required for saving; static-only hosting is insufficient.
+The services listen on this computer's loopback address, so these URLs are
+for local desktop use.
 
-## Ports and separate profiles
+## Local saves and separate profiles
 
-| Environment variable | Development | Production |
-| --- | --- | --- |
-| `PORT` | Starting frontend port, default 3000 | Unused |
-| `POMODORO_API_PORT` | Starting save-service port, default 3001 | Exact service port, default 3001 |
-| `POMODORO_DATA_DIR` | Overrides the save folder | Overrides the save folder |
+Settings → Local save shows the actual folder. Defaults are:
 
-For normal configured ports, choose an integer from 1024 to 65535. Changing a
-port does **not** create a separate save profile. Development and production
-share the default data folder.
-
-For a separate profile in PowerShell:
-
-```powershell
-$env:PORT='4000'
-$env:POMODORO_API_PORT='4001'
-$env:POMODORO_DATA_DIR=Join-Path $env:TEMP 'little-room-personal-sandbox'
-npm start
-```
-
-For bash/zsh:
-
-```sh
-PORT=4000 POMODORO_API_PORT=4001 POMODORO_DATA_DIR="$HOME/little-room-personal-sandbox" npm start
-```
-
-Reusing the chosen folder reopens that profile. Choose a new folder for a fresh
-profile. PowerShell environment values persist in that terminal; open a new
-terminal to return to defaults. The service rejects save folders inside the
-repository, including symlink aliases into it.
-
-For repeatable screenshots or acceptance checks, use the dedicated
-[fictional review room](RELEASE_QUALITY.md#repeatable-review-room) rather than
-your personal profile.
-
-## Where progress lives
-
-Settings → Local save shows the actual folder. Default locations are:
-
-| Platform | Default save folder |
+| Platform | Save folder |
 | --- | --- |
-| Windows | `%LOCALAPPDATA%\PomodoroTimer\saves\` (or `~/AppData/Local/PomodoroTimer/saves/` if that variable is absent) |
+| Windows | `%LOCALAPPDATA%\PomodoroTimer\saves\` |
 | macOS | `~/Library/Application Support/PomodoroTimer/saves/` |
 | Linux | `$XDG_DATA_HOME/PomodoroTimer/saves/`, or `~/.local/share/PomodoroTimer/saves/` |
 
-The legacy `PomodoroTimer` folder name stays stable so existing progress remains
-available. Saves use disk files, not browser localStorage, and are not bundled
-into a production build.
+The `PomodoroTimer` folder name preserves existing progress. Saves are disk files,
+not browser localStorage. Development and production share the default profile.
+Run only one service per save folder.
 
-- `state.json` holds the current saved revision.
-- `state.backup.json` normally holds the previous successful revision. On the
-  first save, it holds a copy of that first revision.
+| Variable | Purpose |
+| --- | --- |
+| `PORT` | Development frontend starting port; default 3000 (demo 3002) |
+| `POMODORO_API_PORT` | Save-service port; default 3001 (demo 3003). Development advances past busy ports; production uses the exact port. |
+| `POMODORO_DATA_DIR` | Custom save folder outside this repository; demo always creates its own temporary folder |
 
-The save service limits state to 1 MiB. It writes through a temporary file and
-atomic replacement, and validates the current revision before accepting a
-write. See [architecture](ARCHITECTURE.md#save-lifecycle) for the data flow.
+Use ports from 1024 to 65535. Changing a port alone does not create a new profile.
+For a separate development profile in PowerShell:
+
+```powershell
+$env:PORT = '4000'
+$env:POMODORO_API_PORT = '4001'
+$env:POMODORO_DATA_DIR = Join-Path $env:LOCALAPPDATA 'LittleRoomSandbox'
+npm start
+```
+
+Or in bash/zsh:
+
+```sh
+PORT=4000 POMODORO_API_PORT=4001 POMODORO_DATA_DIR="$HOME/LittleRoomSandbox" npm start
+```
+
+Reusing that folder reopens that profile. PowerShell values persist in the
+current terminal; open a new terminal to return to defaults.
 
 ## Backup and recovery
 
-To make a backup, close app windows, stop the local services, and copy the
-**whole save folder** to a private location. To restore it, stop the services
-and preserve the current folder first, then restore your known-good copy.
-Restart the app and check its progress. Do not post saves, notes or drafts in
-GitHub issues or attach them to a pull request.
+Close app windows and stop the services, then copy the **whole save folder**
+to back it up. To restore, stop the services, preserve the current folder and
+replace it with a known-good backup before restarting.
 
-If the main save is unreadable and its backup is valid, the service restores
-the backup automatically. If neither is readable, it preserves the files and
-reports the problem. Keep a copy before attempting repairs.
+`state.json` is the current revision. `state.backup.json` normally holds the
+previous successful revision and can repair an unreadable main file. If both
+are unreadable, the service preserves them and reports the failure.
 
-| Problem | Next action |
-| --- | --- |
-| Service unreachable | Restart the correct local service, then use **Retry save**. Keep the window open while edits are unsaved. |
-| Another window saved newer progress | Use **Review edits**, copy notes or download a draft, then **Reload saved version** from Local save settings. Revision conflicts are not automatically merged. |
-| Save or backup unreadable | Preserve both files. Restore a known-good private backup; do not delete them to silence the error. |
-| Folder inaccessible | Read Save details, check the reported folder and permissions, then retry. |
-| Invalid or oversized response | Read Save details; confirm the app is connected to its intended service. Keep a draft before reloading or repairing data. |
-
-Recovery drafts offer read-only notes and a task checklist, **Copy notes**, and
-**Download draft**. The download includes the state, capture time and base
-revision. It is a reference format, not a replacement `state.json`, and there
-is no automatic import or merge of balances, inventory or timers.
-
-Loading the saved room keeps a separate recovery copy in the current window,
-including after a failed load. Reopen it from Settings → Local save after
-dismissing its notice. Drafts remain in memory until that window closes.
-Download and check the file to retain one. Browser close warnings and
-last-moment save requests are best-effort; let pending saves finish before exit.
+If another window saves newer progress, use **Review edits** to copy notes or
+download a draft before **Reload saved version**. Draft downloads are reference
+copies, not importable saves. Keep the window open while changes are unsaved;
+let pending saves finish before closing it.
 
 ## Troubleshooting
 
-| Symptom | Check |
+| Problem | What to do |
 | --- | --- |
-| Page will not open | Use the printed app URL and keep its terminal running. In development, both services must be available. |
-| Production says the build is missing | Run `npm run build:check` before `npm run serve`. |
-| Production port is occupied | Stop the other instance or choose `POMODORO_API_PORT` in a fresh terminal. |
-| Install/build fails | Confirm Node 22 or 24, run `npm ci`, and retain the actual error. Consult [dependency review](DEPENDENCIES.md) for known tooling limits. |
-| No sound | Check Timer/Interaction/Ambient settings, interact with the page to permit playback, and check browser/system volume. |
-| Notes cover other controls | Use **Minimize** on the compact notes sheet, then return to the timer or Journal. |
+| `npm` or `node` is not recognized | Install Node 22 or 24 LTS, then open a new terminal. |
+| Missing module or install error | Check `node --version`, stop the app, then run `npm ci` again. |
+| PowerShell blocks `npm.ps1` | Use `npm.cmd ci` and `npm.cmd start` (or `npm.cmd run demo`). |
+| Page will not open | Use the printed app URL and keep the terminal running. |
+| Build is missing | Run `npm run build:check` before `npm run serve`. |
+| Production port is busy | Stop the existing instance or set another `POMODORO_API_PORT`. |
+| Save service unavailable | Keep the page open, restart its service and choose Retry save. |
+| Save conflict | Review/download your draft, then load the saved version; changes are not merged automatically. |
+| No sound | Interact with the page, then check Sound, browser and system volume. |
+| Notes cover controls | Minimize the Scratchpad to return to the timer or Journal. |
 
-For a bug report, include OS, Node/browser versions, command and relevant error,
-plus steps reproduced with fictional content. Redact private save paths, notes
-and session history. See [automated validation](AUTOMATION.md) for checks and
-failure reports.
+For a bug report, include the command, error, OS, Node/browser versions and steps
+using fictional content. Keep private notes, saves and local paths out of issues.

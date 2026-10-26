@@ -5,6 +5,13 @@ records retain their dated results.
 
 ## Local interface revision, October 26
 
+The public reading path is now the root README (overview, screenshots and short
+tech description), the technical guide in `ARCHITECTURE.md`, and the how-to-run
+guide in `SETUP.md`. Seven still screenshots were refreshed from the current
+demo app using the owner's approved room composition and fictional progress.
+The earlier video, animated preview and social card retain their dated
+provenance; they are not presented as current interface captures in the README.
+
 The local revision starts breaks automatically after focus completes, offers
 Start new session and a cancel control, puts Daily Goal first in Journal, and
 removes repeated completion/shop/notes explanations. Detailed rules remain in
