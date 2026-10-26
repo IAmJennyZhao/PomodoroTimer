@@ -3,7 +3,7 @@
 This is a historical implementation record. Its phase numbers, test totals,
 paths and temporary QA ports describe earlier builds, not current acceptance.
 Raw captures and fixtures formerly under `output/` were archived locally during
-publication Phase 3. See [RELEASE_QUALITY.md](../RELEASE_QUALITY.md) for the current
+publication Phase 3. See [the release checklist](../RELEASE_PLAN.md) for the current
 build evidence and remaining hands-on checks.
 
 ## Animation pass 6: Restraint, consistency and final verification

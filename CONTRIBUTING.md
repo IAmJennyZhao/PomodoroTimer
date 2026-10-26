@@ -12,7 +12,7 @@ issue to discuss the design first. Small fixes can go directly to a pull request
 Keep each change focused, with commits that explain a stable step.
 
 Use a separate local profile or the
-[fictional review room](docs/RELEASE_QUALITY.md#repeatable-review-room) while
+[fictional review room](docs/RELEASE_PLAN.md#repeatable-review-room) while
 developing. Default development and production runs share a personal save folder.
 Avoid opening two services against the same folder.
 
@@ -61,7 +61,7 @@ implementation, resolve local links and headings, and preview any changed
 diagrams. For behavior changes, add regression coverage where it protects the
 observable behavior; avoid tests that merely repeat implementation details.
 Headless checks do not replace the remaining
-[hands-on acceptance](docs/RELEASE_QUALITY.md#remaining-acceptance-checks).
+[hands-on acceptance](docs/RELEASE_PLAN.md#acceptance-checklist).
 
 ## Pull requests and reports
 
@@ -78,4 +78,5 @@ recovery drafts, secrets or raw QA output. Keep local reports in ignored
 `.local/`, `output/`, `test-results/` or `playwright-report/`. Prepare curated
 release media using the [media guide](docs/MEDIA.md). Avoid history rewrites in
 ordinary changes;
-publication history treatment is tracked in the [project plan](docs/PROJECT.md).
+publication history treatment is recorded in the
+[history preparation record](docs/history/HISTORY_PREPARATION.md).

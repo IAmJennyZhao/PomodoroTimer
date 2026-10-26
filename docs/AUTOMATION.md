@@ -94,13 +94,12 @@ retries.
 
 ## Limits and acceptance
 
-A configured workflow is not evidence of a hosted pass. Record actual job
-results after the code is pushed; platform support claims remain limited until
-the corresponding jobs run successfully. These browser checks are headless
+Hosted results for the verified source checkpoint are recorded in
+[publication status](PUBLICATION_STATUS.md). These browser checks are headless
 engine regressions, not complete acceptance of Firefox or Safari on real devices.
 They also do not cover screen-reader speech, genuine browser zoom, physical touch,
 software keyboards or audible alarms. Those release gates remain in
-[RELEASE_QUALITY.md](RELEASE_QUALITY.md) and were deferred by the owner.
+[the release checklist](RELEASE_PLAN.md#acceptance-checklist).
 
 ## Phase 4 verification record
 

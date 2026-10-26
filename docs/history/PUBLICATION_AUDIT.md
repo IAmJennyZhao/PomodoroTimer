@@ -1,10 +1,14 @@
 # Publication audit
 
+> Historical record. Current scope and source status are in
+> [PROJECT.md](../PROJECT.md) and [PUBLICATION_STATUS.md](../PUBLICATION_STATUS.md).
+> Use [RELEASE_PLAN.md](../RELEASE_PLAN.md) for the live release checklist.
+
 Audit date: October 8, 2026. Starting baseline: `be52e89` (pre-phase application behavior baseline `01f586b`). This pass changes metadata, launcher messages and publication records, with no changes to game/save behavior. This document records the identity/publication phase; the earlier UX verification uses a different phase sequence.
 
 Publication Phase 3 subsequently implemented the current-tree exclusions below.
 See [REPOSITORY_CLEANUP.md](REPOSITORY_CLEANUP.md) for the October 9 disposition
-and [SOURCE_MAP.md](SOURCE_MAP.md) for current source locations. The counts and
+and [SOURCE_MAP.md](../SOURCE_MAP.md) for current source locations. The counts and
 history findings in this audit remain a dated Phase 1 snapshot.
 
 Publication Phase 7 subsequently retained every commit while filtering personal
@@ -15,7 +19,7 @@ unchanged hosted-history boundary; the counts below describe the original refs.
 ## Decisions
 
 - Product: **Little Room**; local package: `little-room`; repository URL and legacy save-directory names stay stable.
-- Initial release: desktop local-first browser app with a Node save service; support claims are limited by [PROJECT.md](PROJECT.md).
+- Initial release: desktop local-first browser app with a Node save service; support claims are limited by [PROJECT.md](../PROJECT.md).
 - Code and documentation: MIT, chosen by the owner on October 8, 2026. Generated illustrations have no newly granted reuse license; third-party dependencies retain their licenses.
 - Raw QA output, personal runtime files, unverified media and unattributed legacy audio are outside the intended release contents.
 - GitHub metadata updates, cleanup, history rewrites and release publication belong to separate passes.
@@ -45,7 +49,7 @@ The table is a release policy, not a claim that excluded tracked files have alre
 
 ## Audit execution and evidence
 
-The read-only, dependency-free [audit script](../scripts/audit-publication.cjs) scans tracked worktree files, every unique blob reachable through local Git refs, commit messages and author/committer metadata. It checks recognizable credential formats, private-key markers, credential assignments, authenticated URLs, emails and user-directory paths. Binary strings and compressed PNG text metadata are inspected; compressed image payloads are identified to distinguish accidental byte patterns from metadata. Findings contain locations/categories, never matched values or author addresses.
+The read-only, dependency-free [audit script](../../scripts/audit-publication.cjs) scans tracked worktree files, every unique blob reachable through local Git refs, commit messages and author/committer metadata. It checks recognizable credential formats, private-key markers, credential assignments, authenticated URLs, emails and user-directory paths. Binary strings and compressed PNG text metadata are inspected; compressed image payloads are identified to distinguish accidental byte patterns from metadata. Findings contain locations/categories, never matched values or author addresses.
 
 Snapshot at identity checkpoint `206260e` with the audit worktree staged:
 
@@ -59,7 +63,7 @@ Snapshot at identity checkpoint `206260e` with the audit worktree staged:
 | Historical user-path candidates | 126 occurrences in prior QA records and unsanitized prompt revisions; historical treatment remains Phase 7. |
 | Binary email-like patterns | All 15 occurrences across worktree/history are in PNG/JPEG compressed pixel payloads, not textual email metadata. These byte matches are false positives; they do not approve the images' visible content. |
 | Runtime save filenames | No default `state.json` or `state.backup.json` is tracked in the current tree. Full QA snapshots under `output/` are deliberately excluded from the intended release. |
-| Asset inventory | 29 current media assets under `public/` and `src/`: nine production generated PNGs, five older generated PNGs, seven project SVGs, four starter images/icons and four unattributed audio files. SHA-256 hashes and decisions are in [ASSET_INVENTORY.json](ASSET_INVENTORY.json). |
+| Asset inventory | 29 current media assets under `public/` and `src/`: nine production generated PNGs, five older generated PNGs, seven project SVGs, four starter images/icons and four unattributed audio files. SHA-256 hashes and decisions are in [ASSET_INVENTORY.json](../ASSET_INVENTORY.json). |
 | Dependency inventory | 1,556 lockfile package entries; 1,555 available installed manifests, no version mismatches. Legacy `licenses` declarations are included. The optional `fsevents@2.3.3` package is not installed on this Windows checkout and has no license declaration in this lockfile; verify its source notices on a relevant platform before distribution. |
 
 The exact scan counts are a dated snapshot; later checkpoints add new objects. The inventory's asset hashes refer to its documented starting baseline and were checked against the Phase 1 worktree. Neither raw `output/` nor the machine report is approved publication content.

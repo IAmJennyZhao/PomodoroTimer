@@ -98,13 +98,13 @@ ancestry as well as all local refs; its branch-scope/redaction fixture is in
 [check-history.cjs](../scripts/check-history.cjs) verifies the retained lineage
 against [COMMIT_MAP.json](history/COMMIT_MAP.json);
 [history-lookup.cjs](../scripts/history-lookup.cjs) resolves original checkpoint
-identifiers. See [HISTORY_PREPARATION.md](HISTORY_PREPARATION.md) for scope.
+identifiers. See [HISTORY_PREPARATION.md](history/HISTORY_PREPARATION.md) for scope.
 
 ## Local evidence and current status
 
 New raw QA captures belong in ignored `.local/` or `output/`, not the tracked
 source tree. Publication Phase 3 preserved the former raw tree in a local
-archive; [REPOSITORY_CLEANUP.md](REPOSITORY_CLEANUP.md) records the disposition.
-Use [RELEASE_QUALITY.md](RELEASE_QUALITY.md) for current acceptance evidence;
+archive; [REPOSITORY_CLEANUP.md](history/REPOSITORY_CLEANUP.md) records the disposition.
+Use [the release checklist](RELEASE_PLAN.md#acceptance-checklist) for current acceptance;
 [AUTOMATION.md](AUTOMATION.md) records Phase 4 automation;
 [VERIFICATION.md](history/VERIFICATION.md) is historical.

@@ -1,8 +1,40 @@
 # Dependency review
 
-Latest review: **October 24, 2026**, during publication preparation. The original
-Phase 4 review below is dated October 9. This review covers the current lockfile
-and the app's use of it. It does not certify the repository as vulnerability-free.
+Latest maintenance review: **October 26, 2026**. Earlier reviews below retain
+their dates. This records the current lockfile and how the app uses it; it does
+not certify the repository as vulnerability-free.
+
+## October 26 PR resolution
+
+The dependency proposals were reviewed together against the current React 18
+and CRA 5 stack. Compatible changes were applied in one coordinated refresh;
+the lockfile was regenerated rather than reusing the bots' older lockfiles.
+
+| PR | Resolution |
+| --- | --- |
+| [#1](https://github.com/IAmJennyZhao/PomodoroTimer/pull/1) | Applied setup-node 7.1.0, pinned to its verified release commit. |
+| [#2](https://github.com/IAmJennyZhao/PomodoroTimer/pull/2) | Applied upload-artifact 7.0.2, preserving the existing artifact inputs and retention. |
+| [#3](https://github.com/IAmJennyZhao/PomodoroTimer/pull/3) | Removed the unused user-event dependency; no source or test imported it. |
+| [#4](https://github.com/IAmJennyZhao/PomodoroTimer/pull/4) | React DOM 19 was not adopted: it conflicts with the current React 18 stack. A future React migration must update the runtime together. |
+| [#5](https://github.com/IAmJennyZhao/PomodoroTimer/pull/5), [#6](https://github.com/IAmJennyZhao/PomodoroTimer/pull/6) | Babel 8 was not adopted: CRA and the current Babel plugins require the Babel 7 toolchain. This belongs with a coordinated build-tool migration. |
+| [#7](https://github.com/IAmJennyZhao/PomodoroTimer/pull/7) | Updated React Testing Library to 16.3.3 and declared its DOM 10 peer dependency directly. |
+| [#8](https://github.com/IAmJennyZhao/PomodoroTimer/pull/8) | Updated jest-dom to 7.0.1 alongside the same DOM dependency. |
+
+A clean `npm ci` and `npm run validate` passed with the refreshed lockfile:
+396 frontend tests, 24 server tests, three startup/persistence smoke checks,
+the strict production build and 21 browser cases. No application code or test
+assertions were changed to accommodate the updates.
+
+The October 26 live advisory gate passed with **31 affected tooling packages**
+and **23 reviewed source advisories**. The production-only audit reported
+**zero findings**. The exceptions were not broadened or extended.
+
+Dependabot now groups routine npm minor/patch updates and Actions updates, with
+one routine PR per ecosystem. npm major-version migrations are handled
+deliberately rather than opening separate incompatible proposals. The
+[`allow.update-types` rule](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#update-types-allow)
+filters version updates; it does not disable security updates. The live
+advisory workflow and the **November 30, 2026** exception deadline remain active.
 
 ## October 24 dependency refresh
 
@@ -18,7 +50,7 @@ The former `braces` and `sprintf-js` findings are absent from the live report,
 so their exceptions were removed. The selector-parser 6.x dependency moved from
 6.1.4 to **6.1.5**, which remains affected by the previously reviewed advisory.
 
-The live full audit reports **56 affected tooling packages**: 18 high,
+The October 24 full audit reported **56 affected tooling packages**: 18 high,
 29 moderate and 9 low, with **24 source advisories** and zero critical findings.
 The separate `npm audit --omit=dev` reports **zero findings**. These are dated
 registry results, and propagated parent findings are not distinct bugs.
@@ -36,10 +68,9 @@ not extended. No cross-major overrides or removal of functioning build tooling
 were used to silence findings.
 
 Current validation evidence belongs in [PUBLICATION_STATUS.md](PUBLICATION_STATUS.md).
-React 18.3 also exposes a development-test deprecation warning from Testing
-Library 13's use of `ReactDOMTestUtils.act`; all 396 tests pass, and the strict
-production build has no compiler warnings. A Testing Library migration remains
-separate work; the warning is not suppressed.
+The October 24 tests exposed a React 18.3 deprecation warning from Testing
+Library 13's use of `ReactDOMTestUtils.act`. The October 26 library refresh
+replaces that older integration rather than suppressing the warning.
 
 ## Changes and audit results
 

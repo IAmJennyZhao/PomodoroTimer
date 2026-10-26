@@ -1,11 +1,15 @@
 # Git history preparation
 
+> Historical record. Current scope and source status are in
+> [PROJECT.md](../PROJECT.md) and [PUBLICATION_STATUS.md](../PUBLICATION_STATUS.md).
+> Use [RELEASE_PLAN.md](../RELEASE_PLAN.md) for the live release checklist.
+
 Publication Phase 7, October 9, 2026. Starting point: `22adc03`.
 This pass prepares local history; publishing the replacement remains Phase 8.
 
 **October 24 update:** Phase 8 published the cleaned source branch to GitHub
 with an explicit lease on the old hosted tip. The text below remains the
-October 9 preparation record. See [current publication status](PUBLICATION_STATUS.md)
+October 9 preparation record. See [current publication status](../PUBLICATION_STATUS.md)
 for hosted verification and the separate, still-pending v0.1.0 release.
 
 ## Decisions and preservation
@@ -50,10 +54,10 @@ are development records, not supported runnable releases.
 Twelve commits with no remaining tree changes are retained as empty commits.
 One original cryptographic signature was removed from its rewritten commit;
 the original signed object remains in the private backup. All rewritten object
-IDs differ. The [commit map](history/COMMIT_MAP.json) connects old identifiers
+IDs differ. The [commit map](COMMIT_MAP.json) connects old identifiers
 used by dated verification/provenance records with their new history.
 
-The [development timeline](history/TIMELINE.md) groups the full retained history
+The [development timeline](TIMELINE.md) groups the full retained history
 by purpose. It preserves the original messages rather than renaming earlier
 UX phases to match the later publication phases.
 

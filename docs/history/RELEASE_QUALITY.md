@@ -1,5 +1,9 @@
 # Release quality
 
+> Historical record. Current scope and source status are in
+> [PROJECT.md](../PROJECT.md) and [PUBLICATION_STATUS.md](../PUBLICATION_STATUS.md).
+> Use [RELEASE_PLAN.md](../RELEASE_PLAN.md) for the live release checklist.
+
 Publication Phase 2, October 8, 2026. Application baseline: `25e25ed`, including
 `7197df9`. This is the current follow-up to the historical UX records in
 the former `output/` tree; those records describe an older build and use
@@ -15,7 +19,7 @@ does not record a pass or prevent the separate cleanup phase from completing.
 
 Publication Phase 4 adds clean-install validation, CI, startup/persistence smoke
 and automated production regressions in Chromium, Firefox and WebKit. Current
-commands and evidence are in [AUTOMATION.md](AUTOMATION.md). It also refreshes
+commands and evidence are in [AUTOMATION.md](../AUTOMATION.md). It also refreshes
 Browserslist data; the stale-data warning in the dated Phase 2 build record below
 is resolved. The remaining hands-on acceptance checks below remain pending.
 
@@ -146,5 +150,5 @@ Unavailable (reason):
 
 Windows/Chrome remains the verified desktop baseline. macOS/Linux setup,
 Firefox/Safari, actual mobile behavior and accessibility conformance are not
-verified support claims. [PROJECT.md](PROJECT.md) retains those boundaries.
+verified support claims. [PROJECT.md](../PROJECT.md) retains those boundaries.
 Later publication phases do not replace the open acceptance checks here.

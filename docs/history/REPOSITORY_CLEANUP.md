@@ -1,5 +1,9 @@
 # Repository cleanup
 
+> Historical record. Current scope and source status are in
+> [PROJECT.md](../PROJECT.md) and [PUBLICATION_STATUS.md](../PUBLICATION_STATUS.md).
+> Use [RELEASE_PLAN.md](../RELEASE_PLAN.md) for the live release checklist.
+
 Publication Phase 3, October 9, 2026. Starting baseline: `21a33ca`.
 Artifact checkpoint: `2a0d80e`; source checkpoint: `01a675d`.
 The owner deferred Phase 2's hands-on acceptance to continue this separate pass;
@@ -35,7 +39,7 @@ This cleanup changes the **current tree**, not existing Git objects, remote
 branches, clones or hosted caches. Historical personal author metadata,
 historical QA paths and removed assets still require the separate Git-history
 pass. Active generated artwork retains its existing rights boundaries in
-[ASSET_RIGHTS.md](../ASSET_RIGHTS.md).
+[ASSET_RIGHTS.md](../../ASSET_RIGHTS.md).
 
 ## Source navigation
 
@@ -50,7 +54,7 @@ pass. Active generated artwork retains its existing rights boundaries in
   lists all 28 stylesheets in the original generated order; component imports
   no longer implicitly decide the cascade. SVG URLs were updated for the move.
 - Updated the disposable QA loader's game path, active documentation paths,
-  asset inventory and navigation links. Added [SOURCE_MAP.md](SOURCE_MAP.md)
+  asset inventory and navigation links. Added [SOURCE_MAP.md](../SOURCE_MAP.md)
   with file ownership, task entry points and relevant tests.
 - Labeled the older verification log as historical and linked current
   acceptance separately. Its dated checks remain useful without implying that

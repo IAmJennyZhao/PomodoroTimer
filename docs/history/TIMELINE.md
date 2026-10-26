@@ -31,9 +31,10 @@ hashes in the mapped interval.
 Historical source can reference removed artwork/audio. Those snapshots are
 development context, not supported runnable releases. Commits whose changes
 were entirely excluded remain as empty commits, with their original messages
-and dates. The [history preparation record](../HISTORY_PREPARATION.md) explains
+and dates. The [history preparation record](HISTORY_PREPARATION.md) explains
 the exclusions, integrity checks, private backups and Phase 8 handoff.
 
 The earlier interaction/UX phase numbers in [verification notes](VERIFICATION.md)
-are separate from the eight publication phases in [PROJECT.md](../PROJECT.md).
+are separate from the eight publication phases in the
+[archived publication plan](PUBLICATION_PLAN.md).
 Current setup and support claims live in the [documentation index](../README.md).
