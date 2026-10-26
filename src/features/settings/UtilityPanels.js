@@ -235,14 +235,13 @@ export function SessionControls({ state, act }) {
       </div>
       {!countUp && <fieldset className="session-completion-settings">
         <legend>When focus ends <InfoTip label="Focus end options">
-          <p>Repeat alarm reminds you to take a break until you choose a break, start a new session, or mute it.</p>
-          <p>Ding + count up chimes once, then keeps tracking your work until you finish.</p>
-          <p>Applies to Pomodoro sessions. Turn on Timer sound in Settings to hear alerts.</p>
+          <p>Start break begins the next short or long break automatically.</p>
+          <p>Count overtime keeps tracking until you finish.</p>
         </InfoTip></legend>
         <div className="session-end-options">
           {[
-            { id: "remind", name: "Repeat alarm", icon: "bell" },
-            { id: "overtime", name: "Ding + count up", icon: "music" },
+            { id: "remind", name: "Start break", icon: "leaf" },
+            { id: "overtime", name: "Count overtime", icon: "music" },
           ].map((option) => (
             <label className={`session-end-choice ${state.settings.endBehavior === option.id ? "selected" : ""}`} key={option.id}>
               <ChoiceInput type="radio" name="focus-end-behavior" value={option.id}
@@ -284,7 +283,6 @@ export function SettingsPanel({ state, act, persistence, engine, onSessionSettin
           </label>
         ))}
       </div>
-      <p className="auto-focus-note">{state.settings.autoStartFocus ? "When a break ends, the next focus session starts automatically with your current checklist and selected egg." : "When a break ends, you choose when to start the next focus session."}</p>
       <InteractionSoundControls state={state} act={act} engine={engine} />
       <section className="save-info" aria-label="Local save">
         <div className="local-save-row">

@@ -100,14 +100,12 @@ export default function EggShop({ state, act, onFocus, startAtNest = false, tool
               <Button sound={null} className="text-button egg-hatch" disabled={!ready} aria-label={`Hatch ${egg.rarity} egg ${index + 1}`} onClick={() => act({ type: "HATCH_EGG", id: egg.id })}>{ready ? "Hatch" : <span aria-hidden="true">{"★".repeat(RARITY_STARS[egg.rarity])}</span>}</Button>
             </div>;
           })}</div>
-          <p className="nest-guidance">{active ? current ? "This session's minutes stay with the egg studying with you." : "No egg is attached to this session." : next ? "Your selected egg will study with you when you start focus." : "Choose an egg to study with you, or focus without one."}{active && !next && " No egg selected for next session."}</p>
         </> : <div className="nest-empty">
           <ArtFragment rect={[84, 690, 369, 219]} className="empty-nest-art" />
-          <div><strong>Your nest is empty :3</strong><p>Buy an egg above, choose it, then focus to help it hatch.</p></div>
+          <div><strong>No eggs yet</strong></div>
         </div>}
         {onFocus && <Button className="secondary-button nest-focus" onClick={onFocus}>{active ? "Return to focus" : available < 25 && !state.eggs.length ? "Focus to earn gems" : "Go to focus"}</Button>}
       </section>
-      <p className="shop-flow">Buy an egg → Choose it in your nest → Focus → Hatch</p>
     </div>
   </div>;
 }

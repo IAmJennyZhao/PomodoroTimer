@@ -1,4 +1,23 @@
 /* Adapt to the space the notebook actually has, including beside Scratchpad. */
+.app .journal-panel > .journal-goal {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center; gap: 10px 20px; margin-bottom: 18px;
+}
+.app .journal-panel > .journal-goal .journal-section-title { grid-column: 1; grid-row: 1; }
+.app .journal-panel > .journal-goal .journal-goal-count { grid-column: 2; grid-row: 1; margin: 0; font-size: 1.7rem; }
+.app .journal-panel > .journal-goal .journal-goal-caption { display: none; }
+.app .journal-panel > .journal-goal .journal-goal-dots { grid-column: 1 / -1; grid-row: 2; }
+.app .journal-panel > .journal-goal progress { grid-column: 1 / -1; grid-row: 3; margin: 0; }
+.app .journal-panel > .journal-goal .journal-goal-controls { grid-column: 3; grid-row: 1; margin: 0; }
+.app .journal-panel .journal-visuals { grid-template-columns: minmax(0, 1fr); }
+@container journal-content (max-width: 400px) {
+  .app .journal-panel > .journal-goal { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+  .app .journal-panel > .journal-goal .journal-section-title { grid-column: 1 / -1; }
+  .app .journal-panel > .journal-goal .journal-goal-count { grid-column: 1; grid-row: 2; }
+  .app .journal-panel > .journal-goal .journal-goal-controls { grid-column: 2; grid-row: 2; }
+  .app .journal-panel > .journal-goal .journal-goal-dots { grid-row: 3; }
+  .app .journal-panel > .journal-goal progress { grid-row: 4; }
+}
 .app .workspace-journal > .drawer-content {
   container-type: inline-size;
   container-name: journal-content;

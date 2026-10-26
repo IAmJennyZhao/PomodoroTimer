@@ -129,7 +129,7 @@ test("Scratchpad reports the shared draft's save state and retains its text thro
   const props = { state: initial, act: jest.fn(), now: NOW };
   const { rerender } = render(<JournalPanel {...props} saveStatus="saving" />);
   fireEvent.click(screen.getByRole("button", { name: "Scratchpad" }));
-  expect(screen.getByText(/same saved note/)).toBeVisible();
+  expect(screen.queryByText(/same saved note/)).not.toBeInTheDocument();
   expect(screen.getByRole("status")).toHaveTextContent("Saving…");
   rerender(<JournalPanel {...props} saveStatus="error" />);
   expect(screen.getByRole("status")).toHaveTextContent("Not saved");
@@ -144,9 +144,11 @@ test("historical analytics retain today's goal context and explain overlapping t
   initial.settings.dailyGoal = 1;
   renderJournal(initial);
   fireEvent.click(screen.getByRole("button", { name: "30 days" }));
-  expect(screen.getByRole("heading", { name: "Today's goal" })).toBeVisible();
-  expect(screen.getByText("Goal reached today")).toBeVisible();
-  expect(screen.getByText(/Their totals can overlap/)).toBeVisible();
+  expect(screen.getByRole("heading", { name: "Daily goal" })).toBeVisible();
+  expect(screen.getByRole("progressbar", {name:"Daily focus goal"})).toHaveAttribute("value", "1");
+  expect(screen.queryByText(/Their totals can overlap/)).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", {name:"About tag statistics"}));
+  expect(screen.getByText(/tag totals can overlap/)).toBeInTheDocument();
   expect(within(screen.getByLabelText("Focus summary")).getAllByText("25m")).toHaveLength(2);
   fireEvent.click(screen.getByRole("button", { name: "History" }));
   expect(screen.getByRole("cell", { name: "25 focus minutes" })).toHaveTextContent("25m");

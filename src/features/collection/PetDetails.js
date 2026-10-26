@@ -49,7 +49,7 @@ export default function PetDetails({ animal, state, act, detailsRef, onShopAcces
           <span>{motion.name}</span>
         </Button>;
       })}</div>
-      <p className="motion-preview-status" role="status">{preview ? preview.suppressed ? `${previewMotion.name} selected · motion reduced.` : `Previewing ${previewMotion.name} · plays once.` : "Choose an unlocked paw to preview. Paw 1 is Default."}</p>
+      <p className="motion-preview-status" role="status">{preview ? preview.suppressed ? `${previewMotion.name} · reduced motion` : previewMotion.name : ""}</p>
     </section>
     <label className="toggle-line"><span>Show in room</span>
       <ChoiceInput sound={animal.placed ? undefined : null} type="checkbox" checked={animal.placed} onChange={event => act({ type: "PLACE_ANIMAL", id: animal.id, placed: event.target.checked })} />

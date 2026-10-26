@@ -4,6 +4,7 @@ import { elapsedTime, formatElapsedTime, formatTime, isCountingUp, remainingTime
 
 export default function SessionStrip({ timer, now, onToggle, onFocus, disabled, compact = false }) {
   const complete = timer.status === "complete";
+  if (complete) return null;
   const counting = isCountingUp(timer);
   const phase = timer.mode === "longBreak" ? "Long break" : timer.mode === "break" ? "Short break"
     : complete ? "Session complete" : timer.overtime ? "Overtime" : counting ? "Count up" : "Focus";
@@ -12,8 +13,7 @@ export default function SessionStrip({ timer, now, onToggle, onFocus, disabled, 
     <Button type="button" className="session-strip-time session-strip-return" onClick={onFocus} aria-label={complete ? "View result and breaks" : "Back to Focus"}>
       <strong>{phase}{timer.status === "paused" ? " · paused" : ""}</strong>
       {!complete && <span role="timer" aria-label={`${phase} ${time} ${counting ? "elapsed" : "remaining"}`}>{timer.overtime ? "+" : ""}{time}</span>}
-      <span className="session-strip-route">{complete ? "View result & breaks" : "Back to Focus"}</span>
     </Button>
-    {!complete && <SessionPause timer={timer} now={now} onToggle={onToggle} disabled={disabled} compact={compact} />}
+    {!complete && <SessionPause timer={timer} now={now} onToggle={onToggle} disabled={disabled} guidance={false} compact={compact} />}
   </section>;
 }

@@ -17,6 +17,7 @@
   },
   "scripts": {
     "start": "node scripts/dev.cjs",
+    "demo": "node scripts/demo.cjs",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "test:ci": "node scripts/check.cjs frontend",

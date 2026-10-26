@@ -61,14 +61,14 @@ test('a fully studied egg hatches into a room resident', () => {
   expect(getState().animals[1]).toMatchObject({ species: 'deer', rarity: 'dreamy', placed: true });
   expect(getState().eggs).toHaveLength(0);
   expect(getState().selectedEggId).toBeNull();
-  expect(screen.getByText('Your nest is empty :3')).toBeInTheDocument();
+  expect(screen.getByText('No eggs yet')).toBeInTheDocument();
   expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
 });
 
-test('an empty nest explains purchasing and exposes exact affordability and a focus route', () => {
+test('an empty nest keeps affordability and a focus route without tutorial copy', () => {
   const onFocus = jest.fn();
   renderPanel(ShopPanel, { ...createInitialState(NOW), gems: 15 }, { onFocus });
-  expect(screen.getByText('Your nest is empty :3')).toBeInTheDocument();
+  expect(screen.getByText('No eggs yet')).toBeInTheDocument();
   expect(screen.getByText('Need 10 more gems')).toBeInTheDocument();
   expect(screen.getByText('Need 45 more gems')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /Buy basic egg/ })).toHaveAccessibleDescription('Need 10 more gems');
@@ -95,7 +95,7 @@ test.each(['running', 'paused'])('nest distinguishes the attached egg from the n
   fireEvent.click(next.getByRole('button', { name: 'Deselect dreamy egg 2' }));
   expect(getState().selectedEggId).toBeNull();
   expect(current.getByText('Studying with you')).toBeInTheDocument();
-  expect(screen.getByText(/No egg selected for next session/)).toBeInTheDocument();
+  expect(getState().selectedEggId).toBeNull();
 });
 
 test('buying an egg after a session starts selects it for next time only', () => {
@@ -105,7 +105,7 @@ test('buying an egg after a session starts selects it for next time only', () =>
   expect(screen.getByText('Next session')).toBeInTheDocument();
   expect(screen.queryByText('Studying with you')).not.toBeInTheDocument();
   expect(getState().timer.eggId).toBeNull();
-  expect(screen.getByText('No egg is attached to this session.')).toBeInTheDocument();
+  expect(screen.queryByText('No egg is attached to this session.')).not.toBeInTheDocument();
 });
 
 test('shop explains why ongoing overtime rewards are not yet spendable', () => {
@@ -399,23 +399,22 @@ test('compact save status retains conflict recovery and its explicit reload acti
 
 test('focus end choices save the setting and keep explanations behind an info button', () => {
   const { getState } = renderPanel(SessionControls);
-  expect(screen.getByRole('radio', { name: 'Repeat alarm' })).toBeChecked();
+  expect(screen.getByRole('radio', { name: 'Start break' })).toBeChecked();
   expect(screen.queryByText(/chimes once/)).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole('radio', { name: 'Ding + count up' }));
+  fireEvent.click(screen.getByRole('radio', { name: 'Count overtime' }));
   expect(getState().settings.endBehavior).toBe('overtime');
   expect(getState().timer.endBehavior).toBe('overtime');
-  expect(screen.getByRole('radio', { name: 'Ding + count up' })).toBeChecked();
+  expect(screen.getByRole('radio', { name: 'Count overtime' })).toBeChecked();
   fireEvent.click(screen.getByRole('button', { name: 'Focus end options' }));
-  expect(screen.getByText(/Ding \+ count up chimes once/)).toBeInTheDocument();
-  expect(screen.getByText(/Applies to Pomodoro sessions/)).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('radio', { name: 'Repeat alarm' }));
+  expect(screen.getByText(/Count overtime keeps tracking/)).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('radio', { name: 'Start break' }));
   expect(getState().settings.endBehavior).toBe('remind');
 });
 
 test('changing focus end behavior only affects the next active session', () => {
   const initial = gameReducer(createInitialState(NOW), { type: 'START', now: NOW });
   const { getState } = renderPanel(SessionControls, initial);
-  fireEvent.click(screen.getByRole('radio', { name: 'Ding + count up' }));
+  fireEvent.click(screen.getByRole('radio', { name: 'Count overtime' }));
   expect(getState().settings.endBehavior).toBe('overtime');
   expect(getState().timer.endBehavior).toBe('remind');
   expect(getState().timer).toEqual(initial.timer);
@@ -431,7 +430,7 @@ test('count-up settings show only breaks and preserve Pomodoro preferences when 
   }
   const { getState } = renderPanel(SwitchableTiming);
   fireEvent.click(screen.getByRole('button', { name: /Deep work/ }));
-  fireEvent.click(screen.getByRole('radio', { name: 'Ding + count up' }));
+  fireEvent.click(screen.getByRole('radio', { name: 'Count overtime' }));
   fireEvent.click(screen.getByRole('button', { name: 'Count up', exact: true }));
   expect(screen.getByRole('heading', { name: 'Breaks' })).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: /Deep work/ })).not.toBeInTheDocument();
@@ -450,7 +449,7 @@ test('count-up settings show only breaks and preserve Pomodoro preferences when 
   fireEvent.click(screen.getByRole('button', { name: 'Pomodoro', exact: true }));
   expect(screen.getByRole('spinbutton', { name: /Focus time/ })).toHaveValue(50);
   expect(screen.getByRole('spinbutton', { name: /Short break/ })).toHaveValue(8);
-  expect(screen.getByRole('radio', { name: 'Ding + count up' })).toBeChecked();
+  expect(screen.getByRole('radio', { name: 'Count overtime' })).toBeChecked();
   expect(screen.getByRole('button', { name: /Deep work/ })).toBeInTheDocument();
 });
 

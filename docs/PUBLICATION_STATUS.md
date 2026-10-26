@@ -1,7 +1,22 @@
 # Publication status
 
-Updated October 24, 2026. This is the current publication handoff; older phase
+Updated October 26, 2026. This is the current publication handoff; older phase
 records retain their dated results.
+
+## Local interface revision, October 26
+
+The local revision starts breaks automatically after focus completes, offers
+Start new session and a cancel control, puts Daily Goal first in Journal, and
+removes repeated completion/shop/notes explanations. Detailed rules remain in
+one session info control with short paragraphs; session settings uses only an
+icon. `npm run demo` opens an isolated fictional profile with 74 sessions
+across 28 days, charts, tags, pets and eggs. Ordinary saves are separate.
+
+Local verification passed 396 frontend tests, 24 server/demo tests, the strict
+production build, and 21 Chromium/Firefox/WebKit cases. The break controls and
+populated Journal were also reviewed in Chrome. These local interface changes
+have not been published to GitHub; the hosted evidence below covers the earlier
+publication checkpoint. Hands-on release acceptance remains open.
 
 ## Prepared and verified
 

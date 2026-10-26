@@ -5,22 +5,28 @@ import { createInitialState, gameReducer } from "../../domain/game";
 const NOW = new Date(2026, 9, 2, 12).getTime();
 const actOn = (state, type, now = NOW) => gameReducer(state, { type, now });
 const renderTimer = (state, now = NOW) => render(<TimerCard state={state} now={now} act={jest.fn()} ready blocked={false}
-  onToggleTimer={jest.fn()} openPanel={jest.fn()} setFocusView={jest.fn()} tip={["Stretch", "Take a breath"]} />);
+  onToggleTimer={jest.fn()} openPanel={jest.fn()} setFocusView={jest.fn()} />);
 
 test("pause counts stay in the small Pause button and the pause clock remains live", () => {
   let state = createInitialState(NOW);
   const { rerender } = renderTimer(state);
+  const settings = screen.getByRole("button", { name: "Session settings" });
+  expect(settings).toHaveTextContent(/^$/);
+  expect(settings.querySelector(".icon-sliders")).toBeInTheDocument();
+  expect(screen.getByRole("region", { name: "Focus timer" }).querySelectorAll(".icon-info")).toHaveLength(1);
   expect(screen.queryByRole("img", { name: /pauses left/ })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Reset timer" })).not.toBeInTheDocument();
   expect(screen.queryByText("Pomodoro")).not.toBeInTheDocument();
   state = actOn(state, "START");
   rerender(<TimerCard state={state} now={NOW} act={jest.fn()} ready onToggleTimer={jest.fn()} />);
   expect(screen.getByRole("button", { name: "Pause (2/2)" })).toBeEnabled();
+  expect(screen.getByRole("region", { name: "Focus timer" }).querySelectorAll(".icon-info")).toHaveLength(1);
   expect(screen.getByRole("button", { name: "Abandon session" })).toBeEnabled();
   state = actOn(state, "PAUSE", NOW + 10000);
   rerender(<TimerCard state={state} now={NOW + 40000} act={jest.fn()} ready onToggleTimer={jest.fn()} />);
   expect(screen.getByRole("timer", { name: "00:30 pause remaining" })).toHaveTextContent("00:30");
   expect(screen.getByRole("button", { name: "Resume" })).toBeEnabled();
+  expect(screen.getByRole("region", { name: "Focus timer" }).querySelectorAll(".icon-info")).toHaveLength(1);
   state = actOn(state, "START", NOW + 40000);
   rerender(<TimerCard state={state} now={NOW + 40000} act={jest.fn()} ready onToggleTimer={jest.fn()} />);
   expect(screen.getByRole("button", { name: "Pause (1/2)" })).toBeEnabled();
@@ -37,6 +43,7 @@ test("forfeited Pomodoro rewards clearly show zero without hiding session contro
   expect(screen.queryByLabelText("Pomodoro pause allowance")).not.toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Resume" })).toHaveFocus();
   expect(screen.getByRole("button", { name: "Resume" })).toBeEnabled();
+  expect(screen.getByRole("region", { name: "Focus timer" }).querySelectorAll(".icon-info")).toHaveLength(1);
 });
 
 test("count-up sessions have no Pomodoro pause budget", () => {
@@ -72,7 +79,8 @@ test("completed sessions retain the recorded reward after preferences change", (
   expect(screen.getByLabelText("Session result")).toHaveTextContent("+2525 min");
   expect(screen.getByLabelText("25 Shilligems earned")).toBeInTheDocument();
   expect(screen.queryByText("What are you working on?")).not.toBeInTheDocument();
-  expect(screen.getByText("Session complete")).toBeInTheDocument();
+  expect(screen.queryByText("Session complete")).not.toBeInTheDocument();
+  expect(screen.getByRole("button", {name:"Reset timer"})).toBeEnabled();
 });
 
 test("a forfeited completion keeps its recorded minutes and zero reward", () => {
@@ -84,19 +92,22 @@ test("a forfeited completion keeps its recorded minutes and zero reward", () => 
   renderTimer(state, NOW + 27 * 60000);
   expect(screen.getByLabelText("0 Shilligems earned")).toBeInTheDocument();
   expect(screen.getByLabelText("Session result")).toHaveTextContent("25 min");
-  expect(screen.getByText(/25 focus min recorded.*Only this session’s gems were forfeited/)).toBeVisible();
+  expect(screen.getByLabelText("Session result")).toHaveTextContent("+025 min");
 });
 
 test('pause consequences are visible before starting and before an unrewarded third pause', () => {
   let state=createInitialState(NOW);
   const {rerender}=renderTimer(state);
-  expect(screen.getByText(/A third pause or a pause over 1 minute/)).toBeVisible();
+  expect(screen.queryByText(/Exceed either limit/)).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", {name:"Session info"}));
+  expect(screen.getByText(/Exceed either limit/)).toBeVisible();
+  expect(screen.getByRole("note", {name:"Session info"}).querySelectorAll(".info-body > p")).toHaveLength(3);
   state=actOn(state,'START');
   for(let i=0;i<2;i++) {state=actOn(state,'PAUSE',NOW+i*2000);state=actOn(state,'START',NOW+i*2000+1000);}
   const toggle=jest.fn();
   rerender(<TimerCard state={state} now={NOW+5000} ready act={jest.fn()} onToggleTimer={toggle} />);
   const pause=screen.getByRole('button',{name:'Pause · lose gems'});
-  expect(pause).toHaveAccessibleDescription(/No rewarded pauses left.*loses this session/);
+  expect(pause).toHaveTextContent("lose gems");
   fireEvent.click(pause);
   expect(toggle).toHaveBeenCalledTimes(1);
 });
@@ -109,7 +120,7 @@ test('pausing and reward loss keep the remaining focus time in view',()=>{
   state=actOn(state,'TICK',NOW+71000);
   rerender(<TimerCard state={state} now={NOW+71000} ready act={jest.fn()} onToggleTimer={jest.fn()} />);
   expect(screen.getByText('Focus remaining: 24:50')).toBeVisible();
-  expect(screen.getByText(/Focus minutes and egg progress are kept/)).toBeVisible();
+  expect(screen.getByText(/focus minutes and egg progress are kept/)).toBeVisible();
 });
 
 test('finish is visibly labeled, blocked saves disable it, and overtime has no misleading abandon action',()=>{
@@ -124,20 +135,25 @@ test('finish is visibly labeled, blocked saves disable it, and overtime has no m
   state=actOn(actOn(state,'START'),'TICK',NOW+60000);
   rerender(<TimerCard state={state} now={NOW+70000} ready act={jest.fn()} />);
   expect(screen.queryByRole('button',{name:'Abandon session'})).not.toBeInTheDocument();
-  expect(screen.getByText(/1 target gems pending/)).toBeVisible();
+  expect(screen.getByText("1 gems pending")).toBeVisible();
   state=actOn(state,'FINISH_FOCUS',NOW+70000);
   rerender(<TimerCard state={state} now={NOW+70000} ready act={jest.fn()} />);
-  expect(screen.getByText('1 target + 0 overtime = 1 total gems')).toBeVisible();
+  expect(screen.getByLabelText("Session result")).toHaveTextContent("+11 min");
 });
 
-test('recommended long breaks explain the cycle and auto-start is explicit',()=>{
-  let state=actOn(createInitialState(NOW),'START');
-  state.timer.cycle=3;
-  state=actOn(state,'TICK',NOW+25*60000);
-  const {rerender}=renderTimer(state,NOW+25*60000);
-  expect(screen.getByText('Long break recommended after 4 completed sessions.')).toBeVisible();
-  state=gameReducer(state,{type:'SET_SETTINGS',settings:{autoStartFocus:true},now:NOW+25*60000});
-  state=gameReducer(state,{type:'START_BREAK',mode:'longBreak',now:NOW+25*60000});
-  rerender(<TimerCard state={state} now={NOW+25*60000} ready act={jest.fn()} tip={['Stretch','Stretch']} />);
-  expect(screen.getByText(/next focus session starts automatically/)).toBeVisible();
+test('break controls start a new focus session or cancel without explanatory copy', () => {
+  let state = actOn(createInitialState(NOW),'START');
+  state.timer.cycle = 3;
+  state = actOn(state,'TICK',NOW+25*60000);
+  state = gameReducer(state,{type:'START_BREAK',now:NOW+25*60000});
+  const act = jest.fn();
+  render(<TimerCard state={state} now={NOW+25*60000} ready act={act} />);
+  expect(screen.getByRole('timer')).toHaveTextContent('15:00');
+  expect(screen.queryByText(/recommended/)).not.toBeInTheDocument();
+  expect(screen.queryByRole('button',{name:'Open nest'})).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button',{name:'Start new session'}));
+  expect(act.mock.calls.map(([action])=>action)).toEqual([{type:'SET_MODE',mode:'focus'},{type:'START'}]);
+  act.mockClear();
+  fireEvent.click(screen.getByRole('button',{name:'Cancel break'}));
+  expect(act).toHaveBeenCalledWith({type:'SET_MODE',mode:'focus'});
 });

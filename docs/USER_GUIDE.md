@@ -5,7 +5,7 @@ local service open while using the timer, audible reminders and saving.
 
 ## Your first session
 
-1. Choose **Countdown** or **Count up**. Open **Session settings** to choose
+1. Choose **Countdown** or **Count up**. Use the sliders icon (**Session settings**) to choose
    focus and break lengths, completion behavior and break preferences.
 2. Add optional tasks and tags beside the timer. You can edit them during focus.
 3. Select an egg in the shop if you want that egg to study with you.
@@ -13,23 +13,23 @@ local service open while using the timer, audible reminders and saving.
    and the daily goal return when you pause or leave focus.
 5. Use Pause when needed and the notes button to capture a thought without
    stopping work. Finish count-up with the checkmark. At a countdown target,
-   choose a break or finish any overtime.
+   the next break starts automatically, unless you chose to count overtime.
 
 The daily goal counts completed sessions, rather than minutes. Change it in
-Settings. Sessions shorter than one whole active minute receive no history,
+Journal. Sessions shorter than one whole active minute receive no history,
 reward or daily-goal credit.
 
 ## Timer controls and rules
 
 | Choice or control | What happens |
 | --- | --- |
-| Countdown + **Repeat alarm** | Reaching the target credits the session and repeats an alarm every eight seconds when Timer sound is enabled. Mute it or choose what to do next. |
-| Countdown + **Ding + count up** | Reaching the target credits the session, then continues into overtime. Finish or start a break to settle its additional whole minutes. |
+| Countdown + **Start break** | Reaching the target credits the session, chimes once when Timer sound is enabled, and starts the next break. |
+| Countdown + **Count overtime** | Reaching the target credits the session, then continues into overtime. Finish or start a break to settle its additional whole minutes. |
 | Count up | Starts at zero. Pause/resume excludes paused time; Finish credits the whole active minutes. |
 | Pomodoro pause | Two pauses, up to one minute each. A third pause or an overlong pause forfeits that session's Shilligems, including its overtime reward. Resume keeps remaining focus time; egg progress and Journal credit are retained. |
 | Count-up or break pause | Unrestricted pauses. |
 | Abandon | Hold for five continuous seconds to abandon unfinished countdown or count-up work. Releasing early, Escape or losing focus cancels the hold. Space or Enter can also be held. Overtime uses Finish. |
-| Short/long break | Starts when you choose it after reaching the focus target. The configured interval recommends a long break. |
+| Short/long break | Starts automatically after completing focus. The configured interval chooses a long break. **Start new session** begins focus immediately; **×** cancels the break and returns to the idle timer. |
 | **Auto-start focus** | Optionally begins the next focus session when a running break ends. Loading an already expired break leaves the next session idle. |
 
 Count-up and overtime tracking are capped at 24 hours. Rewards use whole active
@@ -38,10 +38,8 @@ that same session instead of adding another completion. While overtime is
 ongoing, the gems credited to that session remain reserved until you finish or
 start a break. Gems from earlier sessions remain available to spend.
 
-Timer sound follows its own setting. If browser playback is blocked, a
-completed Pomodoro offers **Enable alarm sound**. An open tab is needed for
-audible reminders; the app does not provide a background system notification
-service.
+Timer sound follows its own setting and the bottom-right sound controls.
+An open tab and browser audio permission are needed for audible alerts.
 
 ## Notes, tasks and the Journal
 
@@ -55,11 +53,16 @@ Other workspace controls are concealed while that sheet is open. Minimize it
 to return to the timer or Journal.
 
 Use the session checklist to track tasks and add tags such as Work or Study.
-The Journal offers **Today**, **7 days** and **30 days**, following your local
+Daily Goal is first in Journal. The Journal offers **Today**, **7 days** and **30 days**, following your local
 calendar. It shows focus time, session count, average length, active days,
 activity charts, tag totals and session history with tasks and tags. A session
 with several tags contributes its full duration to each tag, so tag totals can
 add up to more than the overall focus time.
+
+Run `npm run demo` for a separate fictional room with 28 days of sessions, tag
+totals, charts, pets and eggs. Open the printed address, normally
+`http://127.0.0.1:3002`. Each demo launch creates a temporary profile without
+reading or replacing ordinary saves.
 
 ## Eggs, pets and Shilligems
 
@@ -109,7 +112,7 @@ stay within the room when its size changes. New rooms begin with a sofa and rug.
 
 | Setting | Controls |
 | --- | --- |
-| Timer sound | Completion chimes, repeat alarms and pause-limit alerts. |
+| Timer sound | Completion chimes and pause-limit alerts. |
 | Interaction sounds and volume | Taps and other interface feedback. Preview sound plays a tap at the selected volume. |
 | Ambient mixing | Procedural background sounds and their levels, independent of interaction volume. Timer alerts take priority in the mix. |
 | Reduced motion | Quietens nonessential motion. The app also honors your operating system's reduced-motion preference. |

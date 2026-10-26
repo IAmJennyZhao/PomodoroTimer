@@ -58,7 +58,6 @@ function TagStats({ analytics }) {
     <div className="journal-section-title"><h3>Focus by tag</h3>
       <InfoTip label="About tag statistics">Each tag receives the full duration of its session. Sessions with several tags appear in each tag's total, so tag totals can overlap. Untagged sessions include earlier sessions without tags.</InfoTip>
     </div>
-    <p className="journal-explanation">A session with several tags counts toward each tag. Their totals can overlap.</p>
     {!analytics.tags.length ? <p className="journal-empty">No focus time yet.</p>
       : <ul className="journal-tag-breakdown">{analytics.tags.map((item) => <li key={item.tag ?? "__untagged"}
         aria-label={`${item.tag || "Untagged"}: ${item.minutes} focus minutes, ${item.sessions} ${item.sessions === 1 ? "session" : "sessions"}`}>
@@ -115,7 +114,7 @@ function GoalCard({ state, act, now }) {
   return (
     <section className={`journal-card journal-goal ${stats.progress >= 1 ? "complete" : ""}`}>
       <div className="journal-section-title">
-        <h3>Today's goal</h3>
+        <h3>Daily goal</h3>
         <InfoTip label="About daily goal">Your target for completed focus sessions each day. Change it anytime.</InfoTip>
       </div>
       <strong className="journal-goal-count">{stats.sessions} <span>/ {stats.goal}</span></strong>
@@ -152,8 +151,7 @@ export default function JournalPanel({ state, act, saveStatus, now = Date.now() 
             <label htmlFor="distraction-notes">Scratchpad text</label>
             <InfoTip label="About scratchpad">A place for distractions, reminders, and ideas. Saved on this computer.</InfoTip>
           </div>
-          <p className="scratchpad-shared-hint" id="journal-notes-help">This is the same saved note as the floating Scratchpad.</p>
-          <textarea id="distraction-notes" aria-describedby="journal-notes-help" rows={12} maxLength={10000} placeholder="Save a thought for later…" value={state.scratchpad} onChange={(event) => act({ type: "SET_SCRATCHPAD", text: event.target.value })} />
+          <textarea id="distraction-notes" rows={12} maxLength={10000} placeholder="Save a thought for later…" value={state.scratchpad} onChange={(event) => act({ type: "SET_SCRATCHPAD", text: event.target.value })} />
           <div className="journal-note-footer"><ScratchpadStatus status={saveStatus} /><span className="journal-note-count">{state.scratchpad.length.toLocaleString()} / 10,000</span></div>
         </section>
       ) : tab === "history" ? (
@@ -164,6 +162,7 @@ export default function JournalPanel({ state, act, saveStatus, now = Date.now() 
         </section>
       ) : (
         <>
+          <GoalCard state={state} act={act} now={now} />
           <dl className="journal-metrics" aria-label="Focus summary">
             {[
               ["Focus time", formatFocusTime(analytics.minutes)],
@@ -172,7 +171,7 @@ export default function JournalPanel({ state, act, saveStatus, now = Date.now() 
               ["Active days", `${analytics.activeDays} / ${analytics.rangeDays}`],
             ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
           </dl>
-          <div className="journal-visuals"><ActivityChart analytics={analytics} /><GoalCard state={state} act={act} now={now} /></div>
+          <div className="journal-visuals"><ActivityChart analytics={analytics} /></div>
           <div className="journal-bottom">
           <TagStats analytics={analytics} />
           <section className="journal-card journal-recent">

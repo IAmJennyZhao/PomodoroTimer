@@ -30,7 +30,7 @@ export default function SessionPause({ timer, now, onToggle, disabled, buttonRef
   const guidanceId = descriptionId || localId;
   return <div className="session-pause">
     <Button ref={buttonRef} type="button" className={`pause-button ${timer.status === "paused" ? "resume-button" : ""}`}
-      disabled={disabled} aria-describedby={timer.mode === "focus" && timer.workMode === "pomodoro" ? guidanceId : undefined}
+      disabled={disabled} aria-describedby={(guidance || descriptionId) && timer.mode === "focus" && timer.workMode === "pomodoro" ? guidanceId : undefined}
       onClick={onToggle}>{pauseLabel(timer)}</Button>
     {guidance && <PauseGuidance timer={timer} now={now} id={guidanceId} compact={compact} />}
   </div>;

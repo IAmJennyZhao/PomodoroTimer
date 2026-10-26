@@ -12,11 +12,24 @@ test('a count-up session starts, pauses, resumes and finishes through the real s
   await timer.getByRole('button', { name: 'Resume', exact: true }).click();
   await expect.poll(async () => (await savedState(room)).timer.status).toBe('running');
   await timer.getByRole('button', { name: 'Finish session', exact: true }).click();
-  await expect.poll(async () => (await savedState(room)).timer.status).toBe('complete');
+  await expect(timer).toHaveAttribute('data-timer-state', 'break-running');
+  await expect.poll(async () => (await savedState(room)).timer.mode).toBe('break');
+  await expect(timer.getByRole('button', {name:'Start new session'})).toBeEnabled();
   // A session under a minute earns no focus reward or journal minute.
   const saved = await savedState(room);
   expect(saved.history).toHaveLength(8);
   expect(saved.gems).toBe(200);
+  const cancel = timer.getByRole('button', {name:'Cancel break'});
+  const target = await cancel.boundingBox();
+  expect(target.width).toBeGreaterThanOrEqual(44);
+  expect(target.height).toBeGreaterThanOrEqual(44);
+  await timer.getByRole('button', {name:'Start new session'}).click();
+  await expect(timer).toHaveAttribute('data-timer-state', 'focus-running');
+  await timer.getByRole('button', {name:'Finish session'}).click();
+  await expect(timer).toHaveAttribute('data-timer-state', 'break-running');
+  await cancel.click();
+  await expect(timer).toHaveAttribute('data-timer-state', 'focus-idle');
+  expect((await savedState(room)).history).toHaveLength(8);
 });
 
 test('notes survive saving, service restart and reload; real build art loads', async ({ page, room }) => {
@@ -73,11 +86,23 @@ test('narrow shop keeps readable purchase labels and persists an egg purchase (F
   await expect.poll(async () => (await savedState(room)).eggs.length).toBe(before.eggs.length + 1);
   expect((await savedState(room)).gems).toBe(before.gems - 25);
   await page.getByRole('dialog', { name: 'Egg shop', exact: true }).getByRole('button', { name: 'Close panel', exact: true }).click();
-  const nest = page.getByRole('button', { name: 'Open nest', exact: true });
-  await expect(nest).toBeVisible();
-  const target = await nest.boundingBox();
-  expect(Math.round(target.width * 100) / 100).toBeGreaterThanOrEqual(44);
-  expect(Math.round(target.height * 100) / 100).toBeGreaterThanOrEqual(44);
+  await expect(page.getByRole('button', { name: 'Open nest', exact: true })).toHaveCount(0);
+  await expect(page.getByText('Next session:')).toHaveCount(0);
+});
+
+test('Journal starts with Daily goal and keeps the overview free of repeated explanations', async ({page}) => {
+  await page.getByRole('button',{name:'Journal',exact:true}).click();
+  const journal = page.getByRole('dialog',{name:'Journal',exact:true});
+  await expect(journal.locator('.journal-card').first().getByRole('heading',{name:'Daily goal'})).toBeVisible();
+  await journal.getByRole('button',{name:'30 days',exact:true}).click();
+  await expect(journal.getByRole('list',{name:'Daily focus, focus minutes'}).getByRole('listitem')).toHaveCount(30);
+  await expect(journal.locator('.journal-explanation')).toHaveCount(0);
+  await page.setViewportSize({width:390,height:844});
+  const goal = journal.locator('.journal-goal');
+  await expect(goal.getByRole('button',{name:'Increase daily goal'})).toBeVisible();
+  const bounds = await goal.boundingBox();
+  expect(bounds.x).toBeGreaterThanOrEqual(0);
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(390);
 });
 
 test.describe('active focus', () => {
@@ -90,7 +115,7 @@ test.describe('active focus', () => {
     await expect(finish).toBeInViewport({ ratio: 1 });
     await page.getByRole('textbox', { name: 'Scratchpad text' }).fill('Fictional overtime note');
     await finish.click();
-    await expect.poll(async () => (await savedState(room)).timer.status).toBe('complete');
+    await expect.poll(async () => (await savedState(room)).timer.mode).toBe('break');
     const saved = await savedState(room);
     expect(saved.history).toHaveLength(1);
     expect(saved.scratchpad).toBe('Fictional overtime note');

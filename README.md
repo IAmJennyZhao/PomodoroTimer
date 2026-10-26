@@ -46,6 +46,11 @@ npm ci
 npm start
 ```
 
+To explore with fictional sessions, Journal charts and a populated collection,
+run `npm run demo` and open the printed address, usually
+**http://127.0.0.1:3002**. Demo progress uses its own temporary profile; your
+ordinary saves are not changed. Each new demo launch starts with fresh sample data.
+
 Open the **Little Room app** address printed in the terminal, usually
 **http://127.0.0.1:3000**. This starts the browser app and save service together.
 Development startup advances past occupied ports. Keep the terminal open;

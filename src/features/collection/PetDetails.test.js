@@ -84,7 +84,7 @@ test('reduced motion acknowledges the exact unlocked selection without moving or
   const { update, portrait } = setup(6);
   update({ reduced: true });
   fireEvent.click(screen.getByRole('button', { name: 'Preview Celebrate animation, paw 7' }));
-  expect(screen.getByRole('status')).toHaveTextContent('Celebrate selected · motion reduced.');
+  expect(screen.getByRole('status')).toHaveTextContent('Celebrate · reduced motion');
   expect(portrait()).toHaveAttribute('data-preview-motion', 'celebrate');
   expect(portrait()).not.toHaveClass('pet-animation-preview');
   update({ reduced: false });

@@ -48,37 +48,6 @@ import useScratchpadLayout from "./features/journal/useScratchpadLayout";
 
 const compactCount = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
 
-const BREAK_IDEAS = [
-  [
-    "Stretch",
-    "Relax your shoulders and stretch your hands.",
-  ],
-  [
-    "Rest your eyes",
-    "Look out the window for a moment.",
-  ],
-  [
-    "Water break",
-    "Refill your water and step away from your desk.",
-  ],
-  [
-    "Find five colors",
-    "Look around and find five things in your favorite color.",
-  ],
-  [
-    "Doodle",
-    "Sketch something nearby.",
-  ],
-  [
-    "Breathe",
-    "Breathe comfortably and slowly. Let your shoulders settle.",
-  ],
-  [
-    "Take a walk",
-    "Stand up and walk around for a minute.",
-  ],
-];
-
 export default function App() {
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(64);
@@ -111,8 +80,6 @@ export default function App() {
   const [focusView, setFocusView] = useState(false);
   const quietFocus = focusView && state.timer.mode === "focus" && state.timer.status === "running";
   const focusedSession = useRef(null);
-  const [silencedAlarm, setSilencedAlarm] = useState(null);
-  const [alarmBlocked, setAlarmBlocked] = useState(false);
   const [selectedAnimal, setSelectedAnimal] = useState("starter-cat");
   const [accessoryShopPetId, setAccessoryShopPetId] = useState(null);
   const [selection, setSelection] = useState(null);
@@ -131,7 +98,6 @@ export default function App() {
     if (!arranging || (pendingFurniture && selection?.id !== pendingFurniture.id)) setPendingFurniture(null);
   }, [arranging, selection, pendingFurniture]);
   const cancellationId = useRef(0);
-  const [tip, setTip] = useState(0);
   const [toast, setToast] = useState(null);
   const [toastPaused, setToastPaused] = useState(null);
   const noticeId = useRef(0);
@@ -221,7 +187,7 @@ export default function App() {
   const displayTime = counting ? Math.max(0, elapsed - (state.timer.overtime ? state.timer.durationMs : 0)) : remaining;
   const sidePanel = ["settings", "session", "sound"].includes(panel);
   const widePanel = Boolean(panel) && !sidePanel && !arranging;
-  const showSessionStrip = ready && !focusView && Boolean(panel) && state.timer.status !== "idle" && !(notesOpen && notesLayout.layout === "sheet");
+  const showSessionStrip = ready && !focusView && Boolean(panel) && ["running", "paused"].includes(state.timer.status) && !(notesOpen && notesLayout.layout === "sheet");
   useEffect(() => {
     if (!ready) return;
     if (state.timer.mode === "focus" && state.timer.status === "running") {
@@ -234,34 +200,18 @@ export default function App() {
       setFocusView(false);
     }
   }, [ready, state.timer.id, state.timer.status, state.timer.mode]);
-  const shouldAlarm = ready && status !== "conflict" && state.timer.mode === "focus" &&
-    state.timer.status === "complete" && state.timer.workMode === "pomodoro" &&
-    state.timer.endBehavior === "remind" && state.settings.soundEnabled && silencedAlarm !== state.timer.id;
   useEffect(() => {
-    let cancelled = false;
-    setAlarmBlocked(false);
-    const tryAlarm = () => {
-      Promise.resolve(engine.current?.startAlarm()).then((started) => {
-        if (!cancelled) setAlarmBlocked(!started);
-      }).catch(() => { if (!cancelled) setAlarmBlocked(true); });
-    };
-    const onVisible = () => { if (document.visibilityState === "visible") tryAlarm(); };
-    if (shouldAlarm) {
-      tryAlarm();
-      document.addEventListener("visibilitychange", onVisible);
-    } else engine.current?.stopAlarm();
-    return () => {
-      cancelled = true;
-      document.removeEventListener("visibilitychange", onVisible);
-      engine.current?.stopAlarm();
-    };
-  }, [shouldAlarm, state.timer.id]);
+    // Settle rewards in the reducer, then start a break only while the app is open.
+    if (ready && status !== "conflict" && state.timer.mode === "focus" && state.timer.status === "complete") {
+      dispatch({ type: "START_BREAK", now: Date.now() });
+    }
+  }, [ready, status, state.timer.id, state.timer.mode, state.timer.status, dispatch]);
   useEffect(() => {
-    document.title =
+    document.title = (process.env.REACT_APP_DEMO === "true" ? "Demo · " : "") + (
       state.timer.status === "running"
         ? `${state.timer.overtime ? "+" : ""}${counting ? formatElapsedTime(displayTime) : formatTime(displayTime)} · ${state.timer.mode === "focus" ? state.timer.overtime ? "Overtime" : state.timer.workMode === "countup" ? "Count up" : "Focus" : "Break"} — Little Room`
         : state.timer.status === "paused" && state.timer.rewardForfeited ? `${state.timer.pauseCount > MAX_PAUSES ? "Pause limit reached" : "Pause ended"} · Little Room`
-        : state.timer.status === "complete" ? "Time for a break · Little Room" : "Little Room · Focus";
+        : state.timer.status === "complete" ? "Time for a break · Little Room" : "Little Room · Focus");
   }, [displayTime, counting, state.timer.status, state.timer.mode, state.timer.overtime, state.timer.workMode, state.timer.rewardForfeited, state.timer.pauseCount]);
   useLayoutEffect(() => {
     const event = state.event;
@@ -288,10 +238,9 @@ export default function App() {
       // timer alerts may use the softer outcome check, never both.
       const manualFinish = event.type === "focus-finished" || state.timer.workMode === "countup";
       if (event.gems > 0 && (manualFinish || !state.settings.soundEnabled)) playControlFeedback("check");
-      notify(goalComplete ? `Daily goal complete! ${event.message}` : event.message, "success");
-      setTip(Math.floor(Math.random() * BREAK_IDEAS.length));
+      notify(goalComplete ? "Daily goal reached" : event.gems > 0 ? `+${event.gems} gems` : null, "success", !panel);
       if (state.timer.overtime && state.timer.status !== "complete") notify("Target reached · counting up");
-      if (event.type === "focus-complete" && !manualFinish && state.settings.soundEnabled && !(state.timer.status === "complete" && state.timer.workMode === "pomodoro" && state.timer.endBehavior === "remind")) engine.current?.chime();
+      if (event.type === "focus-complete" && !manualFinish && state.settings.soundEnabled) engine.current?.chime();
     } else if (event.type === "reward-forfeited") {
       notify(null);
       setFocusView(false);
@@ -312,7 +261,7 @@ export default function App() {
       if (event.type === "break-complete" && state.settings.soundEnabled)
         engine.current?.chime();
     }
-  }, [state, notify, showOutcome, playControlFeedback]);
+  }, [state, panel, notify, showOutcome, playControlFeedback]);
   useEffect(() => {
     if (quietFocus) setToast(previous => previous?.tone === "warning" ? previous : null);
   }, [quietFocus]);
@@ -557,15 +506,8 @@ export default function App() {
         onSelect={setSelection} onDeselect={() => setSelection(null)} onMove={position => act({ type: "MOVE_WIDGET", id: "timer", ...position })} concealed={widePanel || compactNotesArrange}>
         <TimerCard cardRef={cardRef} state={state} act={act} now={now} ready={ready} blocked={status === "conflict"} arranging={arranging}
           onToggleTimer={timerAction} panel={panel} openPanel={openPanel} notesOpen={notesOpen}
-          openNest={() => { setShopStartAtNest(true); setPanel("shop"); setArranging(false); setFocusView(false); }}
           focusView={focusView} setFocusView={setFocusView}
-          alarmSilenced={silencedAlarm === state.timer.id}
-          silenceAlarm={() => { engine.current?.stopAlarm(); setSilencedAlarm(state.timer.id); }}
-          alarmBlocked={alarmBlocked} retryAlarm={async () => {
-            await engine.current?.unlock();
-            setAlarmBlocked(!(await engine.current?.startAlarm()));
-          }}
-          tip={BREAK_IDEAS[tip]} nextTip={() => setTip((previous) => (previous + 1 + Math.floor(Math.random() * (BREAK_IDEAS.length - 1))) % BREAK_IDEAS.length)} />
+          />
       </RoomWidget>}</TimerTransition>
       <RoomWidget id="goal" name="daily goal" className="daily-goal-note" position={state.room.widgets?.goal}
         arranging={arranging} selected={arranging && selection?.type === "widget" && selection.id === "goal"}
